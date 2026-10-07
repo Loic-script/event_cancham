@@ -43,9 +43,7 @@ export function MyChallenges() {
               href={`/defis/${c.slug}`}
               className="flex items-center gap-3 rounded-xl border border-line p-2.5 transition-colors hover:bg-paper focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-palm"
             >
-              <span className={`${styles.art} ${styles[c.theme]} grid h-11 w-11 shrink-0 place-items-center rounded-xl font-display text-[1.1rem] italic text-white`} style={{ position: "relative", inset: "auto" }}>
-                {c.number}
-              </span>
+              <span className={`${styles.miniCover} ${styles[c.theme]} h-11 w-11 text-[1.1rem]`}>{c.number}</span>
               <span className="min-w-0 flex-1">
                 <span className="block truncate text-[14px] font-semibold text-graphite">{c.title}</span>
                 <span className="block truncate text-[12.5px] text-graphite-muted">

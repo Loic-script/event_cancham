@@ -102,12 +102,7 @@ export default function HomePage() {
       text: challengeStatus(third).label,
       visual: (
         <span className="relative inline-block">
-          <span
-            className={`${chStyles.art} ${chStyles[third.theme]} grid h-12 w-12 place-items-center rounded-xl font-display text-[1.35rem] italic text-white`}
-            style={{ position: "relative", inset: "auto" }}
-          >
-            {third.number}
-          </span>
+          <span className={`${chStyles.miniCover} ${chStyles[third.theme]} h-12 w-12 text-[1.35rem]`}>{third.number}</span>
           <span className="absolute -bottom-1.5 -right-1.5 grid h-5 w-5 place-items-center rounded-full bg-elevated text-graphite-muted ring-1 ring-line">
             <LockIcon width={11} height={11} />
           </span>

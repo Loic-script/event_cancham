@@ -31,6 +31,21 @@
   background: radial-gradient(40% 45% at 78% 22%, rgba(255, 255, 255, 0.22), transparent 70%);
 }
 
+/* vignette carrée d'un défi (listes, raccourcis) */
+.miniCover {
+  position: relative;
+  z-index: 0;
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+  border-radius: 12px;
+  background: var(--cover);
+  color: #fff;
+  font-family: var(--font-fraunces), serif;
+  font-style: italic;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.25), 0 8px 18px -10px rgba(0, 0, 0, 0.7);
+}
+
 .leaf { --cover: linear-gradient(150deg, #5a0810 0%, #b5121f 55%, #e2566a 125%); }
 .navy { --cover: linear-gradient(150deg, #0b152e 0%, #16305f 55%, #3a63b0 125%); }
 .palm { --cover: linear-gradient(150deg, #04281a 0%, #0b6b3f 55%, #35a775 125%); }
