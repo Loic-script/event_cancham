@@ -2,24 +2,16 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import type { ReactNode } from "react";
 import { Avatar } from "@/components/app/Avatar";
-import {
-  CalendarIcon,
-  ChevronRightIcon,
-  LockIcon,
-  MapPinIcon,
-  MessageCircleIcon,
-  QrIcon,
-  UsersIcon,
-  type IconProps,
-} from "@/components/app/icons";
+import { CalendarIcon, ChevronRightIcon, LockIcon, MapPinIcon, QrIcon, UsersIcon } from "@/components/app/icons";
 import { FollowUs, NewMembers } from "@/components/app/RightPanel";
 import styles from "@/components/app/app.module.css";
 import { ChallengeCover } from "@/components/challenges/ChallengeCover";
 import { StatusChip } from "@/components/challenges/StatusChip";
 import chStyles from "@/components/challenges/challenges.module.css";
+import { QrCode } from "@/components/ticket/QrCode";
 import { daysUntil, relativeFromMinutes } from "@/lib/format";
 import { challenges, challengeStatus } from "@/lib/mock/challenges";
-import { currentUser, event, fullName, personById, posts, unreadTotal } from "@/lib/mock/data";
+import { conversations, currentUser, event, fullName, participants, personById, posts, unreadTotal } from "@/lib/mock/data";
 
 export const metadata: Metadata = { title: "Accueil" };
 
@@ -41,10 +33,11 @@ function Section({ title, href, linkLabel, children, index }: { title: string; h
   );
 }
 
-const TONES = {
-  leaf: "bg-leaf-soft text-leaf-ink",
-  palm: "bg-palm-soft text-palm-ink",
-  gold: "bg-gold-soft text-gold",
+// Halo coloré dans l'angle des cartes « Populaire en ce moment ».
+const GLOW = {
+  leaf: "rgba(214, 47, 58, 0.38)",
+  palm: "rgba(15, 138, 75, 0.38)",
+  gold: "rgba(227, 184, 90, 0.3)",
 } as const;
 
 export default function HomePage() {
@@ -56,11 +49,71 @@ export default function HomePage() {
   const featured = challenges.slice(0, 2);
   const third = challenges[2];
 
-  const popular: { href: string; icon: (p: IconProps) => React.JSX.Element; title: string; text: string; tone: keyof typeof TONES; badge?: number }[] = [
-    { href: "/billet", icon: QrIcon, title: "Mon billet", text: `Table ${currentUser.ticket.table} · entrée gala`, tone: "leaf" },
-    { href: "/communaute", icon: UsersIcon, title: "Fil de communauté", text: `${posts.length} publications ce soir`, tone: "palm" },
-    { href: "/messages", icon: MessageCircleIcon, title: "Messages", text: unread > 0 ? `${unread} non lus` : "Tout est lu", tone: "gold", badge: unread },
-    { href: `/defis/${third.slug}`, icon: LockIcon, title: third.title, text: challengeStatus(third).label, tone: "palm" },
+  // Visuels contextuels plutôt que des icônes : le vrai QR code, les
+  // participants en ligne, le dernier interlocuteur, la couverture du défi.
+  const online = participants.filter((p) => p.online);
+  const latestConversation = [...conversations].sort(
+    (a, b) => a.messages[a.messages.length - 1].minutesAgo - b.messages[b.messages.length - 1].minutesAgo,
+  )[0];
+  const popular: { href: string; visual: ReactNode; title: string; text: string; tone: keyof typeof GLOW }[] = [
+    {
+      href: "/billet",
+      tone: "leaf",
+      title: "Mon billet",
+      text: `Table ${currentUser.ticket.table} · entrée gala`,
+      visual: (
+        <span className="grid h-12 w-12 place-items-center rounded-xl bg-white shadow-[0_8px_20px_-8px_rgba(255,255,255,0.5)]">
+          <QrCode value={currentUser.ticket.code} size={40} className="block h-10 w-10" />
+        </span>
+      ),
+    },
+    {
+      href: "/communaute",
+      tone: "palm",
+      title: "Fil de communauté",
+      text: `${online.length} en ligne · ${posts.length} publications`,
+      visual: (
+        <span className="flex h-12 items-center -space-x-2.5">
+          {online.slice(0, 3).map((p) => (
+            <Avatar key={p.id} person={p} size={34} className="ring-2 ring-elevated" />
+          ))}
+          <span className="grid h-[34px] w-[34px] place-items-center rounded-full bg-palm-soft text-[11px] font-bold text-palm-ink ring-2 ring-elevated">
+            +{Math.max(0, online.length - 3)}
+          </span>
+        </span>
+      ),
+    },
+    {
+      href: `/messages/${latestConversation.id}`,
+      tone: "gold",
+      title: "Messages",
+      text: unread > 0 ? `${unread} non lus · ${personById(latestConversation.participantId).firstName}` : "Tout est lu",
+      visual: (
+        <span className="relative inline-grid h-12 w-12 place-items-center">
+          <Avatar person={personById(latestConversation.participantId)} size={44} presence />
+          {unread > 0 ? <span className="absolute -right-1 -top-1 rounded-full bg-leaf px-1.5 text-[10px] font-bold text-white ring-2 ring-elevated">{unread}</span> : null}
+        </span>
+      ),
+    },
+    {
+      href: `/defis/${third.slug}`,
+      tone: "palm",
+      title: third.title,
+      text: challengeStatus(third).label,
+      visual: (
+        <span className="relative inline-block">
+          <span
+            className={`${chStyles.art} ${chStyles[third.theme]} grid h-12 w-12 place-items-center rounded-xl font-display text-[1.35rem] italic text-white`}
+            style={{ position: "relative", inset: "auto" }}
+          >
+            {third.number}
+          </span>
+          <span className="absolute -bottom-1.5 -right-1.5 grid h-5 w-5 place-items-center rounded-full bg-elevated text-graphite-muted ring-1 ring-line">
+            <LockIcon width={11} height={11} />
+          </span>
+        </span>
+      ),
+    },
   ];
 
   return (
@@ -136,12 +189,10 @@ export default function HomePage() {
       <Section title="Populaire en ce moment" href="/communaute" linkLabel="Voir tout" index={2}>
         <div className={styles.popular}>
           {popular.map((item) => (
-            <Link key={item.href} href={item.href} className={`${styles.card} ${styles.pressable} flex w-[196px] flex-col gap-3 p-4 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-palm-ink lg:w-auto`}>
-              <span className={`relative grid h-11 w-11 place-items-center rounded-xl ${TONES[item.tone]}`}>
-                <item.icon width={21} height={21} />
-                {item.badge ? <span className="absolute -right-1.5 -top-1.5 rounded-full bg-leaf px-1.5 text-[10px] font-bold text-white ring-2 ring-page-bg">{item.badge}</span> : null}
-              </span>
-              <span>
+            <Link key={item.href} href={item.href} className={`${styles.card} ${styles.pressable} flex w-[196px] flex-col gap-3 overflow-hidden p-4 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-palm-ink lg:w-auto`}>
+              <span aria-hidden className="pointer-events-none absolute -right-10 -top-10 h-28 w-28 rounded-full blur-2xl" style={{ background: GLOW[item.tone] }} />
+              <span className="relative">{item.visual}</span>
+              <span className="relative">
                 <span className="block truncate text-[14.5px] font-semibold text-graphite">{item.title}</span>
                 <span className="block truncate text-[12.5px] text-graphite-muted">{item.text}</span>
               </span>

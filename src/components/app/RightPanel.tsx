@@ -3,7 +3,8 @@ import { relativeFromMinutes } from "@/lib/format";
 import { challenges } from "@/lib/mock/challenges";
 import { currentUser, fullName, participants, posts } from "@/lib/mock/data";
 import { Avatar } from "./Avatar";
-import { ChevronRightIcon, FacebookIcon, InstagramIcon, LinkedinIcon, QrIcon } from "./icons";
+import { FacebookLogo, InstagramLogo, LinkedinLogo } from "./BrandLogos";
+import { ChevronRightIcon, QrIcon } from "./icons";
 import styles from "./app.module.css";
 
 // Derniers inscrits (données de démonstration : minutes depuis l'arrivée).
@@ -15,9 +16,9 @@ const NEW_MEMBERS: { id: string; minutesAgo: number }[] = [
 ];
 
 const SOCIAL = [
-  { label: "Facebook", handle: "@canchammadagascar", href: "https://www.facebook.com/canchammadagascar", icon: FacebookIcon },
-  { label: "Instagram", handle: "@cancham.mg", href: "https://www.instagram.com/cancham.mg", icon: InstagramIcon },
-  { label: "LinkedIn", handle: "CanCham Madagascar", href: "https://www.linkedin.com/company/cancham-madagascar", icon: LinkedinIcon },
+  { label: "Facebook", handle: "@canchammadagascar", href: "https://www.facebook.com/canchammadagascar", logo: FacebookLogo },
+  { label: "Instagram", handle: "@cancham.mg", href: "https://www.instagram.com/cancham.mg", logo: InstagramLogo },
+  { label: "LinkedIn", handle: "CanCham Madagascar", href: "https://www.linkedin.com/company/cancham-madagascar", logo: LinkedinLogo },
 ];
 
 /** Carte de profil : avatar hexagonal, nom, identifiant, chiffres clés. */
@@ -96,9 +97,7 @@ export function FollowUs() {
               rel="noreferrer"
               className={`${styles.card} ${styles.pressable} flex items-center gap-3 px-3 py-2.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-palm-ink`}
             >
-              <span className="grid h-9 w-9 shrink-0 place-items-center rounded-xl bg-leaf-soft text-leaf-ink">
-                <s.icon width={18} height={18} />
-              </span>
+              <s.logo size={38} className="shrink-0 drop-shadow-[0_6px_14px_rgba(0,0,0,0.45)]" />
               <span className="min-w-0 flex-1">
                 <span className="block text-[13.5px] font-semibold text-graphite">{s.label}</span>
                 <span className="block truncate text-[11.5px] text-graphite-faint">{s.handle}</span>

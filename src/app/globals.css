@@ -40,10 +40,10 @@
 
 /* Theme sombre de l espace participant (fonds noirs, verre depoli) */
 .theme-dark {
-  --page-bg: #070a08;
-  --paper: #0b0f0c;
+  --page-bg: #0f1d2c;
+  --paper: #14263a;
   --surface: rgba(255, 255, 255, 0.055);
-  --elevated: #141a16;
+  --elevated: #1a2f47;
   --line: rgba(255, 255, 255, 0.1);
   --graphite: #f3f5f1;
   --graphite-muted: #a7b1aa;
@@ -129,4 +129,33 @@ body {
   background: var(--background);
   color: var(--foreground);
   font-family: var(--font-geist-sans), system-ui, sans-serif;
+}
+
+/* Barres de defilement aux couleurs de la palette (page et panneaux) */
+html {
+  scrollbar-color: #0f8a4b #0f1d2c;
+  scrollbar-width: thin;
+}
+
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+::-webkit-scrollbar-track {
+  background: #0f1d2c;
+}
+
+::-webkit-scrollbar-thumb {
+  border-radius: 999px;
+  border: 2px solid #0f1d2c;
+  background: linear-gradient(180deg, #d62f3a 0%, #0f8a4b 100%);
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(180deg, #ff6b74 0%, #4fd08a 100%);
+}
+
+::-webkit-scrollbar-corner {
+  background: #0f1d2c;
 }
