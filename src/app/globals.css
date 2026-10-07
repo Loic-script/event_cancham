@@ -134,7 +134,7 @@ body {
 
 /* Barres de defilement aux couleurs de la palette (page et panneaux) */
 html {
-  scrollbar-color: #0f8a4b #eef1f5;
+  scrollbar-color: rgba(15, 29, 44, 0.28) #f3f5f8;
   scrollbar-width: thin;
 }
 
@@ -144,19 +144,19 @@ html {
 }
 
 ::-webkit-scrollbar-track {
-  background: #eef1f5;
+  background: #f3f5f8;
 }
 
 ::-webkit-scrollbar-thumb {
   border-radius: 999px;
-  border: 2px solid #eef1f5;
-  background: linear-gradient(180deg, #d62f3a 0%, #0f8a4b 100%);
+  border: 2px solid #f3f5f8;
+  background: rgba(15, 29, 44, 0.28);
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: linear-gradient(180deg, #b8222c 0%, #0a6236 100%);
+  background: rgba(15, 29, 44, 0.48);
 }
 
 ::-webkit-scrollbar-corner {
-  background: #eef1f5;
+  background: #f3f5f8;
 }
