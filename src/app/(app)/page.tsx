@@ -2,16 +2,17 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import type { ReactNode } from "react";
 import { Avatar } from "@/components/app/Avatar";
-import { CalendarIcon, ChevronRightIcon, LockIcon, MapPinIcon, QrIcon, UsersIcon } from "@/components/app/icons";
+import { CalendarIcon, ChevronRightIcon, LockIcon, MapPinIcon, QrIcon } from "@/components/app/icons";
 import { FollowUs, NewMembers } from "@/components/app/RightPanel";
 import styles from "@/components/app/app.module.css";
-import { ChallengeCover } from "@/components/challenges/ChallengeCover";
-import { StatusChip } from "@/components/challenges/StatusChip";
 import chStyles from "@/components/challenges/challenges.module.css";
+import { StoriesRail } from "@/components/stories/StoriesRail";
+import type { StoryView } from "@/components/stories/types";
 import { QrCode } from "@/components/ticket/QrCode";
 import { daysUntil, relativeFromMinutes } from "@/lib/format";
-import { challenges, challengeStatus } from "@/lib/mock/challenges";
+import { challengeBySlug, challenges, challengeStatus } from "@/lib/mock/challenges";
 import { conversations, currentUser, event, fullName, participants, personById, posts, unreadTotal } from "@/lib/mock/data";
+import { stories } from "@/lib/mock/stories";
 
 export const metadata: Metadata = { title: "Accueil" };
 
@@ -46,8 +47,21 @@ export default function HomePage() {
   const days = daysUntil(event.date);
   const unread = unreadTotal();
   const latest = posts.slice(0, 3).map((p) => ({ ...p, author: personById(p.authorId), when: relativeFromMinutes(p.minutesAgo) }));
-  const featured = challenges.slice(0, 2);
   const third = challenges[2];
+
+  const storyViews: StoryView[] = stories.map((s) => {
+    const author = personById(s.authorId);
+    const c = challengeBySlug(s.challenge)!;
+    return {
+      id: s.id,
+      author: { firstName: author.firstName, lastName: author.lastName, hue: author.hue, online: author.online },
+      authorName: fullName(author),
+      challenge: { slug: c.slug, number: c.number, title: c.title, theme: c.theme },
+      when: relativeFromMinutes(s.minutesAgo),
+      caption: s.caption,
+      image: s.image,
+    };
+  });
 
   // Visuels contextuels plutôt que des icônes : le vrai QR code, les
   // participants en ligne, le dernier interlocuteur, la couverture du défi.
@@ -152,32 +166,9 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* ---------- à la une ---------- */}
-      <Section title="À la une" href="/defis" linkLabel="Tous les défis" index={1}>
-        <div className="grid gap-4 sm:grid-cols-2">
-          {featured.map((c) => (
-            <Link key={c.slug} href={`/defis/${c.slug}`} className={chStyles.card} aria-label={`Défi ${c.number} : ${c.title}`}>
-              <ChallengeCover challenge={c}>
-                <div className="absolute right-3 top-3">
-                  <StatusChip status={challengeStatus(c)} />
-                </div>
-                <div className="absolute inset-x-0 bottom-0 p-4">
-                  <p className="font-mono text-[10.5px] uppercase tracking-[0.18em] text-white/80">Défi {c.number} · {c.phase}</p>
-                  <h3 className="mt-1 line-clamp-2 font-display text-[1.45rem] leading-[1.05] text-white">{c.title}</h3>
-                </div>
-              </ChallengeCover>
-              <div className="p-4">
-                <p className="text-[13.5px] leading-5 text-graphite-muted">{c.summary}</p>
-                <p className="mt-2 flex items-center justify-between text-[12.5px]">
-                  <span className="font-semibold text-palm-ink">{c.prize}</span>
-                  {c.participants > 0 ? (
-                    <span className="inline-flex items-center gap-1 text-graphite-faint"><UsersIcon width={13} height={13} />{c.participants} participations</span>
-                  ) : null}
-                </p>
-              </div>
-            </Link>
-          ))}
-        </div>
+      {/* ---------- stories des défis ---------- */}
+      <Section title="Stories des défis" href="/defis" linkLabel="Tous les défis" index={1}>
+        <StoriesRail stories={storyViews} me={{ firstName: currentUser.firstName, lastName: currentUser.lastName, hue: currentUser.hue }} />
       </Section>
 
       {/* ---------- populaire en ce moment ---------- */}
