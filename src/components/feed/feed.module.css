@@ -1,0 +1,96 @@
+/* ---------- fil de communauté ---------- */
+
+.tabs {
+  position: relative;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  border-bottom: 1px solid var(--line);
+}
+
+.tab {
+  padding: 12px 0 14px;
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--graphite-faint);
+  cursor: pointer;
+  transition: color 0.2s ease;
+}
+
+.tab:hover {
+  color: var(--graphite-muted);
+}
+
+.tabActive {
+  color: var(--palm-ink);
+}
+
+.tab:focus-visible {
+  outline: 2px solid var(--palm);
+  outline-offset: -2px;
+  border-radius: 8px;
+}
+
+.indicator {
+  position: absolute;
+  left: 0;
+  bottom: -1px;
+  width: 50%;
+  height: 2px;
+  border-radius: 2px;
+  background: var(--palm-ink);
+  transition: transform 0.35s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+.indicatorRight {
+  transform: translateX(100%);
+}
+
+/* défilement horizontal des participants */
+.rail {
+  display: flex;
+  gap: 14px;
+  overflow-x: auto;
+  padding: 4px 4px 10px;
+  margin: 0 -4px;
+  scrollbar-width: none;
+  scroll-snap-type: x proximity;
+}
+
+.rail::-webkit-scrollbar {
+  display: none;
+}
+
+.rail > * {
+  scroll-snap-align: start;
+}
+
+/* cœur qui bondit quand on aime */
+.heartPop {
+  animation: heartPop 0.4s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+@keyframes heartPop {
+  0% { transform: scale(1); }
+  40% { transform: scale(1.4); }
+  100% { transform: scale(1); }
+}
+
+.postIn {
+  animation: postIn 0.45s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+}
+
+@keyframes postIn {
+  from { opacity: 0; transform: translateY(-8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .indicator {
+    transition: none;
+  }
+
+  .heartPop,
+  .postIn {
+    animation: none;
+  }
+}
