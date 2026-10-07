@@ -35,7 +35,7 @@
   scroll-snap-align: start;
   cursor: pointer;
   isolation: isolate;
-  box-shadow: 0 12px 30px -18px rgba(0, 0, 0, 0.9);
+  box-shadow: 0 12px 30px -18px rgba(15, 29, 44, 0.45);
   transition:
     transform 0.25s cubic-bezier(0.2, 0.8, 0.2, 1),
     box-shadow 0.25s ease;
@@ -147,8 +147,13 @@
 
 /* carte « votre défi » */
 .mine {
-  background: var(--surface);
-  border: 1px dashed rgba(255, 255, 255, 0.22);
+  background: var(--paper);
+  border: 1px dashed rgba(15, 29, 44, 0.25);
+}
+
+.mine .name {
+  color: var(--graphite);
+  text-shadow: none;
 }
 
 .plus {

@@ -135,7 +135,7 @@
   border-radius: 20px;
   background: var(--surface);
   border: 1px solid var(--line);
-  box-shadow: 0 20px 40px -30px rgba(0, 0, 0, 0.8);
+  box-shadow: 0 18px 40px -28px rgba(15, 29, 44, 0.3);
   transition:
     transform 0.25s cubic-bezier(0.2, 0.8, 0.2, 1),
     box-shadow 0.25s ease,
@@ -144,8 +144,8 @@
 
 .card:hover {
   transform: translateY(-2px);
-  box-shadow: 0 28px 50px -30px rgba(0, 0, 0, 0.9);
-  border-color: rgba(255, 255, 255, 0.2);
+  box-shadow: 0 28px 50px -30px rgba(15, 29, 44, 0.4);
+  border-color: rgba(15, 29, 44, 0.18);
 }
 
 .card:active {
@@ -209,7 +209,7 @@
   bottom: calc(76px + env(safe-area-inset-bottom));
   z-index: 5;
   padding-top: 8px;
-  background: linear-gradient(to top, var(--paper) 70%, transparent);
+  background: linear-gradient(to top, var(--page-bg) 70%, transparent);
 }
 
 @media (min-width: 1024px) {

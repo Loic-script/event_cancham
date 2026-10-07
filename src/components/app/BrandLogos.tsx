@@ -1,4 +1,4 @@
-import type { SVGProps } from "react";
+import { useId, type SVGProps } from "react";
 
 type LogoProps = SVGProps<SVGSVGElement> & { size?: number };
 
@@ -18,10 +18,13 @@ export function FacebookLogo({ size = 40, ...props }: LogoProps) {
 }
 
 export function InstagramLogo({ size = 40, ...props }: LogoProps) {
+  // Identifiant unique : le logo peut être rendu plusieurs fois sur une page,
+  // et un dégradé défini dans un élément masqué ne se dessine pas.
+  const gradientId = `ig-grad-${useId()}`;
   return (
     <svg width={size} height={size} viewBox="0 0 48 48" aria-hidden {...props}>
       <defs>
-        <radialGradient id="ig-grad" cx="0.3" cy="1.07" r="1.5">
+        <radialGradient id={gradientId} cx="0.3" cy="1.07" r="1.5">
           <stop offset="0" stopColor="#fdf497" />
           <stop offset="0.05" stopColor="#fdf497" />
           <stop offset="0.45" stopColor="#fd5949" />
@@ -29,7 +32,7 @@ export function InstagramLogo({ size = 40, ...props }: LogoProps) {
           <stop offset="0.9" stopColor="#285AEB" />
         </radialGradient>
       </defs>
-      <circle cx="24" cy="24" r="24" fill="url(#ig-grad)" />
+      <circle cx="24" cy="24" r="24" fill={`url(#${gradientId})`} />
       <rect x="13" y="13" width="22" height="22" rx="6.5" fill="none" stroke="#fff" strokeWidth="2.6" />
       <circle cx="24" cy="24" r="5.2" fill="none" stroke="#fff" strokeWidth="2.6" />
       <circle cx="30.3" cy="17.7" r="1.6" fill="#fff" />

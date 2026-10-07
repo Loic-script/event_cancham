@@ -59,7 +59,7 @@ function isActive(pathname: string, href: string) {
 }
 
 const iconBtn =
-  "grid h-10 w-10 cursor-pointer place-items-center rounded-full text-graphite-muted transition-colors hover:bg-white/8 hover:text-graphite focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-palm-ink";
+  "grid h-10 w-10 cursor-pointer place-items-center rounded-full text-graphite-muted transition-colors hover:bg-black/5 hover:text-graphite focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-palm-ink";
 
 type AppShellProps = {
   children: ReactNode;
@@ -89,7 +89,7 @@ export function AppShell({ children, aside }: AppShellProps) {
   }, [moreOpen]);
 
   return (
-    <div className={`${styles.app} theme-dark`}>
+    <div className={`${styles.app} theme-light`}>
       {/* ---------- barre latérale (≥ 1024 px) ---------- */}
       <aside className={`${styles.sidebar} fixed inset-y-0 left-0 z-30 hidden w-[264px] flex-col px-4 py-6 lg:flex`}>
         <Link href="/" className="mb-8 flex items-center gap-3 rounded-xl px-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-palm-ink">

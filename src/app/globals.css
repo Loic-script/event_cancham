@@ -62,22 +62,23 @@
 
 /* Ilot clair dans le theme sombre (le billet reste un papier blanc) */
 .theme-light {
-  --paper: #f3f4f1;
+  --page-bg: #ffffff;
+  --paper: #f3f5f8;
   --surface: #ffffff;
   --elevated: #ffffff;
-  --line: #e3e7e1;
-  --graphite: #152019;
-  --graphite-muted: #5c6962;
-  --graphite-faint: #98a39b;
-  --palm: #0b6b3f;
-  --palm-deep: #084e2e;
-  --palm-soft: #e4f2ea;
+  --line: #e4e8ee;
+  --graphite: #0f1d2c;
+  --graphite-muted: #4f5d6d;
+  --graphite-faint: #6b7786;
+  --palm: #0f8a4b;
+  --palm-deep: #0a6236;
+  --palm-soft: #e3f3ea;
   --palm-ink: #0b6b3f;
-  --leaf: #d22630;
-  --leaf-soft: #fce8e9;
-  --leaf-ink: #d22630;
-  --gold: #b8923d;
-  --gold-soft: #f6efdc;
+  --leaf: #d62f3a;
+  --leaf-soft: #fde8ea;
+  --leaf-ink: #c1222c;
+  --gold: #946f1f;
+  --gold-soft: #f7efdc;
   color-scheme: light;
 }
 
@@ -133,7 +134,7 @@ body {
 
 /* Barres de defilement aux couleurs de la palette (page et panneaux) */
 html {
-  scrollbar-color: #0f8a4b #0f1d2c;
+  scrollbar-color: #0f8a4b #eef1f5;
   scrollbar-width: thin;
 }
 
@@ -143,19 +144,19 @@ html {
 }
 
 ::-webkit-scrollbar-track {
-  background: #0f1d2c;
+  background: #eef1f5;
 }
 
 ::-webkit-scrollbar-thumb {
   border-radius: 999px;
-  border: 2px solid #0f1d2c;
+  border: 2px solid #eef1f5;
   background: linear-gradient(180deg, #d62f3a 0%, #0f8a4b 100%);
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: linear-gradient(180deg, #ff6b74 0%, #4fd08a 100%);
+  background: linear-gradient(180deg, #b8222c 0%, #0a6236 100%);
 }
 
 ::-webkit-scrollbar-corner {
-  background: #0f1d2c;
+  background: #eef1f5;
 }
