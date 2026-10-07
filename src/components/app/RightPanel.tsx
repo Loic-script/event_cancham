@@ -2,9 +2,10 @@ import Link from "next/link";
 import { relativeFromMinutes } from "@/lib/format";
 import { challenges } from "@/lib/mock/challenges";
 import { currentUser, fullName, participants, posts } from "@/lib/mock/data";
+import { QrCode } from "@/components/ticket/QrCode";
 import { Avatar } from "./Avatar";
 import { FacebookLogo, InstagramLogo, LinkedinLogo } from "./BrandLogos";
-import { ChevronRightIcon, QrIcon } from "./icons";
+import { ChevronRightIcon, MaximizeIcon } from "./icons";
 import styles from "./app.module.css";
 
 // Derniers inscrits (données de démonstration : minutes depuis l'arrivée).
@@ -48,9 +49,18 @@ export function ProfileCard() {
           </div>
         ))}
       </dl>
-      <Link href="/billet" className="mt-4 inline-flex h-10 w-full items-center justify-center gap-2 rounded-xl bg-leaf text-[13.5px] font-semibold text-white transition-colors hover:bg-[#b8222c] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-leaf-ink">
-        <QrIcon width={17} height={17} />
-        Mon billet
+      {/* le billet, directement sous la main : un toucher ouvre la page et son plein écran */}
+      <Link
+        href="/billet"
+        aria-label={`Mon billet, code ${me.ticket.code}, table ${me.ticket.table}. Ouvrir le billet en grand.`}
+        className={`${styles.pressable} group mt-4 block w-full rounded-2xl border border-line bg-white p-3 text-center focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-palm`}
+      >
+        <QrCode value={me.ticket.code} size={150} className="mx-auto block h-[150px] w-[150px]" />
+        <p className="mt-2 font-mono text-[12px] tracking-[0.16em] text-graphite">{me.ticket.code}</p>
+        <p className="mt-1 inline-flex items-center justify-center gap-1.5 text-[11.5px] text-graphite-muted">
+          <MaximizeIcon width={13} height={13} className="text-palm-ink" />
+          Billet d’entrée · table {me.ticket.table} · toucher pour agrandir
+        </p>
       </Link>
     </section>
   );
