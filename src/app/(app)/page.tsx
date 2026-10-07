@@ -129,28 +129,28 @@ export default function HomePage() {
     <div className={`${styles.stagger} flex flex-col gap-7`}>
       {/* ---------- bannière ---------- */}
       <section className={`${styles.hero} p-6 lg:p-9`} style={{ "--i": 0 } as React.CSSProperties} aria-labelledby="hero-title">
-        <span className={styles.heroBlob} style={{ width: 260, height: 260, right: -60, top: -80, background: "rgba(15, 138, 75, 0.55)" }} aria-hidden />
-        <span className={styles.heroBlob} style={{ width: 300, height: 300, left: -90, bottom: -140, background: "rgba(214, 47, 58, 0.5)", animationDelay: "-4s" }} aria-hidden />
+        <span className={styles.heroBlob} style={{ width: 260, height: 260, right: -60, top: -80, background: "rgba(15, 138, 75, 0.32)" }} aria-hidden />
+        <span className={styles.heroBlob} style={{ width: 300, height: 300, left: -90, bottom: -140, background: "rgba(214, 47, 58, 0.28)", animationDelay: "-4s" }} aria-hidden />
         <span className={styles.heroRing} style={{ width: 420, height: 420, right: -120, top: -200 }} aria-hidden />
         <span className={styles.heroRing} style={{ width: 620, height: 620, right: -220, top: -300 }} aria-hidden />
 
         <div className="relative z-10 grid gap-6 lg:grid-cols-[1fr_auto] lg:items-center">
           <div>
-            <p className="font-mono text-[11px] uppercase tracking-[0.18em] text-white/65">
+            <p className="font-mono text-[11px] uppercase tracking-[0.18em] text-graphite-muted">
               {greeting}, {currentUser.firstName} · {event.edition}
             </p>
-            <h2 id="hero-title" className="mt-2 max-w-xl font-display text-[2.1rem] leading-[1.02] text-white lg:text-[2.9rem]">
+            <h2 id="hero-title" className="mt-2 max-w-xl font-display text-[2.1rem] leading-[1.02] text-graphite lg:text-[2.9rem]">
               Trouvez votre réseau à <em className="italic text-leaf-ink">{event.name}</em>
             </h2>
-            <p className="mt-3 max-w-lg text-[15px] leading-6 text-white/75">
+            <p className="mt-3 max-w-lg text-[15px] leading-6 text-graphite-muted">
               Votre billet, trois défis à relever et des participants venus de Madagascar et du Canada à rencontrer, le {event.dateLabel.toLowerCase().replace("vendredi ", "")} au {event.venue}.
             </p>
             <div className="mt-5 flex flex-wrap gap-2.5">
-              <Link href="/billet" className="inline-flex h-11 items-center gap-2 rounded-xl bg-white px-4 text-[14px] font-semibold text-[#152019] shadow-[0_12px_30px_-12px_rgba(255,255,255,0.6)] transition-transform active:scale-[0.98] hover:bg-white/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/70">
+              <Link href="/billet" className="inline-flex h-11 items-center gap-2 rounded-xl bg-leaf px-4 text-[14px] font-semibold text-white shadow-[0_12px_30px_-12px_rgba(214,47,58,0.8)] transition-[transform,background-color] active:scale-[0.98] hover:bg-[#b8222c] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-leaf focus-visible:ring-offset-2">
                 <QrIcon width={17} height={17} />
                 Mon billet
               </Link>
-              <Link href="/communaute" className={`${styles.glass} inline-flex h-11 items-center gap-2 rounded-xl px-4 text-[14px] font-semibold text-white transition-colors hover:bg-white/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/70`}>
+              <Link href="/communaute" className={`${styles.glass} inline-flex h-11 items-center gap-2 rounded-xl px-4 text-[14px] font-semibold text-graphite transition-colors hover:bg-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-palm`}>
                 Explorer le fil
                 <ChevronRightIcon width={16} height={16} />
               </Link>
@@ -158,10 +158,10 @@ export default function HomePage() {
           </div>
 
           <div className={`${styles.glass} min-w-[200px] rounded-2xl px-5 py-4 text-center`}>
-            <p className="font-display text-[3.1rem] leading-none text-white">J-{days}</p>
-            <p className="mt-0.5 text-[10.5px] uppercase tracking-[0.18em] text-white/60">avant le gala</p>
-            <p className="mt-3 flex items-center justify-center gap-1.5 text-[12.5px] text-white/80"><CalendarIcon width={14} height={14} />{event.dateLabel} · {event.timeLabel}</p>
-            <p className="mt-1 flex items-center justify-center gap-1.5 text-[12.5px] text-white/80"><MapPinIcon width={14} height={14} />{event.venue}, {event.city}</p>
+            <p className="font-display text-[3.1rem] leading-none text-graphite">J-{days}</p>
+            <p className="mt-0.5 text-[10.5px] uppercase tracking-[0.18em] text-graphite-faint">avant le gala</p>
+            <p className="mt-3 flex items-center justify-center gap-1.5 text-[12.5px] text-graphite-muted"><CalendarIcon width={14} height={14} />{event.dateLabel} · {event.timeLabel}</p>
+            <p className="mt-1 flex items-center justify-center gap-1.5 text-[12.5px] text-graphite-muted"><MapPinIcon width={14} height={14} />{event.venue}, {event.city}</p>
           </div>
         </div>
       </section>
