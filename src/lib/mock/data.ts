@@ -70,7 +70,7 @@ export const event = {
   dressCode: "Tenue de soirée",
 };
 
-export const currentUser: Person & { email: string; ticket: Ticket; linkedin?: string } = {
+export const currentUser: Person & { email: string; ticket: Ticket; linkedin?: string; website?: string; memberSince: string } = {
   id: "me",
   firstName: "Faneva",
   lastName: "Loïc",
@@ -83,6 +83,7 @@ export const currentUser: Person & { email: string; ticket: Ticket; linkedin?: s
   hue: 152,
   email: "faneva@loic",
   linkedin: "linkedin.com/in/faneva-loic",
+  memberSince: "2026-06-20",
   ticket: {
     code: "TRV26-GALA-0427",
     type: "Gala des 10 ans · Soirée",
