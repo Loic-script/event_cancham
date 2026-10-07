@@ -22,22 +22,13 @@ const SOCIAL = [
   { label: "LinkedIn", handle: "CanCham Madagascar", href: "https://www.linkedin.com/company/cancham-madagascar", logo: LinkedinLogo },
 ];
 
-/** Carte de profil : avatar hexagonal, nom, identifiant, chiffres clés. */
+/** Carte du billet : chiffres clés et QR code d'entrée. */
 export function ProfileCard() {
   const me = currentUser;
-  const handle = `@${me.firstName}${me.lastName}`.toLowerCase().replace(/[^a-z0-9@]/g, "");
   const myPosts = posts.filter((p) => p.authorId === me.id).length;
   return (
-    <section className={`${styles.card} flex flex-col items-center px-4 pb-4 pt-5 text-center`} aria-label="Mon profil">
-      <span className={styles.hex} aria-hidden>
-        <span className={styles.hexInner}>
-          <Avatar person={me} size={92} />
-        </span>
-      </span>
-      <h2 className="mt-3 font-display text-[1.35rem] leading-none text-graphite">{fullName(me)}</h2>
-      <p className="mt-1 text-[12.5px] text-graphite-faint">{handle}</p>
-      <p className="mt-1 text-[12.5px] text-graphite-muted">{me.role} · {me.company}</p>
-      <dl className="mt-4 grid w-full grid-cols-3 gap-1 border-t border-line pt-3">
+    <section className={`${styles.card} flex flex-col items-center px-4 pb-4 pt-4 text-center`} aria-label="Mon billet">
+      <dl className="grid w-full grid-cols-3 gap-1">
         {[
           { label: "Défis", value: challenges.length },
           { label: "Posts", value: myPosts },
@@ -53,7 +44,7 @@ export function ProfileCard() {
       <Link
         href="/billet"
         aria-label={`Mon billet, code ${me.ticket.code}, table ${me.ticket.table}. Ouvrir le billet en grand.`}
-        className={`${styles.pressable} group mt-4 block w-full rounded-2xl border border-line bg-white p-3 text-center focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-palm`}
+        className={`${styles.pressable} group mt-3 block w-full rounded-2xl border border-line bg-white p-3 text-center focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-palm`}
       >
         <QrCode value={me.ticket.code} size={150} className="mx-auto block h-[150px] w-[150px]" />
         <p className="mt-2 font-mono text-[12px] tracking-[0.16em] text-graphite">{me.ticket.code}</p>
