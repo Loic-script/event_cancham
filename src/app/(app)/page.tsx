@@ -2,14 +2,15 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import type { ReactNode } from "react";
 import { Avatar } from "@/components/app/Avatar";
-import { CalendarIcon, ChevronRightIcon, LockIcon, MapPinIcon, QrIcon } from "@/components/app/icons";
+import { Countdown } from "@/components/app/Countdown";
+import { ChevronRightIcon, LockIcon, QrIcon } from "@/components/app/icons";
 import { FollowUs, NewMembers } from "@/components/app/RightPanel";
 import styles from "@/components/app/app.module.css";
 import chStyles from "@/components/challenges/challenges.module.css";
 import { StoriesRail } from "@/components/stories/StoriesRail";
 import type { StoryView } from "@/components/stories/types";
 import { QrCode } from "@/components/ticket/QrCode";
-import { daysUntil, relativeFromMinutes } from "@/lib/format";
+import { relativeFromMinutes } from "@/lib/format";
 import { challengeBySlug, challenges, challengeStatus } from "@/lib/mock/challenges";
 import { conversations, currentUser, event, fullName, participants, personById, posts, unreadTotal } from "@/lib/mock/data";
 import { stories } from "@/lib/mock/stories";
@@ -35,6 +36,8 @@ function Section({ title, href, linkLabel, children, index }: { title: string; h
 }
 
 // Halo coloré dans l'angle des cartes « Populaire en ce moment ».
+const shortDate = new Intl.DateTimeFormat("fr-FR", { day: "numeric", month: "short", year: "numeric", timeZone: "Indian/Antananarivo" });
+
 const GLOW = {
   leaf: "rgba(214, 47, 58, 0.38)",
   palm: "rgba(15, 138, 75, 0.38)",
@@ -42,9 +45,10 @@ const GLOW = {
 } as const;
 
 export default function HomePage() {
-  const hour = new Date().getHours();
+  // Un seul instant de référence pour tout le rendu de la page.
+  const now = new Date();
+  const hour = now.getHours();
   const greeting = hour >= 18 || hour < 5 ? "Bonsoir" : "Bonjour";
-  const days = daysUntil(event.date);
   const unread = unreadTotal();
   const latest = posts.slice(0, 3).map((p) => ({ ...p, author: personById(p.authorId), when: relativeFromMinutes(p.minutesAgo) }));
   const third = challenges[2];
@@ -157,12 +161,12 @@ export default function HomePage() {
             </div>
           </div>
 
-          <div className={`${styles.glass} min-w-[200px] rounded-2xl px-5 py-4 text-center`}>
-            <p className="font-display text-[3.1rem] leading-none text-graphite">J-{days}</p>
-            <p className="mt-0.5 text-[10.5px] uppercase tracking-[0.18em] text-graphite-faint">avant le gala</p>
-            <p className="mt-3 flex items-center justify-center gap-1.5 text-[12.5px] text-graphite-muted"><CalendarIcon width={14} height={14} />{event.dateLabel} · {event.timeLabel}</p>
-            <p className="mt-1 flex items-center justify-center gap-1.5 text-[12.5px] text-graphite-muted"><MapPinIcon width={14} height={14} />{event.venue}, {event.city}</p>
-          </div>
+          <Countdown
+            target={event.date}
+            initialRemaining={Math.floor((new Date(event.date).getTime() - now.getTime()) / 1000)}
+            caption={`${shortDate.format(new Date(event.date))} · ${event.timeLabel} · ${event.venue}`}
+            className="lg:min-w-[300px]"
+          />
         </div>
       </section>
 
