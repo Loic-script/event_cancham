@@ -382,3 +382,202 @@
     transition: none;
   }
 }
+
+/* ---------- page de détail d'un défi ---------- */
+
+/* le bouton collant de ChallengeActions reste au-dessus du dock sur mobile ;
+   sur ordinateur le panneau de droite est déjà fixe, pas de collage */
+.detail {
+  --cta-bottom: calc(96px + env(safe-area-inset-bottom));
+  --cta-bottom-lg: auto;
+}
+
+.back {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13.5px;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.75);
+  text-decoration: none;
+  transition: color 0.2s ease;
+}
+
+.back:hover {
+  color: #fff;
+}
+
+.back:focus-visible {
+  outline: 2px solid #fff;
+  outline-offset: 3px;
+  border-radius: 6px;
+}
+
+/* couverture dans la carte héros */
+.detailCover {
+  aspect-ratio: 16 / 9;
+  max-height: 340px;
+  width: 100%;
+  border-radius: 24px 24px 0 0;
+}
+
+@media (min-width: 1024px) {
+  .detailCover {
+    aspect-ratio: 21 / 9;
+  }
+}
+
+/* gain en dégradé rouge → vert */
+.prize {
+  font-family: var(--font-montserrat), sans-serif;
+  font-weight: 800;
+  font-size: 2.4rem;
+  line-height: 1;
+  background: linear-gradient(90deg, #ff6b6b, #4fd08a);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+@media (min-width: 1024px) {
+  .prize {
+    font-size: 3rem;
+  }
+}
+
+/* chips d'information */
+.meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  font-size: 12.5px;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.85);
+}
+
+/* frise des étapes */
+.timeline {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  padding-left: 4px;
+}
+
+.timeline::before {
+  content: "";
+  position: absolute;
+  left: 21px;
+  top: 22px;
+  bottom: 22px;
+  width: 2px;
+  background: linear-gradient(180deg, #ad0707, #007140);
+  opacity: 0.6;
+}
+
+.tStep {
+  position: relative;
+  display: flex;
+  gap: 16px;
+  align-items: flex-start;
+}
+
+.tNum {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #ad0707, #007140);
+  color: #fff;
+  font-family: var(--font-montserrat), sans-serif;
+  font-weight: 800;
+  font-size: 14px;
+  box-shadow: 0 0 0 4px #0f1d2c, 0 10px 20px -10px rgba(0, 0, 0, 0.8);
+}
+
+.tBody {
+  flex: 1;
+  padding: 12px 16px;
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  font-size: 15px;
+  line-height: 1.6;
+  color: rgba(255, 255, 255, 0.85);
+}
+
+.tBody strong {
+  color: #fff;
+}
+
+/* notes « bon à savoir » */
+.note {
+  display: flex;
+  gap: 10px;
+  padding: 12px 14px;
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  font-size: 13.5px;
+  line-height: 1.55;
+  color: rgba(255, 255, 255, 0.8);
+}
+
+.noteLock {
+  background: rgba(173, 7, 7, 0.16);
+  border-color: rgba(255, 107, 107, 0.3);
+  color: #fff;
+}
+
+/* panneau de droite */
+.aside {
+  display: contents;
+}
+
+@media (min-width: 1024px) {
+  .aside {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    position: sticky;
+    top: 88px;
+  }
+}
+
+.summaryRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 10px 0;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  font-size: 13.5px;
+}
+
+.summaryRow:first-of-type {
+  border-top: 0;
+  padding-top: 0;
+}
+
+.summaryKey {
+  color: rgba(255, 255, 255, 0.65);
+}
+
+.summaryVal {
+  font-weight: 600;
+  text-align: right;
+}

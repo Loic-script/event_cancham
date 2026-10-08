@@ -44,7 +44,7 @@ export default function ChallengesPage() {
       {challenges.map((c, i) => {
         const status = challengeStatus(c);
         return (
-          <Link key={c.slug} href={`/defis/${c.slug}`} className={styles.card} style={{ "--i": i + 1 } as React.CSSProperties} aria-label={`Défi ${c.number} : ${c.title}`}>
+          <Link key={c.slug} href={`/decouvrir/${c.slug}`} className={styles.card} style={{ "--i": i + 1 } as React.CSSProperties} aria-label={`Défi ${c.number} : ${c.title}`}>
             <ChallengeCover challenge={c}>
               <div className="absolute right-3 top-3">
                 <StatusChip status={status} />

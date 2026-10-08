@@ -206,9 +206,11 @@
 }
 
 /* bouton d'action collé au bas de l'écran sur mobile */
+/* les variables --cta-bottom permettent à un conteneur (ex. l'espace Découvrir,
+   avec son dock flottant) de décaler le bouton collant */
 .stickyCta {
   position: sticky;
-  bottom: calc(76px + env(safe-area-inset-bottom));
+  bottom: var(--cta-bottom, calc(76px + env(safe-area-inset-bottom)));
   z-index: 5;
   padding-top: 8px;
   background: linear-gradient(to top, var(--page-bg) 70%, transparent);
@@ -216,7 +218,7 @@
 
 @media (min-width: 1024px) {
   .stickyCta {
-    bottom: 16px;
+    bottom: var(--cta-bottom-lg, 16px);
   }
 }
 

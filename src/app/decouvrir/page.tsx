@@ -108,7 +108,7 @@ export default function DiscoverPage() {
               return (
                 <Link
                   key={c.slug}
-                  href={`/defis/${c.slug}`}
+                  href={`/decouvrir/${c.slug}`}
                   className={`${styles.glass} ${styles.card} ${featured ? styles.featured : ""} ${s.key === "locked" ? styles.locked : ""}`}
                   aria-label={`Défi ${c.number} : ${c.title}, ${s.label}`}
                 >

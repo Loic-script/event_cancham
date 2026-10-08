@@ -40,7 +40,7 @@ export function MyChallenges() {
         return (
           <li key={c.slug}>
             <Link
-              href={`/defis/${c.slug}`}
+              href={`/decouvrir/${c.slug}`}
               className="flex items-center gap-3 rounded-xl border border-line p-2.5 transition-colors hover:bg-paper focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-palm"
             >
               <span className={`${styles.miniCover} ${styles[c.theme]} h-11 w-11 text-[1.1rem]`}>{c.number}</span>

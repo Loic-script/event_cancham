@@ -66,7 +66,7 @@ export function DiscoverProgress({ daysLeft }: DiscoverProgressProps) {
       </div>
 
       {next ? (
-        <Link href={`/defis/${next.slug}`} className={`${styles.glass} ${styles.card} ${nextStatus?.key === "open" ? styles.featured : ""}`} style={{ minHeight: 0 }}>
+        <Link href={`/decouvrir/${next.slug}`} className={`${styles.glass} ${styles.card} ${nextStatus?.key === "open" ? styles.featured : ""}`} style={{ minHeight: 0 }}>
           <p className="font-mono text-[11px] uppercase tracking-[0.18em] text-white/70">Prochaine étape</p>
           <p className="font-display text-[1.5rem] leading-tight">
             Défi {next.number} · {next.title}

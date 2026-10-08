@@ -114,7 +114,7 @@ export default function HomePage() {
       ),
     },
     {
-      href: `/defis/${third.slug}`,
+      href: `/decouvrir/${third.slug}`,
       tone: "palm",
       title: third.title,
       text: challengeStatus(third).label,

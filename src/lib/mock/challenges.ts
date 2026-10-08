@@ -114,6 +114,11 @@ export function opensAtLabel(c: Challenge): string {
   return c.opensAt ? longDateTime.format(new Date(c.opensAt)).replace(/\s(\d+)$/, " $1 h") : "";
 }
 
+/** « 28 décembre à 19 h », ou une chaîne vide si aucune clôture n'est fixée. */
+export function closesAtLabel(c: Challenge): string {
+  return c.closesAt ? longDateTime.format(new Date(c.closesAt)).replace(/\s(\d+)$/, " $1 h") : "";
+}
+
 export function challengeBySlug(slug: string): Challenge | undefined {
   return challenges.find((c) => c.slug === slug);
 }
