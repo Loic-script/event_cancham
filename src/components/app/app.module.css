@@ -121,15 +121,6 @@
   border-bottom: 1px solid var(--line);
 }
 
-.logoTile {
-  display: inline-grid;
-  place-items: center;
-  border-radius: 12px;
-  background: #fff;
-  border: 1px solid var(--line);
-  box-shadow: 0 6px 18px -10px rgba(15, 29, 44, 0.35);
-}
-
 .search {
   display: flex;
   align-items: center;

@@ -93,9 +93,7 @@ export function AppShell({ children, aside }: AppShellProps) {
       {/* ---------- barre latérale (≥ 1024 px) ---------- */}
       <aside className={`${styles.sidebar} fixed inset-y-0 left-0 z-30 hidden w-[264px] flex-col px-4 py-6 lg:flex`}>
         <Link href="/" className="mb-8 flex items-center gap-3 rounded-xl px-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-palm-ink">
-          <span className={`${styles.logoTile} h-12 w-16 px-1`}>
-            <Image src="/cancham-logo.png" alt="CanCham Madagascar" width={96} height={64} priority className="h-10 w-auto" />
-          </span>
+          <Image src="/cancham-logo.png" alt="CanCham Madagascar" width={1200} height={740} priority className="h-12 w-auto shrink-0" />
           <span className="flex flex-col leading-tight">
             <span className="font-display text-[1.25rem] tracking-tight text-graphite">{event.name}</span>
             <span className="text-[12px] text-graphite-muted">{event.edition}</span>
@@ -140,9 +138,7 @@ export function AppShell({ children, aside }: AppShellProps) {
           <header className={`${styles.topbar} lg:hidden`}>
             <div className="flex h-14 items-center gap-3 px-4" style={{ paddingTop: "env(safe-area-inset-top)" }}>
               <Link href="/" aria-label="Accueil" className="shrink-0 rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-palm-ink">
-                <span className={`${styles.logoTile} h-9 w-12 px-1`}>
-                  <Image src="/cancham-logo.png" alt="" width={48} height={32} priority className="h-7 w-auto" />
-                </span>
+                <Image src="/cancham-logo.png" alt="" width={1200} height={740} priority className="h-9 w-auto" />
               </Link>
               <h1 className="min-w-0 flex-1 truncate font-display text-[1.3rem] leading-none tracking-tight text-graphite">{title}</h1>
               <button type="button" aria-label="Notifications" className={iconBtn}>
