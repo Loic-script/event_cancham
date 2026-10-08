@@ -61,25 +61,18 @@ const EMPTY_LABEL: Partial<Record<SectionId, string>> = {
 const memberSince = new Intl.DateTimeFormat("fr-FR", { day: "numeric", month: "long", year: "numeric" });
 
 type ProfileSettingsProps = {
-  /** Sections affichées sous le panneau sur ordinateur et sous la liste sur mobile. */
+  /** Sections affichées sous la carte du profil (défis, publications). */
   extra?: ReactNode;
 };
 
 export function ProfileSettings({ extra }: ProfileSettingsProps) {
   const profile = useProfile();
-  // Sur ordinateur, la première ligne est ouverte d'emblée ; sur mobile, rien tant qu'on ne touche pas.
+  // Chaque ligne ouvre une fenêtre : feuille en bas sur mobile, boîte centrée sur ordinateur.
   const [active, setActive] = useState<SectionId | null>(null);
-  const [desktop, setDesktop] = useState(false);
   const [toast, setToast] = useState<string | null>(null);
   const fileRef = useRef<HTMLInputElement | null>(null);
-
-  useEffect(() => {
-    const mq = window.matchMedia("(min-width: 1024px)");
-    const apply = () => setDesktop(mq.matches);
-    apply();
-    mq.addEventListener("change", apply);
-    return () => mq.removeEventListener("change", apply);
-  }, []);
+  const dialogRef = useRef<HTMLDivElement | null>(null);
+  const triggerRef = useRef<HTMLButtonElement | null>(null);
 
   useEffect(() => {
     if (!toast) return;
@@ -87,27 +80,34 @@ export function ProfileSettings({ extra }: ProfileSettingsProps) {
     return () => window.clearTimeout(id);
   }, [toast]);
 
-  // Échap ferme la feuille mobile.
+  // Fenêtre ouverte : Échap ferme, la page derrière ne défile plus, le focus
+  // entre dans la fenêtre puis revient sur la ligne d'origine à la fermeture.
   useEffect(() => {
-    if (desktop || active === null) return;
+    if (active === null) return;
     const onKey = (e: KeyboardEvent) => {
       if (e.key === "Escape") setActive(null);
     };
     const previous = document.body.style.overflow;
     document.body.style.overflow = "hidden";
     window.addEventListener("keydown", onKey);
+    const raf = window.requestAnimationFrame(() => {
+      dialogRef.current?.querySelector<HTMLElement>("input, textarea, select, button:not([aria-label='Fermer'])")?.focus();
+    });
+    const trigger = triggerRef.current;
     return () => {
+      window.cancelAnimationFrame(raf);
       document.body.style.overflow = previous;
       window.removeEventListener("keydown", onKey);
+      trigger?.focus({ preventScroll: true });
     };
-  }, [desktop, active]);
+  }, [active]);
 
-  const current: SectionId | null = active ?? (desktop ? "name" : null);
+  const current: SectionId | null = active;
   const section = SECTIONS.find((s) => s.id === current) ?? null;
 
   function saved(message: string) {
     setToast(message);
-    if (!desktop) setActive(null);
+    setActive(null);
   }
 
   async function onPhoto(file: File | undefined) {
@@ -136,9 +136,9 @@ export function ProfileSettings({ extra }: ProfileSettingsProps) {
   ) : null;
 
   return (
-    <div className="grid grid-cols-1 gap-5 lg:grid-cols-[380px_minmax(0,1fr)] lg:items-start lg:gap-6">
-      {/* ---------- identité et lignes ---------- */}
-      <div className="flex flex-col gap-4">
+    <div className="mx-auto flex w-full max-w-2xl flex-col gap-5">
+      {/* ---------- identité et lignes, puis défis et publications en dessous (comme un profil Facebook) ---------- */}
+      <div className="flex flex-col gap-5">
         <section className={`${styles.identity} px-4 pb-4 pt-10`} aria-label="Identité">
           <div className="relative flex flex-col items-center text-center">
             <span className={styles.avatarWrap}>
@@ -161,7 +161,12 @@ export function ProfileSettings({ extra }: ProfileSettingsProps) {
                 <button
                   key={s.id}
                   type="button"
-                  onClick={() => setActive(s.id)}
+                  onClick={(e) => {
+                    triggerRef.current = e.currentTarget;
+                    setActive(s.id);
+                  }}
+                  aria-haspopup="dialog"
+                  aria-expanded={isActive}
                   aria-current={isActive ? "true" : undefined}
                   className={`${styles.row} ${isActive ? styles.rowActive : ""}`}
                 >
@@ -185,34 +190,14 @@ export function ProfileSettings({ extra }: ProfileSettingsProps) {
           </button>
         </section>
 
-        {/* sur mobile, les sections complémentaires suivent la liste */}
-        {extra ? <div className="flex flex-col gap-4 lg:hidden">{extra}</div> : null}
+        {extra ? <div className="flex flex-col gap-5">{extra}</div> : null}
       </div>
 
-      {/* ---------- panneau (ordinateur) ---------- */}
-      <div className="hidden flex-col gap-4 lg:flex">
-        {section ? (
-          <section className={`${styles.panel} p-6`} aria-label={section.title}>
-            <header className="mb-5 flex items-start justify-between gap-3">
-              <div>
-                <p className="font-mono text-[11px] uppercase tracking-[0.16em] text-graphite-faint">Profil</p>
-                <h3 className="mt-1 font-display text-[1.5rem] leading-tight text-graphite">{section.title}</h3>
-              </div>
-              <button type="button" onClick={() => setActive("name")} aria-label="Revenir au nom" className="grid h-9 w-9 cursor-pointer place-items-center rounded-full bg-paper text-graphite-muted hover:text-graphite focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-palm">
-                <XIcon width={18} height={18} />
-              </button>
-            </header>
-            {editor}
-          </section>
-        ) : null}
-        {extra}
-      </div>
-
-      {/* ---------- feuille (mobile) ---------- */}
-      {!desktop && section ? (
+      {/* ---------- fenêtre de modification : feuille sur mobile, boîte centrée sur ordinateur ---------- */}
+      {section ? (
         <>
           <div className={styles.scrim} onClick={() => setActive(null)} aria-hidden />
-          <div className={styles.sheet} role="dialog" aria-modal="true" aria-label={section.title}>
+          <div ref={dialogRef} className={styles.sheet} role="dialog" aria-modal="true" aria-label={section.title}>
             <div className={styles.handle} aria-hidden />
             <header className="mb-4 flex items-start justify-between gap-3">
               <div>
