@@ -39,9 +39,9 @@ function Section({ title, href, linkLabel, children, index }: { title: string; h
 const shortDate = new Intl.DateTimeFormat("fr-FR", { day: "numeric", month: "short", year: "numeric", timeZone: "Indian/Antananarivo" });
 
 const GLOW = {
-  leaf: "rgba(214, 47, 58, 0.38)",
-  palm: "rgba(15, 138, 75, 0.38)",
-  gold: "rgba(227, 184, 90, 0.3)",
+  leaf: "rgba(173, 7, 7, 0.38)",
+  palm: "rgba(0, 113, 64, 0.38)",
+  gold: "rgba(22, 50, 84, 0.3)",
 } as const;
 
 export default function HomePage() {
@@ -133,8 +133,8 @@ export default function HomePage() {
     <div className={`${styles.stagger} flex flex-col gap-7`}>
       {/* ---------- bannière ---------- */}
       <section className={`${styles.hero} p-6 lg:p-9`} style={{ "--i": 0 } as React.CSSProperties} aria-labelledby="hero-title">
-        <span className={styles.heroBlob} style={{ width: 260, height: 260, right: -60, top: -80, background: "rgba(15, 138, 75, 0.32)" }} aria-hidden />
-        <span className={styles.heroBlob} style={{ width: 300, height: 300, left: -90, bottom: -140, background: "rgba(214, 47, 58, 0.28)", animationDelay: "-4s" }} aria-hidden />
+        <span className={styles.heroBlob} style={{ width: 260, height: 260, right: -60, top: -80, background: "rgba(0, 113, 64, 0.32)" }} aria-hidden />
+        <span className={styles.heroBlob} style={{ width: 300, height: 300, left: -90, bottom: -140, background: "rgba(173, 7, 7, 0.28)", animationDelay: "-4s" }} aria-hidden />
         <span className={styles.heroRing} style={{ width: 420, height: 420, right: -120, top: -200 }} aria-hidden />
         <span className={styles.heroRing} style={{ width: 620, height: 620, right: -220, top: -300 }} aria-hidden />
 
@@ -150,7 +150,7 @@ export default function HomePage() {
               Votre billet, trois défis à relever et des participants venus de Madagascar et du Canada à rencontrer, le {event.dateLabel.toLowerCase().replace("vendredi ", "")} au {event.venue}.
             </p>
             <div className="mt-5 flex flex-wrap gap-2.5">
-              <Link href="/billet" className="inline-flex h-11 items-center gap-2 rounded-xl bg-leaf px-4 text-[14px] font-semibold text-white shadow-[0_12px_30px_-12px_rgba(214,47,58,0.8)] transition-[transform,background-color] active:scale-[0.98] hover:bg-[#b8222c] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-leaf focus-visible:ring-offset-2">
+              <Link href="/billet" className="inline-flex h-11 items-center gap-2 rounded-xl bg-leaf px-4 text-[14px] font-semibold text-white shadow-[0_12px_30px_-12px_rgba(214,47,58,0.8)] transition-[transform,background-color] active:scale-[0.98] hover:bg-[#8f0606] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-leaf focus-visible:ring-offset-2">
                 <QrIcon width={17} height={17} />
                 Mon billet
               </Link>

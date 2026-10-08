@@ -71,7 +71,7 @@ export function ChallengeActions({ challenge, status }: ChallengeActionsProps) {
                   removeParticipation(challenge.slug);
                   setConfirmRemove(false);
                 }}
-                className="flex h-10 flex-1 cursor-pointer items-center justify-center gap-2 rounded-xl bg-leaf text-[14px] font-semibold text-white hover:bg-[#b51d27] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-leaf"
+                className="flex h-10 flex-1 cursor-pointer items-center justify-center gap-2 rounded-xl bg-leaf text-[14px] font-semibold text-white hover:bg-[#8f0606] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-leaf"
               >
                 Confirmer le retrait
               </button>
@@ -117,7 +117,7 @@ export function ChallengeActions({ challenge, status }: ChallengeActionsProps) {
           type="button"
           onClick={() => setOpen(true)}
           className={`flex h-13 w-full cursor-pointer items-center justify-center rounded-2xl text-[16px] font-semibold text-white shadow-[0_16px_34px_-16px_rgba(0,0,0,0.45)] transition-[transform,background-color] active:scale-[0.99] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 ${
-            isVideo ? "bg-leaf hover:bg-[#b51d27] focus-visible:ring-leaf" : "bg-palm hover:bg-palm-deep focus-visible:ring-palm"
+            isVideo ? "bg-leaf hover:bg-[#8f0606] focus-visible:ring-leaf" : "bg-palm hover:bg-palm-deep focus-visible:ring-palm"
           }`}
           style={{ height: 52 }}
         >

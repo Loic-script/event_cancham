@@ -7,11 +7,11 @@
   /* Palette de marque (extraite de la maquette La Traversée) */
   --night: #0b0908;
   --night-2: #15110e;
-  --brand-red: #b5121f;
-  --brand-red-hover: #d11a29;
-  --brand-red-deep: #7a0c16;
-  --brand-green: #0b6a3e;
-  --brand-green-soft: #1e8a56;
+  --brand-red: #ad0707;
+  --brand-red-hover: #c20a0a;
+  --brand-red-deep: #6e0404;
+  --brand-green: #007140;
+  --brand-green-soft: #2f9a68;
   --amber: #ffc25c;
   --amber-core: #fff0c4;
   --ink: #f6f1e8;
@@ -22,20 +22,20 @@
   --paper: #f3f4f1;
   --surface: #ffffff;
   --line: #e3e7e1;
-  --graphite: #152019;
+  --graphite: #0f1d2c;
   --graphite-muted: #5c6962;
   --graphite-faint: #98a39b;
-  --palm: #0b6b3f;
-  --palm-deep: #084e2e;
-  --palm-soft: #e4f2ea;
-  --leaf: #d22630;
-  --leaf-soft: #fce8e9;
-  --gold: #b8923d;
-  --gold-soft: #f6efdc;
+  --palm: #007140;
+  --palm-deep: #005a33;
+  --palm-soft: #e1f0e8;
+  --leaf: #ad0707;
+  --leaf-soft: #f7e3e3;
+  --gold: #163254;
+  --gold-soft: #e8edf4;
   --elevated: #ffffff;
   --page-bg: #f3f4f1;
-  --palm-ink: #0b6b3f;
-  --leaf-ink: #d22630;
+  --palm-ink: #007140;
+  --leaf-ink: #ad0707;
 }
 
 /* Theme sombre de l espace participant (fonds noirs, verre depoli) */
@@ -48,15 +48,15 @@
   --graphite: #f3f5f1;
   --graphite-muted: #a7b1aa;
   --graphite-faint: #6f7a73;
-  --palm: #0f8a4b;
-  --palm-deep: #0a6236;
-  --palm-soft: rgba(25, 166, 94, 0.16);
-  --palm-ink: #4fd08a;
-  --leaf: #d62f3a;
-  --leaf-soft: rgba(224, 52, 63, 0.16);
-  --leaf-ink: #ff6b74;
-  --gold: #e3b85a;
-  --gold-soft: rgba(227, 184, 90, 0.14);
+  --palm: #007140;
+  --palm-deep: #005a33;
+  --palm-soft: rgba(0, 113, 64, 0.16);
+  --palm-ink: #2f9a68;
+  --leaf: #ad0707;
+  --leaf-soft: rgba(173, 7, 7, 0.16);
+  --leaf-ink: #e05050;
+  --gold: #4a6a94;
+  --gold-soft: rgba(22, 50, 84, 0.14);
   color-scheme: dark;
 }
 
@@ -70,15 +70,15 @@
   --graphite: #0f1d2c;
   --graphite-muted: #4f5d6d;
   --graphite-faint: #6b7786;
-  --palm: #0f8a4b;
-  --palm-deep: #0a6236;
-  --palm-soft: #e3f3ea;
-  --palm-ink: #0b6b3f;
-  --leaf: #d62f3a;
-  --leaf-soft: #fde8ea;
-  --leaf-ink: #c1222c;
-  --gold: #946f1f;
-  --gold-soft: #f7efdc;
+  --palm: #007140;
+  --palm-deep: #005a33;
+  --palm-soft: #e1f0e8;
+  --palm-ink: #007140;
+  --leaf: #ad0707;
+  --leaf-soft: #f7e3e3;
+  --leaf-ink: #ad0707;
+  --gold: #163254;
+  --gold-soft: #e8edf4;
   color-scheme: light;
 }
 
@@ -114,9 +114,9 @@
   --color-page-bg: var(--page-bg);
   --color-palm-ink: var(--palm-ink);
   --color-leaf-ink: var(--leaf-ink);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-  --font-display: var(--font-fraunces);
+  --font-sans: var(--font-open-sans);
+  --font-mono: var(--font-montserrat);
+  --font-display: var(--font-montserrat);
 }
 
 @media (prefers-color-scheme: dark) {
@@ -129,7 +129,7 @@
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: var(--font-geist-sans), system-ui, sans-serif;
+  font-family: var(--font-open-sans), system-ui, sans-serif;
 }
 
 /* Barres de defilement aux couleurs de la palette (page et panneaux) */
@@ -159,4 +159,16 @@ html {
 
 ::-webkit-scrollbar-corner {
   background: #f3f5f8;
+}
+
+/* Charte CanCham : poids de Montserrat pour les titres (font-display) et les etiquettes (font-mono) */
+@layer utilities {
+  .font-display {
+    font-weight: 700;
+    letter-spacing: -0.01em;
+  }
+
+  .font-mono {
+    font-weight: 600;
+  }
 }

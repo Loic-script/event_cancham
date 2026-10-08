@@ -36,7 +36,7 @@ export function QrCode({ value, size = 220, id, className }: QrCodeProps) {
       xmlns="http://www.w3.org/2000/svg"
     >
       <rect x={-quiet} y={-quiet} width={box} height={box} fill="#ffffff" />
-      <path d={d} fill="#152019" />
+      <path d={d} fill="#0f1d2c" />
     </svg>
   );
 }

@@ -78,7 +78,7 @@
 }
 
 .mine {
-  background: linear-gradient(145deg, #15965a, #0a6236);
+  background: linear-gradient(145deg, #007140, #005a33);
   color: #fff;
   border-bottom-right-radius: 6px;
 }
@@ -131,7 +131,7 @@
 }
 
 .item:hover {
-  background: rgba(11, 107, 63, 0.05);
+  background: rgba(0, 113, 64, 0.05);
 }
 
 .itemActive,

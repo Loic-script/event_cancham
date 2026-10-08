@@ -178,7 +178,7 @@ export function ProfileSettings({ extra }: ProfileSettingsProps) {
           <button
             type="button"
             onClick={() => setToast("La déconnexion sera active avec les comptes")}
-            className="mt-5 flex h-12 w-full cursor-pointer items-center justify-center gap-2 rounded-xl border border-leaf/30 bg-leaf-soft text-[14.5px] font-semibold text-leaf-ink transition-colors hover:bg-[#fbd9dc] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-leaf"
+            className="mt-5 flex h-12 w-full cursor-pointer items-center justify-center gap-2 rounded-xl border border-leaf/30 bg-leaf-soft text-[14.5px] font-semibold text-leaf-ink transition-colors hover:bg-[#f0d0d0] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-leaf"
           >
             <LogOutIcon width={18} height={18} />
             Se déconnecter
@@ -230,7 +230,7 @@ export function ProfileSettings({ extra }: ProfileSettingsProps) {
 
       {toast ? (
         <p role="status" className={styles.toast}>
-          <CheckIcon width={16} height={16} style={{ color: "#4fd08a" }} />
+          <CheckIcon width={16} height={16} style={{ color: "#2f9a68" }} />
           {toast}
         </p>
       ) : null}

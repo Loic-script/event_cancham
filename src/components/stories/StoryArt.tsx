@@ -2,9 +2,9 @@ import type { ChallengeTheme } from "@/lib/mock/challenges";
 import styles from "./stories.module.css";
 
 const BASE: Record<ChallengeTheme, string> = {
-  leaf: "linear-gradient(160deg, #3a0710 0%, #8f1b23 100%)",
+  leaf: "linear-gradient(160deg, #3a0710 0%, #6e0404 100%)",
   navy: "linear-gradient(160deg, #0b152e 0%, #1d3f78 100%)",
-  palm: "linear-gradient(160deg, #04281a 0%, #0f8a4b 100%)",
+  palm: "linear-gradient(160deg, #003a21 0%, #007140 100%)",
 };
 
 const ACCENT: Record<ChallengeTheme, string> = {

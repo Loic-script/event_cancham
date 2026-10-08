@@ -19,9 +19,9 @@
   z-index: -1;
   pointer-events: none;
   background:
-    radial-gradient(55% 45% at 8% 0%, rgba(214, 47, 58, 0.12), transparent 65%),
-    radial-gradient(50% 45% at 100% 18%, rgba(15, 138, 75, 0.14), transparent 65%),
-    radial-gradient(45% 40% at 60% 100%, rgba(214, 47, 58, 0.06), transparent 65%),
+    radial-gradient(55% 45% at 8% 0%, rgba(173, 7, 7, 0.12), transparent 65%),
+    radial-gradient(50% 45% at 100% 18%, rgba(0, 113, 64, 0.14), transparent 65%),
+    radial-gradient(45% 40% at 60% 100%, rgba(173, 7, 7, 0.06), transparent 65%),
     linear-gradient(180deg, #ffffff 0%, #f7f9fb 100%);
 }
 
@@ -138,9 +138,9 @@
 }
 
 .search:focus-within {
-  border-color: rgba(15, 138, 75, 0.6);
+  border-color: rgba(0, 113, 64, 0.6);
   background: #fff;
-  box-shadow: 0 0 0 4px rgba(15, 138, 75, 0.14);
+  box-shadow: 0 0 0 4px rgba(0, 113, 64, 0.14);
 }
 
 .search input {
@@ -162,7 +162,7 @@
   border-radius: 6px;
   border: 1px solid var(--line);
   background: #fff;
-  font-family: var(--font-geist-mono), monospace;
+  font-family: var(--font-montserrat), sans-serif;
   font-size: 10.5px;
   color: var(--graphite-faint);
 }
@@ -261,9 +261,9 @@
   margin-top: -26px;
   border-radius: 50%;
   color: #fff;
-  background: linear-gradient(145deg, #d62f3a, #8f1b23);
+  background: linear-gradient(90deg, #ad0707, #007140);
   box-shadow:
-    0 10px 24px -8px rgba(214, 47, 58, 0.7),
+    0 10px 24px -8px rgba(173, 7, 7, 0.7),
     0 0 0 5px var(--page-bg);
   transition:
     transform 0.25s cubic-bezier(0.2, 0.8, 0.2, 1),
@@ -277,7 +277,7 @@
 .tabHeroActive .heroDisc {
   transform: translateY(-3px);
   box-shadow:
-    0 16px 30px -10px rgba(214, 47, 58, 0.8),
+    0 16px 30px -10px rgba(173, 7, 7, 0.8),
     0 0 0 5px var(--page-bg);
 }
 
@@ -339,7 +339,7 @@
 
 .sideItemActive,
 .sideItemActive:hover {
-  background: linear-gradient(90deg, rgba(15, 138, 75, 0.16), rgba(15, 138, 75, 0.04));
+  background: linear-gradient(90deg, rgba(0, 113, 64, 0.16), rgba(0, 113, 64, 0.04));
   color: var(--palm-ink);
   font-weight: 600;
 }
@@ -418,8 +418,8 @@
   border-radius: 24px;
   border: 1px solid var(--line);
   background:
-    radial-gradient(60% 80% at 100% 0%, rgba(15, 138, 75, 0.2), transparent 60%),
-    radial-gradient(70% 90% at 0% 100%, rgba(214, 47, 58, 0.2), transparent 60%),
+    radial-gradient(60% 80% at 100% 0%, rgba(0, 113, 64, 0.2), transparent 60%),
+    radial-gradient(70% 90% at 0% 100%, rgba(173, 7, 7, 0.2), transparent 60%),
     linear-gradient(135deg, #ffffff 0%, #f3f6f9 100%);
   box-shadow: 0 30px 60px -36px rgba(15, 29, 44, 0.28);
 }
@@ -470,7 +470,7 @@
 
 .cdLabel {
   margin-top: 4px;
-  font-family: var(--font-geist-mono), monospace;
+  font-family: var(--font-montserrat), sans-serif;
   font-size: 10px;
   letter-spacing: 0.14em;
   text-transform: uppercase;

@@ -214,7 +214,7 @@ function strength(pw: string) {
 }
 
 const STRENGTH_LABEL = ["", "Faible", "Moyen", "Bon", "Excellent"];
-const STRENGTH_COLOR = ["", "#d62f3a", "#e0a020", "#0f8a4b", "#0a6236"];
+const STRENGTH_COLOR = ["", "#ad0707", "#e0a020", "#007140", "#005a33"];
 
 export function PasswordEditor({ onSaved }: EditorProps) {
   const [current, setCurrent] = useState("");

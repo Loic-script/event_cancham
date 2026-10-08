@@ -109,7 +109,7 @@
   left: 8px;
   padding: 2.5px;
   border-radius: 50%;
-  background: linear-gradient(135deg, #ff6b74, #d62f3a 45%, #4fd08a 100%);
+  background: linear-gradient(90deg, #ad0707, #007140);
   box-shadow: 0 4px 12px -4px rgba(0, 0, 0, 0.8);
 }
 
@@ -138,7 +138,7 @@
   border-radius: 999px;
   background: rgba(0, 0, 0, 0.45);
   color: #fff;
-  font-family: var(--font-geist-mono), monospace;
+  font-family: var(--font-montserrat), sans-serif;
   font-size: 9.5px;
   letter-spacing: 0.08em;
   text-transform: uppercase;

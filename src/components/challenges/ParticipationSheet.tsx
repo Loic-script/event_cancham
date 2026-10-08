@@ -222,7 +222,7 @@ export function ParticipationSheet({ challenge, existing, onClose }: Participati
                     <img src={photo} alt="Aperçu de votre photo" />
                   )}
                   <div className="absolute right-2 top-2 flex gap-1.5">
-                    <button type="button" onClick={() => fileRef.current?.click()} className="h-9 cursor-pointer rounded-full bg-white/90 px-3 text-[13px] font-semibold text-[#152019] hover:bg-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-palm">
+                    <button type="button" onClick={() => fileRef.current?.click()} className="h-9 cursor-pointer rounded-full bg-white/90 px-3 text-[13px] font-semibold text-[#0f1d2c] hover:bg-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-palm">
                       Changer
                     </button>
                     <button
@@ -234,7 +234,7 @@ export function ParticipationSheet({ challenge, existing, onClose }: Participati
                         setVideoUrl(undefined);
                       }}
                       aria-label="Retirer le fichier"
-                      className="grid h-9 w-9 cursor-pointer place-items-center rounded-full bg-white/90 text-[#d22630] hover:bg-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-palm"
+                      className="grid h-9 w-9 cursor-pointer place-items-center rounded-full bg-white/90 text-[#ad0707] hover:bg-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-palm"
                     >
                       <TrashIcon width={17} height={17} />
                     </button>
@@ -317,7 +317,7 @@ export function ParticipationSheet({ challenge, existing, onClose }: Participati
               type="submit"
               disabled={!canSubmit || phase === "sending"}
               className={`flex h-12 w-full cursor-pointer items-center justify-center gap-2 rounded-xl text-[15px] font-semibold text-white transition-[background-color,transform] active:scale-[0.99] disabled:cursor-not-allowed disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 ${
-                isVideo ? "bg-leaf hover:bg-[#b51d27] focus-visible:ring-leaf" : "bg-palm hover:bg-palm-deep focus-visible:ring-palm"
+                isVideo ? "bg-leaf hover:bg-[#8f0606] focus-visible:ring-leaf" : "bg-palm hover:bg-palm-deep focus-visible:ring-palm"
               }`}
             >
               {phase === "sending" ? (

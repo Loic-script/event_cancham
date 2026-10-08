@@ -16,8 +16,8 @@
   inset: 0 0 auto 0;
   height: 96px;
   background:
-    radial-gradient(70% 90% at 100% 0%, rgba(15, 138, 75, 0.22), transparent 60%),
-    radial-gradient(70% 90% at 0% 100%, rgba(214, 47, 58, 0.22), transparent 60%),
+    radial-gradient(70% 90% at 100% 0%, rgba(0, 113, 64, 0.22), transparent 60%),
+    radial-gradient(70% 90% at 0% 100%, rgba(173, 7, 7, 0.22), transparent 60%),
     linear-gradient(135deg, #ffffff 0%, #eef2f6 100%);
   border-bottom: 1px solid var(--line);
 }
@@ -40,12 +40,12 @@
   background: var(--leaf);
   color: #fff;
   cursor: pointer;
-  box-shadow: 0 0 0 3px var(--surface), 0 8px 16px -8px rgba(214, 47, 58, 0.8);
+  box-shadow: 0 0 0 3px var(--surface), 0 8px 16px -8px rgba(173, 7, 7, 0.8);
   transition: transform 0.15s ease, background-color 0.2s ease;
 }
 
 .avatarBadge:hover {
-  background: #b8222c;
+  background: #8f0606;
   transform: scale(1.06);
 }
 
@@ -95,10 +95,10 @@
 
 .rowActive,
 .rowActive:hover {
-  background: linear-gradient(135deg, #15965a, #0a6236);
+  background: linear-gradient(135deg, #007140, #005a33);
   border-color: transparent;
   color: #fff;
-  box-shadow: 0 14px 28px -16px rgba(15, 138, 75, 0.8);
+  box-shadow: 0 14px 28px -16px rgba(0, 113, 64, 0.8);
 }
 
 .rowLabel {
