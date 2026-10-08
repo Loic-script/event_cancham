@@ -20,10 +20,26 @@ export default function ChallengesPage() {
         <PageTitle title="Les défis" subtitle="Trois défis, deux fois 5 000 000 Ar et une mission au Canada à gagner." />
       </div>
 
-      <p style={{ "--i": 0 } as React.CSSProperties} className="flex items-center gap-2 rounded-2xl bg-gold-soft px-4 py-3 text-[13.5px] font-medium text-gold lg:hidden">
-        <GiftIcon width={18} height={18} className="shrink-0" />
-        Deux fois 5 000 000 Ar et une MECC tout inclus à gagner.
-      </p>
+      {/* accès à l'espace immersif « Découvrir les défis » */}
+      <Link
+        href="/decouvrir"
+        style={{ "--i": 0 } as React.CSSProperties}
+        className="group relative flex items-center gap-4 overflow-hidden rounded-2xl bg-[#0f1d2c] p-4 text-white shadow-[0_18px_40px_-24px_rgba(15,29,44,0.8)] transition-transform active:scale-[0.99] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-palm focus-visible:ring-offset-2 lg:col-span-3 lg:p-5"
+      >
+        <span aria-hidden className="pointer-events-none absolute -left-10 -top-14 h-40 w-40 rounded-full bg-[#ad0707]/50 blur-2xl" />
+        <span aria-hidden className="pointer-events-none absolute -right-10 -bottom-16 h-44 w-44 rounded-full bg-[#007140]/50 blur-2xl" />
+        <span className="relative grid h-12 w-12 shrink-0 place-items-center rounded-xl bg-white/10 ring-1 ring-white/20">
+          <GiftIcon width={22} height={22} />
+        </span>
+        <span className="relative min-w-0 flex-1">
+          <span className="block font-display text-[1.15rem] leading-tight lg:text-[1.35rem]">Découvrir les défis</span>
+          <span className="block text-[13px] text-white/75">Un espace dédié pour choisir votre défi et suivre votre progression.</span>
+        </span>
+        <span className="relative inline-flex h-10 shrink-0 items-center gap-1 rounded-xl bg-[linear-gradient(90deg,#ad0707,#007140)] px-3 text-[13.5px] font-semibold transition-[filter] group-hover:brightness-110 lg:px-4">
+          Ouvrir
+          <ChevronRightIcon width={16} height={16} />
+        </span>
+      </Link>
 
       {challenges.map((c, i) => {
         const status = challengeStatus(c);
