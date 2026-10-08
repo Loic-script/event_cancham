@@ -92,11 +92,17 @@ export function AppShell({ children, aside }: AppShellProps) {
     <div className={`${styles.app} theme-light`}>
       {/* ---------- barre latérale (≥ 1024 px) ---------- */}
       <aside className={`${styles.sidebar} fixed inset-y-0 left-0 z-30 hidden w-[264px] flex-col px-4 py-6 lg:flex`}>
-        <Link href="/" className="mb-8 flex items-center gap-3 rounded-xl px-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-palm-ink">
-          <Image src="/cancham-logo.png" alt="CanCham Madagascar" width={156} height={96} priority className="h-12 w-auto shrink-0" />
-          <span className="flex flex-col leading-tight">
-            <span className="font-display text-[1.25rem] tracking-tight text-graphite">{event.name}</span>
-            <span className="text-[12px] text-graphite-muted">{event.edition}</span>
+        <Link href="/" className="mb-6 flex flex-col items-center gap-2 rounded-xl px-1 py-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-palm-ink">
+          <Image
+            src="/cancham-logo-full.png"
+            alt="CanCham, Chambre de Commerce et de Coopération Canada-Madagascar"
+            width={210}
+            height={153}
+            priority
+            className="h-auto w-[210px]"
+          />
+          <span className="text-[12px] text-graphite-muted">
+            {event.name} · {event.edition}
           </span>
         </Link>
 
@@ -138,7 +144,7 @@ export function AppShell({ children, aside }: AppShellProps) {
           <header className={`${styles.topbar} lg:hidden`}>
             <div className="flex h-14 items-center gap-3 px-4" style={{ paddingTop: "env(safe-area-inset-top)" }}>
               <Link href="/" aria-label="Accueil" className="shrink-0 rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-palm-ink">
-                <Image src="/cancham-logo.png" alt="" width={117} height={72} priority className="h-9 w-auto" />
+                <Image src="/cancham-logo-full.png" alt="" width={63} height={46} priority className="h-11 w-auto" />
               </Link>
               <h1 className="min-w-0 flex-1 truncate font-display text-[1.3rem] leading-none tracking-tight text-graphite">{title}</h1>
               <button type="button" aria-label="Notifications" className={iconBtn}>
