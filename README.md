@@ -95,9 +95,8 @@ prisma/
   seed.ts                # Données d'exemple
   migrations/            # Migrations SQL générées
 prisma.config.ts         # Config Prisma (lit DATABASE_URL depuis .env)
-public/cancham-logo-full.png # Logo officiel complet, texte foncé pour fond pâle (navigation)
-public/cancham-logo-full-white.png # Même logo, texte blanc, pour un fond foncé
-public/cancham-logo.png  # Sigle seul (fond transparent), réservé aux petits formats
+public/cancham-logo.png  # Symbole CanCham (fond transparent, navigation)
+public/cancham-logo-full.png # Logo complet avec le nom de la chambre
 src/app/icon.png, apple-icon.png # Icônes de l'application (onglet, écran d'accueil iOS)
 src/
   lib/prisma.ts          # Client Prisma unique (adapter pg)
