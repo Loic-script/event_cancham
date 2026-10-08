@@ -12,7 +12,7 @@ type ComingSoonProps = {
 export function ComingSoon({ icon, title, description }: ComingSoonProps) {
   return (
     <section className={`${styles.card} mx-auto flex max-w-md flex-col items-center gap-4 px-6 py-12 text-center`}>
-      <span className="grid h-16 w-16 place-items-center rounded-2xl bg-palm-soft text-palm-ink">{icon}</span>
+      <span className="text-palm-ink">{icon}</span>
       <h2 className="font-display text-[1.6rem] leading-tight text-graphite">{title}</h2>
       <p className="text-[15px] leading-6 text-graphite-muted">{description}</p>
       <Link

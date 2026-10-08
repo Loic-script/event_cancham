@@ -19,7 +19,7 @@ export default function MessagesPage() {
         </div>
         <div className="hidden items-center justify-center lg:flex">
           <div className={`${appStyles.card} flex max-w-xs flex-col items-center gap-3 p-8 text-center`}>
-            <span className="grid h-14 w-14 place-items-center rounded-2xl bg-palm-soft text-palm-ink"><MessageCircleIcon width={26} height={26} /></span>
+            <span className="text-palm-ink"><MessageCircleIcon width={48} height={48} /></span>
             <p className="font-display text-[1.3rem] text-graphite">Vos messages</p>
             <p className="text-[14px] leading-5 text-graphite-muted">Choisissez une conversation à gauche pour l’ouvrir ici.</p>
           </div>
