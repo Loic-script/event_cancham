@@ -145,32 +145,6 @@
   backdrop-filter: blur(6px);
 }
 
-/* carte « votre défi » */
-.mine {
-  background: var(--paper);
-  border: 1px dashed rgba(15, 29, 44, 0.25);
-}
-
-.mine .name {
-  color: var(--graphite);
-  text-shadow: none;
-}
-
-.plus {
-  position: absolute;
-  left: 50%;
-  bottom: 44px;
-  display: grid;
-  place-items: center;
-  width: 34px;
-  height: 34px;
-  border-radius: 50%;
-  background: var(--palm);
-  color: #fff;
-  transform: translateX(-50%);
-  box-shadow: 0 0 0 4px var(--page-bg), 0 10px 20px -10px rgba(15, 138, 75, 0.9);
-}
-
 /* flèches (ordinateur) */
 .arrow {
   position: absolute;

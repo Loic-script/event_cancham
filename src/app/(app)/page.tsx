@@ -172,7 +172,7 @@ export default function HomePage() {
 
       {/* ---------- stories des défis ---------- */}
       <Section title="Stories des défis" href="/defis" linkLabel="Tous les défis" index={1}>
-        <StoriesRail stories={storyViews} me={{ firstName: currentUser.firstName, lastName: currentUser.lastName, hue: currentUser.hue }} />
+        <StoriesRail stories={storyViews} />
       </Section>
 
       {/* ---------- populaire en ce moment ---------- */}
