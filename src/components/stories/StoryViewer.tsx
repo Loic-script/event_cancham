@@ -88,7 +88,7 @@ export function StoryViewer({ stories, startIndex, onClose }: StoryViewerProps) 
         </div>
 
         <header className="absolute inset-x-0 z-[3] flex items-center gap-3 px-3" style={{ top: "calc(22px + env(safe-area-inset-top))" }}>
-          <Avatar person={story.author} size={38} className="ring-2 ring-white/80" />
+          <Avatar person={story.author} size={38} />
           <div className="min-w-0 flex-1 text-white">
             <p className="truncate text-[14px] font-bold leading-tight drop-shadow">{story.authorName}</p>
             <p className="truncate text-[12px] text-white/80">{story.when} · Défi {story.challenge.number}</p>

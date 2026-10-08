@@ -5,7 +5,8 @@ import { useId, useMemo, useState, type FormEvent } from "react";
 import { Avatar } from "@/components/app/Avatar";
 import { CameraIcon, MessageCircleIcon, SearchIcon, SendIcon, TrophyIcon } from "@/components/app/icons";
 import appStyles from "@/components/app/app.module.css";
-import type { Country } from "@/lib/mock/data";
+import { useProfile } from "@/components/profile/useProfile";
+import { fullName, type Country } from "@/lib/mock/data";
 import { PostCard, type FeedPost } from "./PostCard";
 import styles from "./feed.module.css";
 
@@ -42,6 +43,10 @@ export function Feed({ me, posts: initialPosts, people, initialQuery = "", initi
   const [draft, setDraft] = useState("");
   const [query, setQuery] = useState(initialQuery);
   const composerId = useId();
+  // Le compositeur et les nouvelles publications reflètent le profil modifié
+  // dans le navigateur (photo, nom), pas seulement les données du serveur.
+  const profile = useProfile();
+  const meLive = { ...me, firstName: profile.firstName, lastName: profile.lastName, name: fullName(profile), photo: profile.photo };
 
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase();
@@ -56,8 +61,8 @@ export function Feed({ me, posts: initialPosts, people, initialQuery = "", initi
     setPosts((list) => [
       {
         id: `local-${Date.now()}`,
-        author: { ...me },
-        authorName: me.name,
+        author: { ...meLive },
+        authorName: meLive.name,
         when: "à l'instant",
         text,
         likes: 0,
@@ -87,7 +92,7 @@ export function Feed({ me, posts: initialPosts, people, initialQuery = "", initi
           {/* composeur */}
           <form onSubmit={publish} className={`${appStyles.card} p-3`} style={{ "--i": 0 } as React.CSSProperties}>
             <div className="flex items-start gap-3">
-              <Avatar person={me} size={40} />
+              <Avatar person={meLive} size={40} />
               <div className="min-w-0 flex-1">
                 <label htmlFor={composerId} className="sr-only">Votre publication</label>
                 <textarea

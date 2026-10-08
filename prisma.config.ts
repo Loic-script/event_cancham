@@ -13,4 +13,4 @@ export default defineConfig({
 });
 
 
-//
+//enleve ca et ajoute des contenu pour le defi, pour attirer au membre de participer, un design attirant en UI/UX promax 

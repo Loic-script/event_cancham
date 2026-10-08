@@ -4,7 +4,8 @@ import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState, type ReactNode } from "react";
-import { currentUser, event, fullName, unreadTotal } from "@/lib/mock/data";
+import { useProfile } from "@/components/profile/useProfile";
+import { event, fullName, unreadTotal } from "@/lib/mock/data";
 import { Avatar } from "./Avatar";
 import {
   BellIcon,
@@ -71,6 +72,9 @@ export function AppShell({ children, aside }: AppShellProps) {
   const pathname = usePathname();
   const [moreOpen, setMoreOpen] = useState(false);
   const unread = unreadTotal();
+  // Profil courant avec les modifications locales (photo, nom…), pour que la
+  // navigation reflète ce qui a été changé sur la page Profil.
+  const me = useProfile();
 
   // Une conversation ouverte occupe tout l'écran sur mobile (en-tête et clavier propres).
   const immersive = /^\/messages\/[^/]+$/.test(pathname);
@@ -124,10 +128,10 @@ export function AppShell({ children, aside }: AppShellProps) {
           href="/profil"
           className={`${styles.card} ${styles.pressable} mt-4 flex items-center gap-3 p-3 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-palm-ink`}
         >
-          <Avatar person={currentUser} size={40} presence />
+          <Avatar person={me} size={40} presence />
           <span className="min-w-0 flex-1">
-            <span className="block truncate text-[14px] font-semibold text-graphite">{fullName(currentUser)}</span>
-            <span className="block truncate text-[12px] text-graphite-muted">{currentUser.company}</span>
+            <span className="block truncate text-[14px] font-semibold text-graphite">{fullName(me)}</span>
+            <span className="block truncate text-[12px] text-graphite-muted">{me.company}</span>
           </span>
         </Link>
       </aside>
@@ -164,7 +168,7 @@ export function AppShell({ children, aside }: AppShellProps) {
                 {unread > 0 ? <span className="pointer-events-none absolute right-2 top-2 h-2 w-2 rounded-full bg-leaf ring-2 ring-page-bg" /> : null}
               </span>
               <Link href="/profil" aria-label="Mon profil" className="rounded-full focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-palm-ink">
-                <Avatar person={currentUser} size={36} />
+                <Avatar person={me} size={36} />
               </Link>
             </div>
           </header>
