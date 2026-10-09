@@ -157,76 +157,6 @@
   transform: scale(0.98);
 }
 
-.pick {
-  display: grid;
-  gap: 14px;
-  grid-template-columns: 1fr;
-}
-
-@media (min-width: 640px) {
-  .pick {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-}
-
-@media (min-width: 1024px) {
-  .pick {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-  }
-}
-
-.card {
-  display: flex;
-  flex-direction: column;
-  gap: 14px;
-  min-height: 250px;
-  padding: 20px;
-  text-decoration: none;
-  color: #fff;
-  transition: transform 0.3s cubic-bezier(0.2, 0.8, 0.2, 1), box-shadow 0.3s ease, border-color 0.3s ease;
-}
-
-.card:hover {
-  transform: translateY(-4px);
-  border-color: rgba(255, 255, 255, 0.28);
-  box-shadow: 0 40px 70px -40px rgba(0, 0, 0, 1), inset 0 1px 0 rgba(255, 255, 255, 0.18);
-}
-
-.card:focus-visible {
-  outline: 2px solid #fff;
-  outline-offset: 3px;
-}
-
-.featured {
-  background: linear-gradient(135deg, #ad0707 0%, #7a1b2a 55%, #007140 140%);
-  border-color: rgba(255, 255, 255, 0.22);
-}
-
-.featured::before {
-  background: linear-gradient(125deg, rgba(255, 255, 255, 0.22) 0%, transparent 45%);
-}
-
-.locked {
-  opacity: 0.78;
-}
-
-.num {
-  display: grid;
-  place-items: center;
-  width: 44px;
-  height: 44px;
-  border-radius: 14px;
-  background: rgba(255, 255, 255, 0.1);
-  border: 1px solid rgba(255, 255, 255, 0.16);
-  font-family: var(--font-montserrat), sans-serif;
-  font-weight: 800;
-  font-size: 18px;
-}
-
-.featured .num {
-  background: rgba(255, 255, 255, 0.18);
-}
-
 .dock {
   position: fixed;
   left: 50%;
@@ -306,7 +236,6 @@
     animation: none;
   }
 
-  .card,
   .btnPrimary,
   .btnGhost,
   .iconBtn {

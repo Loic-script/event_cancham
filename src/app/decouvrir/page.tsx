@@ -1,8 +1,8 @@
 import type { Metadata, Viewport } from "next";
 import Image from "next/image";
 import Link from "next/link";
-import { ArrowLeftIcon, ChevronRightIcon, QrIcon, SparklesIcon, UsersIcon, XIcon } from "@/components/app/icons";
-import { StatusChip } from "@/components/challenges/StatusChip";
+import { ArrowLeftIcon, ChevronRightIcon, QrIcon, SparklesIcon, XIcon } from "@/components/app/icons";
+import { ChallengePicker } from "@/components/discover/ChallengePicker";
 import styles from "@/components/discover/discover.module.css";
 import { daysUntil } from "@/lib/format";
 import { challenges, challengeStatus } from "@/lib/mock/challenges";
@@ -95,42 +95,19 @@ export default function DiscoverPage() {
             <br />
             que vous voulez relever.
           </h2>
-          <div className={`${styles.pick} mt-6`}>
-            {challenges.map((c, i) => {
-              const s = statuses[i];
-              const featured = i === featuredIndex;
-              return (
-                <Link
-                  key={c.slug}
-                  href={`/decouvrir/${c.slug}`}
-                  className={`${styles.glass} ${styles.card} ${featured ? styles.featured : ""} ${s.key === "locked" ? styles.locked : ""}`}
-                  aria-label={`Défi ${c.number} : ${c.title}, ${s.label}`}
-                >
-                  <div className="flex items-start justify-between gap-3">
-                    <span className={styles.num}>{c.number}</span>
-                    <StatusChip status={s} />
-                  </div>
-                  <div>
-                    <p className="font-mono text-[10.5px] uppercase tracking-[0.18em] text-white/65">{c.phase}</p>
-                    <h3 className="mt-1 font-display text-[1.35rem] leading-tight">{c.title}</h3>
-                  </div>
-                  <p className="text-[13.5px] leading-5 text-white/80">{c.summary}</p>
-                  <div className="mt-auto flex items-end justify-between gap-3 pt-2">
-                    <p className="font-display text-[1.1rem] leading-tight">{c.prize}</p>
-                    <span className="inline-flex items-center gap-1 text-[13px] font-semibold">
-                      {s.key === "open" ? c.cta : "Voir"}
-                      <ChevronRightIcon width={16} height={16} />
-                    </span>
-                  </div>
-                  {c.participants > 0 ? (
-                    <p className="inline-flex items-center gap-1.5 text-[12px] text-white/60">
-                      <UsersIcon width={13} height={13} />
-                      {c.participants} participations
-                    </p>
-                  ) : null}
-                </Link>
-              );
-            })}
+          <div className="mt-8">
+            <ChallengePicker
+              items={challenges.map((c, i) => ({
+                slug: c.slug,
+                number: c.number,
+                phase: c.phase,
+                title: c.title,
+                hook: c.hook,
+                prize: c.prize,
+                kind: c.kind,
+                status: statuses[i],
+              }))}
+            />
           </div>
         </section>
 

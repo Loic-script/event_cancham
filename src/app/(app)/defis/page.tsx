@@ -12,12 +12,6 @@ export const metadata: Metadata = { title: "Les défis" };
 
 export const dynamic = "force-dynamic";
 
-const HOOKS: Record<string, string> = {
-  "jy-serai": "Annoncez votre venue, faites réagir votre réseau.",
-  "pitch-mecc": "Deux minutes de pitch, une mission au Canada.",
-  "jy-etais": "La plus belle photo de la soirée l'emporte.",
-};
-
 const SHOTS = [
   { src: "/stories/story-1.jpg", cls: "shotA" },
   { src: "/stories/story-6.jpg", cls: "shotB" },
@@ -109,7 +103,7 @@ export default function ChallengesPage() {
             <p className={styles.posterPhase}>{c.phase}</p>
             <h2 className={styles.posterTitle}>{c.title}</h2>
             <span className={styles.posterPrize}>{c.kind === "video" ? "Mission au Canada" : c.prize}</span>
-            <p className={styles.posterHook}>{HOOKS[c.slug]}</p>
+            <p className={styles.posterHook}>{c.hook}</p>
             <span className={styles.posterGo}>
               Voir le défi
               <ArrowRightIcon width={16} height={16} />
