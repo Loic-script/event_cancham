@@ -3,6 +3,8 @@
 import { useEffect, useId, useRef, useState, type ChangeEvent, type DragEvent, type FormEvent } from "react";
 import { FilmIcon, SpinnerIcon, TrashIcon, UploadIcon, XIcon } from "@/components/app/icons";
 import type { Challenge } from "@/lib/mock/challenges";
+import { PostEmbed } from "@/components/social/PostEmbed";
+import { LINK_MESSAGES, parseSocialLink } from "@/lib/social/links";
 import { saveParticipation, videoDuration, type Participation } from "./useParticipation";
 import styles from "./challenges.module.css";
 
@@ -14,7 +16,6 @@ type ParticipationSheetProps = {
 
 type Phase = "form" | "sending" | "done";
 
-const SOCIAL = /^(https?:\/\/)?([a-z0-9-]+\.)*(facebook\.com|fb\.com|fb\.watch|instagram\.com)\//i;
 const MAX_VIDEO_SECONDS = 120;
 
 const field =
@@ -106,21 +107,17 @@ export function ParticipationSheet({ challenge, existing, onClose }: Participati
   }
 
   const hasMedia = Boolean(videoMeta);
-  const canSubmit = (isVideo ? hasMedia && company.trim().length > 1 : link.trim().length > 0) && agree && !busy;
+  const parsed = isVideo ? null : parseSocialLink(link);
+  const canSubmit = (isVideo ? hasMedia && company.trim().length > 1 : Boolean(parsed?.ok)) && agree && !busy;
 
-  function submit(e: FormEvent) {
+  async function submit(e: FormEvent) {
     e.preventDefault();
-    const trimmedLink = link.trim();
     if (isVideo && !hasMedia) {
       setError("Ajoutez votre vidéo de pitch.");
       return;
     }
-    if (!isVideo && !trimmedLink) {
-      setError("Collez le lien de votre publication.");
-      return;
-    }
-    if (!isVideo && !SOCIAL.test(trimmedLink)) {
-      setError("Le lien doit pointer vers une publication Facebook ou Instagram.");
+    if (parsed && !parsed.ok) {
+      setError(LINK_MESSAGES[parsed.reason]);
       return;
     }
     if (!agree) {
@@ -129,18 +126,35 @@ export function ParticipationSheet({ challenge, existing, onClose }: Participati
     }
     setError(null);
     setPhase("sending");
-    window.setTimeout(() => {
-      saveParticipation({
-        slug: challenge.slug,
-        submittedAt: new Date().toISOString(),
-        status: "received",
-        link: isVideo ? undefined : trimmedLink,
-        video: isVideo ? videoMeta : undefined,
-        company: isVideo ? company.trim() : undefined,
-        pitch: isVideo ? pitch.trim() || undefined : undefined,
-      });
-      setPhase("done");
-    }, 900);
+
+    let publicationUrl: string | undefined;
+    if (parsed?.ok) {
+      publicationUrl = parsed.url;
+      try {
+        const response = await fetch(`/api/publications/check?url=${encodeURIComponent(parsed.url)}`, { cache: "no-store" });
+        if (!response.ok) {
+          const data = (await response.json().catch(() => null)) as { message?: string } | null;
+          setError(data?.message ?? "Impossible de vérifier cette publication.");
+          setPhase("form");
+          return;
+        }
+        const data = (await response.json()) as { url?: string };
+        if (data.url) publicationUrl = data.url;
+      } catch {
+        publicationUrl = parsed.url;
+      }
+    }
+
+    saveParticipation({
+      slug: challenge.slug,
+      submittedAt: new Date().toISOString(),
+      status: "received",
+      link: publicationUrl,
+      video: isVideo ? videoMeta : undefined,
+      company: isVideo ? company.trim() : undefined,
+      pitch: isVideo ? pitch.trim() || undefined : undefined,
+    });
+    setPhase("done");
   }
 
   return (
@@ -277,6 +291,16 @@ export function ParticipationSheet({ challenge, existing, onClose }: Participati
                 <label htmlFor={linkId} className={label}>Lien de votre publication</label>
                 <input id={linkId} type="url" inputMode="url" value={link} onChange={(e) => setLink(e.target.value)} required autoFocus placeholder="https://www.facebook.com/…" className={field} />
                 <p className="mt-1.5 text-[12.5px] leading-5 text-graphite-muted">Facebook ou Instagram. C’est ce lien que l’équipe utilise pour relever les réactions.</p>
+                {parsed && !parsed.ok && parsed.reason !== "empty" ? (
+                  <p role="status" className="mt-2 text-[13px] leading-5 text-leaf-ink">{LINK_MESSAGES[parsed.reason]}</p>
+                ) : null}
+                {parsed?.ok ? (
+                  <div className="mt-3">
+                    <p className="mb-2 text-[12.5px] font-semibold text-palm-ink">Voici votre publication {parsed.label}</p>
+                    <PostEmbed link={parsed} height={380} />
+                    <p className="mt-2 text-[12.5px] leading-5 text-graphite-muted">Si elle ne s’affiche pas, elle est peut-être privée : passez-la en « Public » avant d’envoyer.</p>
+                  </div>
+                ) : null}
               </div>
             )}
 

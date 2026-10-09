@@ -4,6 +4,8 @@ import { useState } from "react";
 import { CheckIcon, ExternalLinkIcon, FilmIcon, LinkIcon, LockIcon, PencilIcon, TrashIcon } from "@/components/app/icons";
 import appStyles from "@/components/app/app.module.css";
 import { opensAtLabel, type Challenge, type ChallengeStatus } from "@/lib/mock/challenges";
+import { PostEmbed } from "@/components/social/PostEmbed";
+import { parseSocialLink } from "@/lib/social/links";
 import { ParticipationSheet } from "./ParticipationSheet";
 import { removeParticipation, useParticipation } from "./useParticipation";
 import styles from "./challenges.module.css";
@@ -22,6 +24,7 @@ export function ChallengeActions({ challenge, status }: ChallengeActionsProps) {
   const isVideo = challenge.kind === "video";
 
   if (participation) {
+    const linked = participation.link ? parseSocialLink(participation.link) : null;
     return (
       <>
         <section className={`${appStyles.card} ${styles.mine} m-bleed p-4`} aria-label="Votre participation">
@@ -49,6 +52,11 @@ export function ChallengeActions({ challenge, status }: ChallengeActionsProps) {
               ) : null}
             </div>
           </div>
+          {linked?.ok ? (
+            <div className="mt-4">
+              <PostEmbed link={linked} height={420} />
+            </div>
+          ) : null}
           <div className="mt-4 flex gap-2">
             <button
               type="button"

@@ -133,3 +133,15 @@ curl -X POST http://localhost:3000/api/events \
 1. Éditez `prisma/schema.prisma`.
 2. Lancez `npm run db:migrate` et donnez un nom à la migration.
 3. Le client est régénéré automatiquement ; sinon `npm run db:generate`.
+
+## Liaison avec Facebook et Instagram
+
+Quand un participant colle le lien de sa publication (défis 1 et 3), l'application :
+
+1. **Analyse le lien** (`src/lib/social/links.ts`) : accepte les liens de publication, photo, vidéo, reel, partage et `fb.watch` de Facebook, ainsi que `/p/`, `/reel/` et `/tv/` d'Instagram. Les profils, les pages et les autres sites sont refusés avec un message clair. Le lien est normalisé (suivi publicitaire retiré) avant d'être enregistré.
+2. **Affiche un aperçu** de la vraie publication (`src/components/social/PostEmbed.tsx`) grâce aux extraits intégrables officiels de Facebook et d'Instagram. Aucune clé n'est nécessaire, mais la publication doit être publique. L'aperçu se retrouve ensuite dans le résumé de la participation.
+3. **Vérifie la publication côté serveur** (`GET /api/publications/check?url=…`, `src/lib/social/meta.ts`) avec l'API oEmbed de Meta, uniquement si `META_APP_ID` et `META_APP_SECRET` sont renseignés dans `.env`. Une publication privée ou supprimée est alors refusée avant l'envoi. Sans ces clés, la route répond `verification: "disabled"` et la participation est acceptée sur la forme.
+
+Ce que l'API de Meta ne permet pas : lire automatiquement le nombre de réactions d'une publication personnelle quelconque. Il faut soit que chaque participant autorise l'application par Facebook Login (permission `user_posts`, soumise à la validation de Meta), soit relever les réactions à la main, comme le prévoit le règlement des défis (« relevé par l'équipe »). Instagram ne donne les compteurs d'un autre compte que s'il s'agit d'un compte professionnel (Business Discovery).
+
+Variables d'environnement (jamais dans Git) : `META_APP_ID`, `META_APP_SECRET`, `META_GRAPH_VERSION` (défaut `v23.0`). Modèle dans `.env.example`.
