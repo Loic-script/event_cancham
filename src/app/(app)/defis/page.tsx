@@ -19,9 +19,9 @@ const HOOKS: Record<string, string> = {
 };
 
 const SHOTS = [
-  { src: "/stories/story-1.jpg", label: "Défi 1", cls: "shotA" },
-  { src: "/stories/story-6.jpg", label: "Défi 1", cls: "shotB" },
-  { src: "/stories/story-4.jpg", label: "Défi 1", cls: "shotC" },
+  { src: "/stories/story-1.jpg", cls: "shotA" },
+  { src: "/stories/story-6.jpg", cls: "shotB" },
+  { src: "/stories/story-4.jpg", cls: "shotC" },
 ] as const;
 
 const RIBBON = ["Défi 1 · J'y serai", "5 000 000 Ar", "Défi 2 · Pitch MECC", "Mission au Canada", "Défi 3 · J'y étais", "5 000 000 Ar"];
@@ -65,7 +65,6 @@ export default function ChallengesPage() {
           {SHOTS.map((s) => (
             <div key={s.src} className={`${styles.shot} ${styles[s.cls]}`}>
               <img src={s.src} alt="" loading="lazy" />
-              <span>{s.label}</span>
             </div>
           ))}
           <span className={`${styles.float} ${styles.floatA}`}>
