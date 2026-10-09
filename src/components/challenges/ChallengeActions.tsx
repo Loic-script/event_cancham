@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { CheckIcon, ExternalLinkIcon, FilmIcon, LockIcon, PencilIcon, TrashIcon } from "@/components/app/icons";
+import { CheckIcon, ExternalLinkIcon, FilmIcon, LinkIcon, LockIcon, PencilIcon, TrashIcon } from "@/components/app/icons";
 import appStyles from "@/components/app/app.module.css";
 import { opensAtLabel, type Challenge, type ChallengeStatus } from "@/lib/mock/challenges";
 import { ParticipationSheet } from "./ParticipationSheet";
@@ -33,13 +33,9 @@ export function ChallengeActions({ challenge, status }: ChallengeActionsProps) {
             </span>
           </div>
           <div className="flex gap-3">
-            {participation.photo ? (
-              <img src={participation.photo} alt="Votre photo" className={styles.thumb} />
-            ) : (
-              <span className={`${styles.thumb} grid place-items-center text-graphite-muted`}>
-                <FilmIcon width={26} height={26} />
-              </span>
-            )}
+            <span className={`${styles.thumb} grid place-items-center text-graphite-muted`}>
+              {isVideo ? <FilmIcon width={26} height={26} /> : <LinkIcon width={26} height={26} />}
+            </span>
             <div className="min-w-0 flex-1 text-[13.5px] leading-5 text-graphite-muted">
               <p>Envoyée le {when.format(new Date(participation.submittedAt))}.</p>
               {participation.company ? <p className="truncate font-semibold text-graphite">{participation.company}</p> : null}

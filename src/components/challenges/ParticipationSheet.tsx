@@ -1,9 +1,9 @@
 "use client";
 
 import { useEffect, useId, useRef, useState, type ChangeEvent, type DragEvent, type FormEvent } from "react";
-import { CameraIcon, FilmIcon, SpinnerIcon, TrashIcon, UploadIcon, XIcon } from "@/components/app/icons";
+import { FilmIcon, SpinnerIcon, TrashIcon, UploadIcon, XIcon } from "@/components/app/icons";
 import type { Challenge } from "@/lib/mock/challenges";
-import { saveParticipation, shrinkImage, videoDuration, type Participation } from "./useParticipation";
+import { saveParticipation, videoDuration, type Participation } from "./useParticipation";
 import styles from "./challenges.module.css";
 
 type ParticipationSheetProps = {
@@ -40,7 +40,6 @@ const CONFETTI = [
 export function ParticipationSheet({ challenge, existing, onClose }: ParticipationSheetProps) {
   const isVideo = challenge.kind === "video";
   const [phase, setPhase] = useState<Phase>("form");
-  const [photo, setPhoto] = useState<string | undefined>(existing?.photo);
   const [videoUrl, setVideoUrl] = useState<string | undefined>(undefined);
   const [videoMeta, setVideoMeta] = useState(existing?.video);
   const [link, setLink] = useState(existing?.link ?? "");
@@ -82,17 +81,12 @@ export function ParticipationSheet({ challenge, existing, onClose }: Participati
     setError(null);
     setBusy(true);
     try {
-      if (isVideo) {
-        if (!file.type.startsWith("video/")) throw new Error("Choisissez un fichier vidéo.");
-        const seconds = await videoDuration(file);
-        if (seconds > MAX_VIDEO_SECONDS) throw new Error(`La vidéo dure ${formatSeconds(seconds)} : la limite est de 2 minutes.`);
-        if (videoUrl) URL.revokeObjectURL(videoUrl);
-        setVideoUrl(URL.createObjectURL(file));
-        setVideoMeta({ name: file.name, seconds: Math.round(seconds), sizeMb: Math.round((file.size / 1_048_576) * 10) / 10 });
-      } else {
-        if (!file.type.startsWith("image/")) throw new Error("Choisissez une image (JPG, PNG, HEIC…).");
-        setPhoto(await shrinkImage(file));
-      }
+      if (!file.type.startsWith("video/")) throw new Error("Choisissez un fichier vidéo.");
+      const seconds = await videoDuration(file);
+      if (seconds > MAX_VIDEO_SECONDS) throw new Error(`La vidéo dure ${formatSeconds(seconds)} : la limite est de 2 minutes.`);
+      if (videoUrl) URL.revokeObjectURL(videoUrl);
+      setVideoUrl(URL.createObjectURL(file));
+      setVideoMeta({ name: file.name, seconds: Math.round(seconds), sizeMb: Math.round((file.size / 1_048_576) * 10) / 10 });
     } catch (e) {
       setError(e instanceof Error ? e.message : "Fichier illisible.");
     } finally {
@@ -111,17 +105,21 @@ export function ParticipationSheet({ challenge, existing, onClose }: Participati
     void handleFile(e.dataTransfer.files?.[0]);
   }
 
-  const hasMedia = isVideo ? Boolean(videoMeta) : Boolean(photo);
-  const canSubmit = hasMedia && agree && (!isVideo || company.trim().length > 1) && !busy;
+  const hasMedia = Boolean(videoMeta);
+  const canSubmit = (isVideo ? hasMedia && company.trim().length > 1 : link.trim().length > 0) && agree && !busy;
 
   function submit(e: FormEvent) {
     e.preventDefault();
     const trimmedLink = link.trim();
-    if (!hasMedia) {
-      setError(isVideo ? "Ajoutez votre vidéo de pitch." : "Ajoutez la photo de votre publication.");
+    if (isVideo && !hasMedia) {
+      setError("Ajoutez votre vidéo de pitch.");
       return;
     }
-    if (trimmedLink && !SOCIAL.test(trimmedLink)) {
+    if (!isVideo && !trimmedLink) {
+      setError("Collez le lien de votre publication.");
+      return;
+    }
+    if (!isVideo && !SOCIAL.test(trimmedLink)) {
       setError("Le lien doit pointer vers une publication Facebook ou Instagram.");
       return;
     }
@@ -136,8 +134,7 @@ export function ParticipationSheet({ challenge, existing, onClose }: Participati
         slug: challenge.slug,
         submittedAt: new Date().toISOString(),
         status: "received",
-        photo: isVideo ? undefined : photo,
-        link: trimmedLink || undefined,
+        link: isVideo ? undefined : trimmedLink,
         video: isVideo ? videoMeta : undefined,
         company: isVideo ? company.trim() : undefined,
         pitch: isVideo ? pitch.trim() || undefined : undefined,
@@ -201,75 +198,66 @@ export function ParticipationSheet({ challenge, existing, onClose }: Participati
               </button>
             </header>
 
-            <div>
-              <span className={label}>{isVideo ? "Votre vidéo de pitch" : "La photo de votre publication"}</span>
-              <input ref={fileRef} type="file" accept={isVideo ? "video/*" : "image/*"} capture={isVideo ? undefined : "environment"} onChange={onInput} className="sr-only" tabIndex={-1} aria-hidden />
-              {hasMedia ? (
-                <div className={styles.preview}>
-                  {isVideo ? (
-                    videoUrl ? (
+            {isVideo ? (
+              <div>
+                <span className={label}>Votre vidéo de pitch</span>
+                <input ref={fileRef} type="file" accept="video/*" onChange={onInput} className="sr-only" tabIndex={-1} aria-hidden />
+                {hasMedia ? (
+                  <div className={styles.preview}>
+                    {videoUrl ? (
                       <video src={videoUrl} controls playsInline muted />
                     ) : (
                       <div className="flex h-full flex-col items-center justify-center gap-2 text-white/85">
                         <FilmIcon width={32} height={32} />
                         <span className="text-[13px]">{videoMeta?.name}</span>
                       </div>
-                    )
-                  ) : (
-                    <img src={photo} alt="Aperçu de votre photo" />
-                  )}
-                  <div className="absolute right-2 top-2 flex gap-1.5">
-                    <button type="button" onClick={() => fileRef.current?.click()} className="h-9 cursor-pointer rounded-full bg-white/90 px-3 text-[13px] font-semibold text-[#0f1d2c] hover:bg-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-palm">
-                      Changer
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setPhoto(undefined);
-                        setVideoMeta(undefined);
-                        if (videoUrl) URL.revokeObjectURL(videoUrl);
-                        setVideoUrl(undefined);
-                      }}
-                      aria-label="Retirer le fichier"
-                      className="grid h-9 w-9 cursor-pointer place-items-center rounded-full bg-white/90 text-[#ad0707] hover:bg-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-palm"
-                    >
-                      <TrashIcon width={17} height={17} />
-                    </button>
+                    )}
+                    <div className="absolute right-2 top-2 flex gap-1.5">
+                      <button type="button" onClick={() => fileRef.current?.click()} className="h-9 cursor-pointer rounded-full bg-white/90 px-3 text-[13px] font-semibold text-[#0f1d2c] hover:bg-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-palm">
+                        Changer
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setVideoMeta(undefined);
+                          if (videoUrl) URL.revokeObjectURL(videoUrl);
+                          setVideoUrl(undefined);
+                        }}
+                        aria-label="Retirer le fichier"
+                        className="grid h-9 w-9 cursor-pointer place-items-center rounded-full bg-white/90 text-[#ad0707] hover:bg-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-palm"
+                      >
+                        <TrashIcon width={17} height={17} />
+                      </button>
+                    </div>
+                    {videoMeta ? (
+                      <p className="absolute bottom-2 left-2 rounded-full bg-black/60 px-2.5 py-1 font-mono text-[11px] text-white">
+                        {formatSeconds(videoMeta.seconds)} · {videoMeta.sizeMb} Mo
+                      </p>
+                    ) : null}
                   </div>
-                  {isVideo && videoMeta ? (
-                    <p className="absolute bottom-2 left-2 rounded-full bg-black/60 px-2.5 py-1 font-mono text-[11px] text-white">
-                      {formatSeconds(videoMeta.seconds)} · {videoMeta.sizeMb} Mo
-                    </p>
-                  ) : null}
-                </div>
-              ) : (
-                <button
-                  type="button"
-                  onClick={() => fileRef.current?.click()}
-                  onDragOver={(e) => {
-                    e.preventDefault();
-                    setDrag(true);
-                  }}
-                  onDragLeave={() => setDrag(false)}
-                  onDrop={onDrop}
-                  disabled={busy}
-                  className={`${styles.dropzone} ${drag ? styles.dropzoneActive : ""}`}
-                >
-                  {busy ? (
-                    <SpinnerIcon width={28} height={28} className={styles.spin} />
-                  ) : isVideo ? (
-                    <FilmIcon width={30} height={30} />
-                  ) : (
-                    <CameraIcon width={30} height={30} />
-                  )}
-                  <span className="text-[15px] font-semibold">{isVideo ? "Ajouter ma vidéo" : "Ajouter une photo"}</span>
-                  <span className="flex items-center gap-1 text-[12.5px]">
-                    <UploadIcon width={14} height={14} />
-                    {isVideo ? "2 minutes maximum, filmée au téléphone si vous voulez" : "Depuis l'appareil photo ou la galerie"}
-                  </span>
-                </button>
-              )}
-            </div>
+                ) : (
+                  <button
+                    type="button"
+                    onClick={() => fileRef.current?.click()}
+                    onDragOver={(e) => {
+                      e.preventDefault();
+                      setDrag(true);
+                    }}
+                    onDragLeave={() => setDrag(false)}
+                    onDrop={onDrop}
+                    disabled={busy}
+                    className={`${styles.dropzone} ${drag ? styles.dropzoneActive : ""}`}
+                  >
+                    {busy ? <SpinnerIcon width={28} height={28} className={styles.spin} /> : <FilmIcon width={30} height={30} />}
+                    <span className="text-[15px] font-semibold">Ajouter ma vidéo</span>
+                    <span className="flex items-center gap-1 text-[12.5px]">
+                      <UploadIcon width={14} height={14} />
+                      2 minutes maximum, filmée au téléphone si vous voulez
+                    </span>
+                  </button>
+                )}
+              </div>
+            ) : null}
 
             {isVideo ? (
               <>
@@ -286,10 +274,8 @@ export function ParticipationSheet({ challenge, existing, onClose }: Participati
               </>
             ) : (
               <div>
-                <label htmlFor={linkId} className={label}>
-                  Lien de votre publication <span className="font-normal text-graphite-faint">(facultatif)</span>
-                </label>
-                <input id={linkId} type="url" inputMode="url" value={link} onChange={(e) => setLink(e.target.value)} placeholder="https://www.facebook.com/…" className={field} />
+                <label htmlFor={linkId} className={label}>Lien de votre publication</label>
+                <input id={linkId} type="url" inputMode="url" value={link} onChange={(e) => setLink(e.target.value)} required autoFocus placeholder="https://www.facebook.com/…" className={field} />
                 <p className="mt-1.5 text-[12.5px] leading-5 text-graphite-muted">Facebook ou Instagram. C’est ce lien que l’équipe utilise pour relever les réactions.</p>
               </div>
             )}
