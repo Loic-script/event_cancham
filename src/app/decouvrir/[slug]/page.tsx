@@ -87,7 +87,6 @@ export default async function DiscoverChallengePage(props: PageProps<"/decouvrir
                 {status.key === "open" ? (
                   <a href="#participer" className={`${styles.btnPrimary} hidden lg:inline-flex`}>
                     {c.cta}
-                    <TrophyIcon width={18} height={18} />
                   </a>
                 ) : null}
               </div>
