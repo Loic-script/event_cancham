@@ -9,6 +9,7 @@ import { event, fullName, unreadTotal } from "@/lib/mock/data";
 import { Avatar } from "./Avatar";
 import {
   BellIcon,
+  ChevronRightIcon,
   GlobeIcon,
   HomeIcon,
   MessageCircleIcon,
@@ -74,6 +75,7 @@ export function AppShell({ children, aside }: AppShellProps) {
   const immersive = /^\/messages\/[^/]+$/.test(pathname);
   const wide = pathname.startsWith("/messages");
   const sectionHref = NAV.map((n) => n.href).find((href) => isActive(pathname, href)) ?? "/";
+  const activeIndex = NAV.findIndex((n) => isActive(pathname, n.href));
   const title = TITLES[sectionHref] ?? "Event";
 
   useEffect(() => {
@@ -96,35 +98,50 @@ export function AppShell({ children, aside }: AppShellProps) {
           </span>
         </Link>
 
-        <nav aria-label="Navigation principale" className="flex flex-1 flex-col gap-1">
-          {NAV.map((item) => {
-            const active = isActive(pathname, item.href);
-            return (
-              <Link
-                key={item.href}
-                href={item.href}
-                aria-current={active ? "page" : undefined}
-                className={`${styles.sideItem} ${active ? styles.sideItemActive : ""}`}
-              >
-                <item.icon width={20} height={20} />
-                <span className="flex-1">{item.label}</span>
-                {item.href === "/messages" && unread > 0 ? (
-                  <span className="rounded-full bg-leaf px-2 py-0.5 text-[11px] font-bold text-white">{unread}</span>
-                ) : null}
-              </Link>
-            );
-          })}
+        <nav aria-label="Navigation principale" className="flex flex-1 flex-col">
+          <p className={styles.sideLabel}>Menu</p>
+          <div className={styles.sideNav}>
+            <span
+              className={styles.sideIndicator}
+              data-indicator
+              aria-hidden
+              style={{ "--active": Math.max(0, activeIndex), "--visible": activeIndex < 0 ? 0 : 1 } as React.CSSProperties}
+            />
+            {NAV.map((item, i) => {
+              const active = i === activeIndex;
+              return (
+                <Link
+                  key={item.href}
+                  href={item.href}
+                  aria-current={active ? "page" : undefined}
+                  className={`${styles.sideItem} ${active ? styles.sideItemActive : ""}`}
+                  style={{ "--i": i } as React.CSSProperties}
+                >
+                  <span className={styles.sideIcon}>
+                    <item.icon width={19} height={19} />
+                  </span>
+                  <span className={styles.sideText}>{item.label}</span>
+                  {item.href === "/messages" && unread > 0 ? (
+                    <span className={styles.sideBadge}>{unread}</span>
+                  ) : (
+                    <ChevronRightIcon width={16} height={16} className={styles.sideArrow} />
+                  )}
+                </Link>
+              );
+            })}
+          </div>
         </nav>
 
         <Link
           href="/profil"
-          className={`${styles.card} ${styles.pressable} mt-4 flex items-center gap-3 p-3 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-palm-ink`}
+          className={`${styles.card} ${styles.sideProfile} mt-4 flex items-center gap-3 p-3 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-palm-ink`}
         >
           <Avatar person={me} size={40} presence />
           <span className="min-w-0 flex-1">
             <span className="block truncate text-[14px] font-semibold text-graphite">{fullName(me)}</span>
             <span className="block truncate text-[12px] text-graphite-muted">{me.company}</span>
           </span>
+          <ChevronRightIcon width={16} height={16} className={styles.sideArrow} />
         </Link>
       </aside>
 
@@ -225,8 +242,11 @@ export function AppShell({ children, aside }: AppShellProps) {
                       onClick={() => setMoreOpen(false)}
                       className={`${styles.sideItem} ${isActive(pathname, href) ? styles.sideItemActive : ""} text-[16px]`}
                     >
-                      <item.icon width={22} height={22} />
-                      {item.label}
+                      <span className={styles.sideIcon}>
+                        <item.icon width={20} height={20} />
+                      </span>
+                      <span className={styles.sideText}>{item.label}</span>
+                      <ChevronRightIcon width={16} height={16} className={styles.sideArrow} />
                     </Link>
                   </li>
                 );
