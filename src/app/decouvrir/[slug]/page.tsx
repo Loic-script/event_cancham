@@ -84,11 +84,6 @@ export default async function DiscoverChallengePage(props: PageProps<"/decouvrir
                   {c.participants > 0 ? <span className={styles.chip}><UsersIcon width={14} height={14} />{c.participants} participations</span> : null}
                   {c.closesAt ? <span className={styles.chip}><CalendarIcon width={14} height={14} />Jusqu’au {closesAtLabel(c)}</span> : null}
                 </div>
-                {status.key === "open" ? (
-                  <a href="#participer" className={`${styles.btnPrimary} hidden lg:inline-flex`}>
-                    {c.cta}
-                  </a>
-                ) : null}
               </div>
             </div>
             <p className="mt-5 max-w-2xl text-[15.5px] leading-7 text-white/85">{c.summary}</p>
