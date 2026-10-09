@@ -22,7 +22,6 @@ export type FeedPerson = {
   sector: string;
   hue: number;
   online?: boolean;
-  /** Conversation existante avec cette personne, s'il y en a une. */
   conversationId?: string;
 };
 
@@ -30,7 +29,6 @@ type FeedProps = {
   me: { firstName: string; lastName: string; name: string; hue: number; role: string; company: string };
   posts: FeedPost[];
   people: FeedPerson[];
-  /** Recherche pré-remplie (venant de la barre de recherche de l'en-tête). */
   initialQuery?: string;
   initialTab?: "posts" | "people";
 };
@@ -43,8 +41,6 @@ export function Feed({ me, posts: initialPosts, people, initialQuery = "", initi
   const [draft, setDraft] = useState("");
   const [query, setQuery] = useState(initialQuery);
   const composerId = useId();
-  // Le compositeur et les nouvelles publications reflètent le profil modifié
-  // dans le navigateur (photo, nom), pas seulement les données du serveur.
   const profile = useProfile();
   const meLive = { ...me, firstName: profile.firstName, lastName: profile.lastName, name: fullName(profile), photo: profile.photo };
 
@@ -89,7 +85,6 @@ export function Feed({ me, posts: initialPosts, people, initialQuery = "", initi
 
       {tab === "posts" ? (
         <div className={`${appStyles.stagger} flex flex-col gap-4`} role="tabpanel">
-          {/* composeur */}
           <form onSubmit={publish} className={`${appStyles.card} p-3`} style={{ "--i": 0 } as React.CSSProperties}>
             <div className="flex items-start gap-3">
               <Avatar person={meLive} size={40} />
@@ -123,7 +118,6 @@ export function Feed({ me, posts: initialPosts, people, initialQuery = "", initi
             </div>
           </form>
 
-          {/* participants en ligne */}
           <section style={{ "--i": 1 } as React.CSSProperties}>
             <div className="mb-1 flex items-center justify-between px-1">
               <h2 className="text-[13px] font-semibold uppercase tracking-[0.12em] text-graphite-muted">En ce moment</h2>

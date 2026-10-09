@@ -1,4 +1,3 @@
-// Met en gras les segments entre ** ** d'un texte de défi.
 export function RichText({ text }: { text: string }) {
   const parts = text.split("**");
   return (

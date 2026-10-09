@@ -1,8 +1,3 @@
-/* ------------------------------------------------------------------ */
-/*  Espace « Découvrir les défis » : bleu nuit, verre dépoli, halos     */
-/*  rouge et vert de la charte. Aucune coquille d'application.        */
-/* ------------------------------------------------------------------ */
-
 .space {
   position: relative;
   min-height: 100dvh;
@@ -14,7 +9,6 @@
   scroll-behavior: smooth;
 }
 
-/* halos fixes derrière tout le contenu */
 .blob {
   position: fixed;
   z-index: -1;
@@ -30,7 +24,6 @@
   to { transform: translate3d(28px, -36px, 0) scale(1.12); }
 }
 
-/* grille très légère, comme un quadrillage de maquette */
 .space::before {
   content: "";
   position: fixed;
@@ -44,8 +37,6 @@
   mask-image: radial-gradient(70% 60% at 50% 30%, #000 20%, transparent 100%);
 }
 
-/* ---------- verre ---------- */
-
 .glass {
   position: relative;
   border-radius: 24px;
@@ -56,7 +47,6 @@
   box-shadow: 0 30px 60px -40px rgba(0, 0, 0, 0.9), inset 0 1px 0 rgba(255, 255, 255, 0.12);
 }
 
-/* reflet diagonal sur le verre */
 .glass::before {
   content: "";
   position: absolute;
@@ -65,8 +55,6 @@
   background: linear-gradient(125deg, rgba(255, 255, 255, 0.14) 0%, transparent 38%);
   pointer-events: none;
 }
-
-/* ---------- entrées ---------- */
 
 .stagger > * {
   animation: rise 0.55s cubic-bezier(0.2, 0.8, 0.2, 1) backwards;
@@ -77,8 +65,6 @@
   from { opacity: 0; transform: translateY(14px); }
   to { opacity: 1; transform: translateY(0); }
 }
-
-/* ---------- barre du haut ---------- */
 
 .topbar {
   position: sticky;
@@ -115,8 +101,6 @@
   outline: 2px solid #fff;
   outline-offset: 2px;
 }
-
-/* ---------- boutons ---------- */
 
 .btnPrimary {
   display: inline-flex;
@@ -173,8 +157,6 @@
   transform: scale(0.98);
 }
 
-/* ---------- cartes de défi ---------- */
-
 .pick {
   display: grid;
   gap: 14px;
@@ -215,7 +197,6 @@
   outline-offset: 3px;
 }
 
-/* carte mise en avant : dégradé plein, comme la carte rose du modèle */
 .featured {
   background: linear-gradient(135deg, #ad0707 0%, #7a1b2a 55%, #007140 140%);
   border-color: rgba(255, 255, 255, 0.22);
@@ -245,8 +226,6 @@
 .featured .num {
   background: rgba(255, 255, 255, 0.18);
 }
-
-/* ---------- tuiles de progression ---------- */
 
 .tiles {
   display: grid;
@@ -290,7 +269,6 @@
   border-color: rgba(255, 255, 255, 0.2);
 }
 
-/* jauge */
 .bar {
   height: 8px;
   border-radius: 999px;
@@ -305,8 +283,6 @@
   background: linear-gradient(90deg, #ad0707, #007140);
   transition: width 0.8s cubic-bezier(0.2, 0.8, 0.2, 1);
 }
-
-/* ---------- dock flottant ---------- */
 
 .dock {
   position: fixed;
@@ -383,10 +359,6 @@
   }
 }
 
-/* ---------- page de détail d'un défi ---------- */
-
-/* le bouton collant de ChallengeActions reste au-dessus du dock sur mobile ;
-   sur ordinateur le panneau de droite est déjà fixe, pas de collage */
 .detail {
   --cta-bottom: calc(96px + env(safe-area-inset-bottom));
   --cta-bottom-lg: auto;
@@ -413,7 +385,6 @@
   border-radius: 6px;
 }
 
-/* couverture dans la carte héros */
 .detailCover {
   aspect-ratio: 16 / 9;
   max-height: 340px;
@@ -427,7 +398,6 @@
   }
 }
 
-/* gain en dégradé rouge → vert */
 .prize {
   font-family: var(--font-montserrat), sans-serif;
   font-weight: 800;
@@ -445,7 +415,6 @@
   }
 }
 
-/* chips d'information */
 .meta {
   display: flex;
   flex-wrap: wrap;
@@ -465,7 +434,6 @@
   color: rgba(255, 255, 255, 0.85);
 }
 
-/* frise des étapes */
 .timeline {
   position: relative;
   display: flex;
@@ -524,7 +492,6 @@
   color: #fff;
 }
 
-/* notes « bon à savoir » */
 .note {
   display: flex;
   gap: 10px;
@@ -543,7 +510,6 @@
   color: #fff;
 }
 
-/* panneau de droite */
 .aside {
   display: contents;
 }

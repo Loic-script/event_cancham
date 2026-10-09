@@ -15,7 +15,6 @@ export type ThreadMessage = {
   text: string;
   time: string;
   seen?: boolean;
-  /** Message vocal : adresse du fichier audio et durée en secondes. */
   audio?: { src: string; seconds: number };
 };
 
@@ -24,7 +23,6 @@ type ThreadProps = {
   initial: ThreadMessage[];
 };
 
-// Réponses simulées tant que la messagerie n'est pas branchée sur le serveur.
 const REPLIES = [
   "Bien reçu, on en reparle au cocktail !",
   "Parfait, merci Faneva.",
@@ -55,7 +53,6 @@ export function Thread({ peer, initial }: ThreadProps) {
   const timers = useRef<number[]>([]);
   const replyIndex = useRef(0);
 
-  // Toujours montrer le dernier message.
   useEffect(() => {
     endRef.current?.scrollIntoView({ block: "end" });
   }, [messages, typing]);
@@ -71,7 +68,6 @@ export function Thread({ peer, initial }: ThreadProps) {
     return () => window.clearTimeout(id);
   }, [toast]);
 
-  // L'interlocuteur « répond » après un court délai.
   const queueReply = useCallback(() => {
     timers.current.push(window.setTimeout(() => setTyping(true), 900));
     timers.current.push(
@@ -112,7 +108,6 @@ export function Thread({ peer, initial }: ThreadProps) {
     }
   }
 
-  // Insère l'émoji à la position du curseur et y laisse le curseur.
   function insertEmoji(emoji: string) {
     const el = inputRef.current;
     const start = el?.selectionStart ?? draft.length;
@@ -124,7 +119,6 @@ export function Thread({ peer, initial }: ThreadProps) {
     });
   }
 
-  // Regroupe les bulles consécutives du même expéditeur.
   const groups: ThreadMessage[][] = [];
   for (const m of messages) {
     const last = groups[groups.length - 1];

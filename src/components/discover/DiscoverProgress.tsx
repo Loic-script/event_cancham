@@ -10,8 +10,6 @@ type DiscoverProgressProps = {
   daysLeft: number;
 };
 
-// « Où en êtes-vous ? » : tuiles de progression et prochaine étape,
-// calculées à partir des participations conservées dans le navigateur.
 export function DiscoverProgress({ daysLeft }: DiscoverProgressProps) {
   const mine = useParticipations();
   const done = challenges.filter((c) => mine[c.slug]).length;

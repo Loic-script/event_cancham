@@ -7,22 +7,17 @@ import styles from "./ticket.module.css";
 type TicketStubProps = {
   code: string;
   holder: string;
-  /** QR code rendu côté serveur, taille billet. */
   qrSmall: ReactNode;
-  /** Même QR code, grande taille, pour le mode plein écran. */
   qrLarge: ReactNode;
 };
 
 const btn =
   "flex h-11 cursor-pointer items-center justify-center gap-2 rounded-xl text-[14px] font-semibold transition-[background-color,transform,box-shadow] duration-200 active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-palm focus-visible:ring-offset-2 focus-visible:ring-offset-surface";
 
-// Partie basse du billet : le QR code (tactile), le code, l'état et les actions.
-// Le plein écran, le partage et le téléchargement vivent ici car ils partagent le même état.
 export function TicketStub({ code, holder, qrSmall, qrLarge }: TicketStubProps) {
   const [open, setOpen] = useState(false);
   const [toast, setToast] = useState<string | null>(null);
 
-  // Plein écran : Échap pour fermer, et la page derrière ne défile plus.
   useEffect(() => {
     if (!open) return;
     const onKey = (e: KeyboardEvent) => {
@@ -53,7 +48,6 @@ export function TicketStub({ code, holder, qrSmall, qrLarge }: TicketStubProps) 
         setToast("Code du billet copié");
       }
     } catch {
-      /* partage annulé par la personne : rien à faire */
     }
   }
 

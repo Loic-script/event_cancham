@@ -17,7 +17,6 @@ import { stories } from "@/lib/mock/stories";
 
 export const metadata: Metadata = { title: "Accueil" };
 
-// Le compte à rebours dépend de la date du jour : page rendue à chaque requête.
 export const dynamic = "force-dynamic";
 
 function Section({ title, href, linkLabel, children, index }: { title: string; href: string; linkLabel: string; children: ReactNode; index: number }) {
@@ -35,7 +34,6 @@ function Section({ title, href, linkLabel, children, index }: { title: string; h
   );
 }
 
-// Halo coloré dans l'angle des cartes « Populaire en ce moment ».
 const shortDate = new Intl.DateTimeFormat("fr-FR", { day: "numeric", month: "short", year: "numeric", timeZone: "Indian/Antananarivo" });
 
 const GLOW = {
@@ -45,7 +43,6 @@ const GLOW = {
 } as const;
 
 export default function HomePage() {
-  // Un seul instant de référence pour tout le rendu de la page.
   const now = new Date();
   const hour = now.getHours();
   const greeting = hour >= 18 || hour < 5 ? "Bonsoir" : "Bonjour";
@@ -67,8 +64,6 @@ export default function HomePage() {
     };
   });
 
-  // Visuels contextuels plutôt que des icônes : le vrai QR code, les
-  // participants en ligne, le dernier interlocuteur, la couverture du défi.
   const online = participants.filter((p) => p.online);
   const latestConversation = [...conversations].sort(
     (a, b) => a.messages[a.messages.length - 1].minutesAgo - b.messages[b.messages.length - 1].minutesAgo,
@@ -131,7 +126,6 @@ export default function HomePage() {
 
   return (
     <div className={`${styles.stagger} flex flex-col gap-7`}>
-      {/* ---------- bannière ---------- */}
       <section className={`${styles.hero} p-6 lg:p-9`} style={{ "--i": 0 } as React.CSSProperties} aria-labelledby="hero-title">
         <span className={styles.heroBlob} style={{ width: 260, height: 260, right: -60, top: -80, background: "rgba(0, 113, 64, 0.32)" }} aria-hidden />
         <span className={styles.heroBlob} style={{ width: 300, height: 300, left: -90, bottom: -140, background: "rgba(173, 7, 7, 0.28)", animationDelay: "-4s" }} aria-hidden />
@@ -170,12 +164,10 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* ---------- stories des défis ---------- */}
       <Section title="Stories des défis" href="/defis" linkLabel="Tous les défis" index={1}>
         <StoriesRail stories={storyViews} />
       </Section>
 
-      {/* ---------- populaire en ce moment ---------- */}
       <Section title="Populaire en ce moment" href="/communaute" linkLabel="Voir tout" index={2}>
         <div className={styles.popular}>
           {popular.map((item) => (
@@ -191,7 +183,6 @@ export default function HomePage() {
         </div>
       </Section>
 
-      {/* ---------- derniers échos ---------- */}
       <Section title="Derniers échos" href="/communaute" linkLabel="Voir le fil" index={3}>
         <ul className={`${styles.card} divide-y divide-line`}>
           {latest.map((p) => (
@@ -206,7 +197,6 @@ export default function HomePage() {
         </ul>
       </Section>
 
-      {/* sur écran étroit, le panneau de droite s'affiche ici */}
       <div className="grid gap-6 md:grid-cols-2 xl:hidden" style={{ "--i": 4 } as React.CSSProperties}>
         <NewMembers />
         <FollowUs />

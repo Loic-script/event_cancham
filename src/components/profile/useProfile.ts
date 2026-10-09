@@ -3,9 +3,6 @@
 import { useSyncExternalStore } from "react";
 import { currentUser, type Country } from "@/lib/mock/data";
 
-// Modifications du profil conservées dans le navigateur tant que les comptes
-// n'existent pas côté serveur. Même mécanique que les participations.
-
 export type ProfileOverrides = Partial<{
   firstName: string;
   lastName: string;
@@ -72,7 +69,6 @@ export function useProfileOverrides(): ProfileOverrides {
   return useSyncExternalStore(subscribe, read, () => EMPTY);
 }
 
-/** Profil courant : données de démonstration complétées par les modifications locales. */
 export function useProfile(): Profile {
   const o = useProfileOverrides();
   return { ...currentUser, blocked: [], ...o };

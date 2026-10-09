@@ -10,7 +10,6 @@ import { challenges, challengeStatus } from "@/lib/mock/challenges";
 
 export const metadata: Metadata = { title: "Les défis" };
 
-// L'état d'un défi dépend de la date : page rendue à chaque requête.
 export const dynamic = "force-dynamic";
 
 export default function ChallengesPage() {
@@ -20,7 +19,6 @@ export default function ChallengesPage() {
         <PageTitle title="Les défis" subtitle="Trois défis, deux fois 5 000 000 Ar et une mission au Canada à gagner." />
       </div>
 
-      {/* accès à l'espace immersif « Découvrir les défis » */}
       <Link
         href="/decouvrir"
         style={{ "--i": 0 } as React.CSSProperties}

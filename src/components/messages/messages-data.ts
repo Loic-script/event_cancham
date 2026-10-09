@@ -3,8 +3,6 @@ import { conversations, fullName, personById } from "@/lib/mock/data";
 import type { ConversationItem } from "./ConversationList";
 import type { ThreadMessage } from "./Thread";
 
-// Prépare les données de la messagerie pour les composants d'affichage.
-
 export function listItems(): ConversationItem[] {
   return conversations
     .map((c) => {

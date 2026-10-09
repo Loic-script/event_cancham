@@ -30,7 +30,6 @@ type NavItem = {
   icon: (props: IconProps) => React.JSX.Element;
 };
 
-// Ordre de la barre latérale (ordinateur).
 const NAV: NavItem[] = [
   { href: "/", label: "Accueil", icon: HomeIcon },
   { href: "/billet", label: "Billet", icon: TicketIcon },
@@ -41,7 +40,6 @@ const NAV: NavItem[] = [
   { href: "/profil", label: "Profil", icon: UserIcon },
 ];
 
-// Cinq onglets en bas sur mobile ; Défis et Réseaux sociaux passent par « Plus ».
 const TABS = ["/", "/communaute", "/billet", "/messages", "/profil"];
 const MORE = ["/defis", "/reseaux"];
 
@@ -64,7 +62,6 @@ const iconBtn =
 
 type AppShellProps = {
   children: ReactNode;
-  /** Colonne de droite sur grand écran (profil, nouveaux participants, réseaux). */
   aside?: ReactNode;
 };
 
@@ -72,13 +69,9 @@ export function AppShell({ children, aside }: AppShellProps) {
   const pathname = usePathname();
   const [moreOpen, setMoreOpen] = useState(false);
   const unread = unreadTotal();
-  // Profil courant avec les modifications locales (photo, nom…), pour que la
-  // navigation reflète ce qui a été changé sur la page Profil.
   const me = useProfile();
 
-  // Une conversation ouverte occupe tout l'écran sur mobile (en-tête et clavier propres).
   const immersive = /^\/messages\/[^/]+$/.test(pathname);
-  // La messagerie a besoin de toute la largeur sur ordinateur : pas de colonne de droite.
   const wide = pathname.startsWith("/messages");
   const sectionHref = NAV.map((n) => n.href).find((href) => isActive(pathname, href)) ?? "/";
   const title = TITLES[sectionHref] ?? "Event";
@@ -94,7 +87,6 @@ export function AppShell({ children, aside }: AppShellProps) {
 
   return (
     <div className={`${styles.app} theme-light`}>
-      {/* ---------- barre latérale (≥ 1024 px) ---------- */}
       <aside className={`${styles.sidebar} fixed inset-y-0 left-0 z-30 hidden w-[264px] flex-col px-4 py-6 lg:flex`}>
         <Link href="/" className="mb-8 flex items-center gap-3 rounded-xl px-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-palm-ink">
           <Image src="/cancham-logo.png" alt="CanCham Madagascar" width={156} height={96} priority className="h-12 w-auto shrink-0" />
@@ -137,7 +129,6 @@ export function AppShell({ children, aside }: AppShellProps) {
       </aside>
 
       <div className={`lg:pl-[264px] ${aside && !wide ? "xl:pr-[320px]" : ""}`}>
-        {/* ---------- en-tête mobile ---------- */}
         {!immersive ? (
           <header className={`${styles.topbar} lg:hidden`}>
             <div className="flex h-14 items-center gap-3 px-4" style={{ paddingTop: "env(safe-area-inset-top)" }}>
@@ -155,7 +146,6 @@ export function AppShell({ children, aside }: AppShellProps) {
           </header>
         ) : null}
 
-        {/* ---------- en-tête ordinateur : recherche et raccourcis ---------- */}
         {!immersive ? (
           <header className={`${styles.topbar} hidden lg:block`}>
             <div className="mx-auto flex h-16 max-w-6xl items-center gap-4 px-10">
@@ -174,21 +164,17 @@ export function AppShell({ children, aside }: AppShellProps) {
           </header>
         ) : null}
 
-        {/* Pas d'animation d'entrée en mode immersif : sa transformation ferait
-            du <main> le conteneur de la conversation en position fixe. */}
         <main key={pathname} className={`${immersive ? "" : `${styles.page} px-4 pb-28 pt-4 lg:px-10 lg:py-8`} mx-auto w-full max-w-6xl`}>
           {children}
         </main>
       </div>
 
-      {/* ---------- colonne de droite (≥ 1280 px) ---------- */}
       {aside && !wide ? (
         <aside className={`${styles.aside} fixed inset-y-0 right-0 z-20 hidden w-[320px] overflow-y-auto px-5 py-6 xl:block`} aria-label="Panneau latéral">
           {aside}
         </aside>
       ) : null}
 
-      {/* ---------- barre d'onglets mobile ---------- */}
       {!immersive ? (
         <nav aria-label="Navigation principale" className={`${styles.tabbar} lg:hidden`}>
           {TABS.map((href) => {
@@ -218,7 +204,6 @@ export function AppShell({ children, aside }: AppShellProps) {
         </nav>
       ) : null}
 
-      {/* ---------- feuille « Plus » ---------- */}
       {moreOpen ? (
         <>
           <div className={styles.scrim} onClick={() => setMoreOpen(false)} aria-hidden />

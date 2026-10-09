@@ -1,8 +1,3 @@
-// Données de démonstration de l'espace participant.
-// Elles reproduisent la forme des futurs modèles Prisma (User, Ticket, Post,
-// Conversation, Message) pour que le branchement sur la base soit un simple
-// remplacement de ce module.
-
 export type Country = "MG" | "CA";
 
 export type Person = {
@@ -16,7 +11,6 @@ export type Person = {
   sector: string;
   bio?: string;
   online?: boolean;
-  /** Teinte (0-360) qui colore l'avatar en l'absence de photo. */
   hue: number;
 };
 

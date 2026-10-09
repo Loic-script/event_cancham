@@ -1,5 +1,3 @@
-// Les trois défis du gala. Le texte en **gras** est mis en évidence à l'affichage.
-
 export type ChallengeSlug = "jy-serai" | "pitch-mecc" | "jy-etais";
 export type ChallengeKind = "photo" | "video";
 export type ChallengeTheme = "leaf" | "navy" | "palm";
@@ -9,7 +7,6 @@ export type Challenge = {
   number: 1 | 2 | 3;
   phase: string;
   title: string;
-  /** Mot géant en filigrane de la couverture. */
   word: string;
   prize: string;
   prizeNote: string;
@@ -20,12 +17,9 @@ export type Challenge = {
   cta: string;
   theme: ChallengeTheme;
   participants: number;
-  /** Avant cette date, le défi est verrouillé. */
   opensAt?: string;
   closesAt?: string;
-  /** Réservé aux billets scannés à l'entrée du gala. */
   requiresScan?: boolean;
-  /** Photo de couverture (chemin dans /public) ; sinon, une composition graphique. */
   coverImage?: string;
 };
 
@@ -109,12 +103,10 @@ export function challengeStatus(c: Challenge, now = new Date()): ChallengeStatus
   return { key: "open", label: c.kind === "video" ? "Candidatures ouvertes" : "En cours" };
 }
 
-/** « 18 décembre à 19 h » */
 export function opensAtLabel(c: Challenge): string {
   return c.opensAt ? longDateTime.format(new Date(c.opensAt)).replace(/\s(\d+)$/, " $1 h") : "";
 }
 
-/** « 28 décembre à 19 h », ou une chaîne vide si aucune clôture n'est fixée. */
 export function closesAtLabel(c: Challenge): string {
   return c.closesAt ? longDateTime.format(new Date(c.closesAt)).replace(/\s(\d+)$/, " $1 h") : "";
 }

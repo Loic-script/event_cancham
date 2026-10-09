@@ -8,10 +8,7 @@ type EmojiPickerProps = {
   onClose: () => void;
 };
 
-// Sélection volontairement courte et adaptée à une soirée de gala :
-// pas de dépendance, chargement instantané.
 const GROUPS: { label: string; emojis: string[] }[] = [
-  // Émojis d'avant Unicode 14 uniquement : les plus récents s'affichent en carré vide sur Windows 10.
   { label: "Humeurs", emojis: ["😀", "😂", "🤣", "😊", "😍", "🥰", "😎", "🤩", "😅", "😉", "😇", "🙂", "😘", "🤔", "😢", "😭", "😡", "🥳", "😴", "🤗", "😏", "🙃", "😋", "🤭"] },
   { label: "Gestes", emojis: ["👍", "👏", "🙏", "🤝", "💪", "👋", "✌️", "🤞", "👌", "🙌", "👀", "🤙"] },
   { label: "Cœurs", emojis: ["❤️", "🧡", "💛", "💚", "💙", "💜", "🤍", "💔", "💯", "✨", "💫", "⭐"] },
@@ -21,7 +18,6 @@ const GROUPS: { label: string; emojis: string[] }[] = [
 export function EmojiPicker({ onPick, onClose }: EmojiPickerProps) {
   const ref = useRef<HTMLDivElement | null>(null);
 
-  // Fermeture au clic en dehors et à la touche Échap.
   useEffect(() => {
     const onPointer = (e: PointerEvent) => {
       if (ref.current && !ref.current.contains(e.target as Node)) onClose();

@@ -4,7 +4,6 @@
   --background: #ffffff;
   --foreground: #171717;
 
-  /* Palette de marque (extraite de la maquette La Traversée) */
   --night: #0b0908;
   --night-2: #15110e;
   --brand-red: #ad0707;
@@ -18,7 +17,6 @@
   --ink-muted: #b2a99c;
   --ink-faint: #6e675f;
 
-  /* Espace participant (theme clair, couleurs du logo CanCham) */
   --paper: #f3f4f1;
   --surface: #ffffff;
   --line: #e3e7e1;
@@ -38,7 +36,6 @@
   --leaf-ink: #ad0707;
 }
 
-/* Theme sombre de l espace participant (fonds noirs, verre depoli) */
 .theme-dark {
   --page-bg: #0f1d2c;
   --paper: #14263a;
@@ -60,7 +57,6 @@
   color-scheme: dark;
 }
 
-/* Ilot clair dans le theme sombre (le billet reste un papier blanc) */
 .theme-light {
   --page-bg: #ffffff;
   --paper: #f3f5f8;
@@ -132,7 +128,6 @@ body {
   font-family: var(--font-open-sans), system-ui, sans-serif;
 }
 
-/* Barres de defilement aux couleurs de la palette (page et panneaux) */
 html {
   scrollbar-color: rgba(15, 29, 44, 0.28) #f3f5f8;
   scrollbar-width: thin;
@@ -161,7 +156,6 @@ html {
   background: #f3f5f8;
 }
 
-/* Charte CanCham : poids de Montserrat pour les titres (font-display) et les etiquettes (font-mono) */
 @layer utilities {
   .font-display {
     font-weight: 700;

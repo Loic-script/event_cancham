@@ -8,13 +8,11 @@ import styles from "./challenges.module.css";
 
 const shortDate = new Intl.DateTimeFormat("fr-FR", { day: "numeric", month: "short" });
 
-/** « 1/3 » : nombre de défis auxquels la personne a participé. */
 export function ParticipationCount() {
   const mine = useParticipations();
   return <>{Object.keys(mine).length}/{challenges.length}</>;
 }
 
-/** Texte et barre de progression pour l'accueil. */
 export function ChallengeProgress() {
   const count = Object.keys(useParticipations()).length;
   return (
@@ -29,7 +27,6 @@ export function ChallengeProgress() {
   );
 }
 
-/** Liste des trois défis avec l'état de la personne, pour le profil. */
 export function MyChallenges() {
   const mine = useParticipations();
   return (

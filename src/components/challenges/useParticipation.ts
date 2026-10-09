@@ -7,10 +7,8 @@ export type Participation = {
   slug: ChallengeSlug;
   submittedAt: string;
   status: "received";
-  /** Photo réduite, en data URL (défis photo). */
   photo?: string;
   link?: string;
-  /** Vidéo de pitch : seules les métadonnées sont conservées entre deux visites. */
   video?: { name: string; seconds: number; sizeMb: number };
   company?: string;
   pitch?: string;
@@ -18,8 +16,6 @@ export type Participation = {
 
 type Store = Partial<Record<ChallengeSlug, Participation>>;
 
-// Tant que les défis ne sont pas reliés au serveur, les participations
-// vivent dans le navigateur. Le module expose un petit store observable.
 const KEY = "event.participations.v1";
 const EVENT = "event:participations";
 const EMPTY: Store = {};
@@ -48,7 +44,6 @@ function write(store: Store) {
   try {
     window.localStorage.setItem(KEY, JSON.stringify(store));
   } catch {
-    /* quota dépassé ou stockage bloqué : la participation reste en mémoire de page */
     cachedRaw = null;
     cachedValue = store;
   }
@@ -82,7 +77,6 @@ export function removeParticipation(slug: ChallengeSlug) {
   write(next);
 }
 
-/** Réduit une image à `max` px de côté et la renvoie en JPEG (data URL). */
 export function shrinkImage(file: File, max = 1000): Promise<string> {
   return new Promise((resolve, reject) => {
     const url = URL.createObjectURL(file);
@@ -110,7 +104,6 @@ export function shrinkImage(file: File, max = 1000): Promise<string> {
   });
 }
 
-/** Durée d'une vidéo en secondes, lue dans ses métadonnées. */
 export function videoDuration(file: File): Promise<number> {
   return new Promise((resolve, reject) => {
     const url = URL.createObjectURL(file);

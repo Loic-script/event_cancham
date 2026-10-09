@@ -8,7 +8,6 @@ import { FacebookLogo, InstagramLogo, LinkedinLogo } from "./BrandLogos";
 import { ChevronRightIcon, MaximizeIcon } from "./icons";
 import styles from "./app.module.css";
 
-// Derniers inscrits (données de démonstration : minutes depuis l'arrivée).
 const NEW_MEMBERS: { id: string; minutesAgo: number }[] = [
   { id: "p10", minutesAgo: 6 },
   { id: "p8", minutesAgo: 31 },
@@ -22,7 +21,6 @@ const SOCIAL = [
   { label: "LinkedIn", handle: "CanCham Madagascar", href: "https://www.linkedin.com/company/cancham-madagascar", logo: LinkedinLogo },
 ];
 
-/** Carte du billet : chiffres clés et QR code d'entrée. */
 export function ProfileCard() {
   const me = currentUser;
   const myPosts = posts.filter((p) => p.authorId === me.id).length;
@@ -40,7 +38,6 @@ export function ProfileCard() {
           </div>
         ))}
       </dl>
-      {/* le billet, directement sous la main : un toucher ouvre la page et son plein écran */}
       <Link
         href="/billet"
         aria-label={`Mon billet, code ${me.ticket.code}, table ${me.ticket.table}. Ouvrir le billet en grand.`}
@@ -57,7 +54,6 @@ export function ProfileCard() {
   );
 }
 
-/** Nouveaux participants, avec le temps écoulé depuis leur arrivée. */
 export function NewMembers({ compact = false }: { compact?: boolean }) {
   return (
     <section aria-labelledby="new-members-title">
@@ -84,7 +80,6 @@ export function NewMembers({ compact = false }: { compact?: boolean }) {
   );
 }
 
-/** Réseaux sociaux de CanCham, là où se jouent les défis photo. */
 export function FollowUs() {
   return (
     <section aria-labelledby="follow-title">
@@ -111,7 +106,6 @@ export function FollowUs() {
   );
 }
 
-/** Colonne de droite sur grand écran. */
 export function RightPanel() {
   return (
     <div className="flex flex-col gap-6">

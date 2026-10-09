@@ -1,6 +1,3 @@
-/* ---------- messagerie ---------- */
-
-/* sur mobile, la conversation prend tout l'écran ; sur ordinateur elle vit dans la grille */
 .thread {
   position: fixed;
   inset: 0;
@@ -48,7 +45,6 @@
   border-top: 1px solid var(--line);
 }
 
-/* bulles */
 .row {
   display: flex;
   align-items: flex-end;
@@ -87,7 +83,6 @@
   margin-top: 10px;
 }
 
-/* une bulle qui arrive */
 .in {
   animation: bubbleIn 0.3s cubic-bezier(0.2, 0.8, 0.2, 1) both;
 }
@@ -97,7 +92,6 @@
   to { opacity: 1; transform: translateY(0) scale(1); }
 }
 
-/* indicateur de saisie */
 .typing {
   display: inline-flex;
   gap: 4px;
@@ -120,7 +114,6 @@
   30% { transform: translateY(-4px); opacity: 1; }
 }
 
-/* liste des conversations */
 .item {
   display: flex;
   align-items: center;
@@ -154,8 +147,6 @@
 .sendBtn:not(:disabled):active {
   transform: scale(0.9) rotate(-8deg);
 }
-
-/* ---------- émojis ---------- */
 
 .picker {
   position: absolute;
@@ -198,8 +189,6 @@
   outline: none;
 }
 
-/* ---------- enregistrement vocal ---------- */
-
 .recording {
   display: flex;
   align-items: center;
@@ -223,7 +212,6 @@
   50% { opacity: 0.4; transform: scale(0.8); }
 }
 
-/* égaliseur pendant la prise de son */
 .eq {
   display: flex;
   align-items: center;
@@ -251,7 +239,6 @@
   50% { height: 100%; }
 }
 
-/* bulle audio */
 .voice {
   display: flex;
   align-items: center;

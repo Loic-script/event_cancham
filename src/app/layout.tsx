@@ -2,7 +2,6 @@ import type { Metadata, Viewport } from "next";
 import { Montserrat, Open_Sans } from "next/font/google";
 import "./globals.css";
 
-// Charte CanCham : Montserrat pour les titres, Open Sans pour les paragraphes.
 const montserrat = Montserrat({
   variable: "--font-montserrat",
   subsets: ["latin"],

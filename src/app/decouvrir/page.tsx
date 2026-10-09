@@ -19,7 +19,6 @@ export const viewport: Viewport = {
   viewportFit: "cover",
 };
 
-// L'état des défis dépend de la date : page rendue à chaque requête.
 export const dynamic = "force-dynamic";
 
 const PRIZE_TOTAL = "10 000 000 Ar";
@@ -35,7 +34,6 @@ export default function DiscoverPage() {
       <span className={styles.blob} style={{ width: 460, height: 460, right: -160, top: 220, background: "rgba(0, 113, 64, 0.5)", animationDelay: "-6s" }} aria-hidden />
       <span className={styles.blob} style={{ width: 360, height: 360, left: "30%", bottom: -200, background: "rgba(173, 7, 7, 0.35)", animationDelay: "-10s" }} aria-hidden />
 
-      {/* ---------- barre du haut ---------- */}
       <header className={styles.topbar}>
         <div className="mx-auto flex h-16 max-w-5xl items-center gap-3 px-4 lg:px-8" style={{ paddingTop: "env(safe-area-inset-top)" }}>
           <Link href="/" aria-label="Accueil de l’espace participant" className="shrink-0 rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white">
@@ -51,7 +49,6 @@ export default function DiscoverPage() {
       </header>
 
       <main className={`${styles.stagger} mx-auto flex max-w-5xl flex-col gap-10 px-4 pb-36 pt-8 lg:px-8 lg:pt-12`}>
-        {/* ---------- héros ---------- */}
         <section className={`${styles.glass} p-6 lg:p-10`} style={{ "--i": 0 } as React.CSSProperties} aria-labelledby="discover-title">
           <p className="flex items-center gap-2 font-mono text-[11px] uppercase tracking-[0.18em] text-white/70">
             <SparklesIcon width={14} height={14} />
@@ -93,7 +90,6 @@ export default function DiscoverPage() {
           </dl>
         </section>
 
-        {/* ---------- choisir un défi ---------- */}
         <section id="choisir" className="scroll-mt-24" style={{ "--i": 1 } as React.CSSProperties} aria-labelledby="pick-title">
           <p className="font-mono text-[11px] uppercase tracking-[0.18em] text-white/60">Étape 1</p>
           <h2 id="pick-title" className="mt-2 font-display text-[1.9rem] leading-tight lg:text-[2.4rem]">
@@ -140,7 +136,6 @@ export default function DiscoverPage() {
           </div>
         </section>
 
-        {/* ---------- progression ---------- */}
         <section id="progression" className="scroll-mt-24" style={{ "--i": 2 } as React.CSSProperties} aria-labelledby="progress-title">
           <p className="font-mono text-[11px] uppercase tracking-[0.18em] text-white/60">Étape 2</p>
           <h2 id="progress-title" className="mt-2 font-display text-[1.9rem] leading-tight lg:text-[2.4rem]">Où en êtes-vous ?</h2>
@@ -157,7 +152,6 @@ export default function DiscoverPage() {
         </p>
       </main>
 
-      {/* ---------- dock ---------- */}
       <nav className={styles.dock} aria-label="Navigation de l’espace défis">
         <a href="#choisir" className={`${styles.dockItem} ${styles.dockAccent}`}>
           <TrophyIcon width={20} height={20} />

@@ -8,13 +8,10 @@ type ChallengeCoverProps = {
   children?: ReactNode;
 };
 
-// Couverture d'un défi : la photo si elle existe, sinon une composition
-// aux couleurs du défi avec son mot clé en filigrane.
 export function ChallengeCover({ challenge, className = "", children }: ChallengeCoverProps) {
   return (
     <div className={`${styles.cover} ${className}`}>
       {challenge.coverImage ? (
-        // eslint-disable-next-line @next/next/no-img-element -- image locale de taille libre
         <img src={challenge.coverImage} alt="" className={styles.photo} />
       ) : (
         <div className={`${styles.art} ${styles[challenge.theme]}`} aria-hidden />

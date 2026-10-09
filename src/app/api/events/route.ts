@@ -1,13 +1,10 @@
 import { prisma } from "@/lib/prisma";
 
-// GET /api/events — liste des événements, du plus proche au plus lointain.
 export async function GET() {
   const events = await prisma.event.findMany({ orderBy: { startsAt: "asc" } });
   return Response.json(events);
 }
 
-// POST /api/events — crée un événement.
-// Corps JSON attendu : { title, startsAt, description?, location?, endsAt? }
 export async function POST(request: Request) {
   const body = await request.json().catch(() => null);
 

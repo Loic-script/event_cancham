@@ -12,8 +12,6 @@ type StoriesRailProps = {
   stories: StoryView[];
 };
 
-// Bandeau de stories façon réseau social : les photos de défi des participants.
-// Un toucher ouvre le visionneur plein écran.
 export function StoriesRail({ stories }: StoriesRailProps) {
   const scroller = useRef<HTMLUListElement | null>(null);
   const [open, setOpen] = useState<number | null>(null);

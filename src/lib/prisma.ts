@@ -1,9 +1,6 @@
 import { PrismaPg } from "@prisma/adapter-pg";
 import { PrismaClient } from "@/generated/prisma/client";
 
-// Un seul client Prisma pour tout le process : en dev, Next.js recharge les
-// modules à chaud, on garde donc l'instance sur `globalThis` pour éviter
-// d'ouvrir une nouvelle connexion PostgreSQL à chaque rechargement.
 const globalForPrisma = globalThis as unknown as { prisma?: PrismaClient };
 
 function createPrismaClient() {

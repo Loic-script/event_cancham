@@ -3,7 +3,6 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 
 export type VoiceNote = {
-  /** URL d'objet du fichier audio enregistré. */
   url: string;
   seconds: number;
 };
@@ -14,8 +13,6 @@ type Options = {
   maxSeconds?: number;
 };
 
-// Enregistrement audio avec l'API MediaRecorder du navigateur.
-// `stop(false)` termine et livre le message, `stop(true)` l'abandonne.
 export function useVoiceRecorder({ onComplete, onError, maxSeconds = 60 }: Options) {
   const [recording, setRecording] = useState(false);
   const [elapsed, setElapsed] = useState(0);
@@ -72,7 +69,6 @@ export function useVoiceRecorder({ onComplete, onError, maxSeconds = 60 }: Optio
     }
   }, [maxSeconds, onComplete, onError, stop]);
 
-  // Si l'on quitte la conversation en plein enregistrement, on coupe tout.
   useEffect(
     () => () => {
       window.clearInterval(ticker.current);

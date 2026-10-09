@@ -1,10 +1,5 @@
 import type { ChallengeSlug } from "./challenges";
 
-// Stories des défis : la photo publiée par un participant pour un défi.
-// `image` (chemin dans /public) est facultatif ; sans photo, une composition
-// aux couleurs du défi et du participant est dessinée.
-// Les photos de démonstration sont dans /public/stories (format portrait).
-
 export type Story = {
   id: string;
   authorId: string;

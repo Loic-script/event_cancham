@@ -1,5 +1,3 @@
-/* ---------- fil de communauté ---------- */
-
 .tabs {
   position: relative;
   display: grid;
@@ -45,7 +43,6 @@
   transform: translateX(100%);
 }
 
-/* défilement horizontal des participants */
 .rail {
   display: flex;
   gap: 14px;
@@ -64,7 +61,6 @@
   scroll-snap-align: start;
 }
 
-/* cœur qui bondit quand on aime */
 .heartPop {
   animation: heartPop 0.4s cubic-bezier(0.2, 0.8, 0.2, 1);
 }

@@ -8,7 +8,6 @@ import { conversations, currentUser, fullName, participants, personById, posts }
 export const metadata: Metadata = { title: "Fil de communauté" };
 
 export default async function CommunityPage(props: PageProps<"/communaute">) {
-  // ?q=… (recherche de l'en-tête) ou ?tab=people ouvrent directement l'annuaire.
   const sp = await props.searchParams;
   const q = typeof sp.q === "string" ? sp.q : "";
   const initialTab = q || sp.tab === "people" ? "people" : "posts";

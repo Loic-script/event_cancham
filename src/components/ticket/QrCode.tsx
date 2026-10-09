@@ -7,8 +7,6 @@ type QrCodeProps = {
   className?: string;
 };
 
-// QR code rendu en SVG côté serveur : aucun script envoyé au navigateur,
-// net à toutes les tailles, et facile à télécharger.
 export function QrCode({ value, size = 220, id, className }: QrCodeProps) {
   const qr = QRCode.create(value, { errorCorrectionLevel: "M" });
   const n = qr.modules.size;

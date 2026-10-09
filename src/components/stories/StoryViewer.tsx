@@ -18,12 +18,9 @@ const REACTIONS = ["❤️", "👏", "🔥", "🥂"];
 
 type Floating = { id: number; emoji: string; dx: string; rot: string; left: string };
 
-// Visionneur plein écran : barres de progression, défilement automatique,
-// zones tactiles gauche et droite, flèches du clavier, réactions.
 export function StoryViewer({ stories, startIndex, onClose }: StoryViewerProps) {
   const [index, setIndex] = useState(startIndex);
   const [floating, setFloating] = useState<Floating[]>([]);
-  // Compteur de réactions : sert d'identifiant et fait varier la trajectoire sans aléatoire.
   const reactionCount = useRef(0);
   const story = stories[index];
 
@@ -39,13 +36,11 @@ export function StoryViewer({ stories, startIndex, onClose }: StoryViewerProps) 
 
   const prev = useCallback(() => setIndex((i) => Math.max(0, i - 1)), []);
 
-  // Passage automatique à la story suivante.
   useEffect(() => {
     const id = window.setTimeout(next, DURATION);
     return () => window.clearTimeout(id);
   }, [index, next]);
 
-  // Clavier et verrouillage du défilement de la page.
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
       if (e.key === "Escape") onClose();

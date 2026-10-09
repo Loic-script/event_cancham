@@ -15,7 +15,6 @@ type ChallengeActionsProps = {
 
 const when = new Intl.DateTimeFormat("fr-FR", { day: "numeric", month: "long", hour: "2-digit", minute: "2-digit" });
 
-// Bas de page d'un défi : le bouton d'action, ou la participation déjà envoyée.
 export function ChallengeActions({ challenge, status }: ChallengeActionsProps) {
   const participation = useParticipation(challenge.slug);
   const [open, setOpen] = useState(false);
@@ -35,7 +34,6 @@ export function ChallengeActions({ challenge, status }: ChallengeActionsProps) {
           </div>
           <div className="flex gap-3">
             {participation.photo ? (
-              // eslint-disable-next-line @next/next/no-img-element -- photo locale en data URL
               <img src={participation.photo} alt="Votre photo" className={styles.thumb} />
             ) : (
               <span className={`${styles.thumb} grid place-items-center text-graphite-muted`}>

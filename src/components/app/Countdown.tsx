@@ -4,13 +4,8 @@ import { useSyncExternalStore } from "react";
 import styles from "./app.module.css";
 
 type CountdownProps = {
-  /** Date et heure de l'événement (ISO). */
   target: string;
-  /** Secondes restantes calculées par le serveur : le premier rendu client reprend
-   *  exactement cette valeur (pas de décalage d'hydratation), puis l'horloge du
-   *  visiteur prend le relais. */
   initialRemaining: number;
-  /** Ligne sous les tuiles : « 18 déc. 2026 · 18 h 30 · CCI Ivato ». */
   caption: string;
   className?: string;
 };
@@ -30,7 +25,6 @@ function split(totalSeconds: number) {
   };
 }
 
-// Compte à rebours qui bat la seconde.
 export function Countdown({ target, initialRemaining, caption, className = "" }: CountdownProps) {
   const targetMs = new Date(target).getTime();
   const remaining = useSyncExternalStore(

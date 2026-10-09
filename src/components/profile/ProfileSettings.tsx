@@ -61,13 +61,11 @@ const EMPTY_LABEL: Partial<Record<SectionId, string>> = {
 const memberSince = new Intl.DateTimeFormat("fr-FR", { day: "numeric", month: "long", year: "numeric" });
 
 type ProfileSettingsProps = {
-  /** Sections affichées sous la carte du profil (défis, publications). */
   extra?: ReactNode;
 };
 
 export function ProfileSettings({ extra }: ProfileSettingsProps) {
   const profile = useProfile();
-  // Chaque ligne ouvre une fenêtre : feuille en bas sur mobile, boîte centrée sur ordinateur.
   const [active, setActive] = useState<SectionId | null>(null);
   const [toast, setToast] = useState<string | null>(null);
   const fileRef = useRef<HTMLInputElement | null>(null);
@@ -80,8 +78,6 @@ export function ProfileSettings({ extra }: ProfileSettingsProps) {
     return () => window.clearTimeout(id);
   }, [toast]);
 
-  // Fenêtre ouverte : Échap ferme, la page derrière ne défile plus, le focus
-  // entre dans la fenêtre puis revient sur la ligne d'origine à la fermeture.
   useEffect(() => {
     if (active === null) return;
     const onKey = (e: KeyboardEvent) => {
@@ -137,7 +133,6 @@ export function ProfileSettings({ extra }: ProfileSettingsProps) {
 
   return (
     <div className="mx-auto flex w-full max-w-2xl flex-col gap-5">
-      {/* ---------- identité et lignes, puis défis et publications en dessous (comme un profil Facebook) ---------- */}
       <div className="flex flex-col gap-5">
         <section className={`${styles.identity} px-4 pb-4 pt-10`} aria-label="Identité">
           <div className="relative flex flex-col items-center text-center">
@@ -193,7 +188,6 @@ export function ProfileSettings({ extra }: ProfileSettingsProps) {
         {extra ? <div className="flex flex-col gap-5">{extra}</div> : null}
       </div>
 
-      {/* ---------- fenêtre de modification : feuille sur mobile, boîte centrée sur ordinateur ---------- */}
       {section ? (
         <>
           <div className={styles.scrim} onClick={() => setActive(null)} aria-hidden />

@@ -59,7 +59,6 @@ export function ParticipationSheet({ challenge, existing, onClose }: Participati
   const pitchId = useId();
   const agreeId = useId();
 
-  // Échap pour fermer, page figée derrière, focus sur la feuille.
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
       if (e.key === "Escape" && phase !== "sending") onClose();
@@ -202,7 +201,6 @@ export function ParticipationSheet({ challenge, existing, onClose }: Participati
               </button>
             </header>
 
-            {/* ---------- média ---------- */}
             <div>
               <span className={label}>{isVideo ? "Votre vidéo de pitch" : "La photo de votre publication"}</span>
               <input ref={fileRef} type="file" accept={isVideo ? "video/*" : "image/*"} capture={isVideo ? undefined : "environment"} onChange={onInput} className="sr-only" tabIndex={-1} aria-hidden />
@@ -218,7 +216,6 @@ export function ParticipationSheet({ challenge, existing, onClose }: Participati
                       </div>
                     )
                   ) : (
-                    // eslint-disable-next-line @next/next/no-img-element -- aperçu local en data URL
                     <img src={photo} alt="Aperçu de votre photo" />
                   )}
                   <div className="absolute right-2 top-2 flex gap-1.5">
@@ -274,7 +271,6 @@ export function ParticipationSheet({ challenge, existing, onClose }: Participati
               )}
             </div>
 
-            {/* ---------- champs ---------- */}
             {isVideo ? (
               <>
                 <div>

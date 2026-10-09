@@ -14,21 +14,15 @@ const ACCENT: Record<ChallengeTheme, string> = {
 };
 
 type StoryArtProps = {
-  /** Photo réelle, si elle existe. */
   image?: string;
   theme: ChallengeTheme;
-  /** Teinte de la personne : colore le halo principal. */
   hue: number;
-  /** Graine pour déplacer légèrement la composition d'une story à l'autre. */
   seed: string;
   alt?: string;
 };
 
-// Visuel d'une story : la photo si on en a une, sinon une composition
-// abstraite aux couleurs du défi et du participant.
 export function StoryArt({ image, theme, hue, seed, alt = "" }: StoryArtProps) {
   if (image) {
-    // eslint-disable-next-line @next/next/no-img-element -- photo locale de taille libre
     return <img src={image} alt={alt} className={styles.photo} />;
   }
   let h = 0;

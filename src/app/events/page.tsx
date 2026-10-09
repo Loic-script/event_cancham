@@ -1,8 +1,6 @@
 import { prisma } from "@/lib/prisma";
 import type { Event } from "@/generated/prisma/client";
 
-// Page serveur : interroge PostgreSQL directement via Prisma (aucun code DB
-// n'est envoyé au navigateur). Rendue à chaque requête.
 export const dynamic = "force-dynamic";
 
 const dateFormat = new Intl.DateTimeFormat("fr-FR", {

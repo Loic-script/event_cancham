@@ -43,3 +43,6 @@ next-env.d.ts
 
 # prisma (client généré par `prisma generate`)
 /src/generated/prisma
+
+# instructions locales de Claude Code
+CLAUDE.md

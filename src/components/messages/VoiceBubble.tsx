@@ -17,7 +17,6 @@ function formatSeconds(s: number) {
   return `${m}:${r.toString().padStart(2, "0")}`;
 }
 
-// Forme d'onde décorative mais stable : dérivée de l'identifiant du message.
 function bars(seed: string, count = 28) {
   let h = 0;
   for (const ch of seed) h = (h * 31 + ch.charCodeAt(0)) >>> 0;

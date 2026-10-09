@@ -31,7 +31,6 @@ function Field({ id, children, text }: { id: string; children: ReactNode; text: 
   );
 }
 
-/* ---------- nom ---------- */
 export function NameEditor({ profile, onSaved }: EditorProps) {
   const [firstName, setFirstName] = useState(profile.firstName);
   const [lastName, setLastName] = useState(profile.lastName);
@@ -62,7 +61,6 @@ export function NameEditor({ profile, onSaved }: EditorProps) {
   );
 }
 
-/* ---------- bio ---------- */
 export function BioEditor({ profile, onSaved }: EditorProps) {
   const [bio, setBio] = useState(profile.bio ?? "");
   const id = useId();
@@ -85,7 +83,6 @@ export function BioEditor({ profile, onSaved }: EditorProps) {
   );
 }
 
-/* ---------- entreprise et poste ---------- */
 const SECTORS = ["Agroalimentaire", "Artisanat", "Événementiel", "Finance", "Industrie", "Institutionnel", "Médias", "Mines", "Numérique", "Services", "Tourisme", "Autre"];
 
 export function WorkEditor({ profile, onSaved }: EditorProps) {
@@ -121,7 +118,6 @@ export function WorkEditor({ profile, onSaved }: EditorProps) {
   );
 }
 
-/* ---------- ville et pays ---------- */
 export function LocationEditor({ profile, onSaved }: EditorProps) {
   const [city, setCity] = useState(profile.city);
   const [country, setCountry] = useState<Country>(profile.country);
@@ -151,7 +147,6 @@ export function LocationEditor({ profile, onSaved }: EditorProps) {
   );
 }
 
-/* ---------- site web et LinkedIn ---------- */
 export function LinksEditor({ profile, onSaved }: EditorProps) {
   const [website, setWebsite] = useState(profile.website ?? "");
   const [linkedin, setLinkedin] = useState(profile.linkedin ?? "");
@@ -179,7 +174,6 @@ export function LinksEditor({ profile, onSaved }: EditorProps) {
   );
 }
 
-/* ---------- e-mail ---------- */
 export function EmailEditor({ profile, onSaved }: EditorProps) {
   const [email, setEmail] = useState(profile.email);
   const id = useId();
@@ -203,7 +197,6 @@ export function EmailEditor({ profile, onSaved }: EditorProps) {
   );
 }
 
-/* ---------- mot de passe ---------- */
 function strength(pw: string) {
   let score = 0;
   if (pw.length >= 8) score++;
@@ -275,7 +268,6 @@ export function PasswordEditor({ onSaved }: EditorProps) {
   );
 }
 
-/* ---------- utilisateurs bloqués ---------- */
 export function BlockedEditor({ profile, onSaved }: EditorProps) {
   const blocked = profile.blocked.map((id) => participants.find((p) => p.id === id)).filter((p) => p !== undefined);
 

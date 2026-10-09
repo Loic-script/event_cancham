@@ -2,9 +2,6 @@ import { useId, type SVGProps } from "react";
 
 type LogoProps = SVGProps<SVGSVGElement> & { size?: number };
 
-// Logos des réseaux sociaux redessinés en SVG : pastille aux couleurs de la
-// marque, glyphe blanc, aucun fond.
-
 export function FacebookLogo({ size = 40, ...props }: LogoProps) {
   return (
     <svg width={size} height={size} viewBox="0 0 24 24" aria-hidden {...props}>
@@ -18,8 +15,6 @@ export function FacebookLogo({ size = 40, ...props }: LogoProps) {
 }
 
 export function InstagramLogo({ size = 40, ...props }: LogoProps) {
-  // Identifiant unique : le logo peut être rendu plusieurs fois sur une page,
-  // et un dégradé défini dans un élément masqué ne se dessine pas.
   const gradientId = `ig-grad-${useId()}`;
   return (
     <svg width={size} height={size} viewBox="0 0 48 48" aria-hidden {...props}>

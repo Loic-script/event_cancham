@@ -16,7 +16,6 @@ export const viewport: Viewport = {
   viewportFit: "cover",
 };
 
-// L'état du défi dépend de la date : page rendue à chaque requête.
 export const dynamic = "force-dynamic";
 
 export async function generateMetadata(props: PageProps<"/decouvrir/[slug]">): Promise<Metadata> {
@@ -38,7 +37,6 @@ export default async function DiscoverChallengePage(props: PageProps<"/decouvrir
       <span className={styles.blob} style={{ width: 420, height: 420, left: -140, top: -120, background: "rgba(173, 7, 7, 0.5)" }} aria-hidden />
       <span className={styles.blob} style={{ width: 460, height: 460, right: -160, top: 260, background: "rgba(0, 113, 64, 0.45)", animationDelay: "-6s" }} aria-hidden />
 
-      {/* ---------- barre du haut ---------- */}
       <header className={styles.topbar}>
         <div className="mx-auto flex h-16 max-w-5xl items-center gap-3 px-4 lg:px-8" style={{ paddingTop: "env(safe-area-inset-top)" }}>
           <Link href="/decouvrir" aria-label="Découvrir les défis" className="shrink-0 rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white">
@@ -59,7 +57,6 @@ export default async function DiscoverChallengePage(props: PageProps<"/decouvrir
           Tous les défis
         </Link>
 
-        {/* ---------- héros ---------- */}
         <section className={`${styles.glass} overflow-hidden`} style={{ "--i": 1 } as React.CSSProperties} aria-labelledby="challenge-title">
           <ChallengeCover challenge={c} className={styles.detailCover}>
             <div className="absolute right-4 top-4">
@@ -87,7 +84,6 @@ export default async function DiscoverChallengePage(props: PageProps<"/decouvrir
                   {c.participants > 0 ? <span className={styles.chip}><UsersIcon width={14} height={14} />{c.participants} participations</span> : null}
                   {c.closesAt ? <span className={styles.chip}><CalendarIcon width={14} height={14} />Jusqu’au {closesAtLabel(c)}</span> : null}
                 </div>
-                {/* sur ordinateur, l'action est visible dès l'arrivée ; sur mobile le bouton collant s'en charge */}
                 {status.key === "open" ? (
                   <a href="#participer" className={`${styles.btnPrimary} hidden lg:inline-flex`}>
                     {c.cta}
@@ -100,7 +96,6 @@ export default async function DiscoverChallengePage(props: PageProps<"/decouvrir
           </div>
         </section>
 
-        {/* ---------- contenu + panneau ---------- */}
         <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_340px] lg:items-start">
           <div className="flex flex-col gap-6" style={{ "--i": 2 } as React.CSSProperties}>
             <section className={`${styles.glass} p-5 lg:p-7`} aria-labelledby="steps-title">
@@ -141,7 +136,6 @@ export default async function DiscoverChallengePage(props: PageProps<"/decouvrir
             ) : null}
           </div>
 
-          {/* panneau : résumé (ordinateur) + action ; sur mobile, l'action se place en bas de page */}
           <aside className={styles.aside} style={{ "--i": 3 } as React.CSSProperties} aria-label="Résumé et participation">
             <div className={`${styles.glass} hidden p-5 lg:block`}>
               <p className="mb-3 font-mono text-[11px] uppercase tracking-[0.18em] text-white/60">En bref</p>
@@ -152,8 +146,6 @@ export default async function DiscoverChallengePage(props: PageProps<"/decouvrir
               {c.closesAt ? <div className={styles.summaryRow}><span className={styles.summaryKey}>Clôture</span><span className={styles.summaryVal}>{closesAtLabel(c)}</span></div> : null}
               <div className={styles.summaryRow}><span className={styles.summaryKey}>Gala</span><span className={styles.summaryVal}>{event.dateLabel}</span></div>
             </div>
-            {/* ancre sans boîte propre, puis display: contents : le bouton collant
-                doit avoir la grille entière comme bloc conteneur pour rester visible */}
             <span id="participer" className="block h-0 scroll-mt-28" aria-hidden />
             <div style={{ display: "contents" }}>
               <ChallengeActions challenge={c} status={status} />
@@ -162,7 +154,6 @@ export default async function DiscoverChallengePage(props: PageProps<"/decouvrir
         </div>
       </main>
 
-      {/* ---------- dock ---------- */}
       <nav className={styles.dock} aria-label="Navigation de l’espace défis">
         <Link href="/decouvrir" className={styles.dockItem}>
           <ArrowLeftIcon width={20} height={20} />

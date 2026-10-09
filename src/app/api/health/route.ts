@@ -1,6 +1,5 @@
 import { prisma } from "@/lib/prisma";
 
-// GET /api/health — vérifie que la base PostgreSQL répond.
 export async function GET() {
   try {
     const [row] = await prisma.$queryRaw<{ version: string }[]>`SELECT version()`;

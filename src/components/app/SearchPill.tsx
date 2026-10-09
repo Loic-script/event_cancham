@@ -5,8 +5,6 @@ import { useEffect, useRef, useState, type FormEvent } from "react";
 import { SearchIcon } from "./icons";
 import styles from "./app.module.css";
 
-// Recherche globale de l'en-tête : envoie vers l'annuaire des participants.
-// Raccourci clavier « / » pour y sauter.
 export function SearchPill({ className = "" }: { className?: string }) {
   const router = useRouter();
   const [value, setValue] = useState("");
