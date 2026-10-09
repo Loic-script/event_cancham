@@ -1,7 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import Image from "next/image";
 import Link from "next/link";
-import { ArrowLeftIcon, ChevronRightIcon, QrIcon, SparklesIcon, TrophyIcon, UsersIcon, XIcon } from "@/components/app/icons";
+import { ArrowLeftIcon, ChevronRightIcon, QrIcon, SparklesIcon, UsersIcon, XIcon } from "@/components/app/icons";
 import { StatusChip } from "@/components/challenges/StatusChip";
 import styles from "@/components/discover/discover.module.css";
 import { daysUntil } from "@/lib/format";
@@ -143,14 +143,12 @@ export default function DiscoverPage() {
       </main>
 
       <nav className={styles.dock} aria-label="Navigation de l’espace défis">
-        <a href="#choisir" className={`${styles.dockItem} ${styles.dockAccent}`}>
-          <TrophyIcon width={20} height={20} />
-          Défis
-        </a>
-        <Link href="/billet" className={styles.dockItem}>
-          <QrIcon width={20} height={20} />
-          Billet
-        </Link>
+        {challenges.map((c, i) => (
+          <Link key={c.slug} href={`/decouvrir/${c.slug}`} className={`${styles.dockItem} ${i === featuredIndex ? styles.dockAccent : ""}`} aria-label={`Défi ${c.number} : ${c.title}`}>
+            <span className={styles.dockNum} aria-hidden>{c.number}</span>
+            Défi {c.number}
+          </Link>
+        ))}
         <Link href="/defis" className={styles.dockItem}>
           <XIcon width={20} height={20} />
           Quitter
