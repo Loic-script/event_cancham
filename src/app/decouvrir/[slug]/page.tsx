@@ -2,13 +2,13 @@ import type { Metadata, Viewport } from "next";
 import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { ArrowLeftIcon, CameraIcon, CalendarIcon, FilmIcon, InfoIcon, LockIcon, QrIcon, TrophyIcon, UsersIcon, XIcon } from "@/components/app/icons";
+import { ArrowLeftIcon, CameraIcon, CalendarIcon, FilmIcon, InfoIcon, LockIcon, TrophyIcon, UsersIcon, XIcon } from "@/components/app/icons";
 import { ChallengeActions } from "@/components/challenges/ChallengeActions";
 import { ChallengeCover } from "@/components/challenges/ChallengeCover";
 import { RichText } from "@/components/challenges/RichText";
 import { StatusChip } from "@/components/challenges/StatusChip";
 import styles from "@/components/discover/discover.module.css";
-import { challengeBySlug, challengeStatus, closesAtLabel, opensAtLabel } from "@/lib/mock/challenges";
+import { challengeBySlug, challenges, challengeStatus, closesAtLabel, opensAtLabel } from "@/lib/mock/challenges";
 import { event } from "@/lib/mock/data";
 
 export const viewport: Viewport = {
@@ -154,18 +154,18 @@ export default async function DiscoverChallengePage(props: PageProps<"/decouvrir
       </main>
 
       <nav className={styles.dock} aria-label="Navigation de l’espace défis">
-        <Link href="/decouvrir" className={styles.dockItem}>
-          <ArrowLeftIcon width={20} height={20} />
-          Défis
-        </Link>
-        <a href="#participer" className={`${styles.dockItem} ${status.key === "open" ? styles.dockAccent : ""}`}>
-          <TrophyIcon width={20} height={20} />
-          {status.key === "open" ? "Participer" : "Détails"}
-        </a>
-        <Link href="/billet" className={styles.dockItem}>
-          <QrIcon width={20} height={20} />
-          Billet
-        </Link>
+        {challenges.map((d) => (
+          <Link
+            key={d.slug}
+            href={`/decouvrir/${d.slug}`}
+            aria-current={d.slug === c.slug ? "page" : undefined}
+            aria-label={`Défi ${d.number} : ${d.title}`}
+            className={`${styles.dockItem} ${d.slug === c.slug ? styles.dockAccent : ""}`}
+          >
+            <span className={styles.dockNum} aria-hidden>{d.number}</span>
+            Défi {d.number}
+          </Link>
+        ))}
         <Link href="/defis" className={styles.dockItem}>
           <XIcon width={20} height={20} />
           Quitter
