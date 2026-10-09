@@ -1,77 +1,123 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { ChevronRightIcon, GiftIcon, UsersIcon } from "@/components/app/icons";
-import { PageTitle } from "@/components/app/PageTitle";
-import appStyles from "@/components/app/app.module.css";
-import { ChallengeCover } from "@/components/challenges/ChallengeCover";
+import { Avatar } from "@/components/app/Avatar";
+import { ArrowRightIcon, GlobeIcon, HeartIcon, SparklesIcon } from "@/components/app/icons";
 import { StatusChip } from "@/components/challenges/StatusChip";
-import styles from "@/components/challenges/challenges.module.css";
+import coverStyles from "@/components/challenges/challenges.module.css";
+import styles from "@/components/challenges/landing.module.css";
 import { challenges, challengeStatus } from "@/lib/mock/challenges";
+import { participants } from "@/lib/mock/data";
 
 export const metadata: Metadata = { title: "Les défis" };
 
 export const dynamic = "force-dynamic";
 
+const HOOKS: Record<string, string> = {
+  "jy-serai": "Annoncez votre venue, faites réagir votre réseau.",
+  "pitch-mecc": "Deux minutes de pitch, une mission au Canada.",
+  "jy-etais": "La plus belle photo de la soirée l'emporte.",
+};
+
+const SHOTS = [
+  { src: "/stories/story-1.jpg", label: "Défi 1", cls: "shotA" },
+  { src: "/stories/story-6.jpg", label: "Défi 1", cls: "shotB" },
+  { src: "/stories/story-4.jpg", label: "Défi 1", cls: "shotC" },
+] as const;
+
+const RIBBON = ["Défi 1 · J'y serai", "5 000 000 Ar", "Défi 2 · Pitch MECC", "Mission au Canada", "Défi 3 · J'y étais", "5 000 000 Ar"];
+
 export default function ChallengesPage() {
+  const total = challenges.reduce((n, c) => n + c.participants, 0);
+  const faces = participants.slice(0, 3);
+
   return (
-    <div className={`${appStyles.stagger} mx-auto flex max-w-2xl flex-col gap-4 lg:grid lg:max-w-5xl lg:grid-cols-3 lg:items-start lg:gap-5`}>
-      <div className="lg:col-span-3">
-        <PageTitle title="Les défis" subtitle="Trois défis, deux fois 5 000 000 Ar et une mission au Canada à gagner." />
+    <div className="mx-auto max-w-5xl">
+      <section className={styles.hero} aria-labelledby="defis-title">
+        <span className={`${styles.blob} ${styles.blobRed}`} aria-hidden />
+        <span className={`${styles.blob} ${styles.blobGreen}`} aria-hidden />
+        <span className={`${styles.blob} ${styles.blobBlue}`} aria-hidden />
+        <span className={styles.grid} aria-hidden />
+
+        <div className="relative">
+          <span className={styles.eyebrow}>
+            <i aria-hidden />
+            Gala des 10 ans · 18 décembre
+          </span>
+          <h1 id="defis-title" className={styles.title}>
+            Trois défis.
+            <br />
+            <span className={styles.gradientText}>Des prix à la hauteur.</span>
+          </h1>
+          <p className={styles.lead}>Deux fois 5 000 000 Ar et une mission au Canada tout inclus. À vous de jouer.</p>
+          <div className={styles.ctas}>
+            <Link href="/decouvrir" className={styles.primary}>
+              <SparklesIcon width={18} height={18} />
+              Découvrir les défis
+            </Link>
+            <Link href="/reseaux" className={styles.ghost}>
+              <GlobeIcon width={18} height={18} />
+              Voir les publications
+            </Link>
+          </div>
+        </div>
+
+        <div className={styles.collage} aria-hidden>
+          {SHOTS.map((s) => (
+            <div key={s.src} className={`${styles.shot} ${styles[s.cls]}`}>
+              <img src={s.src} alt="" loading="lazy" />
+              <span>{s.label}</span>
+            </div>
+          ))}
+          <span className={`${styles.float} ${styles.floatA}`}>
+            <span className={styles.avatars}>
+              {faces.map((p) => (
+                <Avatar key={p.id} person={p} size={22} />
+              ))}
+            </span>
+            +{total} participations
+          </span>
+          <span className={`${styles.float} ${styles.floatB}`}>
+            <span className={styles.heart}>
+              <HeartIcon width={11} height={11} fill="currentColor" strokeWidth={0} />
+            </span>
+            312 réactions
+          </span>
+        </div>
+      </section>
+
+      <div className={styles.marquee} aria-hidden>
+        <div className={styles.track}>
+          {[0, 1].map((k) => (
+            <span key={k}>
+              {RIBBON.map((r, i) => (
+                <span key={i}>
+                  {r}
+                  <i />
+                </span>
+              ))}
+            </span>
+          ))}
+        </div>
       </div>
 
-      <Link
-        href="/decouvrir"
-        style={{ "--i": 0 } as React.CSSProperties}
-        className="group relative flex items-center gap-4 overflow-hidden rounded-2xl bg-[#0f1d2c] p-4 text-white shadow-[0_18px_40px_-24px_rgba(15,29,44,0.8)] transition-transform active:scale-[0.99] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-palm focus-visible:ring-offset-2 lg:col-span-3 lg:p-5"
-      >
-        <span aria-hidden className="pointer-events-none absolute -left-10 -top-14 h-40 w-40 rounded-full bg-[#ad0707]/50 blur-2xl" />
-        <span aria-hidden className="pointer-events-none absolute -right-10 -bottom-16 h-44 w-44 rounded-full bg-[#007140]/50 blur-2xl" />
-        <span className="relative grid h-12 w-12 shrink-0 place-items-center rounded-xl bg-white/10 ring-1 ring-white/20">
-          <GiftIcon width={22} height={22} />
-        </span>
-        <span className="relative min-w-0 flex-1">
-          <span className="block font-display text-[1.15rem] leading-tight lg:text-[1.35rem]">Découvrir les défis</span>
-          <span className="block text-[13px] text-white/75">Un espace dédié pour choisir votre défi et suivre votre progression.</span>
-        </span>
-        <span className="relative inline-flex h-10 shrink-0 items-center gap-1 rounded-xl bg-[linear-gradient(90deg,#ad0707,#007140)] px-3 text-[13.5px] font-semibold transition-[filter] group-hover:brightness-110 lg:px-4">
-          Ouvrir
-          <ChevronRightIcon width={16} height={16} />
-        </span>
-      </Link>
-
-      {challenges.map((c, i) => {
-        const status = challengeStatus(c);
-        return (
-          <Link key={c.slug} href={`/decouvrir/${c.slug}`} className={styles.card} style={{ "--i": i + 1 } as React.CSSProperties} aria-label={`Défi ${c.number} : ${c.title}`}>
-            <ChallengeCover challenge={c}>
-              <div className="absolute right-3 top-3">
-                <StatusChip status={status} />
-              </div>
-              <div className="absolute inset-x-0 bottom-0 p-4">
-                <p className="font-mono text-[10.5px] uppercase tracking-[0.18em] text-white/80">Défi {c.number} · {c.phase}</p>
-                <h2 className="mt-1 line-clamp-2 font-display text-[1.55rem] leading-[1.05]">{c.title}</h2>
-              </div>
-            </ChallengeCover>
-            <div className="flex items-center gap-4 p-4">
-              <div className="min-w-0 flex-1">
-                <p className="font-display text-[1.35rem] leading-none text-palm-ink">
-                  {c.prize} {c.kind === "photo" ? <span className="font-sans text-[13px] font-normal text-graphite-muted">{c.prizeNote}</span> : null}
-                </p>
-                <p className="mt-1.5 text-[14px] leading-5 text-graphite-muted">{c.summary}</p>
-                {c.participants > 0 ? (
-                  <p className="mt-2 inline-flex items-center gap-1.5 text-[12.5px] text-graphite-faint">
-                    <UsersIcon width={14} height={14} />
-                    {c.participants} participations
-                  </p>
-                ) : null}
-              </div>
-              <span className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-palm-soft text-palm-ink">
-                <ChevronRightIcon width={20} height={20} />
-              </span>
-            </div>
+      <div className={styles.posters}>
+        {challenges.map((c) => (
+          <Link key={c.slug} href={`/decouvrir/${c.slug}`} className={`${styles.poster} ${coverStyles[c.theme]}`} aria-label={`Défi ${c.number} : ${c.title}`}>
+            <span className={styles.posterNo} aria-hidden>0{c.number}</span>
+            <span className={styles.posterChip}>
+              <StatusChip status={challengeStatus(c)} />
+            </span>
+            <p className={styles.posterPhase}>{c.phase}</p>
+            <h2 className={styles.posterTitle}>{c.title}</h2>
+            <span className={styles.posterPrize}>{c.kind === "video" ? "Mission au Canada" : c.prize}</span>
+            <p className={styles.posterHook}>{HOOKS[c.slug]}</p>
+            <span className={styles.posterGo}>
+              Voir le défi
+              <ArrowRightIcon width={16} height={16} />
+            </span>
           </Link>
-        );
-      })}
+        ))}
+      </div>
     </div>
   );
 }

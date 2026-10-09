@@ -38,6 +38,7 @@ export const HeartIcon = make("HeartIcon", <path d="M19 14c1.49-1.46 3-3.21 3-5.
 export const CommentIcon = make("CommentIcon", <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />);
 export const SendIcon = make("SendIcon", <><path d="m22 2-7 20-4-9-9-4Z" /><path d="M22 2 11 13" /></>);
 export const ArrowLeftIcon = make("ArrowLeftIcon", <><path d="m12 19-7-7 7-7" /><path d="M19 12H5" /></>);
+export const ArrowRightIcon = make("ArrowRightIcon", <><path d="M5 12h14" /><path d="m12 5 7 7-7 7" /></>);
 export const MoreIcon = make("MoreIcon", <><circle cx="12" cy="12" r="1" fill="currentColor" /><circle cx="19" cy="12" r="1" fill="currentColor" /><circle cx="5" cy="12" r="1" fill="currentColor" /></>);
 export const BellIcon = make("BellIcon", <><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9" /><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0" /></>);
 export const SlidersIcon = make("SlidersIcon", <><path d="M4 21v-7" /><path d="M4 10V3" /><path d="M12 21v-9" /><path d="M12 8V3" /><path d="M20 21v-5" /><path d="M20 12V3" /><path d="M1 14h6" /><path d="M9 8h6" /><path d="M17 16h6" /></>);

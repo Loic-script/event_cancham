@@ -59,7 +59,7 @@ Plateforme du gala **La Traversée · Gala des 10 ans** (CanCham Madagascar, 18 
 | `/communaute`    | Fil de communauté : publications, défis relevés, annuaire des participants avec recherche |
 | `/messages`      | Messagerie façon Messenger : liste, puis `/messages/[id]` avec émojis et messages vocaux |
 | `/profil`        | Profil et réglages : identité, lignes modifiables (nom, bio, entreprise, ville, liens, e-mail, mot de passe, bloqués), mes défis, mes publications |
-| `/defis`         | Les trois défis du gala (liste) ; `/defis/[slug]` redirige vers `/decouvrir/[slug]`      |
+| `/defis`         | Page d'accroche des défis façon landing (héros, collage de photos, ruban, trois affiches) ; `/defis/[slug]` redirige vers `/decouvrir/[slug]` |
 | `/decouvrir`     | Espace immersif « Découvrir les défis », hors coquille, et `/decouvrir/[slug]` : détail, règles, étapes et participation |
 | `/reseaux`       | Réseaux sociaux : publications des participants pour les défis, relevées sur Facebook et Instagram |
 | `/events`        | Liste technique des événements lus en base (hors espace participant)                     |
