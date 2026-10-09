@@ -156,6 +156,18 @@ html {
   background: #f3f5f8;
 }
 
+@media (max-width: 639px) {
+  .m-bleed {
+    width: calc(100% + 2rem) !important;
+    max-width: none !important;
+    margin-left: -1rem;
+    margin-right: -1rem;
+    border-radius: 0 !important;
+    border-left-width: 0 !important;
+    border-right-width: 0 !important;
+  }
+}
+
 @layer utilities {
   .font-display {
     font-weight: 700;

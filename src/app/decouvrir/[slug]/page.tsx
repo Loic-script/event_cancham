@@ -57,7 +57,7 @@ export default async function DiscoverChallengePage(props: PageProps<"/decouvrir
           Tous les défis
         </Link>
 
-        <section className={`${styles.glass} overflow-hidden`} style={{ "--i": 1 } as React.CSSProperties} aria-labelledby="challenge-title">
+        <section className={`${styles.glass} m-bleed overflow-hidden`} style={{ "--i": 1 } as React.CSSProperties} aria-labelledby="challenge-title">
           <ChallengeCover challenge={c} className={styles.detailCover}>
             <div className="absolute right-4 top-4">
               <StatusChip status={status} />
@@ -92,7 +92,7 @@ export default async function DiscoverChallengePage(props: PageProps<"/decouvrir
 
         <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_340px] lg:items-start">
           <div className="flex flex-col gap-6" style={{ "--i": 2 } as React.CSSProperties}>
-            <section className={`${styles.glass} p-5 lg:p-7`} aria-labelledby="steps-title">
+            <section className={`${styles.glass} m-bleed p-5 lg:p-7`} aria-labelledby="steps-title">
               <p className="font-mono text-[11px] uppercase tracking-[0.18em] text-white/60">Comment participer</p>
               <h2 id="steps-title" className="mt-1 font-display text-[1.5rem] leading-tight lg:text-[1.8rem]">
                 {c.steps.length} étapes, {c.kind === "video" ? "une vidéo" : "une photo"}.

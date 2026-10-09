@@ -127,7 +127,7 @@ export default function HomePage() {
 
   return (
     <div className={`${styles.stagger} flex flex-col gap-7`}>
-      <section className={`${styles.hero} p-6 lg:p-9`} style={{ "--i": 0 } as React.CSSProperties} aria-labelledby="hero-title">
+      <section className={`${styles.hero} m-bleed p-6 lg:p-9`} style={{ "--i": 0 } as React.CSSProperties} aria-labelledby="hero-title">
         <span className={styles.heroBlob} style={{ width: 260, height: 260, right: -60, top: -80, background: "rgba(0, 113, 64, 0.32)" }} aria-hidden />
         <span className={styles.heroBlob} style={{ width: 300, height: 300, left: -90, bottom: -140, background: "rgba(173, 7, 7, 0.28)", animationDelay: "-4s" }} aria-hidden />
         <span className={styles.heroRing} style={{ width: 420, height: 420, right: -120, top: -200 }} aria-hidden />
@@ -185,7 +185,7 @@ export default function HomePage() {
       </Section>
 
       <Section title="Derniers échos" href="/communaute" linkLabel="Voir le fil" index={3}>
-        <ul className={`${styles.card} divide-y divide-line`}>
+        <ul className={`${styles.card} m-bleed divide-y divide-line`}>
           {latest.map((p) => (
             <li key={p.id} className="flex gap-3 px-4 py-3">
               <Avatar person={p.author} size={38} presence />

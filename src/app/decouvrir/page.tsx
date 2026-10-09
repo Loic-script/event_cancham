@@ -48,7 +48,7 @@ export default function DiscoverPage() {
       </header>
 
       <main className={`${styles.stagger} mx-auto flex max-w-5xl flex-col gap-10 px-4 pb-36 pt-8 lg:px-8 lg:pt-12`}>
-        <section className={`${styles.glass} p-6 lg:p-10`} style={{ "--i": 0 } as React.CSSProperties} aria-labelledby="discover-title">
+        <section className={`${styles.glass} m-bleed p-6 lg:p-10`} style={{ "--i": 0 } as React.CSSProperties} aria-labelledby="discover-title">
           <p className="flex items-center gap-2 font-mono text-[11px] uppercase tracking-[0.18em] text-white/70">
             <SparklesIcon width={14} height={14} />
             {event.edition} · {event.dateLabel}

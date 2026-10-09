@@ -26,7 +26,7 @@ export default function ChallengesPage() {
 
   return (
     <div className="mx-auto max-w-5xl">
-      <section className={styles.hero} aria-labelledby="defis-title">
+      <section className={`${styles.hero} m-bleed`} aria-labelledby="defis-title">
         <span className={`${styles.blob} ${styles.blobRed}`} aria-hidden />
         <span className={`${styles.blob} ${styles.blobGreen}`} aria-hidden />
         <span className={`${styles.blob} ${styles.blobBlue}`} aria-hidden />
@@ -95,7 +95,7 @@ export default function ChallengesPage() {
 
       <div className={styles.posters}>
         {challenges.map((c) => (
-          <Link key={c.slug} href={`/decouvrir/${c.slug}`} className={`${styles.poster} ${coverStyles[c.theme]}`} aria-label={`Défi ${c.number} : ${c.title}`}>
+          <Link key={c.slug} href={`/decouvrir/${c.slug}`} className={`${styles.poster} ${coverStyles[c.theme]} m-bleed`} aria-label={`Défi ${c.number} : ${c.title}`}>
             <span className={styles.posterNo} aria-hidden>0{c.number}</span>
             <span className={styles.posterChip}>
               <StatusChip status={challengeStatus(c)} />

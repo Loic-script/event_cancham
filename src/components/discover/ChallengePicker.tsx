@@ -38,7 +38,7 @@ export function ChallengePicker({ items }: ChallengePickerProps) {
             key={c.slug}
             href={`/decouvrir/${c.slug}`}
             onPointerMove={spotlight}
-            className={`${styles.card} ${styles[`tone${c.number}`]}`}
+            className={`${styles.card} ${styles[`tone${c.number}`]} m-bleed`}
             aria-label={`Défi ${c.number} : ${c.title}, ${c.status.label}`}
           >
             <div className={styles.inner}>

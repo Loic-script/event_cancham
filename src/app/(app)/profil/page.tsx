@@ -30,7 +30,7 @@ export default function ProfilePage() {
 
   const extra = (
     <>
-      <section className={`${appStyles.card} p-4`} aria-labelledby="my-challenges">
+      <section className={`${appStyles.card} m-bleed p-4`} aria-labelledby="my-challenges">
         <div className="mb-3 flex items-center justify-between">
           <h3 id="my-challenges" className="flex items-center gap-2 text-[15px] font-semibold text-graphite">
             <TrophyIcon width={18} height={18} className="text-gold" />
@@ -49,7 +49,7 @@ export default function ProfilePage() {
           Mes publications · {myPosts.length}
         </h3>
         <div className="flex flex-col gap-3">
-          {myPosts.length ? myPosts.map((p) => <PostCard key={p.id} post={p} />) : <p className={`${appStyles.card} p-6 text-center text-[14px] text-graphite-muted`}>Vous n’avez encore rien publié.</p>}
+          {myPosts.length ? myPosts.map((p) => <PostCard key={p.id} post={p} />) : <p className={`${appStyles.card} m-bleed p-6 text-center text-[14px] text-graphite-muted`}>Vous n’avez encore rien publié.</p>}
         </div>
       </section>
     </>

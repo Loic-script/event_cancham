@@ -24,7 +24,7 @@ export function ChallengeActions({ challenge, status }: ChallengeActionsProps) {
   if (participation) {
     return (
       <>
-        <section className={`${appStyles.card} ${styles.mine} p-4`} aria-label="Votre participation">
+        <section className={`${appStyles.card} ${styles.mine} m-bleed p-4`} aria-label="Votre participation">
           <div className="mb-3 flex items-center justify-between gap-3">
             <h2 className="text-[15px] font-semibold text-graphite">Votre participation</h2>
             <span className="inline-flex items-center gap-1.5 rounded-full bg-palm-soft px-2.5 py-1 text-[12px] font-semibold text-palm-ink">
@@ -88,7 +88,7 @@ export function ChallengeActions({ challenge, status }: ChallengeActionsProps) {
 
   if (status.key === "locked") {
     return (
-      <div className={`${appStyles.card} flex items-start gap-3 p-4`}>
+      <div className={`${appStyles.card} m-bleed flex items-start gap-3 p-4`}>
         <span className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-paper text-graphite-muted">
           <LockIcon width={20} height={20} />
         </span>
@@ -101,7 +101,7 @@ export function ChallengeActions({ challenge, status }: ChallengeActionsProps) {
   }
 
   if (status.key === "closed") {
-    return <p className={`${appStyles.card} p-4 text-center text-[14px] text-graphite-muted`}>Ce défi est terminé. Merci à toutes les personnes qui ont participé !</p>;
+    return <p className={`${appStyles.card} m-bleed p-4 text-center text-[14px] text-graphite-muted`}>Ce défi est terminé. Merci à toutes les personnes qui ont participé !</p>;
   }
 
   return (
