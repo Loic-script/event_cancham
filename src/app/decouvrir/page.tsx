@@ -3,7 +3,6 @@ import Image from "next/image";
 import Link from "next/link";
 import { ArrowLeftIcon, ChevronRightIcon, QrIcon, SparklesIcon, TrophyIcon, UsersIcon, XIcon } from "@/components/app/icons";
 import { StatusChip } from "@/components/challenges/StatusChip";
-import { DiscoverProgress } from "@/components/discover/DiscoverProgress";
 import styles from "@/components/discover/discover.module.css";
 import { daysUntil } from "@/lib/format";
 import { challenges, challengeStatus } from "@/lib/mock/challenges";
@@ -91,8 +90,7 @@ export default function DiscoverPage() {
         </section>
 
         <section id="choisir" className="scroll-mt-24" style={{ "--i": 1 } as React.CSSProperties} aria-labelledby="pick-title">
-          <p className="font-mono text-[11px] uppercase tracking-[0.18em] text-white/60">Étape 1</p>
-          <h2 id="pick-title" className="mt-2 font-display text-[1.9rem] leading-tight lg:text-[2.4rem]">
+          <h2 id="pick-title" className="font-display text-[1.9rem] leading-tight lg:text-[2.4rem]">
             Choisissez le défi
             <br />
             que vous voulez relever.
@@ -136,15 +134,7 @@ export default function DiscoverPage() {
           </div>
         </section>
 
-        <section id="progression" className="scroll-mt-24" style={{ "--i": 2 } as React.CSSProperties} aria-labelledby="progress-title">
-          <p className="font-mono text-[11px] uppercase tracking-[0.18em] text-white/60">Étape 2</p>
-          <h2 id="progress-title" className="mt-2 font-display text-[1.9rem] leading-tight lg:text-[2.4rem]">Où en êtes-vous ?</h2>
-          <div className="mt-6">
-            <DiscoverProgress daysLeft={days} />
-          </div>
-        </section>
-
-        <p style={{ "--i": 3 } as React.CSSProperties} className="text-center text-[13px] text-white/55">
+        <p style={{ "--i": 2 } as React.CSSProperties} className="text-center text-[13px] text-white/55">
           <Link href="/defis" className="inline-flex items-center gap-1 underline-offset-4 hover:text-white hover:underline">
             <ArrowLeftIcon width={15} height={15} />
             Revenir à l’espace participant
@@ -156,10 +146,6 @@ export default function DiscoverPage() {
         <a href="#choisir" className={`${styles.dockItem} ${styles.dockAccent}`}>
           <TrophyIcon width={20} height={20} />
           Défis
-        </a>
-        <a href="#progression" className={styles.dockItem}>
-          <SparklesIcon width={20} height={20} />
-          Progression
         </a>
         <Link href="/billet" className={styles.dockItem}>
           <QrIcon width={20} height={20} />

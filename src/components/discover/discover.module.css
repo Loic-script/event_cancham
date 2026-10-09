@@ -227,63 +227,6 @@
   background: rgba(255, 255, 255, 0.18);
 }
 
-.tiles {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 12px;
-}
-
-@media (min-width: 1024px) {
-  .tiles {
-    grid-template-columns: repeat(4, minmax(0, 1fr));
-  }
-}
-
-.tile {
-  padding: 18px 16px;
-  border-radius: 20px;
-}
-
-.tileValue {
-  display: block;
-  font-family: var(--font-montserrat), sans-serif;
-  font-weight: 800;
-  font-size: 2rem;
-  line-height: 1;
-}
-
-.tileLabel {
-  display: block;
-  margin-top: 6px;
-  font-size: 12px;
-  color: rgba(255, 255, 255, 0.7);
-}
-
-.tileRed {
-  background: linear-gradient(135deg, #ad0707, #6e0404);
-  border-color: rgba(255, 255, 255, 0.2);
-}
-
-.tileGreen {
-  background: linear-gradient(135deg, #007140, #003a21);
-  border-color: rgba(255, 255, 255, 0.2);
-}
-
-.bar {
-  height: 8px;
-  border-radius: 999px;
-  background: rgba(255, 255, 255, 0.12);
-  overflow: hidden;
-}
-
-.barFill {
-  display: block;
-  height: 100%;
-  border-radius: inherit;
-  background: linear-gradient(90deg, #ad0707, #007140);
-  transition: width 0.8s cubic-bezier(0.2, 0.8, 0.2, 1);
-}
-
 .dock {
   position: fixed;
   left: 50%;
@@ -351,7 +294,6 @@
   }
 
   .card,
-  .barFill,
   .btnPrimary,
   .btnGhost,
   .iconBtn {
