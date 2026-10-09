@@ -183,7 +183,7 @@ export function SocialFeed({ posts, challenges }: SocialFeedProps) {
         ) : (
           <div key={`${network}-${challenge}-${sort}`} className={styles.feed}>
             {visible.map((p, i) => (
-              <article key={p.id} className={styles.card} style={{ "--i": Math.min(i, 8) } as React.CSSProperties} aria-label={`Publication de ${p.authorName} sur ${NETWORK_LABEL[p.network]}`}>
+              <article key={p.id} id={p.id} className={styles.card} style={{ "--i": Math.min(i, 8) } as React.CSSProperties} aria-label={`Publication de ${p.authorName} sur ${NETWORK_LABEL[p.network]}`}>
                 <header className={styles.head}>
                   <Avatar person={p.author} size={42} presence />
                   <div className="min-w-0 flex-1">

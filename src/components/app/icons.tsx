@@ -43,6 +43,7 @@ export const BellIcon = make("BellIcon", <><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 
 export const SlidersIcon = make("SlidersIcon", <><path d="M4 21v-7" /><path d="M4 10V3" /><path d="M12 21v-9" /><path d="M12 8V3" /><path d="M20 21v-5" /><path d="M20 12V3" /><path d="M1 14h6" /><path d="M9 8h6" /><path d="M17 16h6" /></>);
 export const LogOutIcon = make("LogOutIcon", <><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" /><path d="m16 17 5-5-5-5" /><path d="M21 12H9" /></>);
 export const ChevronRightIcon = make("ChevronRightIcon", <path d="m9 18 6-6-6-6" />);
+export const ChevronLeftIcon = make("ChevronLeftIcon", <path d="m15 18-6-6 6-6" />);
 export const MapPinIcon = make("MapPinIcon", <><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z" /><circle cx="12" cy="10" r="3" /></>);
 export const CalendarIcon = make("CalendarIcon", <><rect x="3" y="4" width="18" height="18" rx="2" /><path d="M16 2v4" /><path d="M8 2v4" /><path d="M3 10h18" /></>);
 export const ClockIcon = make("ClockIcon", <><circle cx="12" cy="12" r="10" /><path d="M12 6v6l4 2" /></>);

@@ -61,6 +61,7 @@ export default function HomePage() {
       when: relativeFromMinutes(s.minutesAgo),
       caption: s.caption,
       image: s.image,
+      postId: s.post,
     };
   });
 

@@ -8,4 +8,5 @@ export type StoryView = {
   when: string;
   caption?: string;
   image?: string;
+  postId?: string;
 };
