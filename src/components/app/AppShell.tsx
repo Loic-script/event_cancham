@@ -149,7 +149,7 @@ export function AppShell({ children, aside }: AppShellProps) {
         {!immersive ? (
           <header className={`${styles.topbar} hidden lg:block`}>
             <div className="mx-auto flex h-16 max-w-6xl items-center gap-4 px-10">
-              <p className="w-40 shrink-0 font-display text-[1.2rem] tracking-tight text-graphite">{title}</p>
+              <p className="w-52 shrink-0 font-display text-[1.2rem] tracking-tight text-graphite">{title}</p>
               <SearchPill className="mx-auto w-full max-w-md" />
               <span className="relative">
                 <button type="button" aria-label="Notifications" className={iconBtn}>
