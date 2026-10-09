@@ -96,17 +96,6 @@ export function TicketPhone({ code, holder, eventName, edition, clock, qrSmall, 
     <>
       <div className="mx-auto w-fit">
         <div className={styles.scene}>
-          <div className={`${styles.phone} ${styles.back}`} aria-hidden>
-            <span className={`${styles.key} ${styles.keyBackVol}`} />
-            <span className={`${styles.key} ${styles.keyBackPower}`} />
-            <div className={styles.cams}>
-              <span />
-              <span />
-              <span />
-            </div>
-            <span className={styles.flash} />
-          </div>
-
           <article className={`${styles.phone} ${styles.front}`} aria-label="Billet d'entrée">
             <span className={`${styles.key} ${styles.keyVol}`} aria-hidden />
             <span className={`${styles.key} ${styles.keyPower}`} aria-hidden />
