@@ -1,0 +1,170 @@
+.modeles {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.modeles button {
+  padding: 8px 12px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: var(--surface);
+  color: var(--graphite);
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: border-color 0.2s ease, color 0.2s ease, transform 0.15s ease;
+}
+
+.modeles button:hover { border-color: var(--gold); color: var(--gold); }
+.modeles button:active { transform: scale(0.97); }
+
+.tel {
+  width: min(100%, 290px);
+  margin-inline: auto;
+  padding: 10px;
+  border-radius: 34px;
+  background: #0a1420;
+  box-shadow: 0 1px 2px rgba(15, 29, 44, 0.05), 0 20px 40px -18px rgba(15, 29, 44, 0.5);
+}
+
+.ecran {
+  display: flex;
+  align-items: flex-end;
+  min-height: 440px;
+  padding: 10px;
+  border-radius: 26px;
+  background-size: cover;
+  background-position: center;
+}
+
+.listeAnn {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  width: 100%;
+}
+
+.listeAnn li {
+  display: grid;
+  gap: 4px;
+  padding: 14px 0;
+  border-top: 1px solid var(--line);
+}
+
+.listeAnn li:first-child { border-top: 0; }
+.listeAnn strong { font-family: var(--font-montserrat), sans-serif; font-size: 15px; font-weight: 700; color: var(--graphite); }
+.listeAnn p { font-size: 14px; color: var(--graphite-muted); white-space: pre-wrap; }
+.listeAnn time { font-size: 12px; color: var(--graphite-faint); }
+
+.messagerie {
+  display: grid;
+  grid-template-columns: 300px minmax(0, 1fr);
+  height: min(640px, calc(100svh - 210px));
+  overflow: hidden;
+}
+
+.convs {
+  overflow: auto;
+  border-right: 1px solid var(--line);
+}
+
+.conv {
+  display: grid;
+  grid-template-columns: 40px minmax(0, 1fr) auto;
+  gap: 10px;
+  align-items: center;
+  width: 100%;
+  padding: 12px 14px;
+  border: 0;
+  border-bottom: 1px solid var(--line);
+  background: none;
+  text-align: left;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.conv:hover { background: var(--paper); }
+.conv strong { display: block; font-weight: 600; color: var(--graphite); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.conv small { display: block; color: var(--graphite-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.conv time { font-size: 11.5px; color: var(--graphite-faint); }
+.convOn, .convOn:hover { background: var(--gold); }
+.convOn strong { color: #fff; }
+.convOn small, .convOn time { color: rgba(255, 255, 255, 0.75); }
+
+.fil {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.fil header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--line);
+}
+
+.bulles {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  overflow: auto;
+  padding: 18px;
+  background: var(--paper);
+}
+
+.bulle {
+  max-width: min(72%, 520px);
+  padding: 10px 14px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: var(--surface);
+  color: var(--graphite);
+  animation: bulleIn 0.3s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+}
+
+@keyframes bulleIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: none; }
+}
+
+.bulleMoi { align-self: flex-end; background: var(--gold); border-color: transparent; color: #fff; }
+.bulle time { display: block; margin-top: 4px; font-size: 11px; opacity: 0.7; text-align: right; }
+
+.fil form {
+  display: flex;
+  gap: 10px;
+  padding: 12px;
+  border-top: 1px solid var(--line);
+}
+
+.fil form input { flex: 1; min-width: 0; }
+
+@media (max-width: 900px) {
+  .messagerie { grid-template-columns: minmax(0, 1fr); height: auto; }
+  .convs { max-height: 240px; border-right: 0; border-bottom: 1px solid var(--line); }
+  .bulles { min-height: 260px; }
+}
+
+.siegeForm {
+  display: grid;
+  gap: 12px;
+  padding: 14px;
+  border-radius: 12px;
+  background: var(--paper);
+}
+
+.st {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .bulle { animation: none; }
+}

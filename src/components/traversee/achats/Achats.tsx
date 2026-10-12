@@ -65,7 +65,8 @@ export function Achats() {
   const s = useTraversee();
   const me = useProfile();
   const [panier, setPanier] = useState<Record<string, number>>({});
-  const [tableCmd, setTableCmd] = useState<number>(s.table ?? 1);
+  const [tableChoisie, setTableChoisie] = useState<number | null>(null);
+  const tableCmd = tableChoisie ?? s.table ?? 1;
   const [regl, setRegl] = useState<"table" | "plateforme">("table");
   const [moyen, setMoyen] = useState(MOYENS[0]);
   const [ami, setAmi] = useState(false);
@@ -157,7 +158,7 @@ export function Achats() {
             <p className={`${ui.vide} !p-3.5`}>Ajoutez des articles depuis la carte.</p>
           )}
           <Champ label="Servir à la table" htmlFor="c-table">
-            <select id="c-table" className={ui.saisie} value={tableCmd} onChange={(e) => setTableCmd(Number(e.target.value))}>
+            <select id="c-table" className={ui.saisie} value={tableCmd} onChange={(e) => setTableChoisie(Number(e.target.value))}>
               {Array.from({ length: 24 }, (_, k) => (
                 <option key={k} value={k + 1}>
                   Table {k + 1}

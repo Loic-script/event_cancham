@@ -134,6 +134,34 @@ curl -X POST http://localhost:3000/api/events \
 2. Lancez `npm run db:migrate` et donnez un nom à la migration.
 3. Le client est régénéré automatiquement ; sinon `npm run db:generate`.
 
+## Plateforme La Traversée (espace participant et back-office)
+
+Depuis le 12 octobre 2026, l’application reproduit la maquette « Plateforme La Traversée » de bout en bout, avec la charte CanCham (bleu nuit, rouge, vert) et des animations partout (entrées en cascade, pastille de menu en dégradé, tiroir mobile, halos, tourne de page, balayage de reconnaissance, compteurs en direct). Tout repose sur des données d’exemple et un store dans le navigateur (`src/lib/traversee/store.ts`, clé `traversee.v1`) : ce que fait le back-office se voit immédiatement côté participant dans le même navigateur.
+
+**Coquille** (`src/components/app/AppShell.tsx`, `shell.module.css`) : barre latérale bleu nuit à sections (Événement, Réseau, Souvenirs), barre du haut avec fil d’Ariane, recherche globale (vers l’annuaire), cloche des annonces et mention « Données d’exemple », bouton d’aide vers la messagerie de l’équipe, barre d’onglets et tiroir sur téléphone. Le préfixe `/admin` bascule la coquille en back-office (sections Pilotage, Événement, Contenus).
+
+| Route | Page |
+|---|---|
+| `/` | Accueil : stories en cartes avec visionneuse, publication des participants, fil (publications CanCham, actualités), quatre emplacements promotion |
+| `/programme`, `/programme/[id]` | Programme filtré par catégorie, inscription avec places restantes, fiche détaillée |
+| `/defis/pitch` | Gagnez un voyage au Canada : gain, étapes, envoi du pitch, vote des demi-finalistes en direct, finale simulée |
+| `/defis/tombola` | Gagnez 3 000 000 Ar : affiche « J’y serai » générée (photo, nom, QR), texte à copier, lien de publication avec aperçu, classement en direct |
+| `/place` | Plan de salle de 24 tables à dix chaises, réservation d’une chaise, convives, recherche d’une entreprise |
+| `/achats` | Appel à manifestation d’intérêt MECC 2027, carte et panier, commande (table, règlement), mes achats, billet nominatif |
+| `/annuaire` | Fiches des participants, recherche et secteur, demande de rendez-vous B2B (heure, emplacement, réservation 48 h) |
+| `/rdv` | Rendez-vous confirmés avec notes, demandes envoyées (simulation de réponse), demandes reçues à valider |
+| `/ressources` | Dossiers et documents, recherche, type, tri, grille ou liste |
+| `/photos` | Galerie, ajout de photos, « Me retrouver » (reconnaissance simulée), agrandissement et téléchargement |
+| `/livre` | Livre d’or vidéo feuilleté page à page, recherche dans les sous-titres, dépôt d’une vidéo |
+| `/profil` | Chiffres clés, prochaines étapes, fiche et formulaire, consentements, billet |
+| `/admin` | Accueil du back-office : stories et publications au nom de la CanCham, promotions modifiables, chiffres |
+| `/admin/annonces` | Annonces en popup chez les participants, modèles, aperçu téléphone, historique (renvoyer, supprimer) |
+| `/admin/messagerie`, `/admin/programme`, `/admin/participants`, `/admin/places`, `/admin/commandes` | Réponses aux participants, programme modifiable, inscrits, attribution des places, suivi paiement et service |
+| `/admin/defis/pitch`, `/admin/defis/tombola` | Demi-finalistes (ajout, retrait, finale), classement et désignation du gagnant |
+| `/admin/photos`, `/admin/livre`, `/admin/ressources` | Tri de la galerie, validation et sous-titres du livre d’or, dossiers et documents |
+
+Les anciennes pages `/billet`, `/reseaux`, `/communaute` et l’espace `/decouvrir` restent accessibles (le billet est lié depuis Achats et Profil). Images de la maquette dans `public/traversee/`.
+
 ## Liaison avec Facebook et Instagram
 
 Quand un participant colle le lien de sa publication (défis 1 et 3), l'application :
