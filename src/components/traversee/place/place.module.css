@@ -73,14 +73,14 @@
 }
 
 .libre { background: #fff; box-shadow: inset 0 0 0 2px var(--gold); }
-.moi { background: var(--leaf); box-shadow: 0 0 0 3px rgba(173, 7, 7, 0.3); }
+.moi { background: var(--leaf); box-shadow: 0 0 0 3px rgba(242, 107, 29, 0.3); }
 
 .pleine .disque { background: #eef1f5; }
 .pleine .disque b { color: var(--graphite-faint); }
 .vue .disque { border-color: var(--gold); background: var(--gold-soft); }
 .mienne .disque { border-color: var(--leaf); background: var(--leaf); }
 .mienne .disque b, .mienne .disque small { color: #fff; }
-.trouvee .disque { border-color: var(--palm); box-shadow: 0 0 0 4px rgba(0, 113, 64, 0.25); }
+.trouvee .disque { border-color: var(--leaf); box-shadow: 0 0 0 4px rgba(242, 107, 29, 0.25); }
 
 .reperes {
   display: flex;

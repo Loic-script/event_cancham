@@ -26,14 +26,14 @@
   --palm: #007140;
   --palm-deep: #005a33;
   --palm-soft: #e1f0e8;
-  --leaf: #ad0707;
-  --leaf-soft: #f7e3e3;
-  --gold: #163254;
-  --gold-soft: #e8edf4;
+  --leaf: #f26b1d;
+  --leaf-soft: #fdeee4;
+  --gold: #12305a;
+  --gold-soft: #e8f0fa;
   --elevated: #ffffff;
   --page-bg: #f3f4f1;
   --palm-ink: #007140;
-  --leaf-ink: #ad0707;
+  --leaf-ink: #d9560c;
 }
 
 .theme-dark {
@@ -70,11 +70,11 @@
   --palm-deep: #005a33;
   --palm-soft: #e1f0e8;
   --palm-ink: #007140;
-  --leaf: #ad0707;
-  --leaf-soft: #f7e3e3;
-  --leaf-ink: #ad0707;
-  --gold: #163254;
-  --gold-soft: #e8edf4;
+  --leaf: #f26b1d;
+  --leaf-soft: #fdeee4;
+  --leaf-ink: #d9560c;
+  --gold: #12305a;
+  --gold-soft: #e8f0fa;
   color-scheme: light;
 }
 

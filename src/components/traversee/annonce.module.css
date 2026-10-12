@@ -29,7 +29,7 @@
 }
 
 .urgent .bandeau {
-  background: linear-gradient(120deg, #7a0a1c, #ad0707);
+  background: linear-gradient(120deg, #d9560c, #f26b1d);
 }
 
 .bandeau svg { flex: none; }
@@ -95,11 +95,11 @@
   font-size: 13px;
   font-weight: 700;
   text-decoration: none;
-  box-shadow: 0 10px 22px -12px rgba(173, 7, 7, 0.85);
+  box-shadow: 0 10px 22px -12px rgba(242, 107, 29, 0.85);
   transition: background-color 0.2s ease, transform 0.2s ease;
 }
 
-.lien:hover { background: #8f0606; transform: translateY(-1px); }
+.lien:hover { background: #d9560c; transform: translateY(-1px); }
 
 .apercu .bandeau { padding: 14px 16px; }
 .apercu .bandeau strong { font-size: 15.5px; }

@@ -153,9 +153,9 @@
 .btnPrimary {
   background: var(--leaf);
   color: #fff;
-  box-shadow: 0 10px 22px -12px rgba(173, 7, 7, 0.85);
+  box-shadow: 0 10px 22px -12px rgba(242, 107, 29, 0.85);
 }
-.btnPrimary:hover:not(:disabled) { background: #8f0606; transform: translateY(-1px); }
+.btnPrimary:hover:not(:disabled) { background: #d9560c; transform: translateY(-1px); }
 
 .btnGreen {
   background: var(--palm);
@@ -277,7 +277,7 @@
   display: block;
   height: 100%;
   border-radius: 4px;
-  background: linear-gradient(90deg, var(--leaf), var(--palm));
+  background: linear-gradient(90deg, var(--gold), #4f8fd0);
   transition: width 0.7s cubic-bezier(0.2, 0.8, 0.2, 1);
 }
 
@@ -362,7 +362,7 @@
   transition: border-color 0.2s ease, box-shadow 0.2s ease;
 }
 
-.saisie:focus { border-color: var(--palm); box-shadow: 0 0 0 4px rgba(0, 113, 64, 0.12); }
+.saisie:focus { border-color: var(--gold); box-shadow: 0 0 0 4px rgba(31, 90, 160, 0.14); }
 textarea.saisie { min-height: 90px; resize: vertical; }
 
 @media (max-width: 900px) {

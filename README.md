@@ -136,7 +136,7 @@ curl -X POST http://localhost:3000/api/events \
 
 ## Plateforme La Traversée (espace participant et back-office)
 
-Depuis le 12 octobre 2026, l’application reproduit la maquette « Plateforme La Traversée » de bout en bout, avec la charte CanCham (bleu nuit, rouge, vert) et des animations partout (entrées en cascade, pastille de menu en dégradé, tiroir mobile, halos, tourne de page, balayage de reconnaissance, compteurs en direct). Tout repose sur des données d’exemple et un store dans le navigateur (`src/lib/traversee/store.ts`, clé `traversee.v1`) : ce que fait le back-office se voit immédiatement côté participant dans le même navigateur.
+Depuis le 12 octobre 2026, l’application reproduit la maquette « Plateforme La Traversée » de bout en bout, avec la palette de la plateforme (bleu nuit et orange pour les actions, vert réservé aux états validés ; l’affiche « J’y serai » et le billet gardent le dégradé CanCham 10 ans) et des animations partout (entrées en cascade, pastille de menu en dégradé, tiroir mobile, halos, tourne de page, balayage de reconnaissance, compteurs en direct). Tout repose sur des données d’exemple et un store dans le navigateur (`src/lib/traversee/store.ts`, clé `traversee.v1`) : ce que fait le back-office se voit immédiatement côté participant dans le même navigateur.
 
 **Coquille** (`src/components/app/AppShell.tsx`, `shell.module.css`) : barre latérale bleu nuit à sections (Événement, Réseau, Souvenirs), barre du haut avec fil d’Ariane, recherche globale (vers l’annuaire), cloche des annonces et mention « Données d’exemple », bouton d’aide vers la messagerie de l’équipe, barre d’onglets et tiroir sur téléphone. Le préfixe `/admin` bascule la coquille en back-office (sections Pilotage, Événement, Contenus).
 
