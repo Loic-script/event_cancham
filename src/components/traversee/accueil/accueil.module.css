@@ -3,12 +3,20 @@
   grid-template-columns: minmax(0, 1.65fr) minmax(0, 1fr);
   gap: 16px;
   align-items: start;
+  min-width: 0;
 }
 
 .colFil {
   display: grid;
   gap: 16px;
   min-width: 0;
+  max-width: 100%;
+  overflow: hidden;
+}
+
+.rail {
+  min-width: 0;
+  max-width: 100%;
 }
 
 .colPromo {
@@ -30,19 +38,8 @@
     grid-template-columns: minmax(0, 1fr);
   }
   .colPromo {
-    position: static;
-    display: flex;
-    gap: 12px;
-    overflow-x: auto;
-    scroll-snap-type: x mandatory;
-    margin-inline: -16px;
-    padding: 0 16px 6px;
-    scrollbar-width: none;
-    order: -1;
+    display: none;
   }
-  .colPromo::-webkit-scrollbar { display: none; }
-  .colPromo > .titre { display: none; }
-  .colPromo > * { flex: 0 0 72%; scroll-snap-align: center; }
 }
 
 .promo {
