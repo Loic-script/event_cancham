@@ -320,6 +320,11 @@
 
 .outils .recherche { flex: 1 1 260px; max-width: 420px; }
 
+@media (max-width: 639px) {
+  .outils { padding-left: 12px; padding-right: 12px; }
+  .partie > h2, .gLarge > h2 { padding-left: 12px; }
+}
+
 @media (max-width: 900px) {
   .outils .recherche { max-width: none; flex-basis: 100%; }
   .outils select { flex: 1; }

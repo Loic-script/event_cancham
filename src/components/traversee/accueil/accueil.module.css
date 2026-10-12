@@ -203,6 +203,11 @@
   .story { width: 104px; height: 172px; }
 }
 
+@media (max-width: 639px) {
+  .stories { padding-left: 12px; padding-right: 12px; }
+  .colFil > h2 { padding-left: 12px; }
+}
+
 .voileSt {
   position: fixed;
   inset: 0;

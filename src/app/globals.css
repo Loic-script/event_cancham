@@ -192,10 +192,10 @@ html {
 
 @media (max-width: 639px) {
   .m-bleed {
-    width: calc(100% + 2rem) !important;
+    width: 100% !important;
     max-width: none !important;
-    margin-left: -1rem;
-    margin-right: -1rem;
+    margin-left: 0;
+    margin-right: 0;
     border-radius: 0 !important;
     border-left-width: 0 !important;
     border-right-width: 0 !important;
