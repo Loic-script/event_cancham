@@ -50,7 +50,7 @@ export function Btn({ variant = "light", small = false, href, external, classNam
   if (href) {
     if (external) {
       return (
-        <a href={href} target="_blank" rel="noreferrer" className={cls}>
+        <a href={href} target={href.startsWith("/") ? undefined : "_blank"} rel={href.startsWith("/") ? undefined : "noreferrer"} className={cls}>
           {children}
         </a>
       );

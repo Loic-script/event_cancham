@@ -34,3 +34,4 @@ export async function verifyPublication(link: Extract<ParsedLink, { ok: true }>)
     return { state: "error" };
   }
 }
+

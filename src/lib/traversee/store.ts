@@ -42,6 +42,8 @@ export type TraverseeState = {
   pitch: string | null;
   pitchEnvoye: boolean;
   lienPub: string;
+  lienReactions: { reactions: number; comments: number; shares: number; at: number } | null;
+  lienReleve: string | null;
   vote: number | null;
   voteFinal: number | null;
   finale: boolean;
@@ -82,6 +84,8 @@ export const DEFAULT_STATE: TraverseeState = {
   pitch: null,
   pitchEnvoye: false,
   lienPub: "",
+  lienReactions: null,
+  lienReleve: null,
   vote: null,
   voteFinal: null,
   finale: false,

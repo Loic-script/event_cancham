@@ -1,7 +1,7 @@
 "use client";
 
-import { useCallback, useRef, useState, type FormEvent } from "react";
-import { CameraIcon, DownloadIcon } from "@/components/app/icons";
+import { useCallback, useEffect, useRef, useState, type FormEvent } from "react";
+import { CameraIcon, DownloadIcon, FacebookIcon, SpinnerIcon } from "@/components/app/icons";
 import { updateProfile, useProfile } from "@/components/profile/useProfile";
 import { PostEmbed } from "@/components/social/PostEmbed";
 import { LEGENDE_JY_SERAI, PAGE_FACEBOOK } from "@/lib/traversee/data";
@@ -17,7 +17,35 @@ import styles from "./defis.module.css";
 export function DefiTombola() {
   const me = useProfile();
   const s = useTraversee();
-  const inc = useLive(s.classement.length + 1, 4);
+  const inc = useLive(s.classement.length, 4);
+  const [releve, setReleve] = useState(false);
+  const [fb, setFb] = useState<{ configured: boolean; connected: boolean; name?: string | null } | null>(null);
+
+  const chargerFb = useCallback(async () => {
+    try {
+      const r = await fetch("/api/facebook/status", { cache: "no-store" });
+      setFb((await r.json()) as { configured: boolean; connected: boolean; name?: string | null });
+    } catch {
+      setFb({ configured: false, connected: false });
+    }
+  }, []);
+
+  useEffect(() => {
+    const id = window.setTimeout(() => void chargerFb(), 0);
+    const retour = new URLSearchParams(window.location.search).get("facebook");
+    if (retour === "ok") toast("Compte Facebook connecté.");
+    if (retour === "refus") toast("Connexion Facebook annulée.");
+    if (retour === "erreur") toast("Connexion Facebook impossible. Vérifiez la configuration de l’application Meta.");
+    if (retour) window.history.replaceState(null, "", window.location.pathname);
+    return () => window.clearTimeout(id);
+  }, [chargerFb]);
+
+  async function deconnecterFb() {
+    await fetch("/api/facebook/logout", { method: "POST" });
+    setTraversee({ lienReactions: null, lienReleve: null });
+    await chargerFb();
+    toast("Compte Facebook déconnecté.");
+  }
   const canvas = useRef<HTMLCanvasElement | null>(null);
   const [lien, setLien] = useState("");
   const suivi = useRef<HTMLDivElement | null>(null);
@@ -28,17 +56,37 @@ export function DefiTombola() {
     canvas.current = cv;
   }, []);
 
-  const moiR = s.lienPub ? inc[s.classement.length] : 0;
-  const classement = [...s.classement.map((c, i) => ({ nom: c.nom, r: c.reactions + inc[i], moi: false })), ...(s.lienPub ? [{ nom: `${nom} (vous)`, r: moiR, moi: true }] : [])].sort((a, b) => b.r - a.r);
+  const moiR = s.lienReactions?.reactions ?? null;
+  const classement = [...s.classement.map((c, i) => ({ nom: c.nom, r: c.reactions + inc[i], moi: false })), ...(s.lienPub ? [{ nom: `${nom} (vous)`, r: moiR ?? 0, moi: true }] : [])].sort((a, b) => b.r - a.r);
   const parsed = s.lienPub ? parseSocialLink(s.lienPub) : null;
+
+  async function relever(url: string, silencieux = false) {
+    setReleve(true);
+    try {
+      const r = await fetch(`/api/publications/reactions?url=${encodeURIComponent(url)}`, { cache: "no-store" });
+      const d = (await r.json()) as { ok: boolean; reactions?: number; comments?: number; shares?: number; at?: number; message?: string };
+      if (d.ok) {
+        setTraversee({ lienReactions: { reactions: d.reactions ?? 0, comments: d.comments ?? 0, shares: d.shares ?? 0, at: d.at ?? Date.now() }, lienReleve: null });
+        if (!silencieux) toast(`${d.reactions ?? 0} réaction${(d.reactions ?? 0) > 1 ? "s" : ""} relevée${(d.reactions ?? 0) > 1 ? "s" : ""} sur Facebook.`);
+      } else {
+        setTraversee({ lienReactions: null, lienReleve: d.message ?? "Réactions indisponibles." });
+        if (!silencieux) toast(d.message ?? "Réactions indisponibles.");
+      }
+    } catch {
+      setTraversee({ lienReleve: "Facebook n’a pas répondu. Réessayez dans un instant." });
+    } finally {
+      setReleve(false);
+    }
+  }
 
   function enregistrerLien(e: FormEvent) {
     e.preventDefault();
     const u = lien.trim();
     if (!/^https?:\/\/\S+\.\S+/.test(u)) return toast("Collez le lien complet de votre publication.");
-    setTraversee({ lienPub: u });
+    setTraversee({ lienPub: u, lienReactions: null, lienReleve: null });
     setLien("");
     toast("Publication suivie : vous entrez dans le classement.");
+    void relever(u, true);
   }
 
   async function copier() {
@@ -137,8 +185,31 @@ export function DefiTombola() {
                     Publication suivie : <b style={{ overflowWrap: "anywhere" }}>{s.lienPub}</b>
                   </Note>
                   {parsed?.ok ? <PostEmbed link={parsed} height={320} /> : null}
-                  <div>
-                    <Btn small onClick={() => setTraversee({ lienPub: "" })}>
+                  <div className={styles.consigne}>
+                    <strong>Réactions réelles</strong>
+                    {fb?.connected ? (
+                      <span>
+                        Compte Facebook connecté{fb.name ? ` : ${fb.name}` : ""}. Les réactions sont lues directement sur votre publication.{" "}
+                        <button type="button" onClick={() => void deconnecterFb()} className="cursor-pointer font-bold text-gold underline-offset-4 hover:underline">
+                          Déconnecter
+                        </button>
+                      </span>
+                    ) : (
+                      <span>Pour afficher le vrai nombre de réactions, connectez le compte Facebook qui a publié.</span>
+                    )}
+                  </div>
+                  <div className="flex flex-wrap gap-2">
+                    {!fb?.connected ? (
+                      <Btn small variant="navy" href="/api/facebook/login?next=/defis/tombola" external>
+                        <FacebookIcon width={15} height={15} />
+                        Connecter mon Facebook
+                      </Btn>
+                    ) : null}
+                    <Btn small variant="primary" disabled={releve} onClick={() => void relever(s.lienPub)}>
+                      {releve ? <SpinnerIcon width={15} height={15} className="animate-spin" /> : null}
+                      Actualiser les réactions
+                    </Btn>
+                    <Btn small onClick={() => setTraversee({ lienPub: "", lienReactions: null, lienReleve: null })}>
                       Changer de lien
                     </Btn>
                   </div>
@@ -200,7 +271,24 @@ export function DefiTombola() {
               </table>
             </div>
           </Card>
-          <Stat label="Ma publication" value={s.lienPub ? moiR : "—"} text={s.lienPub ? "réactions pour l’instant" : "Enregistrez votre lien pour entrer dans le classement"} />
+          <Stat
+            label="Ma publication"
+            value={s.lienPub && moiR !== null ? moiR : "—"}
+            text={
+              !s.lienPub
+                ? "Enregistrez votre lien pour entrer dans le classement"
+                : moiR !== null && s.lienReactions
+                  ? `réactions Facebook · ${s.lienReactions.comments} commentaires · ${s.lienReactions.shares} partages · relevé à ${new Date(s.lienReactions.at).toLocaleTimeString("fr-FR", { hour: "2-digit", minute: "2-digit" })}`
+                  : s.lienReleve ?? "Relevé en cours…"
+            }
+          >
+            {s.lienPub ? (
+              <Btn small className="mt-3" disabled={releve} onClick={() => void relever(s.lienPub)}>
+                {releve ? <SpinnerIcon width={15} height={15} className="animate-spin" /> : null}
+                Actualiser
+              </Btn>
+            ) : null}
+          </Stat>
         </div>
       </Partie>
     </>
