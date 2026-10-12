@@ -6,6 +6,7 @@ const MESSAGES = {
   disabled: "Relevé automatique non configuré : renseignez META_APP_ID et META_APP_SECRET.",
   not_connected: "Connectez votre compte Facebook pour relever les réactions de votre publication.",
   instagram: "Instagram ne communique pas les réactions d’un compte personnel.",
+  scope: "Votre application Meta (type Business) n’a pas le droit de lire les publications d’un profil. Créez une application de type Consommateur avec l’autorisation user_posts, ou relevez les réactions dans l’aperçu ci-dessus.",
   group: "Cette publication est dans un groupe : Facebook n’en communique pas les réactions. Publiez sur votre profil, en mode Public.",
   not_found: "Publication introuvable parmi vos publications. Vérifiez qu’elle est sur votre profil et que vous avez accepté l’accès à vos publications.",
   error: "Facebook n’a pas répondu. Réessayez dans un instant.",

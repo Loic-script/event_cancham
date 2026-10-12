@@ -12,7 +12,7 @@ function appSecret() {
 }
 
 function scopes() {
-  return process.env.META_SCOPES || "public_profile,user_posts,user_photos";
+  return process.env.META_SCOPES || "public_profile";
 }
 
 export function appConfigured() {
@@ -74,7 +74,16 @@ function identifiants(url: string) {
   return [...ids];
 }
 
-export type ReactionsResult = { ok: true; reactions: number; comments: number; shares: number; at: number } | { ok: false; reason: "disabled" | "not_connected" | "instagram" | "not_found" | "group" | "error"; detail?: string };
+export type ReactionsResult = { ok: true; reactions: number; comments: number; shares: number; at: number } | { ok: false; reason: "disabled" | "not_connected" | "instagram" | "not_found" | "group" | "scope" | "error"; detail?: string };
+
+export async function permissions(token: string): Promise<string[]> {
+  try {
+    const r = await graph<{ data: { permission: string; status: string }[] }>("me/permissions", { access_token: token });
+    return r.data.filter((x) => x.status === "granted").map((x) => x.permission);
+  } catch {
+    return [];
+  }
+}
 
 export async function readReactions(link: Extract<ParsedLink, { ok: true }>, token: string): Promise<ReactionsResult> {
   if (link.network === "instagram") return { ok: false, reason: "instagram" };
