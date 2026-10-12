@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { Avatar } from "@/components/app/Avatar";
-import { ArrowRightIcon, GlobeIcon, HeartIcon, SparklesIcon } from "@/components/app/icons";
+import { ArrowRightIcon, HeartIcon } from "@/components/app/icons";
 import { StatusChip } from "@/components/challenges/StatusChip";
 import coverStyles from "@/components/challenges/challenges.module.css";
 import styles from "@/components/challenges/landing.module.css";
@@ -45,11 +45,9 @@ export default function ChallengesPage() {
           <p className={styles.lead}>Deux fois 5 000 000 Ar et une mission au Canada tout inclus. À vous de jouer.</p>
           <div className={styles.ctas}>
             <Link href="/decouvrir" className={styles.primary}>
-              <SparklesIcon width={18} height={18} />
               Découvrir les défis
             </Link>
             <Link href="/reseaux" className={styles.ghost}>
-              <GlobeIcon width={18} height={18} />
               Voir les publications
             </Link>
           </div>
