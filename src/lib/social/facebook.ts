@@ -3,10 +3,20 @@ import type { ParsedLink } from "./links";
 
 export const FB_COOKIE = "fb_user_token";
 const VERSION = process.env.META_GRAPH_VERSION ?? "v23.0";
-const SCOPES = "public_profile,user_posts,user_photos";
+function appId() {
+  return process.env.META_BUSINESS_APP_ID || process.env.META_APP_ID || "";
+}
+
+function appSecret() {
+  return process.env.META_BUSINESS_APP_SECRET || process.env.META_APP_SECRET || "";
+}
+
+function scopes() {
+  return process.env.META_SCOPES || "public_profile,user_posts,user_photos";
+}
 
 export function appConfigured() {
-  return Boolean(process.env.META_APP_ID && process.env.META_APP_SECRET);
+  return Boolean(appId() && appSecret());
 }
 
 export function redirectUri(origin: string) {
@@ -14,7 +24,7 @@ export function redirectUri(origin: string) {
 }
 
 export function loginUrl(origin: string, state: string) {
-  const p = new URLSearchParams({ client_id: process.env.META_APP_ID ?? "", redirect_uri: redirectUri(origin), scope: SCOPES, response_type: "code", state });
+  const p = new URLSearchParams({ client_id: appId(), redirect_uri: redirectUri(origin), scope: scopes(), response_type: "code", state });
   return `https://www.facebook.com/${VERSION}/dialog/oauth?${p.toString()}`;
 }
 
@@ -27,8 +37,8 @@ async function graph<T>(path: string, params: Record<string, string>): Promise<T
 }
 
 export async function exchangeCode(origin: string, code: string) {
-  const court = await graph<{ access_token: string }>("oauth/access_token", { client_id: process.env.META_APP_ID ?? "", client_secret: process.env.META_APP_SECRET ?? "", redirect_uri: redirectUri(origin), code });
-  const long = await graph<{ access_token: string; expires_in?: number }>("oauth/access_token", { grant_type: "fb_exchange_token", client_id: process.env.META_APP_ID ?? "", client_secret: process.env.META_APP_SECRET ?? "", fb_exchange_token: court.access_token });
+  const court = await graph<{ access_token: string }>("oauth/access_token", { client_id: appId(), client_secret: appSecret(), redirect_uri: redirectUri(origin), code });
+  const long = await graph<{ access_token: string; expires_in?: number }>("oauth/access_token", { grant_type: "fb_exchange_token", client_id: appId(), client_secret: appSecret(), fb_exchange_token: court.access_token });
   return long.access_token;
 }
 
