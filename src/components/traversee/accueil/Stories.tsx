@@ -1,7 +1,7 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
-import { PlusIcon } from "@/components/app/icons";
+import { useCallback, useEffect, useRef, useState } from "react";
+import { ChevronLeftIcon, ChevronRightIcon, PlusIcon } from "@/components/app/icons";
 import { IMG, SIGLE } from "@/lib/traversee/data";
 import { setTraversee, toast, useTraversee } from "@/lib/traversee/store";
 import styles from "./accueil.module.css";
@@ -11,6 +11,21 @@ type StoriesProps = { admin?: boolean; onCreer?: () => void };
 export function Stories({ admin = false, onCreer }: StoriesProps) {
   const { stories, storiesVues } = useTraversee();
   const [ouverte, setOuverte] = useState<number | null>(null);
+  const rail = useRef<HTMLDivElement | null>(null);
+  const [bord, setBord] = useState<"debut" | "milieu" | "fin">("debut");
+
+  function defiler(sens: 1 | -1) {
+    const el = rail.current;
+    if (!el) return;
+    el.scrollBy({ left: sens * el.clientWidth * 0.8, behavior: "smooth" });
+  }
+
+  function surScroll() {
+    const el = rail.current;
+    if (!el) return;
+    const fin = el.scrollLeft + el.clientWidth >= el.scrollWidth - 4;
+    setBord(el.scrollLeft <= 4 ? "debut" : fin ? "fin" : "milieu");
+  }
 
   const fermer = useCallback(() => setOuverte(null), []);
   const montrer = useCallback(
@@ -50,7 +65,14 @@ export function Stories({ admin = false, onCreer }: StoriesProps) {
 
   return (
     <>
-      <div className={styles.stories} aria-label="Stories">
+      <div className={styles.rail}>
+      <button type="button" onClick={() => defiler(-1)} aria-label="Stories précédentes" className={`${styles.fleche} ${styles.flecheG} ${bord === "debut" ? styles.flecheOff : ""}`}>
+        <ChevronLeftIcon width={22} height={22} />
+      </button>
+      <button type="button" onClick={() => defiler(1)} aria-label="Stories suivantes" className={`${styles.fleche} ${styles.flecheD} ${bord === "fin" ? styles.flecheOff : ""}`}>
+        <ChevronRightIcon width={22} height={22} />
+      </button>
+      <div ref={rail} onScroll={surScroll} className={styles.stories} aria-label="Stories">
         {admin ? (
           <button type="button" className={`${styles.story} ${styles.storyPlus}`} onClick={onCreer} style={{ "--i": 0 } as React.CSSProperties}>
             <span className={styles.hautC} style={{ backgroundImage: `url(${IMG("hero")})` }} />
@@ -76,6 +98,7 @@ export function Stories({ admin = false, onCreer }: StoriesProps) {
             <small>CanCham</small>
           </button>
         ))}
+      </div>
       </div>
 
       {s && ouverte !== null ? (

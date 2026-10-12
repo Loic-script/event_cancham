@@ -1,13 +1,12 @@
 "use client";
 
-import { useState, type FormEvent } from "react";
 import { Avatar } from "@/components/app/Avatar";
-import { CameraIcon, CommentIcon, HeartIcon } from "@/components/app/icons";
+import { CommentIcon, HeartIcon } from "@/components/app/icons";
 import { useProfile } from "@/components/profile/useProfile";
 import { ACTUS, IMG, heureNow } from "@/lib/traversee/data";
-import { lisImage, setTraversee, toast, uid, useTraversee } from "@/lib/traversee/store";
+import { setTraversee, toast, uid, useTraversee } from "@/lib/traversee/store";
 import { fullName } from "@/lib/mock/data";
-import { AvatarSigle, Btn, Card, FileBtn, Puce, ui } from "../ui";
+import { AvatarSigle, Btn, Card, Puce, ui } from "../ui";
 import styles from "./accueil.module.css";
 
 function Reactions({ id, n, c }: { id: string; n: number; c: number }) {
@@ -24,53 +23,6 @@ function Reactions({ id, n, c }: { id: string; n: number; c: number }) {
         {c}
       </span>
     </>
-  );
-}
-
-export function Composer() {
-  const me = useProfile();
-  const [texte, setTexte] = useState("");
-  const [img, setImg] = useState<string | null>(null);
-
-  function publier(e: FormEvent) {
-    e.preventDefault();
-    const tx = texte.trim();
-    if (!tx && !img) return toast("Écrivez un texte ou ajoutez une photo.");
-    setTraversee((s) => ({ posts: [{ id: uid("p"), texte: tx, img: img ?? undefined, t: Date.now() }, ...s.posts] }));
-    setTexte("");
-    setImg(null);
-    toast("Publication partagée avec les participants.");
-  }
-
-  return (
-    <Card pad bleed>
-      <form onSubmit={publier} className={`grid gap-3 ${styles.composer}`}>
-        <div className="flex items-start gap-3">
-          <Avatar person={me} size={44} />
-          <textarea value={texte} onChange={(e) => setTexte(e.target.value)} className={ui.saisie} placeholder="Partagez une actualité avec les participants…" aria-label="Votre publication" maxLength={1200} />
-        </div>
-        {img ? <img className={styles.une} src={img} alt="Photo jointe" /> : null}
-        <div className="flex flex-wrap justify-between gap-2.5">
-          <FileBtn
-            label={
-              <>
-                <CameraIcon width={16} height={16} />
-                {img ? "Changer la photo" : "Ajouter une photo"}
-              </>
-            }
-            accept="image/*"
-            aria-label="Joindre une photo à la publication"
-            onChange={async (e) => {
-              const u = await lisImage(e.target.files?.[0], 1080);
-              if (u) setImg(u);
-            }}
-          />
-          <Btn variant="primary" type="submit">
-            Publier
-          </Btn>
-        </div>
-      </form>
-    </Card>
   );
 }
 
