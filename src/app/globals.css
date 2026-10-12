@@ -131,7 +131,7 @@ body {
 :root {
   --scroll-track: #eef1f5;
   --scroll-thumb: #0f1d2c;
-  --scroll-thumb-hover: #f26b1d;
+  --scroll-thumb-hover: #1f5aa0;
 }
 
 html {
@@ -157,7 +157,7 @@ html {
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: linear-gradient(180deg, #ff8a3d, var(--scroll-thumb-hover));
+  background: linear-gradient(180deg, #2f6fb8, var(--scroll-thumb-hover));
 }
 
 ::-webkit-scrollbar-corner {
@@ -166,8 +166,8 @@ html {
 
 .scroll-nuit {
   --scroll-track: rgba(255, 255, 255, 0.06);
-  --scroll-thumb: #f26b1d;
-  --scroll-thumb-hover: #ff8a3d;
+  --scroll-thumb: rgba(173, 203, 236, 0.55);
+  --scroll-thumb-hover: rgba(173, 203, 236, 0.85);
   scrollbar-color: var(--scroll-thumb) var(--scroll-track);
   scrollbar-width: thin;
 }
@@ -182,12 +182,12 @@ html {
 
 .scroll-nuit::-webkit-scrollbar-thumb {
   border: 0;
-  background: linear-gradient(180deg, #ff8a3d, #d9560c);
-  box-shadow: 0 0 10px rgba(242, 107, 29, 0.45);
+  background: var(--scroll-thumb);
+  box-shadow: none;
 }
 
 .scroll-nuit::-webkit-scrollbar-thumb:hover {
-  background: linear-gradient(180deg, #ffa366, #f26b1d);
+  background: var(--scroll-thumb-hover);
 }
 
 @media (max-width: 639px) {
