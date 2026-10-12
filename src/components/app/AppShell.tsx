@@ -16,7 +16,6 @@ import {
   ArmchairIcon,
   BellIcon,
   BookIcon,
-  CalendarCheckIcon,
   CalendarDaysIcon,
   CartIcon,
   ContactsIcon,
@@ -43,27 +42,17 @@ const NAV: NavSection[] = [
     titre: "Événement",
     items: [
       { href: "/", label: "Accueil", icon: HomeIcon },
-      { href: "/programme", label: "Programme", icon: CalendarDaysIcon },
       { href: "/defis/pitch", label: "Gagnez un voyage au Canada", icon: TrophyIcon },
       { href: "/defis/tombola", label: "Gagnez 3 000 000 Ar", icon: GiftIcon },
       { href: "/place", label: "Ma place", icon: ArmchairIcon },
-      { href: "/achats", label: "Achats", icon: CartIcon },
     ],
   },
   {
     titre: "Réseau",
     items: [
       { href: "/annuaire", label: "Annuaire", icon: ContactsIcon },
-      { href: "/rdv", label: "Mes rendez-vous", icon: CalendarCheckIcon },
       { href: "/messages", label: "Messagerie", icon: MessageCircleIcon },
       { href: "/ressources", label: "Ressources", icon: FolderIcon },
-    ],
-  },
-  {
-    titre: "Souvenirs",
-    items: [
-      { href: "/photos", label: "Photos et vidéos", icon: ImageIcon },
-      { href: "/livre", label: "Livre d’or vidéo", icon: BookIcon },
     ],
   },
 ];
@@ -106,9 +95,9 @@ const TITRES: Record<string, string> = {
   "/defis": "Défis",
 };
 
-const BAS = ["/", "/programme", "/defis/pitch", "/rdv"];
+const BAS = ["/", "/defis/pitch", "/place", "/annuaire"];
 const BAS_ADMIN = ["/admin", "/admin/annonces", "/admin/participants", "/admin/commandes"];
-const BAS_LABEL: Record<string, string> = { "/defis/pitch": "Défis", "/rdv": "RDV", "/admin/participants": "Inscrits" };
+const BAS_LABEL: Record<string, string> = { "/defis/pitch": "Défis", "/place": "Ma place", "/admin/participants": "Inscrits" };
 
 function isActive(pathname: string, href: string) {
   if (href === "/" || href === "/admin") return pathname === href;
@@ -135,7 +124,6 @@ export function AppShell({ children }: { children: ReactNode }) {
   const items = useMemo(() => sections.flatMap((s) => s.items), [sections]);
   const courant = items.filter((n) => isActive(pathname, n.href)).sort((a, b) => b.href.length - a.href.length)[0];
   const titre = courant?.label ?? Object.entries(TITRES).find(([k]) => isActive(pathname, k))?.[1] ?? "Accueil";
-  const rdvActifs = state.rdv.filter((r) => r.etat === "attente" || r.etat === "confirme").length;
   const nonVues = state.annonces.filter((a) => !state.annoncesVues[a.id]);
   const popup = !admin && nonVues[0];
 
@@ -173,7 +161,7 @@ export function AppShell({ children }: { children: ReactNode }) {
               <h4>{s.titre}</h4>
               {s.items.map((n, i) => {
                 const on = n === courant;
-                const badge = n.href === "/messages" ? 1 : n.href === "/rdv" ? rdvActifs : n.href === "/admin/annonces" ? state.annonces.length : 0;
+                const badge = n.href === "/messages" ? 1 : n.href === "/admin/annonces" ? state.annonces.length : 0;
                 return (
                   <Link key={n.href} href={n.href} aria-current={on ? "page" : undefined} className={`${styles.item} ${on ? styles.itemOn : ""}`} style={{ "--i": i } as React.CSSProperties}>
                     <n.icon />
