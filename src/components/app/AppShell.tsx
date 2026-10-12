@@ -167,7 +167,7 @@ export function AppShell({ children }: { children: ReactNode }) {
           <img src={LOGO_BLANC} alt="CanCham" />
           <small>{admin ? "Back-office · La Traversée" : "La Traversée · 18 déc. 2026"}</small>
         </Link>
-        <nav className={styles.nav}>
+        <nav className={`${styles.nav} scroll-nuit`}>
           {sections.map((s) => (
             <div key={s.titre}>
               <h4>{s.titre}</h4>
