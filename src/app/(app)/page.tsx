@@ -127,7 +127,7 @@ export default function HomePage() {
 
   return (
     <div className={`${styles.stagger} flex flex-col gap-7`}>
-      <section className={`${styles.hero} m-bleed p-6 lg:p-9`} style={{ "--i": 0 } as React.CSSProperties} aria-labelledby="hero-title">
+      <section className={`${styles.hero} theme-dark m-bleed p-6 lg:p-9`} style={{ "--i": 0 } as React.CSSProperties} aria-labelledby="hero-title">
         <span className={styles.heroBlob} style={{ width: 260, height: 260, right: -60, top: -80, background: "rgba(0, 113, 64, 0.32)" }} aria-hidden />
         <span className={styles.heroBlob} style={{ width: 300, height: 300, left: -90, bottom: -140, background: "rgba(173, 7, 7, 0.28)", animationDelay: "-4s" }} aria-hidden />
         <span className={styles.heroRing} style={{ width: 420, height: 420, right: -120, top: -200 }} aria-hidden />
@@ -149,7 +149,7 @@ export default function HomePage() {
                 <QrIcon width={17} height={17} />
                 Mon billet
               </Link>
-              <Link href="/communaute" className={`${styles.glass} inline-flex h-11 items-center gap-2 rounded-xl px-4 text-[14px] font-semibold text-graphite transition-colors hover:bg-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-palm`}>
+              <Link href="/communaute" className={`${styles.glass} inline-flex h-11 items-center gap-2 rounded-xl px-4 text-[14px] font-semibold text-graphite transition-colors hover:bg-white/15 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-palm`}>
                 Explorer le fil
                 <ChevronRightIcon width={16} height={16} />
               </Link>
