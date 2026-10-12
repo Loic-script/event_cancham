@@ -1,260 +1,324 @@
 "use client";
 
-import Image from "next/image";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
-import { useEffect, useState, type ReactNode } from "react";
+import { usePathname, useRouter } from "next/navigation";
+import { useEffect, useMemo, useState, type FormEvent, type ReactNode } from "react";
 import { useProfile } from "@/components/profile/useProfile";
-import { event, fullName, unreadTotal } from "@/lib/mock/data";
+import { AnnonceCard } from "@/components/traversee/AnnonceCard";
+import { Modal } from "@/components/traversee/Modal";
+import { Toaster } from "@/components/traversee/Toaster";
+import { Puce } from "@/components/traversee/ui";
+import { LOGO_BLANC, TYPES_ANNONCE, heureAnn } from "@/lib/traversee/data";
+import { setTraversee, toast, useTraversee } from "@/lib/traversee/store";
+import { fullName } from "@/lib/mock/data";
 import { Avatar } from "./Avatar";
 import {
+  ArmchairIcon,
   BellIcon,
-  ChevronRightIcon,
-  GlobeIcon,
+  BookIcon,
+  CalendarCheckIcon,
+  CalendarDaysIcon,
+  CartIcon,
+  ContactsIcon,
+  FolderIcon,
+  GiftIcon,
+  HeadsetIcon,
   HomeIcon,
+  ImageIcon,
+  LogOutIcon,
+  MegaphoneIcon,
+  MenuIcon,
   MessageCircleIcon,
-  MoreIcon,
-  TicketIcon,
   TrophyIcon,
-  UserIcon,
   UsersIcon,
-  XIcon,
   type IconProps,
 } from "./icons";
-import { SearchPill } from "./SearchPill";
-import styles from "./app.module.css";
+import styles from "./shell.module.css";
 
-type NavItem = {
-  href: string;
-  label: string;
-  short?: string;
-  icon: (props: IconProps) => React.JSX.Element;
-};
+type NavItem = { href: string; label: string; icon: (props: IconProps) => React.JSX.Element };
+type NavSection = { titre: string; items: NavItem[] };
 
-const NAV: NavItem[] = [
-  { href: "/", label: "Accueil", icon: HomeIcon },
-  { href: "/billet", label: "Billet", icon: TicketIcon },
-  { href: "/defis", label: "Les défis", icon: TrophyIcon },
-  { href: "/reseaux", label: "Réseaux sociaux", icon: GlobeIcon },
-  { href: "/communaute", label: "Fil de communauté", short: "Fil", icon: UsersIcon },
-  { href: "/messages", label: "Messages", icon: MessageCircleIcon },
-  { href: "/profil", label: "Profil", icon: UserIcon },
+const NAV: NavSection[] = [
+  {
+    titre: "Événement",
+    items: [
+      { href: "/", label: "Accueil", icon: HomeIcon },
+      { href: "/programme", label: "Programme", icon: CalendarDaysIcon },
+      { href: "/defis/pitch", label: "Gagnez un voyage au Canada", icon: TrophyIcon },
+      { href: "/defis/tombola", label: "Gagnez 3 000 000 Ar", icon: GiftIcon },
+      { href: "/place", label: "Ma place", icon: ArmchairIcon },
+      { href: "/achats", label: "Achats", icon: CartIcon },
+    ],
+  },
+  {
+    titre: "Réseau",
+    items: [
+      { href: "/annuaire", label: "Annuaire", icon: ContactsIcon },
+      { href: "/rdv", label: "Mes rendez-vous", icon: CalendarCheckIcon },
+      { href: "/messages", label: "Messagerie", icon: MessageCircleIcon },
+      { href: "/ressources", label: "Ressources", icon: FolderIcon },
+    ],
+  },
+  {
+    titre: "Souvenirs",
+    items: [
+      { href: "/photos", label: "Photos et vidéos", icon: ImageIcon },
+      { href: "/livre", label: "Livre d’or vidéo", icon: BookIcon },
+    ],
+  },
 ];
 
-const TABS = ["/", "/communaute", "/billet", "/messages", "/profil"];
-const MORE = ["/defis", "/reseaux"];
+const NAV_ADMIN: NavSection[] = [
+  {
+    titre: "Pilotage",
+    items: [
+      { href: "/admin", label: "Accueil", icon: HomeIcon },
+      { href: "/admin/annonces", label: "Annonces", icon: MegaphoneIcon },
+      { href: "/admin/messagerie", label: "Messagerie", icon: MessageCircleIcon },
+    ],
+  },
+  {
+    titre: "Événement",
+    items: [
+      { href: "/admin/programme", label: "Programme", icon: CalendarDaysIcon },
+      { href: "/admin/participants", label: "Participants", icon: UsersIcon },
+      { href: "/admin/places", label: "Places", icon: ArmchairIcon },
+      { href: "/admin/commandes", label: "Commandes", icon: CartIcon },
+      { href: "/admin/defis/pitch", label: "Gagnez un voyage au Canada", icon: TrophyIcon },
+      { href: "/admin/defis/tombola", label: "Gagnez 3 000 000 Ar", icon: GiftIcon },
+    ],
+  },
+  {
+    titre: "Contenus",
+    items: [
+      { href: "/admin/photos", label: "Photos et vidéos", icon: ImageIcon },
+      { href: "/admin/livre", label: "Livre d’or", icon: BookIcon },
+      { href: "/admin/ressources", label: "Ressources", icon: FolderIcon },
+    ],
+  },
+];
 
-const TITLES: Record<string, string> = {
-  "/": "Accueil",
+const TITRES: Record<string, string> = {
+  "/profil": "Profil",
   "/billet": "Mon billet",
-  "/defis": "Les défis",
   "/reseaux": "Réseaux sociaux",
   "/communaute": "Fil de communauté",
-  "/messages": "Messages",
-  "/profil": "Profil",
+  "/defis": "Défis",
 };
+
+const BAS = ["/", "/programme", "/defis/pitch", "/rdv"];
+const BAS_ADMIN = ["/admin", "/admin/annonces", "/admin/participants", "/admin/commandes"];
+const BAS_LABEL: Record<string, string> = { "/defis/pitch": "Défis", "/rdv": "RDV", "/admin/participants": "Inscrits" };
 
 function isActive(pathname: string, href: string) {
-  return href === "/" ? pathname === "/" : pathname === href || pathname.startsWith(`${href}/`);
+  if (href === "/" || href === "/admin") return pathname === href;
+  return pathname === href || pathname.startsWith(`${href}/`);
 }
 
-const iconBtn =
-  "grid h-10 w-10 cursor-pointer place-items-center rounded-full text-graphite-muted transition-colors hover:bg-black/5 hover:text-graphite focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-palm-ink";
-
-type AppShellProps = {
-  children: ReactNode;
-  aside?: ReactNode;
-};
-
-export function AppShell({ children, aside }: AppShellProps) {
+export function AppShell({ children }: { children: ReactNode }) {
   const pathname = usePathname();
-  const [moreOpen, setMoreOpen] = useState(false);
-  const unread = unreadTotal();
+  const router = useRouter();
   const me = useProfile();
+  const state = useTraversee();
+  const [ouvert, setOuvert] = useState(false);
+  const [cloche, setCloche] = useState(false);
+  const [recherche, setRecherche] = useState("");
+  const [cheminPrecedent, setCheminPrecedent] = useState(pathname);
+  if (cheminPrecedent !== pathname) {
+    setCheminPrecedent(pathname);
+    setOuvert(false);
+  }
 
+  const admin = pathname.startsWith("/admin");
   const immersive = /^\/messages\/[^/]+$/.test(pathname);
-  const wide = pathname.startsWith("/messages");
-  const sectionHref = NAV.map((n) => n.href).find((href) => isActive(pathname, href)) ?? "/";
-  const activeIndex = NAV.findIndex((n) => isActive(pathname, n.href));
-  const title = TITLES[sectionHref] ?? "Event";
+  const sections = admin ? NAV_ADMIN : NAV;
+  const items = useMemo(() => sections.flatMap((s) => s.items), [sections]);
+  const courant = items.filter((n) => isActive(pathname, n.href)).sort((a, b) => b.href.length - a.href.length)[0];
+  const titre = courant?.label ?? Object.entries(TITRES).find(([k]) => isActive(pathname, k))?.[1] ?? "Accueil";
+  const rdvActifs = state.rdv.filter((r) => r.etat === "attente" || r.etat === "confirme").length;
+  const nonVues = state.annonces.filter((a) => !state.annoncesVues[a.id]);
+  const popup = !admin && nonVues[0];
 
   useEffect(() => {
-    if (!moreOpen) return;
+    if (!ouvert) return;
     const onKey = (e: KeyboardEvent) => {
-      if (e.key === "Escape") setMoreOpen(false);
+      if (e.key === "Escape") setOuvert(false);
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [moreOpen]);
+  }, [ouvert]);
+
+  function toutVu() {
+    setTraversee((s) => ({ annoncesVues: { ...s.annoncesVues, ...Object.fromEntries(s.annonces.map((a) => [a.id, 1 as const])) } }));
+  }
+
+  function chercher(e: FormEvent) {
+    e.preventDefault();
+    const q = recherche.trim();
+    router.push(q ? `/annuaire?q=${encodeURIComponent(q)}` : "/annuaire");
+  }
+
+  const basItems = (admin ? BAS_ADMIN : BAS).map((href) => items.find((n) => n.href === href)!);
 
   return (
     <div className={`${styles.app} theme-light`}>
-      <aside className={`${styles.sidebar} fixed inset-y-0 left-0 z-30 hidden w-[264px] flex-col px-4 py-6 lg:flex`}>
-        <Link href="/" className="mb-8 flex items-center gap-3 rounded-xl px-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-palm-ink">
-          <Image src="/cancham-logo.png" alt="CanCham Madagascar" width={156} height={96} priority className="h-12 w-auto shrink-0" />
-          <span className="flex flex-col leading-tight">
-            <span className="font-display text-[1.25rem] tracking-tight text-graphite">{event.name}</span>
-            <span className="text-[12px] text-graphite-muted">{event.edition}</span>
-          </span>
+      <aside className={`${styles.lat} ${admin ? styles.latAdm : ""} ${ouvert ? styles.latOuvert : ""}`} aria-label="Menu principal">
+        <Link href={admin ? "/admin" : "/"} className={styles.logo}>
+          <img src={LOGO_BLANC} alt="CanCham" />
+          <small>{admin ? "Back-office · La Traversée" : "La Traversée · 18 déc. 2026"}</small>
         </Link>
-
-        <nav aria-label="Navigation principale" className="flex flex-1 flex-col">
-          <p className={styles.sideLabel}>Menu</p>
-          <div className={styles.sideNav}>
-            <span
-              className={styles.sideIndicator}
-              data-indicator
-              aria-hidden
-              style={{ "--active": Math.max(0, activeIndex), "--visible": activeIndex < 0 ? 0 : 1 } as React.CSSProperties}
-            />
-            {NAV.map((item, i) => {
-              const active = i === activeIndex;
-              return (
-                <Link
-                  key={item.href}
-                  href={item.href}
-                  aria-current={active ? "page" : undefined}
-                  className={`${styles.sideItem} ${active ? styles.sideItemActive : ""}`}
-                  style={{ "--i": i } as React.CSSProperties}
-                >
-                  <span className={styles.sideIcon}>
-                    <item.icon width={19} height={19} />
-                  </span>
-                  <span className={styles.sideText}>{item.label}</span>
-                  {item.href === "/messages" && unread > 0 ? (
-                    <span className={styles.sideBadge}>{unread}</span>
-                  ) : (
-                    <ChevronRightIcon width={16} height={16} className={styles.sideArrow} />
-                  )}
-                </Link>
-              );
-            })}
-          </div>
+        <nav className={styles.nav}>
+          {sections.map((s) => (
+            <div key={s.titre}>
+              <h4>{s.titre}</h4>
+              {s.items.map((n, i) => {
+                const on = n === courant;
+                const badge = n.href === "/messages" ? 1 : n.href === "/rdv" ? rdvActifs : n.href === "/admin/annonces" ? state.annonces.length : 0;
+                return (
+                  <Link key={n.href} href={n.href} aria-current={on ? "page" : undefined} className={`${styles.item} ${on ? styles.itemOn : ""}`} style={{ "--i": i } as React.CSSProperties}>
+                    <n.icon />
+                    <span>{n.label}</span>
+                    {badge ? <b>{badge}</b> : null}
+                  </Link>
+                );
+              })}
+            </div>
+          ))}
+          {admin ? (
+            <div>
+              <h4>Aperçu</h4>
+              <Link href="/" className={styles.item}>
+                <HomeIcon />
+                <span>Ouvrir l’appli participant</span>
+              </Link>
+            </div>
+          ) : (
+            <div>
+              <h4>Équipe</h4>
+              <Link href="/admin" className={styles.item}>
+                <MegaphoneIcon />
+                <span>Back-office CanCham</span>
+              </Link>
+            </div>
+          )}
         </nav>
-
-        <Link
-          href="/profil"
-          className={`${styles.card} ${styles.sideProfile} mt-4 flex items-center gap-3 p-3 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-palm-ink`}
-        >
-          <Avatar person={me} size={40} presence />
-          <span className="min-w-0 flex-1">
-            <span className="block truncate text-[14px] font-semibold text-graphite">{fullName(me)}</span>
-            <span className="block truncate text-[12px] text-graphite-muted">{me.company}</span>
-          </span>
-          <ChevronRightIcon width={16} height={16} className={styles.sideArrow} />
+        <Link href={admin ? "/admin" : "/profil"} className={styles.moi}>
+          {admin ? (
+            <span className="grid h-[38px] w-[38px] flex-none place-items-center rounded-full bg-white font-display text-[14px] text-gold">CC</span>
+          ) : (
+            <Avatar person={me} size={38} />
+          )}
+          <div className="min-w-0">
+            <strong>{admin ? "Équipe CanCham" : fullName(me)}</strong>
+            <small>{admin ? "Administration" : me.company || "Compléter mon profil"}</small>
+          </div>
         </Link>
+        <button type="button" className={styles.sortir} onClick={() => toast("Déconnexion désactivée dans la maquette.")}>
+          <LogOutIcon />
+          Se déconnecter
+        </button>
       </aside>
+      {ouvert ? <div className={styles.fond} onClick={() => setOuvert(false)} aria-hidden /> : null}
 
-      <div className={`lg:pl-[264px] ${aside && !wide ? "xl:pr-[320px]" : ""}`}>
+      <div className={styles.corps}>
         {!immersive ? (
-          <header className={`${styles.topbar} lg:hidden`}>
-            <div className="flex h-14 items-center gap-3 px-4" style={{ paddingTop: "env(safe-area-inset-top)" }}>
-              <Link href="/" aria-label="Accueil" className="shrink-0 rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-palm-ink">
-                <Image src="/cancham-logo.png" alt="" width={117} height={72} priority className="h-9 w-auto" />
-              </Link>
-              <h1 className="min-w-0 flex-1 truncate font-display text-[1.3rem] leading-none tracking-tight text-graphite">{title}</h1>
-              <button type="button" aria-label="Notifications" className={iconBtn}>
-                <BellIcon width={21} height={21} />
-              </button>
-              <button type="button" aria-label="Plus de rubriques" aria-expanded={moreOpen} onClick={() => setMoreOpen(true)} className={iconBtn}>
-                <MoreIcon width={22} height={22} />
-              </button>
-            </div>
+          <header className={styles.haut}>
+            <button type="button" className={styles.menu} onClick={() => setOuvert(true)} aria-label="Ouvrir le menu" aria-expanded={ouvert}>
+              <MenuIcon width={22} height={22} />
+            </button>
+            <p className={styles.fil}>
+              {admin ? "Back-office" : "La Traversée"} / <b>{titre}</b>
+            </p>
+            {!admin ? (
+              <form className={styles.cherche} onSubmit={chercher} role="search">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" aria-hidden>
+                  <circle cx="11" cy="11" r="7" />
+                  <path d="m20 20-3.5-3.5" />
+                </svg>
+                <input value={recherche} onChange={(e) => setRecherche(e.target.value)} type="search" placeholder="Rechercher un participant, un panel…" aria-label="Rechercher" />
+              </form>
+            ) : (
+              <span className="ml-auto" />
+            )}
+            <button
+              type="button"
+              className={styles.cloche}
+              onClick={() => {
+                toutVu();
+                setCloche(true);
+              }}
+              aria-label="Annonces"
+            >
+              <BellIcon />
+              {!admin && nonVues.length ? <b>{nonVues.length}</b> : null}
+            </button>
+            <span className={styles.ex}>Données d’exemple</span>
           </header>
         ) : null}
 
-        {!immersive ? (
-          <header className={`${styles.topbar} hidden lg:block`}>
-            <div className="mx-auto flex h-16 max-w-6xl items-center gap-4 px-10">
-              <p className="w-52 shrink-0 font-display text-[1.2rem] tracking-tight text-graphite">{title}</p>
-              <SearchPill className="mx-auto w-full max-w-md" />
-              <span className="relative">
-                <button type="button" aria-label="Notifications" className={iconBtn}>
-                  <BellIcon width={21} height={21} />
-                </button>
-                {unread > 0 ? <span className="pointer-events-none absolute right-2 top-2 h-2 w-2 rounded-full bg-leaf ring-2 ring-page-bg" /> : null}
-              </span>
-              <Link href="/profil" aria-label="Mon profil" className="rounded-full focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-palm-ink">
-                <Avatar person={me} size={36} />
-              </Link>
-            </div>
-          </header>
-        ) : null}
-
-        <main key={pathname} className={`${immersive ? "" : `${styles.page} px-4 pb-28 pt-4 lg:px-10 lg:py-8`} mx-auto w-full max-w-6xl`}>
+        <main key={pathname} className={immersive ? "" : styles.page}>
           {children}
         </main>
       </div>
 
-      {aside && !wide ? (
-        <aside className={`${styles.aside} fixed inset-y-0 right-0 z-20 hidden w-[320px] overflow-y-auto px-5 py-6 xl:block`} aria-label="Panneau latéral">
-          {aside}
-        </aside>
-      ) : null}
-
       {!immersive ? (
-        <nav aria-label="Navigation principale" className={`${styles.tabbar} lg:hidden`}>
-          {TABS.map((href) => {
-            const item = NAV.find((n) => n.href === href)!;
-            const active = isActive(pathname, href);
-            const hero = href === "/billet";
+        <nav className={styles.bas} aria-label="Navigation rapide">
+          {basItems.map((n) => {
+            const on = n === courant;
             return (
-              <Link
-                key={href}
-                href={href}
-                aria-current={active ? "page" : undefined}
-                aria-label={item.label}
-                className={`${styles.tab} ${hero ? styles.tabHero : ""} ${active ? (hero ? styles.tabHeroActive : styles.tabActive) : ""}`}
-              >
-                {hero ? (
-                  <span className={styles.heroDisc}>
-                    <item.icon width={24} height={24} strokeWidth={2} />
-                  </span>
-                ) : (
-                  <item.icon width={23} height={23} strokeWidth={active ? 2.2 : 1.75} />
-                )}
-                <span>{item.short ?? item.label}</span>
-                {href === "/messages" && unread > 0 ? <span className={styles.badge}>{unread}</span> : null}
+              <Link key={n.href} href={n.href} aria-current={on ? "page" : undefined} className={`${styles.basItem} ${on ? styles.basOn : ""}`}>
+                <n.icon />
+                {BAS_LABEL[n.href] ?? n.label}
               </Link>
             );
           })}
+          <button type="button" className={styles.basItem} onClick={() => setOuvert(true)} aria-label="Ouvrir le menu">
+            <MenuIcon />
+            Menu
+          </button>
         </nav>
       ) : null}
 
-      {moreOpen ? (
-        <>
-          <div className={styles.scrim} onClick={() => setMoreOpen(false)} aria-hidden />
-          <div className={styles.sheet} role="dialog" aria-modal="true" aria-label="Plus de rubriques">
-            <div className={styles.sheetHandle} aria-hidden />
-            <div className="mb-3 flex items-center justify-between px-1">
-              <p className="font-display text-[1.2rem] text-graphite">Plus</p>
-              <button type="button" onClick={() => setMoreOpen(false)} aria-label="Fermer" className={iconBtn}>
-                <XIcon width={20} height={20} />
-              </button>
-            </div>
-            <ul className="flex flex-col gap-1">
-              {MORE.map((href) => {
-                const item = NAV.find((n) => n.href === href)!;
-                return (
-                  <li key={href}>
-                    <Link
-                      href={href}
-                      onClick={() => setMoreOpen(false)}
-                      className={`${styles.sideItem} ${isActive(pathname, href) ? styles.sideItemActive : ""} text-[16px]`}
-                    >
-                      <span className={styles.sideIcon}>
-                        <item.icon width={20} height={20} />
-                      </span>
-                      <span className={styles.sideText}>{item.label}</span>
-                      <ChevronRightIcon width={16} height={16} className={styles.sideArrow} />
-                    </Link>
-                  </li>
-                );
-              })}
-            </ul>
-          </div>
-        </>
+      {!admin && !pathname.startsWith("/messages") ? (
+        <Link href="/messages/c1" className={styles.aide} aria-label="Écrire à l’équipe CanCham">
+          <HeadsetIcon />
+        </Link>
       ) : null}
+
+      {cloche ? (
+        <Modal onClose={() => setCloche(false)} label="Annonces" size="large">
+          <h3 className="font-display text-[20px] text-graphite">Annonces</h3>
+          <ul className={styles.listeAnn}>
+            {state.annonces.length ? (
+              state.annonces.map((a) => (
+                <li key={a.id}>
+                  <div className="flex flex-wrap items-center gap-2">
+                    <Puce tone={a.type === "urgent" ? "red" : "blue"}>{TYPES_ANNONCE[a.type]}</Puce>
+                    <time>{heureAnn(a.t)}</time>
+                  </div>
+                  <strong>{a.titre}</strong>
+                  <p>{a.message}</p>
+                </li>
+              ))
+            ) : (
+              <li>
+                <p>Aucune annonce pour l’instant.</p>
+              </li>
+            )}
+          </ul>
+          <button type="button" onClick={() => setCloche(false)} className="h-11 cursor-pointer rounded-xl border border-line bg-surface text-[13px] font-bold text-graphite hover:border-gold hover:text-gold">
+            Fermer
+          </button>
+        </Modal>
+      ) : null}
+
+      {popup ? (
+        <Modal onClose={toutVu} label="Annonce" size="narrow" className="!p-0 !overflow-hidden">
+          <AnnonceCard annonce={popup} onClose={toutVu} />
+        </Modal>
+      ) : null}
+
+      <Toaster />
     </div>
   );
 }

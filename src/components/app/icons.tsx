@@ -86,3 +86,15 @@ export const SparkIcon = make("SparkIcon", <><path d="M12 2v4" /><path d="M12 18
 export const MailIcon = make("MailIcon", <><rect x="3" y="5" width="18" height="14" rx="2.5" /><path d="m4 7 8 6 8-6" /></>);
 export const EyeIcon = make("EyeIcon", <><path d="M2.5 12s3.5-6.5 9.5-6.5 9.5 6.5 9.5 6.5-3.5 6.5-9.5 6.5S2.5 12 2.5 12Z" /><circle cx="12" cy="12" r="3" /></>);
 export const EyeOffIcon = make("EyeOffIcon", <><path d="M3 3l18 18" /><path d="M10.6 5.9A10.8 10.8 0 0 1 12 5.5c6 0 9.5 6.5 9.5 6.5a17.6 17.6 0 0 1-3.2 4" /><path d="M6.3 6.9A17 17 0 0 0 2.5 12s3.5 6.5 9.5 6.5c1.5 0 2.9-.4 4.1-1" /><path d="M9.9 9.9a3 3 0 0 0 4.2 4.2" /></>);
+export const MenuIcon = make("MenuIcon", <path d="M4 7h16M4 12h16M4 17h16" />);
+export const MegaphoneIcon = make("MegaphoneIcon", <><path d="M4 10v4h3l6 4V6l-6 4z" /><path d="M16 9a4 4 0 0 1 0 6" /><path d="M18.5 6.5a8 8 0 0 1 0 11" /></>);
+export const ArmchairIcon = make("ArmchairIcon", <><path d="M5 11V7a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v4" /><path d="M3 13a2 2 0 0 1 4 0v3h10v-3a2 2 0 0 1 4 0v6H3z" /><path d="M6 19v2M18 19v2" /></>);
+export const CartIcon = make("CartIcon", <><path d="M4 6h16l-1.5 9h-13z" /><path d="M4 6 3 3H1" /><path d="M8 20h.01M17 20h.01" /></>);
+export const BookIcon = make("BookIcon", <><path d="M4 5h12v14H4z" /><path d="M16 10l5-3v10l-5-3" /></>);
+export const FolderIcon = make("FolderIcon", <path d="M3 6h7l2 2h9v11H3z" />);
+export const HeadsetIcon = make("HeadsetIcon", <><path d="M4 13v-1a8 8 0 0 1 16 0v1" /><path d="M4 13a2 2 0 0 1 2-2h1v6H6a2 2 0 0 1-2-2z" /><path d="M20 13a2 2 0 0 0-2-2h-1v6h1a2 2 0 0 0 2-2z" /><path d="M17 17a4 4 0 0 1-4 3h-1" /></>);
+export const ContactsIcon = make("ContactsIcon", <><path d="M5 3h14v18H5z" /><path d="M9 8h6M9 12h6M9 16h3" /></>);
+export const CalendarCheckIcon = make("CalendarCheckIcon", <><path d="M4 5h16v16H4z" /><path d="M4 10h16M8 3v4M16 3v4" /><path d="m8.5 15.5 2.5 2.5 4.5-5" /></>);
+export const CalendarDaysIcon = make("CalendarDaysIcon", <><path d="M4 5h16v16H4z" /><path d="M4 10h16M8 3v4M16 3v4" /><path d="M8 14h2M12 14h2M8 17h2" /></>);
+export const NewspaperIcon = make("NewspaperIcon", <><path d="M4 5h13v14H6a2 2 0 0 1-2-2z" /><path d="M17 9h3v8a2 2 0 0 1-2 2" /><path d="M8 9h5M8 13h5" /></>);
+export const LayoutIcon = make("LayoutIcon", <><rect x="3" y="4" width="18" height="16" rx="2" /><path d="M3 10h18M9 10v10" /></>);
