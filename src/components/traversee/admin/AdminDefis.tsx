@@ -7,7 +7,7 @@ import { SECTEURS } from "@/lib/traversee/data";
 import { setTraversee, toast, useTraversee } from "@/lib/traversee/store";
 import { fullName } from "@/lib/mock/data";
 import { GainPitch, GainTombola, Tuiles, type DefiType } from "../defis/Tuiles";
-import { Btn, Card, Champ, Etapes, FileBtn, Note, PageHead, Partie, Puce, Rang, Stat, Sur, ui } from "../ui";
+import { Btn, Card, Champ, Etapes, FileBtn, Note, Partie, Puce, Rang, Stat, Sur, ui } from "../ui";
 
 function FormDemi() {
   const s = useTraversee();
@@ -71,7 +71,6 @@ export function AdminDefi({ type }: { type: DefiType }) {
     const ordre = s.voix.map((v, i) => [v, i] as const).sort((a, b) => b[0] - a[0]);
     return (
       <>
-        <PageHead title="Gagnez un voyage" accent="au Canada" text="Défi Pitch MECC 2027, tel que le voient les participants, et son pilotage." photo="pitch" />
         <Tuiles actif="pitch" admin />
         <Partie n={1} titre="Ce qu’on gagne">
           <GainPitch />
@@ -162,7 +161,6 @@ export function AdminDefi({ type }: { type: DefiType }) {
   const l = [...s.classement.map((c) => ({ nom: c.nom, r: c.reactions })), ...(s.lienPub ? [{ nom: fullName(me), r: 0 }] : [])].sort((a, b) => b.r - a.r);
   return (
     <>
-      <PageHead title="Gagnez" accent="3 000 000 Ar" text="Le défi tel que le voient les participants, et son pilotage." photo="equipe" />
       <Tuiles actif="tombola" admin />
       <Partie n={1} titre="Ce qu’on gagne">
         <GainTombola />
