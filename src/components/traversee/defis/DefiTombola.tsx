@@ -9,7 +9,7 @@ import { lisImage, setTraversee, toast, useTraversee } from "@/lib/traversee/sto
 import { fullName } from "@/lib/mock/data";
 import { parseSocialLink } from "@/lib/social/links";
 import { Modal } from "../Modal";
-import { Btn, Card, Champ, Direct, FileBtn, Note, PageHead, Partie, Rang, Stat, Sur, ui } from "../ui";
+import { Btn, Card, Champ, Direct, FileBtn, Note, Partie, Rang, Stat, Sur, ui } from "../ui";
 import { Affiche, telechargeCanvas } from "./Affiche";
 import { GainTombola, Tuiles } from "./Tuiles";
 import { useLive } from "./live";
@@ -121,7 +121,6 @@ export function DefiTombola() {
           </div>
         </Modal>
       ) : null}
-      <PageHead title="Gagnez" accent="3 000 000 Ar" text="La publication « J’y serai » qui réunit le plus de réactions d’ici la fin du vote, pendant l’événement, l’emporte." photo="equipe" />
       <Tuiles actif="tombola" />
 
       <Partie n={1} titre="Ce qu’on gagne">
