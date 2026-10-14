@@ -13,6 +13,7 @@ export type ProfileOverrides = Partial<{
   city: string;
   country: Country;
   website: string;
+  phone: string;
   linkedin: string;
   email: string;
   photo: string;
@@ -20,7 +21,7 @@ export type ProfileOverrides = Partial<{
   passwordChangedAt: string;
 }>;
 
-export type Profile = typeof currentUser & { photo?: string; blocked: string[]; passwordChangedAt?: string };
+export type Profile = typeof currentUser & { photo?: string; phone?: string; blocked: string[]; passwordChangedAt?: string };
 
 const KEY = "event.profile.v1";
 const EVENT = "event:profile";

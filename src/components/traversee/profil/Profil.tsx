@@ -9,6 +9,7 @@ import { lisImage, setTraversee, toast, useTraversee } from "@/lib/traversee/sto
 import { fullName } from "@/lib/mock/data";
 import { BilletModal } from "../achats/BilletModal";
 import { Presentation } from "../accueil/Presentation";
+import { Coordonnees, MotDePasse } from "./Compte";
 import { Btn, Card, Champ, FileBtn, Jauge, Sur, ui } from "../ui";
 import styles from "./profil.module.css";
 
@@ -114,6 +115,8 @@ export function Profil({ restant }: { restant: number }) {
           </div>
         </form>
       </div>
+      <Coordonnees />
+      <MotDePasse />
       <Card pad bleed className="mt-4 flex flex-wrap items-center justify-between gap-3.5">
         <div>
           <Sur className="!mb-1.5">Mon billet</Sur>
