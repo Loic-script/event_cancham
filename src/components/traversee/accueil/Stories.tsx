@@ -1,15 +1,18 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { ChevronLeftIcon, ChevronRightIcon, PlusIcon } from "@/components/app/icons";
 import { IMG, SIGLE } from "@/lib/traversee/data";
+import { toutesStories } from "@/lib/traversee/galerie";
 import { setTraversee, toast, useTraversee } from "@/lib/traversee/store";
 import styles from "./accueil.module.css";
 
 type StoriesProps = { admin?: boolean; onCreer?: () => void };
 
 export function Stories({ admin = false, onCreer }: StoriesProps) {
-  const { stories, storiesVues } = useTraversee();
+  const etat = useTraversee();
+  const { storiesVues } = etat;
+  const stories = useMemo(() => toutesStories(etat), [etat]);
   const [ouverte, setOuverte] = useState<number | null>(null);
   const rail = useRef<HTMLDivElement | null>(null);
   const [bord, setBord] = useState<"debut" | "milieu" | "fin">("debut");
@@ -92,10 +95,10 @@ export function Stories({ admin = false, onCreer }: StoriesProps) {
             aria-label={`Voir la story : ${st.texte}`}
           >
             <span className={styles.avatar}>
-              <img src={SIGLE} alt="" />
+              {st.auteur === "CanCham" ? <img src={SIGLE} alt="" /> : <b>P</b>}
             </span>
             <em>{st.texte}</em>
-            <small>CanCham</small>
+            <small>{st.auteur}</small>
           </button>
         ))}
       </div>
@@ -113,7 +116,7 @@ export function Stories({ admin = false, onCreer }: StoriesProps) {
               <span className="grid h-9 w-9 place-items-center rounded-full border border-white/30 bg-white p-1.5">
                 <img src={SIGLE} alt="" className="h-full w-full object-contain" />
               </span>
-              <strong>CanCham Madagascar</strong>
+              <strong>{s.auteur === "CanCham" ? "CanCham Madagascar" : "Participant"}</strong>
               <button type="button" onClick={fermer} aria-label="Fermer">
                 ×
               </button>
@@ -125,9 +128,10 @@ export function Stories({ admin = false, onCreer }: StoriesProps) {
               <button
                 type="button"
                 onClick={() => {
-                  setTraversee((st) => ({ stories: st.stories.filter((x) => x.id !== s.id) }));
+                  const media = s.media;
+                  setTraversee((st) => (media ? { galSupprimees: [...st.galSupprimees, media], galAjoutees: st.galAjoutees.filter((x) => x.id !== media) } : { stories: st.stories.filter((x) => x.id !== s.id) }));
                   fermer();
-                  toast("Story supprimée.");
+                  toast(media ? "Photo retirée des stories et de la galerie." : "Story supprimée.");
                 }}
                 className="relative z-[2] mt-3 h-10 w-fit cursor-pointer rounded-xl border border-white/30 bg-white/15 px-4 text-[13px] font-bold text-white backdrop-blur hover:bg-white/25"
               >

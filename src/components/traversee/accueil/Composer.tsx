@@ -15,7 +15,7 @@ const EMOJIS = ["😀", "😂", "🥂", "🎉", "👏", "🔥", "❤️", "🙌"
 
 type Mode = "publication" | "story";
 
-export function Composer({ admin = false, modeInitial = "publication", onModeConsomme }: { admin?: boolean; modeInitial?: Mode | null; onModeConsomme?: () => void }) {
+export function Composer({ admin = false, modeInitial = null, onModeConsomme }: { admin?: boolean; modeInitial?: Mode | null; onModeConsomme?: () => void }) {
   const me = useProfile();
   const [ouvert, setOuvert] = useState(false);
   const [mode, setMode] = useState<Mode>("publication");

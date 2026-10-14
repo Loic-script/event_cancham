@@ -3,16 +3,14 @@
 import { useState } from "react";
 import { DownloadIcon, PlayIcon, PlusIcon } from "@/components/app/icons";
 import { useProfile } from "@/components/profile/useProfile";
-import { GALERIE, type Media } from "@/lib/traversee/data";
-import { lisImage, setTraversee, toast, uid, useTraversee, type TraverseeState } from "@/lib/traversee/store";
+import { type Media } from "@/lib/traversee/data";
+import { galerie } from "@/lib/traversee/galerie";
+import { lisImage, setTraversee, toast, uid, useTraversee } from "@/lib/traversee/store";
 import { Modal } from "../Modal";
 import { Btn, Card, FileBtn, Note, Onglets, PageHead, Puce, Vide, ui } from "../ui";
 import styles from "./photos.module.css";
 
-export function galerie(s: TraverseeState): Media[] {
-  const ajoutees: Media[] = s.galAjoutees.map((m) => ({ id: m.id, src: m.src, video: false, par: "vous", moi: true }));
-  return [...ajoutees, ...GALERIE].filter((m) => !s.galSupprimees.includes(m.id));
-}
+export { galerie };
 
 export function Vignette({ m, tag, onOpen, i, children }: { m: Media; tag?: { texte: string; rouge?: boolean }; onOpen?: () => void; i: number; children?: React.ReactNode }) {
   const Tag = onOpen ? "button" : "div";
