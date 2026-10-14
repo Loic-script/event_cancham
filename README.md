@@ -47,6 +47,7 @@ Application [Next.js 16](https://nextjs.org) (App Router, TypeScript, Tailwind C
 | `npm run db:migrate`  | Crée une migration à partir du schéma et l'applique        |
 | `npm run db:seed`     | Exécute `prisma/seed.ts`                                   |
 | `npm run db:studio`   | Interface web Prisma Studio pour parcourir les données     |
+| `npm test`            | Tests automatisés (`tests/*.test.ts`, exécutés avec `node --test` et `tsx`) |
 
 ## Espace participant
 
@@ -150,7 +151,7 @@ Depuis le 12 octobre 2026, l’application reproduit la maquette « Plateforme L
 | `/achats` | Appel à manifestation d’intérêt MECC 2027, carte et panier, commande (table, règlement), mes achats, billet nominatif |
 | `/annuaire` | Fiches des participants, recherche et secteur, demande de rendez-vous B2B (heure, emplacement, réservation 48 h) |
 | `/rdv` | Rendez-vous confirmés avec notes, demandes envoyées (simulation de réponse), demandes reçues à valider |
-| `/ressources` | Dossiers et documents, recherche, type, tri, grille ou liste |
+| `/ressources` | Bibliothèque de ressources ouverte à tous (voir « Bibliothèque de ressources ») : dossiers en parcours, recherche, catégories, tri, grille ou liste, lecteur protégé (`/ressources/[id]`) |
 | `/photos` | Galerie, ajout de photos, « Me retrouver » (reconnaissance simulée), agrandissement et téléchargement |
 | `/livre` | Livre d’or vidéo feuilleté page à page, recherche dans les sous-titres, dépôt d’une vidéo |
 | `/profil` | Chiffres clés, prochaines étapes, fiche et formulaire, consentements, billet |
@@ -159,9 +160,24 @@ Depuis le 12 octobre 2026, l’application reproduit la maquette « Plateforme L
 | `/admin/scanner` | Scanner QR pour l’entrée du gala : caméra arrière (détection native `BarcodeDetector` quand le navigateur l’offre, sinon décodage logiciel avec `jsqr`), scanner plein écran dès l’activation de la caméra (barre de fermeture, compteur, résultat en bas pendant 5 s, Échap pour fermer), bannière masquée sur téléphone, viseur animé, verdict en grand (entrée validée, paiement en attente, déjà scanné, billet inconnu) avec nom, entreprise et table, saisie manuelle de l’identifiant, liste des participants déjà scannés (nom, rôle, entreprise, identifiant, heure, recherche, jauge entrés / inscrits ; clé `scans` du store) |
 | `/admin/messagerie`, `/admin/programme`, `/admin/participants`, `/admin/places`, `/admin/commandes` | Messagerie identique à celle des participants (liste, fil, emojis, vocaux ; `/admin/messagerie/[id]`), programme modifiable, participants présentés comme l’annuaire (fiches, recherche, secteur, billet) avec fiche profil consultable et modifiable (coordonnées, secteur, activité, billet, QR code du billet agrandissable ; modifications dans `traversee.v1`), attribution des places, suivi paiement et service |
 | `/admin/defis/pitch`, `/admin/defis/tombola` | Demi-finalistes (ajout, retrait, finale), classement et désignation du gagnant |
-| `/admin/photos`, `/admin/livre`, `/admin/ressources` | Tri de la galerie, validation et sous-titres du livre d’or, dossiers et documents |
+| `/admin/photos`, `/admin/livre` | Tri de la galerie, validation et sous-titres du livre d’or |
+| `/admin/ressources` | Gestion de la bibliothèque : ajout par fichier ou page composée, dossiers, organisation, éditeur de page (`/admin/ressources/[id]/contenu`) |
 
 Les anciennes pages `/billet`, `/reseaux`, `/communaute` et l’espace `/decouvrir` restent accessibles (le billet est lié depuis Achats et Profil). Images de la maquette dans `public/traversee/`.
+
+## Bibliothèque de ressources
+
+Documents, vidéos et pages composées, rangés en dossiers et lus dans un lecteur protégé. **Accès ouvert à tous, sans authentification** : aucune connexion, pas de ressource payante ni de dossier restreint. La progression « Terminer » est propre à chaque navigateur grâce à un identifiant anonyme (cookie `cc_lecteur`), sans compte.
+
+- **Données** (Prisma, migrations `bibliotheque` puis `acces_ouvert`) : `Dossier` (nom, couverture, auteur, parent, 5 niveaux au maximum), `Ressource` (titre, catégorie Guide/Modèle/Formation/Rapport, format PDF/DOCX/Vidéo/Photo/Page, taille affichée, pages, couverture, description de 600 caractères, contenu JSON des pages, ordre manuel), `LectureRessource` (étape terminée par lecteur) et `Journal` (actions de l’équipe).
+- **Fichiers** : stockés hors de `public/`, dans `stockage/` (ignoré par Git, modifiable avec `STOCKAGE_DIR`). Le fichier d’origine n’est jamais servi au navigateur.
+- **Envoi** (`src/lib/ressources/traitement.ts`) : format détecté par la signature du fichier (`%PDF-`, archive zip nommée .docx, `ftyp` pour le MP4, JPEG, PNG, WebP), 490 Mo maximum, lecture en flux. Un PDF est converti en une image PNG par page à 110 dpi : avec `pdftoppm` s’il est installé (`PDFTOPPM_PATH`), sinon avec pdf.js (`scripts/pdf-en-pages.mjs`, `pdfjs-dist` et `@napi-rs/canvas`). Un DOCX passe d’abord par LibreOffice sans interface (`SOFFICE_PATH`) : **LibreOffice n’est pas installé sur la machine de développement**, un DOCX y est donc refusé avec « n’a pas pu être converti, enregistrez-le en PDF ». Une photo devient une page PNG, une vidéo MP4 est gardée telle quelle. La couverture est la page 1 ou la première photo d’une page (JPEG qualité 78), ou une couverture personnalisée. En cas d’échec, tout ce qui a été écrit est effacé.
+- **Lecture protégée** : pages servies une à une par `/api/ressources/[id]/pages/[n]` (deux premières tout de suite, les suivantes à la demande, numéro « n / N »), vidéo par `/api/ressources/[id]/video` avec les requêtes Range (réponse 206), fichiers des blocs par `/api/ressources/[id]/blocs/[fichier]`. En-têtes `Cache-Control: private, no-store, max-age=0`, `Content-Disposition: inline`, `X-Content-Type-Options: nosniff`, `Cross-Origin-Resource-Policy: same-origin`, `X-Robots-Tag: noindex, nofollow`. Le lecteur bloque menu contextuel, glisser, copier et Ctrl/Cmd + S, P, C, A, et floute le contenu quand la fenêtre perd le focus, quand l’onglet est masqué et après Impr. écran. Ces protections dissuadent, ce ne sont pas des DRM.
+- **Parcours** : un dossier ouvert affiche sa couverture, le nombre de ressources et de vidéos, la progression « X étapes terminées sur N », la carte Auteur, les sous-dossiers en sections et les ressources numérotées. La page de lecture propose « Terminer », les étapes précédente et suivante et la colonne des étapes (terminée, en cours).
+- **Format Page** (`src/lib/ressources/blocs.ts`, éditeur dans `src/components/bibliotheque/editeur/`) : blocs Titre (niveau 2 ou 3, alignement, couleur), Texte riche (paragraphes, listes, gras, italique, barré, lien, couleur, taille, alignement, stocké en JSON et non en HTML), Photo avec légende (convertie en WebP qualité 82) et Vidéo (MP4 envoyé ou lien YouTube en mode youtube-nocookie, Vimeo, Google Drive). À l’enregistrement, les fichiers de blocs inutilisés sont effacés.
+- **Outils de l’équipe** (`/admin/ressources`, sans authentification comme le reste du back-office) : ajout par fichier avec barre de progression ou page composée, modification, remplacement du fichier, couverture personnalisée ou automatique, suppression ; dossiers avec couverture, auteur et emplacement (refus de ranger un dossier dans sa descendance ou au-delà de 5 niveaux), suppression qui remonte sous-dossiers et ressources d’un niveau ; ordre manuel par glisser-déposer (flèches sur téléphone), sélection multiple, couper, copier (fichiers dupliqués) et coller entre dossiers ; signal « Fichier manquant ».
+- **Démonstration** : `npm run db:seed` crée quatre dossiers (dont un parcours « Agenda MECC Digital » avec auteur et sous-dossier) et des PDF, photos et pages composées convertis réellement.
+- **Tests** : `npm test` vérifie la détection des formats, la conversion d’un PDF de 20 pages en 20 images, l’arborescence des dossiers (boucles, 5 niveaux) et le nettoyage des blocs et des liens vidéo.
 
 ## Liaison avec Facebook et Instagram
 
