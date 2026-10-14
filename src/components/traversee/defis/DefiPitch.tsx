@@ -1,12 +1,12 @@
 "use client";
 
-import { useState } from "react";
-import { PlayIcon, PlusIcon } from "@/components/app/icons";
+import { useState, type FormEvent } from "react";
+import { CheckIcon, ExternalLinkIcon, LinkIcon, PlayIcon } from "@/components/app/icons";
 import { useProfile } from "@/components/profile/useProfile";
 import { IMG, VIGNETTES } from "@/lib/traversee/data";
 import { setTraversee, toast, useTraversee } from "@/lib/traversee/store";
 import { Modal } from "../Modal";
-import { Btn, Card, Direct, Etapes, FileBtn, Note, PageHead, Partie, Puce, Sur, ui } from "../ui";
+import { Btn, Card, Champ, Direct, Etapes, Note, PageHead, Partie, Puce, Sur, ui } from "../ui";
 import { GainPitch, Tuiles } from "./Tuiles";
 import { useLive } from "./live";
 import styles from "./defis.module.css";
@@ -15,12 +15,56 @@ export function profilComplet(me: { firstName: string; lastName: string; company
   return Boolean(me.firstName && me.lastName && me.company && me.role && me.sector && me.photo);
 }
 
+const SERVICES: { test: RegExp; nom: string }[] = [
+  { test: /(^|\.)drive\.google\.com$|(^|\.)docs\.google\.com$/i, nom: "Google Drive" },
+  { test: /(^|\.)youtube\.com$|(^|\.)youtu\.be$/i, nom: "YouTube" },
+  { test: /(^|\.)vimeo\.com$/i, nom: "Vimeo" },
+  { test: /(^|\.)dropbox\.com$/i, nom: "Dropbox" },
+  { test: /(^|\.)onedrive\.live\.com$|(^|\.)1drv\.ms$|sharepoint\.com$/i, nom: "OneDrive" },
+  { test: /(^|\.)wetransfer\.com$|(^|\.)we\.tl$/i, nom: "WeTransfer" },
+];
+
+export function lienVideo(brut: string | null | undefined) {
+  let texte = (brut ?? "").trim();
+  if (!texte) return null;
+  if (!/^https?:\/\//i.test(texte)) {
+    if (!/^[\w-]+(\.[\w-]+)+(\/|$)/.test(texte)) return null;
+    texte = `https://${texte}`;
+  }
+  let u: URL;
+  try {
+    u = new URL(texte);
+  } catch {
+    return null;
+  }
+  if (!/^https?:$/.test(u.protocol) || !u.hostname.includes(".")) return null;
+  const service = SERVICES.find((x) => x.test.test(u.hostname))?.nom ?? "vidéo en ligne";
+  const prive = service === "Google Drive" && /\/drive\/(u\/\d+\/)?folders\//.test(u.pathname) ? "C’est un lien de dossier : partagez plutôt le lien du fichier vidéo." : null;
+  return { url: u.toString(), service, prive };
+}
+
 export function DefiPitch() {
   const me = useProfile();
   const s = useTraversee();
   const inc = useLive(s.demi.length, 3);
   const incFinale = useLive(3, 5);
   const [lecteur, setLecteur] = useState<number | null>(null);
+  const [saisie, setSaisie] = useState<string | null>(null);
+  const envoyeInfo = s.pitchEnvoye ? lienVideo(s.pitch) : null;
+  const lien = saisie ?? (envoyeInfo ? envoyeInfo.url : "");
+  const info = lienVideo(lien);
+  const envoye = Boolean(envoyeInfo && info && info.url === envoyeInfo.url);
+
+  function envoyer(e: FormEvent) {
+    e.preventDefault();
+    if (!info) {
+      toast("Collez un lien valide vers votre vidéo pitch.");
+      return;
+    }
+    setTraversee({ pitch: info.url, pitchEnvoye: true });
+    setSaisie(null);
+    toast(`Pitch envoyé : le lien ${info.service} est transmis au jury.`);
+  }
 
   const voix = s.demi.map((_, i) => (s.voix[i] ?? 0) + inc[i] + (s.vote === i ? 1 : 0));
   const total = voix.reduce((a, b) => a + b, 0);
@@ -45,7 +89,7 @@ export function DefiPitch() {
 
       <Partie n={2} titre="Comment participer">
         <div className={ui.gLarge}>
-          <Card pad bleed className="grid gap-4">
+          <Card pad bleed className="grid min-w-0 grid-cols-[minmax(0,1fr)] gap-4">
             <Etapes
               items={[
                 { titre: "Inscrivez-vous à la Traversée", fait: true, detail: "Votre billet est enregistré." },
@@ -54,41 +98,68 @@ export function DefiPitch() {
                 { titre: "Envoyez la vidéo pitch de votre entreprise", fait: s.pitchEnvoye, detail: "Avant le 11 décembre." },
               ]}
             />
-            <Note>
-              {s.pitch ? (
-                <>
-                  Vidéo prête : <b>{s.pitch}</b>
-                </>
-              ) : (
-                "Sélectionnez la vidéo pitch de votre entreprise."
-              )}
-            </Note>
-            <div className="flex flex-wrap gap-2.5">
-              <FileBtn
-                label={
-                  <>
-                    <PlusIcon width={16} height={16} />
-                    Choisir ma vidéo
-                  </>
-                }
-                accept="video/*"
-                aria-label="Choisir ma vidéo pitch"
-                onChange={(e) => {
-                  const f = e.target.files?.[0];
-                  if (f) setTraversee({ pitch: f.name, pitchEnvoye: false });
-                }}
-              />
-              <Btn
-                variant="primary"
-                disabled={!s.pitch || s.pitchEnvoye}
-                onClick={() => {
-                  setTraversee({ pitchEnvoye: true });
-                  toast("Pitch envoyé (simulation).");
-                }}
+            {envoye && envoyeInfo ? (
+              <Note tone="green">
+                Pitch envoyé : votre vidéo {envoyeInfo.service} est transmise au jury.{" "}
+                <a href={envoyeInfo.url} target="_blank" rel="noreferrer" className="font-bold underline">
+                  Ouvrir ma vidéo
+                </a>
+              </Note>
+            ) : (
+              <Note>Collez le lien de votre vidéo pitch : Google Drive, YouTube, Vimeo, Dropbox ou OneDrive.</Note>
+            )}
+            <form onSubmit={envoyer} noValidate className="grid min-w-0 grid-cols-[minmax(0,1fr)] gap-3">
+              <Champ
+                label="Lien de votre vidéo pitch"
+                htmlFor="pitch-lien"
+                hint={info?.prive ? info.prive : "Réglez le partage sur « Tous les utilisateurs disposant du lien » pour que le jury puisse la voir."}
               >
-                {s.pitchEnvoye ? "Pitch envoyé" : "Envoyer mon pitch"}
-              </Btn>
-            </div>
+                <div className="relative">
+                  <LinkIcon width={17} height={17} className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-graphite-faint" />
+                  <input
+                    id="pitch-lien"
+                    type="url"
+                    inputMode="url"
+                    autoComplete="off"
+                    className={`${ui.saisie} !pl-10`}
+                    placeholder="https://drive.google.com/file/d/…"
+                    value={lien}
+                    onChange={(e) => setSaisie(e.target.value)}
+                  />
+                </div>
+              </Champ>
+              {info ? (
+                <div className={styles.lienVideo}>
+                  <span className={styles.lienVideoIco}>
+                    <PlayIcon width={16} height={16} />
+                  </span>
+                  <div className="min-w-0 flex-1">
+                    <strong>{info.service}</strong>
+                    <small>{info.url.replace(/^https?:\/\//i, "")}</small>
+                  </div>
+                  <a href={info.url} target="_blank" rel="noreferrer" className={styles.lienVideoOuvrir}>
+                    Vérifier
+                    <ExternalLinkIcon width={14} height={14} />
+                  </a>
+                </div>
+              ) : lien.trim() ? (
+                <p className="text-[13px] font-semibold text-leaf-ink">Ce lien n’est pas valide. Copiez l’adresse complète, qui commence par https://.</p>
+              ) : null}
+              <div className="flex flex-wrap gap-2.5">
+                <Btn variant="primary" type="submit" disabled={!info || envoye}>
+                  {envoye ? (
+                    <>
+                      <CheckIcon width={16} height={16} />
+                      Pitch envoyé
+                    </>
+                  ) : s.pitchEnvoye ? (
+                    "Envoyer le nouveau lien"
+                  ) : (
+                    "Envoyer mon pitch"
+                  )}
+                </Btn>
+              </div>
+            </form>
           </Card>
           <Card pad bleed className="grid gap-4">
             <Sur className="!mb-0">Comment le gagnant est choisi</Sur>

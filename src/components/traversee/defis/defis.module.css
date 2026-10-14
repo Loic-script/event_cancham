@@ -392,3 +392,57 @@
 @media (prefers-reduced-motion: reduce) {
   .tuile, .demi, .miniV svg, .barre i { transition: none; }
 }
+
+.lienVideo {
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 10px 10px 12px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: var(--paper);
+  animation: lienIn 0.3s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+}
+
+@keyframes lienIn {
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: none; }
+}
+
+.lienVideoIco {
+  display: grid;
+  flex: none;
+  place-items: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  background: var(--leaf);
+  color: #fff;
+}
+
+.lienVideo strong { display: block; font-size: 14px; color: var(--graphite); }
+.lienVideo small { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 12.5px; color: var(--graphite-muted); }
+
+.lienVideoOuvrir {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  gap: 6px;
+  height: 36px;
+  padding: 0 12px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: var(--surface);
+  color: var(--gold);
+  font-size: 13px;
+  font-weight: 700;
+  text-decoration: none;
+  transition: border-color 0.2s ease, background-color 0.2s ease;
+}
+
+.lienVideoOuvrir:hover { border-color: var(--gold); background: var(--gold-soft); }
+
+@media (prefers-reduced-motion: reduce) {
+  .lienVideo { animation: none; }
+}

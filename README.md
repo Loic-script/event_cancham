@@ -144,7 +144,7 @@ Depuis le 12 octobre 2026, l’application reproduit la maquette « Plateforme L
 |---|---|
 | `/` | Accueil : stories en cartes avec visionneuse (stories créées par la CanCham puis toutes les photos en ligne de la galerie, dérivées par `src/lib/traversee/galerie.ts` ; une photo supprimée dans Photos et vidéos disparaît des stories), publication des participants, fil (publications CanCham, actualités), quatre emplacements promotion |
 | `/programme`, `/programme/[id]` | Programme filtré par catégorie, inscription avec places restantes, fiche détaillée |
-| `/defis/pitch` | Gagnez un voyage au Canada : gain, étapes, envoi du pitch, vote des demi-finalistes en direct, finale simulée |
+| `/defis/pitch` | Gagnez un voyage au Canada : gain, étapes, envoi du pitch par lien vidéo (Google Drive, YouTube, Vimeo, Dropbox, OneDrive ou WeTransfer reconnus, bouton Vérifier pour ouvrir la vidéo), vote des demi-finalistes en direct, finale simulée |
 | `/defis/tombola` | Gagnez 3 000 000 Ar : affiche « J’y serai » générée (photo, nom, QR), texte à copier, lien de publication avec aperçu, classement en direct |
 | `/place` | Plan de salle de 24 tables à dix chaises, réservation d’une chaise, convives, recherche d’une entreprise |
 | `/achats` | Appel à manifestation d’intérêt MECC 2027, carte et panier, commande (table, règlement), mes achats, billet nominatif |
