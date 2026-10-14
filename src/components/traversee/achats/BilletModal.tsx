@@ -1,6 +1,5 @@
 "use client";
 
-import { Avatar } from "@/components/app/Avatar";
 import { DownloadIcon } from "@/components/app/icons";
 import { useProfile } from "@/components/profile/useProfile";
 import { QrCode } from "@/components/ticket/QrCode";
@@ -25,30 +24,29 @@ export function BilletCard() {
       </div>
       <div className={styles.bc}>
         <QrCode value={currentUser.ticket.code} size={140} />
-        <div className={styles.bParticipant}>
-          <span className={styles.bAvatar}>
-            <Avatar person={me} size={68} />
-          </span>
-          <div className="min-w-0">
-            <Sur className="!mb-1.5">Participant</Sur>
-            <h3 className="font-display text-[22px] text-graphite">
-              {fullName(me)}
-            </h3>
-            <p className="font-semibold text-graphite">
-              {me.company || "Entreprise à renseigner"}
+        <div className={styles.bInfos}>
+          <Sur className="!mb-1.5">Participant</Sur>
+          <h3 className="font-display text-[22px] text-graphite">{fullName(me)}</h3>
+          <p className="font-semibold text-graphite">{me.company || "Entreprise à renseigner"}</p>
+          <p className="text-graphite-muted">{me.role || "Rôle à renseigner"}</p>
+          {table ? (
+            <p className="mt-2.5">
+              <Puce>
+                Table {table} · chaise {(siege ?? 0) + 1}
+              </Puce>
             </p>
-            <p className="text-graphite-muted">
-              {me.role || "Rôle à renseigner"}
-            </p>
-            {table ? (
-              <p className="mt-2.5">
-                <Puce>
-                  Table {table} · chaise {(siege ?? 0) + 1}
-                </Puce>
-              </p>
-            ) : null}
-          </div>
+          ) : null}
         </div>
+        <span className={styles.bPhoto}>
+          {me.photo ? (
+            <img src={me.photo} alt={`Photo de ${fullName(me)}`} />
+          ) : (
+            <svg viewBox="0 0 64 64" aria-hidden>
+              <circle cx="32" cy="24" r="11" fill="#f4f6f8" />
+              <ellipse cx="32" cy="62" rx="24" ry="22" fill="#f4f6f8" />
+            </svg>
+          )}
+        </span>
       </div>
     </div>
   );
