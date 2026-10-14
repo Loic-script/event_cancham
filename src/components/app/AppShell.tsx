@@ -9,8 +9,9 @@ import { Modal } from "@/components/traversee/Modal";
 import { Toaster } from "@/components/traversee/Toaster";
 import { Puce } from "@/components/traversee/ui";
 import { LOGO_BLANC, TYPES_ANNONCE, heureAnn } from "@/lib/traversee/data";
-import { setTraversee, toast, useTraversee } from "@/lib/traversee/store";
+import { setTraversee, useTraversee } from "@/lib/traversee/store";
 import { fullName } from "@/lib/mock/data";
+import { seDeconnecter } from "@/app/(app)/connexion/actions";
 import { Avatar } from "./Avatar";
 import {
   ArmchairIcon,
@@ -203,7 +204,7 @@ export function AppShell({ children }: { children: ReactNode }) {
             <small>{admin ? "Administration" : me.company || "Compléter mon profil"}</small>
           </div>
         </Link>
-        <button type="button" className={styles.sortir} onClick={() => toast("Déconnexion désactivée dans la maquette.")}>
+        <button type="button" className={styles.sortir} onClick={() => void seDeconnecter()}>
           <LogOutIcon />
           Se déconnecter
         </button>
