@@ -242,7 +242,6 @@ export function AppShell({ children }: { children: ReactNode }) {
               <BellIcon />
               {!admin && nonVues.length ? <b>{nonVues.length}</b> : null}
             </button>
-            <span className={styles.ex}>Données d’exemple</span>
           </header>
         ) : null}
 
