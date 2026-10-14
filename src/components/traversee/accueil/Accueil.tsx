@@ -12,7 +12,11 @@ export function Accueil() {
       <div className={styles.colFil}>
         <Composer />
         <Stories />
-        <h2 className="mt-1 font-display text-[18px] text-graphite">Actualités</h2>
+        <div className={styles.titreFil}>
+          <i aria-hidden />
+          <h2>Actualités</h2>
+          <small>Fil de la communauté</small>
+        </div>
         <Fil />
       </div>
       <Promos />

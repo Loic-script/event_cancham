@@ -91,7 +91,7 @@ export function Stories({ admin = false, onCreer }: StoriesProps) {
             type="button"
             onClick={() => montrer(i)}
             className={`${styles.story} ${storiesVues[st.id] ? styles.storyVue : ""}`}
-            style={{ "--i": i + (admin ? 1 : 0), backgroundImage: `linear-gradient(180deg, rgba(11,26,48,.35) 0%, rgba(11,26,48,0) 35%, rgba(11,26,48,.85) 100%), url(${st.img})` } as React.CSSProperties}
+            style={{ "--i": i + (admin ? 1 : 0), "--img": `url(${st.img})` } as React.CSSProperties}
             aria-label={`Voir la story : ${st.texte}`}
           >
             <span className={styles.avatar}>

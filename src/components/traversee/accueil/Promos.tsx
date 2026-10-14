@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, type FormEvent } from "react";
-import { CameraIcon } from "@/components/app/icons";
+import { ArrowRightIcon, CameraIcon } from "@/components/app/icons";
 import { DESTINATIONS, type Promo } from "@/lib/traversee/data";
 import { lisImage, setTraversee, toast, useTraversee } from "@/lib/traversee/store";
 import { Btn, Card, Champ, FileBtn, Puce, Sur, ui } from "../ui";
@@ -76,8 +76,11 @@ export function Promos({ admin = false }: { admin?: boolean }) {
         admin && edit === i ? (
           <PromoForm key={i} i={i} promo={p} onDone={() => setEdit(null)} />
         ) : (
-          <Card key={i} className={styles.promo}>
-            <img src={p.img} alt="" loading="lazy" />
+          <Card key={i} className={styles.promo} style={{ "--i": i } as React.CSSProperties}>
+            <div className={styles.promoMedia}>
+              <img src={p.img} alt="" loading="lazy" />
+              <span className={styles.promoNum}>{i + 1}</span>
+            </div>
             <div className={styles.promoCorps}>
               <div className="flex flex-wrap gap-1.5">
                 <Puce tone="grey" className="!text-[10.5px] !px-2 !py-[3px]">
@@ -91,8 +94,9 @@ export function Promos({ admin = false }: { admin?: boolean }) {
                   Modifier
                 </Btn>
               ) : (
-                <Btn small href={p.lien} className="w-full">
+                <Btn small href={p.lien} className={`w-full ${styles.promoBtn}`}>
                   En savoir plus
+                  <ArrowRightIcon width={14} height={14} />
                 </Btn>
               )}
             </div>

@@ -87,7 +87,7 @@ export function Composer({ admin = false, modeInitial = null, onModeConsomme }: 
   return (
     <>
       <Card bleed className={styles.composer}>
-        {admin ? <AvatarSigle size={40} /> : <Avatar person={me} size={40} />}
+        <span className={styles.anneau}>{admin ? <AvatarSigle size={40} /> : <Avatar person={me} size={40} />}</span>
         <button type="button" className={styles.quoi} onClick={() => ouvrir()}>
           {admin ? "Publier au nom de la CanCham…" : `Quoi de neuf, ${prenom} ?`}
         </button>
@@ -95,14 +95,17 @@ export function Composer({ admin = false, modeInitial = null, onModeConsomme }: 
           {admin ? (
             <button type="button" className={`${styles.outilC} ${styles.outilVideo}`} onClick={() => ouvrir("story")} aria-label="Créer une story">
               <VideoIcon width={20} height={20} />
+              <span>Story</span>
             </button>
           ) : (
             <button type="button" className={`${styles.outilC} ${styles.outilVideo}`} onClick={() => toast("Les vidéos arrivent dans la prochaine version.")} aria-label="Vidéo">
               <VideoIcon width={20} height={20} />
+              <span>Vidéo</span>
             </button>
           )}
           <button type="button" className={`${styles.outilC} ${styles.outilPhoto}`} onClick={ouvrirAvecPhoto} aria-label="Photo">
             <ImageIcon width={20} height={20} />
+            <span>Photo</span>
           </button>
           <button
             type="button"
@@ -114,6 +117,7 @@ export function Composer({ admin = false, modeInitial = null, onModeConsomme }: 
             aria-label="Humeur"
           >
             <SmileIcon width={20} height={20} />
+            <span>Humeur</span>
           </button>
         </div>
       </Card>

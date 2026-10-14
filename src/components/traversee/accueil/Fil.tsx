@@ -1,5 +1,6 @@
 "use client";
 
+import { cloneElement } from "react";
 import { Avatar } from "@/components/app/Avatar";
 import { CommentIcon, HeartIcon } from "@/components/app/icons";
 import { useProfile } from "@/components/profile/useProfile";
@@ -40,7 +41,11 @@ export function Fil({ admin = false }: { admin?: boolean }) {
           <small className="text-graphite-muted">{[me.role, me.company].filter(Boolean).join(" · ") || "Publié à l’instant"}</small>
         </div>
       </header>
-      {p.img ? <img className={styles.une} src={p.img} alt="" /> : null}
+      {p.img ? (
+        <div className={styles.media}>
+          <img className={styles.une} src={p.img} alt="" />
+        </div>
+      ) : null}
       {p.texte ? <p className={styles.texte}>{p.texte}</p> : null}
       <footer>
         <Reactions id={p.id} n={0} c={0} />
@@ -68,7 +73,11 @@ export function Fil({ admin = false }: { admin?: boolean }) {
           <small className="text-graphite-muted">{p.date}</small>
         </div>
       </header>
-      {p.img ? <img className={styles.une} src={p.img} alt="" /> : null}
+      {p.img ? (
+        <div className={styles.media}>
+          <img className={styles.une} src={p.img} alt="" />
+        </div>
+      ) : null}
       {p.texte ? <p className={styles.texte}>{p.texte}</p> : null}
       <footer>
         <Reactions id={p.id} n={0} c={0} />
@@ -98,7 +107,9 @@ export function Fil({ admin = false }: { admin?: boolean }) {
           <small className="text-graphite-muted">{a.date}</small>
         </div>
       </header>
-      <img className={styles.une} src={IMG(a.img)} alt="" loading="lazy" />
+      <div className={styles.media}>
+        <img className={styles.une} src={IMG(a.img)} alt="" loading="lazy" />
+      </div>
       <h3>{a.t}</h3>
       <p>{a.x}</p>
       <footer>
@@ -110,7 +121,8 @@ export function Fil({ admin = false }: { admin?: boolean }) {
     </Card>
   ));
 
-  return <>{admin ? [...equipe, ...miens, ...officiels] : [...miens, ...equipe, ...officiels]}</>;
+  const liste = admin ? [...equipe, ...miens, ...officiels] : [...miens, ...equipe, ...officiels];
+  return <>{liste.map((el, i) => cloneElement(el, { style: { "--i": Math.min(i, 6) } as React.CSSProperties }))}</>;
 }
 
 export function publierPub(texte: string, img: string | null) {
