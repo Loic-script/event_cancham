@@ -92,12 +92,11 @@ export function Stories({ admin = false, onCreer }: StoriesProps) {
             onClick={() => montrer(i)}
             className={`${styles.story} ${storiesVues[st.id] ? styles.storyVue : ""}`}
             style={{ "--i": i + (admin ? 1 : 0), "--img": `url(${st.img})` } as React.CSSProperties}
-            aria-label={`Voir la story : ${st.texte}`}
+            aria-label={st.auteur === "CanCham" ? "Voir la story de la CanCham" : "Voir la story d’un participant"}
           >
             <span className={styles.avatar}>
               {st.auteur === "CanCham" ? <img src={SIGLE} alt="" /> : <b>P</b>}
             </span>
-            <em>{st.texte}</em>
             <small>{st.auteur}</small>
           </button>
         ))}
@@ -110,7 +109,7 @@ export function Stories({ admin = false, onCreer }: StoriesProps) {
           <button type="button" onClick={() => montrer(ouverte - 1)} disabled={ouverte === 0} aria-label="Story précédente" className={`${styles.stNav} ${styles.stNavG}`}>
             <ChevronLeftIcon width={24} height={24} />
           </button>
-          <div key={s.id} className={styles.stCadre} style={{ backgroundImage: `linear-gradient(180deg, rgba(11,26,48,.55) 0%, rgba(11,26,48,0) 28%, rgba(11,26,48,0) 55%, rgba(11,26,48,.9) 100%), url(${s.img})` }}>
+          <div key={s.id} className={styles.stCadre} style={{ backgroundImage: `linear-gradient(180deg, rgba(11,26,48,.55) 0%, rgba(11,26,48,0) 22%, rgba(11,26,48,0) 78%, rgba(11,26,48,.35) 100%), url(${s.img})` }}>
             <div className={styles.stBarres} aria-hidden>
               {stories.map((x, k) => (
                 <i key={x.id} className={k < ouverte ? "fait" : k === ouverte ? "cours" : ""} />
@@ -127,7 +126,6 @@ export function Stories({ admin = false, onCreer }: StoriesProps) {
             </div>
             <button type="button" className={`${styles.stZone} ${styles.stZoneG}`} onClick={() => montrer(ouverte - 1)} aria-label="Story précédente" />
             <button type="button" className={`${styles.stZone} ${styles.stZoneD}`} onClick={() => montrer(ouverte + 1)} aria-label="Story suivante" />
-            <p className={styles.stTexte}>{s.texte}</p>
             {admin ? (
               <button
                 type="button"

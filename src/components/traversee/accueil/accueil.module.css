@@ -235,19 +235,6 @@
 .story .avatar img { width: 100%; height: 100%; object-fit: contain; }
 .story .avatar b { display: grid; place-items: center; width: 100%; height: 100%; border-radius: 50%; background: var(--gold); color: #fff; font-family: var(--font-montserrat), sans-serif; font-size: 13px; font-weight: 800; }
 
-.story em {
-  font-family: var(--font-montserrat), sans-serif;
-  font-size: 12px;
-  font-style: normal;
-  font-weight: 600;
-  line-height: 1.25;
-  display: -webkit-box;
-  -webkit-line-clamp: 3;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
-  text-shadow: 0 1px 6px rgba(0, 0, 0, 0.5);
-}
-
 .story small {
   font-size: 11px;
   font-weight: 600;
@@ -462,16 +449,6 @@
 
 .stZoneG { left: 0; }
 .stZoneD { right: 0; }
-
-.stTexte {
-  position: relative;
-  z-index: 1;
-  font-family: var(--font-montserrat), sans-serif;
-  font-size: clamp(18px, 3.4vw, 24px);
-  font-weight: 700;
-  line-height: 1.3;
-  text-shadow: 0 2px 12px rgba(0, 0, 0, 0.6);
-}
 
 @media (max-width: 1023px) {
   .voileSt { padding: 0; }

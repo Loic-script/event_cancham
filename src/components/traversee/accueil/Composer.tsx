@@ -60,7 +60,7 @@ export function Composer({ admin = false, modeInitial = null, onModeConsomme }: 
     const tx = texte.trim();
     if (story) {
       if (!img) return toast("Choisissez la photo de la story.");
-      setTraversee((s) => ({ stories: [{ id: uid("s"), img, texte: tx }, ...s.stories] }));
+      setTraversee((s) => ({ stories: [{ id: uid("s"), img, texte: "" }, ...s.stories] }));
       toast("Story publiée : elle apparaît en haut de l’accueil des participants.");
     } else if (admin) {
       if (!tx && !img) return toast("Écrivez un texte ou ajoutez une photo.");
@@ -140,7 +140,6 @@ export function Composer({ admin = false, modeInitial = null, onModeConsomme }: 
                 value={mode}
                 onChange={(v) => {
                   setMode(v);
-                  setTexte((t) => t.slice(0, v === "story" ? 120 : 1200));
                 }}
                 label="Type de contenu"
               />
@@ -149,10 +148,10 @@ export function Composer({ admin = false, modeInitial = null, onModeConsomme }: 
               {admin ? <AvatarSigle size={44} /> : <Avatar person={me} size={44} />}
               <div>
                 <strong className="block text-graphite">{nom}</strong>
-                <small className="text-graphite-muted">{story ? "Affichée en plein écran en haut de l’accueil des participants" : "Visible par tous les participants"}</small>
+                <small className="text-graphite-muted">{story ? "Photo seule, affichée en plein écran en haut de l’accueil des participants" : "Visible par tous les participants"}</small>
               </div>
             </div>
-            <textarea ref={zone} value={texte} onChange={(e) => setTexte(e.target.value)} className={styles.zoneTexte} placeholder={story ? "Texte court affiché sur la story…" : admin ? "Publiez au nom de la CanCham…" : `Quoi de neuf, ${prenom} ?`} aria-label={story ? "Texte de la story" : "Votre publication"} maxLength={story ? 120 : 1200} />
+            {story ? null : <textarea ref={zone} value={texte} onChange={(e) => setTexte(e.target.value)} className={styles.zoneTexte} placeholder={admin ? "Publiez au nom de la CanCham…" : `Quoi de neuf, ${prenom} ?`} aria-label="Votre publication" maxLength={1200} />}
             {img ? (
               <div className="relative">
                 <img className={styles.une} src={img} alt="Photo jointe" style={story ? { aspectRatio: "9 / 12", maxWidth: 220, justifySelf: "center", marginInline: "auto" } : undefined} />
@@ -161,7 +160,7 @@ export function Composer({ admin = false, modeInitial = null, onModeConsomme }: 
                 </button>
               </div>
             ) : null}
-            {emojis ? (
+            {emojis && !story ? (
               <div className={styles.emojis}>
                 {EMOJIS.map((e) => (
                   <button key={e} type="button" onClick={() => setTexte((t) => `${t}${e}`)} aria-label={`Ajouter ${e}`}>
@@ -176,9 +175,11 @@ export function Composer({ admin = false, modeInitial = null, onModeConsomme }: 
                 <button type="button" className={`${styles.outilC} ${styles.outilPhoto}`} onClick={() => fichier.current?.click()} aria-label="Joindre une photo">
                   <ImageIcon width={20} height={20} />
                 </button>
-                <button type="button" className={`${styles.outilC} ${styles.outilEmoji}`} onClick={() => setEmojis((v) => !v)} aria-label="Émojis" aria-pressed={emojis}>
-                  <SmileIcon width={20} height={20} />
-                </button>
+                {story ? null : (
+                  <button type="button" className={`${styles.outilC} ${styles.outilEmoji}`} onClick={() => setEmojis((v) => !v)} aria-label="Émojis" aria-pressed={emojis}>
+                    <SmileIcon width={20} height={20} />
+                  </button>
+                )}
               </div>
             </div>
             <input ref={fichier} type="file" accept="image/*" className="sr-only" tabIndex={-1} aria-hidden onChange={(e) => void choisir(e.target.files?.[0])} />
