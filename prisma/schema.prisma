@@ -19,3 +19,229 @@ model Event {
 
   @@map("events")
 }
+
+enum Role {
+  equipe
+  contact
+}
+
+enum CategorieRessource {
+  guide
+  modele
+  formation
+  rapport
+}
+
+enum FormatRessource {
+  pdf
+  docx
+  video
+  photo
+  page
+}
+
+enum TypeRessource {
+  gratuit
+  payant
+}
+
+enum StatutPaiement {
+  en_attente
+  reussie
+  echouee
+}
+
+model Membre {
+  id                String    @id @default(cuid())
+  nom               String
+  secteur           String?
+  cotisationJusquAu DateTime? @map("cotisation_jusqu_au")
+  createdAt         DateTime  @default(now()) @map("created_at")
+
+  utilisateurs    Utilisateur[]
+  accesRessources AccesRessource[]
+  accesDossiers   AccesDossier[]
+  tentatives      TentativePaiement[]
+  factures        Facture[]
+
+  @@map("membres")
+}
+
+model Utilisateur {
+  id         String   @id @default(cuid())
+  email      String   @unique
+  prenom     String
+  nom        String
+  role       Role     @default(contact)
+  motDePasse String   @map("mot_de_passe")
+  membreId   String?  @map("membre_id")
+  createdAt  DateTime @default(now()) @map("created_at")
+
+  membre        Membre?             @relation(fields: [membreId], references: [id], onDelete: SetNull)
+  lectures      LectureRessource[]
+  tentatives    TentativePaiement[]
+  factures      Facture[]
+  notifications Notification[]
+
+  @@index([membreId])
+  @@map("utilisateurs")
+}
+
+model Dossier {
+  id          String   @id @default(cuid())
+  nom         String
+  couverture  String?
+  auteurNom   String?  @map("auteur_nom")
+  auteurRole  String?  @map("auteur_role")
+  auteurBio   String?  @map("auteur_bio")
+  auteurPhoto String?  @map("auteur_photo")
+  restreint   Boolean  @default(false)
+  parentId    String?  @map("parent_id")
+  ordre       Int      @default(0)
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  parent     Dossier?       @relation("Arborescence", fields: [parentId], references: [id], onDelete: Restrict)
+  enfants    Dossier[]      @relation("Arborescence")
+  ressources Ressource[]
+  acces      AccesDossier[]
+
+  @@index([parentId])
+  @@map("dossiers")
+}
+
+model Ressource {
+  id              String             @id @default(cuid())
+  titre           String
+  categorie       CategorieRessource @default(guide)
+  format          FormatRessource
+  taille          String?
+  tailleOctets    BigInt?            @map("taille_octets")
+  date            DateTime           @default(now())
+  fichier         String?
+  pages           Int                @default(0)
+  couverture      String?
+  couverturePerso Boolean            @default(false) @map("couverture_perso")
+  description     String?            @db.VarChar(600)
+  contenu         Json?
+  type            TypeRessource      @default(gratuit)
+  prix            Int                @default(0)
+  ordre           Int                @default(0)
+  dossierId       String?            @map("dossier_id")
+  createdAt       DateTime           @default(now()) @map("created_at")
+  updatedAt       DateTime           @updatedAt @map("updated_at")
+
+  dossier  Dossier?           @relation(fields: [dossierId], references: [id], onDelete: SetNull)
+  acces    AccesRessource[]
+  lectures LectureRessource[]
+
+  @@index([dossierId, ordre])
+  @@map("ressources")
+}
+
+model AccesRessource {
+  id          String   @id @default(cuid())
+  ressourceId String   @map("ressource_id")
+  membreId    String   @map("membre_id")
+  ouvertPar   String   @map("ouvert_par")
+  date        DateTime @default(now())
+
+  ressource Ressource @relation(fields: [ressourceId], references: [id], onDelete: Cascade)
+  membre    Membre    @relation(fields: [membreId], references: [id], onDelete: Cascade)
+
+  @@unique([ressourceId, membreId])
+  @@map("acces_ressources")
+}
+
+model AccesDossier {
+  id        String   @id @default(cuid())
+  dossierId String   @map("dossier_id")
+  membreId  String   @map("membre_id")
+  ouvertPar String   @map("ouvert_par")
+  date      DateTime @default(now())
+
+  dossier Dossier @relation(fields: [dossierId], references: [id], onDelete: Cascade)
+  membre  Membre  @relation(fields: [membreId], references: [id], onDelete: Cascade)
+
+  @@unique([dossierId, membreId])
+  @@map("acces_dossiers")
+}
+
+model LectureRessource {
+  id            String   @id @default(cuid())
+  utilisateurId String   @map("utilisateur_id")
+  ressourceId   String   @map("ressource_id")
+  date          DateTime @default(now())
+
+  utilisateur Utilisateur @relation(fields: [utilisateurId], references: [id], onDelete: Cascade)
+  ressource   Ressource   @relation(fields: [ressourceId], references: [id], onDelete: Cascade)
+
+  @@unique([utilisateurId, ressourceId])
+  @@map("lectures_ressources")
+}
+
+model TentativePaiement {
+  id              String         @id @default(cuid())
+  reference       String         @unique
+  objetType       String         @map("objet_type")
+  objetId         String         @map("objet_id")
+  objetTitre      String         @map("objet_titre")
+  utilisateurId   String         @map("utilisateur_id")
+  membreId        String         @map("membre_id")
+  montant         Int
+  moyen           String
+  statut          StatutPaiement @default(en_attente)
+  etatPrestataire String?        @map("etat_prestataire")
+  confirmeeLe     DateTime?      @map("confirmee_le")
+  createdAt       DateTime       @default(now()) @map("created_at")
+
+  utilisateur Utilisateur @relation(fields: [utilisateurId], references: [id], onDelete: Cascade)
+  membre      Membre      @relation(fields: [membreId], references: [id], onDelete: Cascade)
+  facture     Facture?
+
+  @@index([objetType, objetId])
+  @@map("tentatives_paiement")
+}
+
+model Facture {
+  id            String   @id @default(cuid())
+  numero        String   @unique
+  libelle       String
+  montant       Int
+  statut        String   @default("reglee")
+  membreId      String   @map("membre_id")
+  utilisateurId String   @map("utilisateur_id")
+  tentativeId   String   @unique @map("tentative_id")
+  createdAt     DateTime @default(now()) @map("created_at")
+
+  membre      Membre            @relation(fields: [membreId], references: [id], onDelete: Cascade)
+  utilisateur Utilisateur       @relation(fields: [utilisateurId], references: [id], onDelete: Cascade)
+  tentative   TentativePaiement @relation(fields: [tentativeId], references: [id], onDelete: Cascade)
+
+  @@map("factures")
+}
+
+model Notification {
+  id            String   @id @default(cuid())
+  utilisateurId String?  @map("utilisateur_id")
+  pourEquipe    Boolean  @default(false) @map("pour_equipe")
+  titre         String
+  message       String
+  lien          String?
+  lue           Boolean  @default(false)
+  createdAt     DateTime @default(now()) @map("created_at")
+
+  utilisateur Utilisateur? @relation(fields: [utilisateurId], references: [id], onDelete: Cascade)
+
+  @@map("notifications")
+}
+
+model Journal {
+  id        String   @id @default(cuid())
+  acteur    String
+  action    String
+  details   String?
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@map("journal")
+}
