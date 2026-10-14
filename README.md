@@ -154,7 +154,7 @@ Depuis le 12 octobre 2026, l’application reproduit la maquette « Plateforme L
 | `/photos` | Galerie, ajout de photos, « Me retrouver » (reconnaissance simulée), agrandissement et téléchargement |
 | `/livre` | Livre d’or vidéo feuilleté page à page, recherche dans les sous-titres, dépôt d’une vidéo |
 | `/profil` | Chiffres clés, prochaines étapes, fiche et formulaire, consentements, billet |
-| `/admin` | Accueil du back-office : stories et publications au nom de la CanCham, promotions modifiables, chiffres |
+| `/admin` | Accueil du back-office, même présentation que l’accueil participant : composer « Publier au nom de la CanCham » (publication ou story dans la fenêtre), stories, fil avec suppression, promotions modifiables |
 | `/admin/annonces` | Annonces en popup chez les participants, modèles, aperçu téléphone, historique (renvoyer, supprimer) |
 | `/admin/messagerie`, `/admin/programme`, `/admin/participants`, `/admin/places`, `/admin/commandes` | Réponses aux participants, programme modifiable, inscrits, attribution des places, suivi paiement et service |
 | `/admin/defis/pitch`, `/admin/defis/tombola` | Demi-finalistes (ajout, retrait, finale), classement et désignation du gagnant |
