@@ -41,12 +41,12 @@ export function Fil({ admin = false }: { admin?: boolean }) {
           <small className="text-graphite-muted">{[me.role, me.company].filter(Boolean).join(" · ") || "Publié à l’instant"}</small>
         </div>
       </header>
+      {p.texte ? <p className={styles.texte}>{p.texte}</p> : null}
       {p.img ? (
         <div className={styles.media}>
           <img className={styles.une} src={p.img} alt="" />
         </div>
       ) : null}
-      {p.texte ? <p className={styles.texte}>{p.texte}</p> : null}
       <footer>
         <Reactions id={p.id} n={0} c={0} />
         <Btn
@@ -73,12 +73,12 @@ export function Fil({ admin = false }: { admin?: boolean }) {
           <small className="text-graphite-muted">{p.date}</small>
         </div>
       </header>
+      {p.texte ? <p className={styles.texte}>{p.texte}</p> : null}
       {p.img ? (
         <div className={styles.media}>
           <img className={styles.une} src={p.img} alt="" />
         </div>
       ) : null}
-      {p.texte ? <p className={styles.texte}>{p.texte}</p> : null}
       <footer>
         <Reactions id={p.id} n={0} c={0} />
         {admin ? (
@@ -107,11 +107,11 @@ export function Fil({ admin = false }: { admin?: boolean }) {
           <small className="text-graphite-muted">{a.date}</small>
         </div>
       </header>
+      <h3>{a.t}</h3>
+      <p>{a.x}</p>
       <div className={styles.media}>
         <img className={styles.une} src={IMG(a.img)} alt="" loading="lazy" />
       </div>
-      <h3>{a.t}</h3>
-      <p>{a.x}</p>
       <footer>
         <Reactions id={a.id} n={a.n} c={a.c} />
         <Btn small className="ml-auto" href={`https://cancham.mg/actualites/${a.id}`} external>
