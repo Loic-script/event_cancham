@@ -1,13 +1,14 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState, type FormEvent } from "react";
-import { CameraIcon, DownloadIcon, FacebookIcon, SpinnerIcon } from "@/components/app/icons";
+import { CameraIcon, DownloadIcon, EyeIcon, FacebookIcon, SpinnerIcon } from "@/components/app/icons";
 import { updateProfile, useProfile } from "@/components/profile/useProfile";
 import { PostEmbed } from "@/components/social/PostEmbed";
 import { LEGENDE_JY_SERAI, PAGE_FACEBOOK } from "@/lib/traversee/data";
 import { lisImage, setTraversee, toast, useTraversee } from "@/lib/traversee/store";
 import { fullName } from "@/lib/mock/data";
 import { parseSocialLink } from "@/lib/social/links";
+import { Modal } from "../Modal";
 import { Btn, Card, Champ, Direct, FileBtn, Note, PageHead, Partie, Rang, Stat, Sur, ui } from "../ui";
 import { Affiche, telechargeCanvas } from "./Affiche";
 import { GainTombola, Tuiles } from "./Tuiles";
@@ -48,6 +49,7 @@ export function DefiTombola() {
   }
   const canvas = useRef<HTMLCanvasElement | null>(null);
   const [lien, setLien] = useState("");
+  const [apercu, setApercu] = useState<string | null>(null);
   const suivi = useRef<HTMLDivElement | null>(null);
 
   const nom = fullName(me);
@@ -100,6 +102,25 @@ export function DefiTombola() {
 
   return (
     <>
+      {apercu ? (
+        <Modal onClose={() => setApercu(null)} label="Ma photo J’y serai" size="large" className="!p-0 !overflow-hidden">
+          <img src={apercu} alt="Ma photo J’y serai, format carré" className="block w-full h-auto" />
+          <div className="flex flex-wrap gap-2 p-4">
+            <Btn
+              variant="primary"
+              onClick={() => {
+                if (canvas.current) telechargeCanvas(canvas.current, "la-traversee-jy-serai-carre.png");
+              }}
+            >
+              <DownloadIcon width={16} height={16} />
+              Télécharger
+            </Btn>
+            <Btn onClick={() => setApercu(null)} className="ml-auto">
+              Fermer
+            </Btn>
+          </div>
+        </Modal>
+      ) : null}
       <PageHead title="Gagnez" accent="3 000 000 Ar" text="La publication « J’y serai » qui réunit le plus de réactions d’ici la fin du vote, pendant l’événement, l’emporte." photo="equipe" />
       <Tuiles actif="tombola" />
 
@@ -132,6 +153,15 @@ export function DefiTombola() {
                   }
                 }}
               />
+              <Btn
+                small
+                onClick={() => {
+                  if (canvas.current) setApercu(canvas.current.toDataURL("image/png"));
+                }}
+              >
+                <EyeIcon width={16} height={16} />
+                Voir la photo
+              </Btn>
               <Btn
                 variant="primary"
                 small

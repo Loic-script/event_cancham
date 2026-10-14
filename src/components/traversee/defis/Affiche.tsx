@@ -153,15 +153,12 @@ export async function dessineAffiche(cv: HTMLCanvasElement, nom: string, ligne: 
   x.textAlign = "left";
   x.fillStyle = "#0f1d2c";
   ajuste(nom, "800", 42, maxG);
-  x.fillText(nom, M, py + 86);
+  x.fillText(nom, M, py + 102);
   if (ligne) {
     x.fillStyle = "#4f6072";
     ajuste(ligne, "600", 27, maxG);
-    x.fillText(ligne, M, py + 128);
+    x.fillText(ligne, M, py + 146);
   }
-  x.fillStyle = "#ad0707";
-  x.font = `700 25px ${F}`;
-  x.fillText("#JySerai  @canchammadagascar", M, py + 178);
 }
 
 export function Affiche({ nom, ligne, photo, onReady }: AfficheProps) {
