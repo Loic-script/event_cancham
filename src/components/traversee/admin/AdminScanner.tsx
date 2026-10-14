@@ -1,30 +1,80 @@
 "use client";
 
 import jsQR from "jsqr";
-import { useCallback, useEffect, useRef, useState, type FormEvent } from "react";
-import { CameraIcon, CheckIcon, QrIcon, TicketIcon, XIcon } from "@/components/app/icons";
+import {
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+  type FormEvent,
+} from "react";
+import {
+  CameraIcon,
+  CheckIcon,
+  QrIcon,
+  TicketIcon,
+  XIcon,
+} from "@/components/app/icons";
+import { useProfile } from "@/components/profile/useProfile";
 import { currentUser, fullName } from "@/lib/mock/data";
 import { fichesParticipants } from "@/lib/traversee/participants";
-import { setTraversee, toast, useTraversee, type TraverseeState } from "@/lib/traversee/store";
-import { Btn, Card, PageHead, Puce, Stat, Sur, ui } from "../ui";
+import {
+  setTraversee,
+  toast,
+  useTraversee,
+  type TraverseeState,
+} from "@/lib/traversee/store";
+import {
+  AvatarInitiales,
+  Btn,
+  Card,
+  PageHead,
+  Puce,
+  Recherche,
+  Sur,
+  ui,
+} from "../ui";
 import styles from "./scanner.module.css";
 
 type Etat = "ok" | "attente" | "deja" | "inconnu";
-type Verdict = { etat: Etat; code: string; nom?: string; ent?: string; role?: string; table?: string; quand?: string; t: number };
+type Verdict = {
+  etat: Etat;
+  code: string;
+  nom?: string;
+  ent?: string;
+  role?: string;
+  table?: string;
+  quand?: string;
+  t: number;
+};
 
-type Detecteur = { detect: (source: HTMLVideoElement) => Promise<{ rawValue: string }[]> };
-type FenetreDetecteur = Window & { BarcodeDetector?: new (o: { formats: string[] }) => Detecteur };
+type Detecteur = {
+  detect: (source: HTMLVideoElement) => Promise<{ rawValue: string }[]>;
+};
+type FenetreDetecteur = Window & {
+  BarcodeDetector?: new (o: { formats: string[] }) => Detecteur;
+};
 
-const TITRES: Record<Etat, string> = { ok: "Entrée validée", attente: "Paiement en attente", deja: "Déjà scanné", inconnu: "Billet inconnu" };
+const TITRES: Record<Etat, string> = {
+  ok: "Entrée validée",
+  attente: "Paiement en attente",
+  deja: "Déjà scanné",
+  inconnu: "Billet inconnu",
+};
 const CONSEILS: Record<Etat, string> = {
   ok: "Bonne soirée ! Orientez le participant vers sa table.",
-  attente: "Le billet n’est pas réglé. Dirigez le participant vers la caisse avant l’entrée.",
+  attente:
+    "Le billet n’est pas réglé. Dirigez le participant vers la caisse avant l’entrée.",
   deja: "Ce billet est déjà entré. Vérifiez l’identité avant de laisser passer.",
-  inconnu: "Aucun billet ne correspond. Vérifiez l’identifiant ou la billetterie.",
+  inconnu:
+    "Aucun billet ne correspond. Vérifiez l’identifiant ou la billetterie.",
 };
 
 function heure(t: number) {
-  return new Intl.DateTimeFormat("fr-FR", { hour: "2-digit", minute: "2-digit" }).format(new Date(t));
+  return new Intl.DateTimeFormat("fr-FR", {
+    hour: "2-digit",
+    minute: "2-digit",
+  }).format(new Date(t));
 }
 
 function normalise(code: string) {
@@ -33,10 +83,24 @@ function normalise(code: string) {
 
 function chercher(code: string, s: TraverseeState) {
   if (code === normalise(currentUser.ticket.code)) {
-    return { nom: fullName(currentUser), ent: currentUser.company, role: currentUser.role, table: currentUser.ticket.table, billet: "paye" as const };
+    return {
+      nom: fullName(currentUser),
+      ent: currentUser.company,
+      role: currentUser.role,
+      table: currentUser.ticket.table,
+      billet: "paye" as const,
+    };
   }
   const f = fichesParticipants(s).find((x) => normalise(x.code) === code);
-  return f ? { nom: f.nom, ent: f.ent, role: f.role, table: undefined, billet: f.billet } : null;
+  return f
+    ? {
+        nom: f.nom,
+        ent: f.ent,
+        role: f.role,
+        table: undefined,
+        billet: f.billet,
+      }
+    : null;
 }
 
 export function verifier(brut: string, s: TraverseeState): Verdict {
@@ -45,9 +109,36 @@ export function verifier(brut: string, s: TraverseeState): Verdict {
   const fiche = chercher(code, s);
   if (!fiche) return { etat: "inconnu", code, t };
   const deja = s.scans.find((x) => x.code === code);
-  if (deja) return { etat: "deja", code, nom: fiche.nom, ent: fiche.ent, role: fiche.role, table: fiche.table, quand: heure(deja.t), t };
-  if (fiche.billet !== "paye") return { etat: "attente", code, nom: fiche.nom, ent: fiche.ent, role: fiche.role, table: fiche.table, t };
-  return { etat: "ok", code, nom: fiche.nom, ent: fiche.ent, role: fiche.role, table: fiche.table, t };
+  if (deja)
+    return {
+      etat: "deja",
+      code,
+      nom: fiche.nom,
+      ent: fiche.ent,
+      role: fiche.role,
+      table: fiche.table,
+      quand: heure(deja.t),
+      t,
+    };
+  if (fiche.billet !== "paye")
+    return {
+      etat: "attente",
+      code,
+      nom: fiche.nom,
+      ent: fiche.ent,
+      role: fiche.role,
+      table: fiche.table,
+      t,
+    };
+  return {
+    etat: "ok",
+    code,
+    nom: fiche.nom,
+    ent: fiche.ent,
+    role: fiche.role,
+    table: fiche.table,
+    t,
+  };
 }
 
 export function AdminScanner() {
@@ -57,6 +148,8 @@ export function AdminScanner() {
   const [verdict, setVerdict] = useState<Verdict | null>(null);
   const [saisie, setSaisie] = useState("");
   const [moteur, setMoteur] = useState<"natif" | "jsqr" | null>(null);
+  const [filtre, setFiltre] = useState("");
+  const me = useProfile();
   const video = useRef<HTMLVideoElement | null>(null);
   const canvas = useRef<HTMLCanvasElement | null>(null);
   const flux = useRef<MediaStream | null>(null);
@@ -69,6 +162,22 @@ export function AdminScanner() {
 
   const inscrits = fichesParticipants(s).length + 1;
   const entres = s.scans.length;
+  const fl = filtre.trim().toLowerCase();
+  const scannes = s.scans
+    .map((x) => {
+      const f = chercher(x.code, s);
+      const moi = x.code === normalise(currentUser.ticket.code);
+      return {
+        ...x,
+        nom: f?.nom ?? x.nom,
+        detail: f ? [f.role, f.ent].filter(Boolean).join(" · ") : "",
+        table: f?.table,
+        photo: moi ? me.photo : undefined,
+      };
+    })
+    .filter(
+      (x) => !fl || `${x.nom} ${x.detail} ${x.code}`.toLowerCase().includes(fl),
+    );
 
   const traiter = useCallback((brut: string) => {
     const code = normalise(brut);
@@ -79,8 +188,11 @@ export function AdminScanner() {
     const v = verifier(code, etatRef.current);
     setVerdict(v);
     if (v.etat === "ok") {
-      setTraversee((st) => ({ scans: [{ code, nom: v.nom ?? code, t: now }, ...st.scans] }));
-      if (typeof navigator !== "undefined" && "vibrate" in navigator) navigator.vibrate?.(80);
+      setTraversee((st) => ({
+        scans: [{ code, nom: v.nom ?? code, t: now }, ...st.scans],
+      }));
+      if (typeof navigator !== "undefined" && "vibrate" in navigator)
+        navigator.vibrate?.(80);
     } else if (typeof navigator !== "undefined" && "vibrate" in navigator) {
       navigator.vibrate?.([60, 60, 60]);
     }
@@ -98,11 +210,20 @@ export function AdminScanner() {
   async function demarrer() {
     setErreur(null);
     if (!navigator.mediaDevices?.getUserMedia) {
-      setErreur("La caméra n’est pas disponible sur cet appareil. Saisissez l’identifiant du billet.");
+      setErreur(
+        "La caméra n’est pas disponible sur cet appareil. Saisissez l’identifiant du billet.",
+      );
       return;
     }
     try {
-      const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: { ideal: "environment" }, width: { ideal: 1280 }, height: { ideal: 720 } }, audio: false });
+      const stream = await navigator.mediaDevices.getUserMedia({
+        video: {
+          facingMode: { ideal: "environment" },
+          width: { ideal: 1280 },
+          height: { ideal: 720 },
+        },
+        audio: false,
+      });
       flux.current = stream;
       const v = video.current;
       if (!v) return;
@@ -110,7 +231,9 @@ export function AdminScanner() {
       await v.play();
       setActif(true);
       const w = window as FenetreDetecteur;
-      const detecteur = w.BarcodeDetector ? new w.BarcodeDetector({ formats: ["qr_code"] }) : null;
+      const detecteur = w.BarcodeDetector
+        ? new w.BarcodeDetector({ formats: ["qr_code"] })
+        : null;
       setMoteur(detecteur ? "natif" : "jsqr");
       const tick = async () => {
         if (!flux.current || !video.current || video.current.readyState < 2) {
@@ -131,9 +254,21 @@ export function AdminScanner() {
               c.height = taille;
               const ctx = c.getContext("2d", { willReadFrequently: true });
               if (ctx && vw && vh) {
-                ctx.drawImage(video.current, (vw - taille) / 2, (vh - taille) / 2, taille, taille, 0, 0, taille, taille);
+                ctx.drawImage(
+                  video.current,
+                  (vw - taille) / 2,
+                  (vh - taille) / 2,
+                  taille,
+                  taille,
+                  0,
+                  0,
+                  taille,
+                  taille,
+                );
                 const img = ctx.getImageData(0, 0, taille, taille);
-                const r = jsQR(img.data, img.width, img.height, { inversionAttempts: "dontInvert" });
+                const r = jsQR(img.data, img.width, img.height, {
+                  inversionAttempts: "dontInvert",
+                });
                 if (r?.data) traiter(r.data);
               }
             }
@@ -146,7 +281,11 @@ export function AdminScanner() {
       tick();
     } catch (e) {
       const nom = e instanceof Error ? e.name : "";
-      setErreur(nom === "NotAllowedError" ? "Accès à la caméra refusé. Autorisez la caméra dans le navigateur ou saisissez l’identifiant." : "Impossible d’ouvrir la caméra. Saisissez l’identifiant du billet.");
+      setErreur(
+        nom === "NotAllowedError"
+          ? "Accès à la caméra refusé. Autorisez la caméra dans le navigateur ou saisissez l’identifiant."
+          : "Impossible d’ouvrir la caméra. Saisissez l’identifiant du billet.",
+      );
       arreter();
     }
   }
@@ -169,16 +308,30 @@ export function AdminScanner() {
 
   return (
     <>
-      <PageHead title="Scanner" accent="QR" text="À l’entrée du gala : visez le QR code du billet, la vérification est immédiate. Sans caméra, saisissez l’identifiant du billet." photo="accueil">
+      <PageHead
+        title="Scanner"
+        accent="QR"
+        text="À l’entrée du gala : visez le QR code du billet, la vérification est immédiate. Sans caméra, saisissez l’identifiant du billet."
+        photo="accueil"
+      >
         <Puce tone="white">
           {entres} / {inscrits} entrés
         </Puce>
       </PageHead>
 
       <div className={styles.grille}>
+        <div className={styles.colG}>
           <Card bleed className={styles.camera}>
-            <div className={`${styles.cadre} ${actif ? styles.cadreActif : ""} ${verdict ? styles[`cadre_${verdict.etat}`] : ""}`}>
-              <video ref={video} className={styles.video} playsInline muted aria-label="Aperçu de la caméra" />
+            <div
+              className={`${styles.cadre} ${actif ? styles.cadreActif : ""} ${verdict ? styles[`cadre_${verdict.etat}`] : ""}`}
+            >
+              <video
+                ref={video}
+                className={styles.video}
+                playsInline
+                muted
+                aria-label="Aperçu de la caméra"
+              />
               <canvas ref={canvas} className="hidden" aria-hidden />
               <div className={styles.viseur} aria-hidden>
                 <i />
@@ -206,28 +359,82 @@ export function AdminScanner() {
                 <>
                   <span className={styles.etatCam}>
                     <i />
-                    Lecture en cours{moteur === "jsqr" ? " · décodage logiciel" : ""}
+                    Lecture en cours
+                    {moteur === "jsqr" ? " · décodage logiciel" : ""}
                   </span>
                   <Btn small onClick={arreter}>
                     Arrêter
                   </Btn>
                 </>
               ) : (
-                <span className={styles.etatCamOff}>Pointez le QR code au centre du cadre, à 15 ou 20 cm.</span>
+                <span className={styles.etatCamOff}>
+                  Pointez le QR code au centre du cadre, à 15 ou 20 cm.
+                </span>
               )}
             </div>
             {erreur ? <p className={styles.erreur}>{erreur}</p> : null}
           </Card>
+          <form
+            onSubmit={valider}
+            className={`${ui.card} ${ui.pad} m-bleed ${styles.manuel}`}
+          >
+            <Sur className="!mb-0">Saisie manuelle</Sur>
+            <label htmlFor="sc-code" className="sr-only">
+              Identifiant du billet
+            </label>
+            <div className={styles.ligneSaisie}>
+              <div className="relative min-w-0 flex-1">
+                <TicketIcon
+                  width={17}
+                  height={17}
+                  className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-graphite-faint"
+                />
+                <input
+                  id="sc-code"
+                  className={`${ui.saisie} !pl-10 uppercase`}
+                  placeholder="TRV26-GALA-0000"
+                  autoComplete="off"
+                  autoCapitalize="characters"
+                  value={saisie}
+                  onChange={(e) => setSaisie(e.target.value)}
+                />
+              </div>
+              <Btn variant="navy" type="submit">
+                Vérifier
+              </Btn>
+            </div>
+          </form>
+        </div>
+        <div className={styles.colD}>
           {verdict ? (
-            <div key={verdict.t} className={`${styles.verdict} ${styles[`verdict_${verdict.etat}`]}`} role="status" aria-live="polite">
-              <span className={styles.verdictIco}>{verdict.etat === "ok" ? <CheckIcon width={30} height={30} strokeWidth={2.5} /> : verdict.etat === "inconnu" ? <XIcon width={30} height={30} strokeWidth={2.5} /> : <TicketIcon width={28} height={28} />}</span>
+            <div
+              key={verdict.t}
+              className={`${styles.verdict} ${styles[`verdict_${verdict.etat}`]}`}
+              role="status"
+              aria-live="polite"
+            >
+              <span className={styles.verdictIco}>
+                {verdict.etat === "ok" ? (
+                  <CheckIcon width={30} height={30} strokeWidth={2.5} />
+                ) : verdict.etat === "inconnu" ? (
+                  <XIcon width={30} height={30} strokeWidth={2.5} />
+                ) : (
+                  <TicketIcon width={28} height={28} />
+                )}
+              </span>
               <div className={styles.verdictTexte}>
                 <small>{heure(verdict.t)}</small>
                 <strong>{TITRES[verdict.etat]}</strong>
                 {verdict.nom ? (
                   <p className={styles.verdictNom}>
                     {verdict.nom}
-                    {verdict.role || verdict.ent ? <span> · {[verdict.role, verdict.ent].filter(Boolean).join(", ")}</span> : null}
+                    {verdict.role || verdict.ent ? (
+                      <span>
+                        {" "}
+                        ·{" "}
+                        {[verdict.role, verdict.ent].filter(Boolean).join(", ")}
+                      </span>
+                    ) : null}
                   </p>
                 ) : null}
                 <p className={styles.verdictCode}>
@@ -238,64 +445,80 @@ export function AdminScanner() {
                 <p>{CONSEILS[verdict.etat]}</p>
               </div>
             </div>
-          ) : (
-            <div className={`${styles.verdict} ${styles.verdictVide}`}>
-              <span className={styles.verdictIco}>
-                <QrIcon width={28} height={28} />
-              </span>
-              <div className={styles.verdictTexte}>
-                <strong>En attente d’un billet</strong>
-                <p>Le résultat de la vérification s’affiche ici, en grand, avec le nom du participant.</p>
+          ) : null}
+          <Card bleed className={styles.histo}>
+            <div className={styles.histoTete}>
+              <div className="min-w-0">
+                <Sur className="!mb-0">Participants scannés</Sur>
+                <p className={styles.compte}>
+                  <b>{entres}</b> / {inscrits} entrés
+                </p>
               </div>
-            </div>
-          )}
-          <form onSubmit={valider} className={`${ui.card} ${ui.pad} m-bleed ${styles.manuel}`}>
-            <Sur className="!mb-0">Saisie manuelle</Sur>
-            <label htmlFor="sc-code" className="sr-only">
-              Identifiant du billet
-            </label>
-            <div className={styles.ligneSaisie}>
-              <div className="relative min-w-0 flex-1">
-                <TicketIcon width={17} height={17} className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-graphite-faint" />
-                <input id="sc-code" className={`${ui.saisie} !pl-10 uppercase`} placeholder="TRV26-GALA-0000" autoComplete="off" autoCapitalize="characters" value={saisie} onChange={(e) => setSaisie(e.target.value)} />
-              </div>
-              <Btn variant="navy" type="submit">
-                Vérifier
-              </Btn>
-            </div>
-          </form>
-          <div className={styles.stats}>
-            <Stat label="Entrées validées" value={entres} text={`sur ${inscrits} inscrits`} />
-            <Stat label="Taux de présence" value={`${Math.round((entres / inscrits) * 100)} %`} text="billets scannés" />
-          </div>
-          <Card pad bleed className={styles.histo}>
-            <div className="flex items-center justify-between gap-3">
-              <Sur className="!mb-0">Derniers scans</Sur>
               {s.scans.length ? (
                 <Btn small variant="ghost" onClick={reinitialiser}>
                   Effacer
                 </Btn>
               ) : null}
             </div>
-            {s.scans.length ? (
+            <div className={styles.jauge} aria-hidden>
+              <i
+                style={{
+                  width: `${Math.min(100, Math.round((entres / inscrits) * 100))}%`,
+                }}
+              />
+            </div>
+            {s.scans.length > 3 ? (
+              <div className={styles.filtre}>
+                <Recherche
+                  value={filtre}
+                  onChange={setFiltre}
+                  placeholder="Rechercher un participant scanné…"
+                  label="Rechercher un participant scanné"
+                />
+              </div>
+            ) : null}
+            {scannes.length ? (
               <ul className={styles.liste}>
-                {s.scans.slice(0, 12).map((x, i) => (
-                  <li key={`${x.code}-${x.t}`} style={{ "--i": Math.min(i, 8) } as React.CSSProperties}>
-                    <span className={styles.coche}>
-                      <CheckIcon width={14} height={14} strokeWidth={3} />
+                {scannes.map((x, i) => (
+                  <li
+                    key={`${x.code}-${x.t}`}
+                    className={
+                      verdict?.etat === "ok" && verdict.code === x.code
+                        ? styles.nouveau
+                        : ""
+                    }
+                    style={{ "--i": Math.min(i, 8) } as React.CSSProperties}
+                  >
+                    <span className={styles.av}>
+                      <AvatarInitiales nom={x.nom} photo={x.photo} size={42} />
+                      <i>
+                        <CheckIcon width={11} height={11} strokeWidth={3.5} />
+                      </i>
                     </span>
                     <div className="min-w-0 flex-1">
                       <strong>{x.nom}</strong>
-                      <small>{x.code}</small>
+                      {x.detail ? <small>{x.detail}</small> : null}
+                      <em>
+                        {x.code}
+                        {x.table ? ` · Table ${x.table}` : ""}
+                      </em>
                     </div>
                     <time>{heure(x.t)}</time>
                   </li>
                 ))}
               </ul>
             ) : (
-              <p className={styles.vide}>Aucune entrée validée pour l’instant.</p>
+              <div className={styles.vide}>
+                <QrIcon width={22} height={22} />
+                <p>
+                  {s.scans.length
+                    ? "Aucun participant scanné ne correspond."
+                    : "Aucun participant scanné pour l’instant. Chaque billet validé s’ajoute ici."}
+                </p>
+              </div>
             )}
           </Card>
+        </div>
       </div>
     </>
   );
