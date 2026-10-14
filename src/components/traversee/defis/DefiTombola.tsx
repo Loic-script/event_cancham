@@ -9,8 +9,9 @@ import { lisImage, setTraversee, toast, useTraversee } from "@/lib/traversee/sto
 import { fullName } from "@/lib/mock/data";
 import { parseSocialLink } from "@/lib/social/links";
 import { Modal } from "../Modal";
-import { AvatarInitiales, Btn, Card, Champ, Direct, FileBtn, Note, Partie, Rang, Stat, Sur, ui } from "../ui";
+import { Btn, Card, Champ, Direct, FileBtn, Note, Partie, Stat, Sur, ui } from "../ui";
 import { Affiche, telechargeCanvas } from "./Affiche";
+import { Classement } from "./Classement";
 import { GainTombola, Tuiles } from "./Tuiles";
 import { useLive } from "./live";
 import styles from "./defis.module.css";
@@ -289,26 +290,7 @@ export function DefiTombola() {
               <Sur className="!mb-0">Classement des publications</Sur>
               <Direct>En temps réel · simulation</Direct>
             </div>
-            <div className={ui.defile}>
-              <table className={ui.tab}>
-                <tbody>
-                  {classement.map((x, i) => (
-                    <tr key={x.nom} className={x.moi ? "moi" : ""}>
-                      <td className="w-px !pr-0">
-                        <Rang n={i + 1} />
-                      </td>
-                      <td>
-                        <span className="flex min-w-0 items-center gap-3">
-                          <AvatarInitiales nom={x.moi ? nom : x.nom} photo={x.photo} size={36} className={x.moi ? "ring-2 ring-leaf ring-offset-2 ring-offset-surface" : ""} />
-                          <span className="min-w-0">{x.nom}</span>
-                        </span>
-                      </td>
-                      <td className={ui.n}>{x.r} réactions</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
+            <Classement entrees={classement.map((x) => (x.moi ? { ...x, initiales: nom } : x))} />
           </Card>
           <Stat
             label="Ma publication"
