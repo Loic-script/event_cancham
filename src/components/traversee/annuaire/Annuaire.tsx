@@ -22,6 +22,7 @@ function ficheDe(p: Personne, i: number): FicheComplete {
   return {
     id: p.nom,
     img: p.img,
+    code: `TRV26-GALA-${String(101 + i * 37).padStart(4, "0")}`,
     nom: p.nom,
     role: p.role,
     ent: p.ent,

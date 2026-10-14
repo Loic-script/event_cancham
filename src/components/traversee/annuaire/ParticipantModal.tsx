@@ -2,18 +2,20 @@
 
 import { useState, type FormEvent } from "react";
 import { LinkIcon, MailIcon, PencilIcon, PhoneIcon, TicketIcon } from "@/components/app/icons";
+import { QrCode } from "@/components/ticket/QrCode";
 import { IMG, ROLES, SECTEURS, initiales } from "@/lib/traversee/data";
 import { setTraversee, toast, type Fiche } from "@/lib/traversee/store";
 import { Modal } from "../Modal";
 import { Btn, Champ, Puce, Sur, ui } from "../ui";
 import styles from "./annuaire.module.css";
 
-export type FicheComplete = Fiche & { id: string; img: string };
+export type FicheComplete = Fiche & { id: string; img: string; code: string };
 
 type Props = { fiche: FicheComplete; modifiee: boolean; onClose: () => void };
 
 export function ParticipantModal({ fiche, modifiee, onClose }: Props) {
   const [edition, setEdition] = useState(false);
+  const [grand, setGrand] = useState(false);
   const [f, setF] = useState<Fiche>(fiche);
   const maj = (k: keyof Fiche) => (e: { target: { value: string } }) => setF({ ...f, [k]: e.target.value });
 
@@ -166,6 +168,19 @@ export function ParticipantModal({ fiche, modifiee, onClose }: Props) {
               <span>{billet ? "Place confirmée pour le 18 décembre" : "Place réservée, paiement à confirmer"}</span>
             </li>
           </ul>
+          <div className={styles.pBillet}>
+            <button type="button" className={styles.pQr} onClick={() => setGrand(true)} aria-label="Agrandir le QR code">
+              <QrCode value={fiche.code} size={128} className="block h-auto w-full" />
+            </button>
+            <div className={styles.pBilletInfos}>
+              <Sur className="!mb-0">Billet d’entrée</Sur>
+              <p className={styles.pCode}>{fiche.code}</p>
+              <p>
+                Titulaire : <strong>{f.nom}</strong>
+              </p>
+              <p className={billet ? styles.pValide : styles.pAttente}>{billet ? "QR code valide · entrée gala" : "QR code activé après paiement"}</p>
+            </div>
+          </div>
           <div className={styles.pActions}>
             <Btn variant="primary" type="button" onClick={() => setEdition(true)}>
               <PencilIcon width={16} height={16} />
@@ -182,6 +197,14 @@ export function ParticipantModal({ fiche, modifiee, onClose }: Props) {
           </div>
         </div>
       )}
+      {grand ? (
+        <div className={styles.pGrand} role="dialog" aria-label={`QR code de ${f.nom}`} onClick={() => setGrand(false)}>
+          <QrCode value={fiche.code} size={360} className="block h-auto w-full" />
+          <p className={styles.pCode}>{fiche.code}</p>
+          <p>{f.nom}</p>
+          <small>Toucher pour fermer</small>
+        </div>
+      ) : null}
     </Modal>
   );
 }
