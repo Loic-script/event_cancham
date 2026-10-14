@@ -32,6 +32,7 @@ export type Pub = { id: string; texte: string; img?: string; date: string };
 export type Annonce = { id: string; titre: string; message: string; type: AnnonceType; cta: string; img?: string; t: number };
 export type MediaAjoute = { id: string; src: string };
 export type AConv = { id: string; nom: string; ent: string; m: { de: "eux" | "moi"; texte: string; h: string }[] };
+export type Scan = { code: string; nom: string; t: number };
 export type Fiche = { nom: string; role: string; ent: string; sect: string; act: string; email: string; phone: string; website: string; billet: "paye" | "attente" };
 
 export type TraverseeState = {
@@ -75,6 +76,7 @@ export type TraverseeState = {
   gagnant: string | null;
   aconv: AConv[];
   fiches: Record<string, Partial<Fiche>>;
+  scans: Scan[];
 };
 
 export const DEFAULT_STATE: TraverseeState = {
@@ -120,6 +122,7 @@ export const DEFAULT_STATE: TraverseeState = {
   galAjoutees: [],
   gagnant: null,
   fiches: {},
+  scans: [],
   aconv: [
     { id: "a1", nom: "Hery Rabe", ent: "Baobab Conseil", m: [{ de: "eux", texte: "Bonjour, où puis-je retirer mon badge le 18 ?", h: "10:02" }] },
     { id: "a2", nom: "Miora Rajao", ent: "Hauts Plateaux Textile", m: [{ de: "eux", texte: "Peut-on changer de table après avoir réservé ?", h: "Hier" }, { de: "moi", texte: "Oui, depuis l’onglet Ma place : libérez votre chaise puis choisissez-en une autre.", h: "Hier" }] },

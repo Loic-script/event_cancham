@@ -28,6 +28,7 @@ import {
   MegaphoneIcon,
   MenuIcon,
   MessageCircleIcon,
+  QrIcon,
   TrophyIcon,
   UsersIcon,
   type IconProps,
@@ -71,6 +72,7 @@ const NAV_ADMIN: NavSection[] = [
     items: [
       { href: "/admin/programme", label: "Programme", icon: CalendarDaysIcon },
       { href: "/admin/participants", label: "Participants", icon: UsersIcon },
+      { href: "/admin/scanner", label: "Scanner QR", icon: QrIcon },
       { href: "/admin/places", label: "Places", icon: ArmchairIcon },
       { href: "/admin/commandes", label: "Commandes", icon: CartIcon },
       { href: "/admin/defis/pitch", label: "Gagnez un voyage au Canada", icon: TrophyIcon },
@@ -96,8 +98,8 @@ const TITRES: Record<string, string> = {
 };
 
 const BAS = ["/", "/defis/pitch", "/place", "/annuaire"];
-const BAS_ADMIN = ["/admin", "/admin/annonces", "/admin/participants", "/admin/commandes"];
-const BAS_LABEL: Record<string, string> = { "/defis/pitch": "Défis", "/place": "Ma place", "/admin/participants": "Inscrits" };
+const BAS_ADMIN = ["/admin", "/admin/scanner", "/admin/participants", "/admin/commandes"];
+const BAS_LABEL: Record<string, string> = { "/defis/pitch": "Défis", "/place": "Ma place", "/admin/participants": "Inscrits", "/admin/scanner": "Scanner" };
 
 function isActive(pathname: string, href: string) {
   if (href === "/" || href === "/admin") return pathname === href;

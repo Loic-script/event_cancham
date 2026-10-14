@@ -112,6 +112,8 @@
   color: rgba(255, 255, 255, 0.72);
 }
 
+.latAdm .logo small { letter-spacing: 0.12em; }
+
 .logo small::before {
   content: "";
   flex: none;

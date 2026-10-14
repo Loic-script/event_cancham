@@ -4,12 +4,11 @@ import { useState, type FormEvent } from "react";
 import { BriefcaseIcon, CheckIcon, ExternalLinkIcon, LinkIcon, MailIcon, MaximizeIcon, PencilIcon, PhoneIcon, XIcon } from "@/components/app/icons";
 import { QrCode } from "@/components/ticket/QrCode";
 import { IMG, ROLES, SECTEURS, initiales } from "@/lib/traversee/data";
+import type { FicheComplete } from "@/lib/traversee/participants";
 import { setTraversee, toast, type Fiche } from "@/lib/traversee/store";
 import { Modal } from "../Modal";
 import { Btn, Champ, Puce, Sur, ui } from "../ui";
 import styles from "./annuaire.module.css";
-
-export type FicheComplete = Fiche & { id: string; img: string; code: string };
 
 type Props = { fiche: FicheComplete; modifiee: boolean; onClose: () => void };
 
