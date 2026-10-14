@@ -1,50 +1,17 @@
 "use client";
 
 import { useMemo, useState, type CSSProperties } from "react";
-import { CheckIcon, ExternalLinkIcon, FacebookIcon, HeartIcon, InstagramIcon, PlayIcon, TrashIcon } from "@/components/app/icons";
+import { CheckIcon, ExternalLinkIcon, PlayIcon, TrashIcon } from "@/components/app/icons";
 import { useProfile } from "@/components/profile/useProfile";
 import { fullName } from "@/lib/mock/data";
-import { parseSocialLink } from "@/lib/social/links";
-import { NOTE_MAX, candidaturesPitch, candidaturesTombola, type Candidature, type DefiAdmin } from "@/lib/traversee/pitchs";
+import { NOTE_MAX, candidaturesPitch, type Candidature } from "@/lib/traversee/pitchs";
 import { setTraversee, toast, useTraversee, type NotePitch } from "@/lib/traversee/store";
 import { lienVideo } from "../defis/DefiPitch";
 import { AvatarInitiales, Btn, Onglets, Recherche, ui } from "../ui";
 import styles from "./candidatures.module.css";
 
 type Filtre = "toutes" | "anoter" | "notees";
-type Tri = "note" | "reactions" | "recentes" | "nom";
-type CleNotes = "notesPitch" | "notesTombola";
-
-type Config = { cle: CleNotes; surtitre: string; titre: string; chapo: string; ouvrir: string; placeholderRecherche: string };
-
-const CONFIGS: Record<DefiAdmin, Config> = {
-  pitch: {
-    cle: "notesPitch",
-    surtitre: "Défi 1 · Gagnez un voyage au Canada",
-    titre: "Candidatures",
-    chapo: `Les vidéos pitch envoyées par les participants. Ouvrez chaque lien et donnez une note sur ${NOTE_MAX}.`,
-    ouvrir: "Voir la vidéo",
-    placeholderRecherche: "Rechercher un participant, une entreprise…",
-  },
-  tombola: {
-    cle: "notesTombola",
-    surtitre: "Défi 2 · Gagnez 3 000 000 Ar",
-    titre: "Publications « J’y serai »",
-    chapo: `Les publications des participants sur Facebook et Instagram. Ouvrez chaque lien et donnez une note sur ${NOTE_MAX}. Le gagnant reste la publication qui a le plus de réactions.`,
-    ouvrir: "Voir la publication",
-    placeholderRecherche: "Rechercher un participant, une entreprise…",
-  },
-};
-
-function infoLien(defi: DefiAdmin, lien: string): { service: string; url: string; reseau: "facebook" | "instagram" | null } {
-  if (defi === "tombola") {
-    const p = parseSocialLink(lien);
-    if (p.ok) return { service: p.label, url: p.url, reseau: p.network };
-    return { service: "Publication", url: lien, reseau: null };
-  }
-  const v = lienVideo(lien);
-  return { service: v?.service ?? "Vidéo", url: v?.url ?? lien, reseau: null };
-}
+type Tri = "note" | "recentes" | "nom";
 
 function formatNote(n: number): string {
   return n.toLocaleString("fr-FR", { maximumFractionDigits: 1 });
@@ -79,26 +46,26 @@ function Jauge({ note }: { note: number | null }) {
   );
 }
 
-function CarteCandidature({ c, note, rang, i, defi }: { c: Candidature; note: NotePitch | undefined; rang: number | null; i: number; defi: DefiAdmin }) {
-  const cle = CONFIGS[defi].cle;
+function CarteCandidature({ c, note, rang, i }: { c: Candidature; note: NotePitch | undefined; rang: number | null; i: number }) {
   const [brouillon, setBrouillon] = useState<number>(note?.note ?? 10);
   const [avis, setAvis] = useState(note?.avis ?? "");
   const [touche, setTouche] = useState(false);
-  const info = infoLien(defi, c.lien);
+  const v = lienVideo(c.lien);
+  const info = { service: v?.service ?? "Vidéo", url: v?.url ?? c.lien };
   const affichee = touche ? brouillon : (note?.note ?? null);
   const modifie = touche && (brouillon !== note?.note || avis.trim() !== (note?.avis ?? ""));
 
   function enregistrer() {
-    setTraversee((s) => ({ [cle]: { ...s[cle], [c.id]: { note: brouillon, avis: avis.trim(), t: Date.now() } } }));
+    setTraversee((s) => ({ notesPitch: { ...s.notesPitch, [c.id]: { note: brouillon, avis: avis.trim(), t: Date.now() } } }));
     setTouche(false);
     toast(`Note enregistrée : ${formatNote(brouillon)}/${NOTE_MAX} pour ${c.porteur}.`);
   }
 
   function effacer() {
     setTraversee((s) => {
-      const notes = { ...s[cle] };
+      const notes = { ...s.notesPitch };
       delete notes[c.id];
-      return { [cle]: notes };
+      return { notesPitch: notes };
     });
     setBrouillon(10);
     setAvis("");
@@ -126,27 +93,19 @@ function CarteCandidature({ c, note, rang, i, defi }: { c: Candidature; note: No
         </div>
       </div>
 
-      <div className={styles.colonneLien}>
-        <a className={styles.lien} href={info.url} target="_blank" rel="noopener noreferrer">
-          <span className={`${styles.lecture} ${info.reseau ? styles[info.reseau] : ""}`}>
-            {info.reseau === "facebook" ? <FacebookIcon width={17} height={17} /> : info.reseau === "instagram" ? <InstagramIcon width={17} height={17} /> : <PlayIcon width={16} height={16} />}
-          </span>
-          <span className="min-w-0 flex-1">
-            <strong>{info.service}</strong>
-            <small>{info.url.replace(/^https?:\/\//i, "")}</small>
-          </span>
-          <span className={styles.ouvrir}>
-            {CONFIGS[defi].ouvrir}
-            <ExternalLinkIcon width={14} height={14} />
-          </span>
-        </a>
-        {typeof c.reactions === "number" ? (
-          <span className={styles.reactions}>
-            <HeartIcon width={14} height={14} fill="currentColor" />
-            <b>{c.reactions.toLocaleString("fr-FR")}</b> réactions
-          </span>
-        ) : null}
-      </div>
+      <a className={styles.lien} href={info.url} target="_blank" rel="noopener noreferrer">
+        <span className={styles.lecture}>
+          <PlayIcon width={16} height={16} />
+        </span>
+        <span className="min-w-0 flex-1">
+          <strong>{info.service}</strong>
+          <small>{info.url.replace(/^https?:\/\//i, "")}</small>
+        </span>
+        <span className={styles.ouvrir}>
+          Voir la vidéo
+          <ExternalLinkIcon width={14} height={14} />
+        </span>
+      </a>
 
       <div className={styles.notation}>
         <Jauge note={affichee} />
@@ -204,19 +163,15 @@ function CarteCandidature({ c, note, rang, i, defi }: { c: Candidature; note: No
   );
 }
 
-export function AdminCandidatures({ defi }: { defi: DefiAdmin }) {
-  const cfg = CONFIGS[defi];
+export function AdminCandidatures() {
   const s = useTraversee();
   const me = useProfile();
   const [q, setQ] = useState("");
   const [filtre, setFiltre] = useState<Filtre>("toutes");
   const [tri, setTri] = useState<Tri>("note");
 
-  const notes = s[cfg.cle];
-  const toutes = useMemo(() => {
-    const moi = { nom: fullName(me), ent: me.company, role: me.role, sect: me.sector };
-    return defi === "pitch" ? candidaturesPitch(s, moi) : candidaturesTombola(s, moi);
-  }, [s, me, defi]);
+  const notes = s.notesPitch;
+  const toutes = useMemo(() => candidaturesPitch(s, { nom: fullName(me), ent: me.company, role: me.role, sect: me.sector }), [s, me]);
   const notees = toutes.filter((c) => notes[c.id]);
   const moyenne = notees.length ? notees.reduce((a, c) => a + notes[c.id].note, 0) / notees.length : null;
   const classement = [...notees].sort((a, b) => notes[b.id].note - notes[a.id].note).map((c) => c.id);
@@ -228,7 +183,6 @@ export function AdminCandidatures({ defi }: { defi: DefiAdmin }) {
     .sort((a, b) => {
       if (tri === "nom") return a.porteur.localeCompare(b.porteur, "fr");
       if (tri === "recentes") return b.envoi - a.envoi;
-      if (tri === "reactions") return (b.reactions ?? 0) - (a.reactions ?? 0);
       const na = notes[a.id]?.note ?? -1;
       const nb = notes[b.id]?.note ?? -1;
       return nb - na || b.envoi - a.envoi;
@@ -238,14 +192,14 @@ export function AdminCandidatures({ defi }: { defi: DefiAdmin }) {
     <>
       <div className={styles.tete}>
         <div>
-          <p className={styles.surtitre}>{cfg.surtitre}</p>
-          <h1>{cfg.titre}</h1>
-          <p className={styles.chapo}>{cfg.chapo}</p>
+          <p className={styles.surtitre}>Défi 1 · Gagnez un voyage au Canada</p>
+          <h1>Candidatures</h1>
+          <p className={styles.chapo}>Les vidéos pitch envoyées par les participants. Ouvrez chaque lien et donnez une note sur {NOTE_MAX}.</p>
         </div>
         <div className={styles.chiffres}>
           <div>
             <b>{toutes.length}</b>
-            <small>{defi === "pitch" ? "candidatures" : "publications"}</small>
+            <small>candidatures</small>
           </div>
           <div>
             <b>
@@ -265,7 +219,7 @@ export function AdminCandidatures({ defi }: { defi: DefiAdmin }) {
       </div>
 
       <div className={styles.outils}>
-        <Recherche value={q} onChange={setQ} placeholder={cfg.placeholderRecherche} label="Rechercher une candidature" className={styles.recherche} />
+        <Recherche value={q} onChange={setQ} placeholder="Rechercher un participant, une entreprise…" label="Rechercher une candidature" className={styles.recherche} />
         <Onglets
           items={[
             { v: "toutes", label: `Toutes (${toutes.length})` },
@@ -278,7 +232,6 @@ export function AdminCandidatures({ defi }: { defi: DefiAdmin }) {
         />
         <select className={`${ui.saisie} ${styles.tri}`} value={tri} onChange={(e) => setTri(e.target.value as Tri)} aria-label="Trier les candidatures">
           <option value="note">Meilleure note</option>
-          {defi === "tombola" ? <option value="reactions">Plus de réactions</option> : null}
           <option value="recentes">Plus récentes</option>
           <option value="nom">Nom (A → Z)</option>
         </select>
@@ -288,11 +241,11 @@ export function AdminCandidatures({ defi }: { defi: DefiAdmin }) {
         <div className={styles.liste}>
           {liste.map((c, i) => {
             const r = classement.indexOf(c.id);
-            return <CarteCandidature key={c.id} c={c} note={notes[c.id]} rang={tri === "note" && r >= 0 ? r + 1 : null} i={i} defi={defi} />;
+            return <CarteCandidature key={c.id} c={c} note={notes[c.id]} rang={tri === "note" && r >= 0 ? r + 1 : null} i={i} />;
           })}
         </div>
       ) : (
-        <p className={styles.aucune}>{filtre === "anoter" && !ql ? defi === "pitch" ? "Toutes les candidatures sont notées." : "Toutes les publications sont notées." : "Aucune candidature ne correspond."}</p>
+        <p className={styles.aucune}>{filtre === "anoter" && !ql ? "Toutes les candidatures sont notées." : "Aucune candidature ne correspond."}</p>
       )}
     </>
   );

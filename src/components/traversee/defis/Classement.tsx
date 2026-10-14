@@ -1,10 +1,29 @@
 "use client";
 
 import { useEffect, useLayoutEffect, useRef, useState, type CSSProperties } from "react";
+import { ExternalLinkIcon, FacebookIcon, InstagramIcon } from "@/components/app/icons";
 import { AvatarInitiales } from "../ui";
 import styles from "./classement.module.css";
 
-export type EntreeClassement = { nom: string; r: number; moi: boolean; photo?: string; initiales?: string };
+export type EntreeClassement = { nom: string; r: number; moi: boolean; photo?: string; initiales?: string; sous?: string; lien?: string; reseau?: "facebook" | "instagram" | null };
+
+function LienPublication({ e, compact = false }: { e: EntreeClassement; compact?: boolean }) {
+  if (!e.lien) return null;
+  const icone = e.reseau === "instagram" ? <InstagramIcon width={15} height={15} /> : e.reseau === "facebook" ? <FacebookIcon width={15} height={15} /> : <ExternalLinkIcon width={14} height={14} />;
+  return (
+    <a
+      href={e.lien}
+      target="_blank"
+      rel="noopener noreferrer"
+      className={`${styles.lienPub} ${compact ? styles.lienCompact : ""} ${e.reseau ? styles[e.reseau] : ""}`}
+      aria-label={`Voir la publication de ${e.nom}`}
+      title="Voir la publication"
+    >
+      {icone}
+      {compact ? null : <span>Voir la publication</span>}
+    </a>
+  );
+}
 
 function Compteur({ valeur }: { valeur: number }) {
   const [affiche, setAffiche] = useState(valeur);
@@ -113,9 +132,11 @@ export function Classement({ entrees, total }: { entrees: EntreeClassement[]; to
                   <em>{i + 1}</em>
                 </span>
                 <strong title={nomAffiche(e)}>{nomAffiche(e)}</strong>
+                {e.sous ? <small className={styles.sous}>{e.sous}</small> : null}
                 {e.moi ? <span className={styles.vous}>Vous</span> : null}
                 <Compteur valeur={e.r} />
                 <small>réactions</small>
+                <LienPublication e={e} />
               </div>
               <div className={styles.socle}>
                 <span>{i + 1}</span>
@@ -152,6 +173,7 @@ export function Classement({ entrees, total }: { entrees: EntreeClassement[]; to
                   <div className={styles.tete}>
                     <strong title={nomAffiche(e)}>{nomAffiche(e)}</strong>
                     {e.moi ? <span className={styles.vous}>Vous</span> : null}
+                    {e.sous ? <small className={styles.sousLigne}>{e.sous}</small> : null}
                   </div>
                   <div className={styles.barre} aria-hidden>
                     <i style={{ width: `${Math.max(4, Math.round((e.r / max) * 100))}%` }} />
@@ -161,6 +183,7 @@ export function Classement({ entrees, total }: { entrees: EntreeClassement[]; to
                   <Compteur valeur={e.r} />
                   <small>réactions</small>
                 </div>
+                <LienPublication e={e} compact />
               </li>
             );
           })}
