@@ -75,8 +75,8 @@ const NAV_ADMIN: NavSection[] = [
       { href: "/admin/scanner", label: "Scanner QR", icon: QrIcon },
       { href: "/admin/places", label: "Places", icon: ArmchairIcon },
       { href: "/admin/commandes", label: "Commandes", icon: CartIcon },
-      { href: "/admin/defis/pitch", label: "Gagnez un voyage au Canada", icon: TrophyIcon },
-      { href: "/admin/defis/tombola", label: "Gagnez 3 000 000 Ar", icon: GiftIcon },
+      { href: "/admin/defis/pitch", label: "Défi 1", icon: TrophyIcon },
+      { href: "/admin/defis/tombola", label: "Défi 2", icon: GiftIcon },
     ],
   },
   {
