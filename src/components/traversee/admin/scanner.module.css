@@ -373,3 +373,164 @@
   .laser, .rondQr, .etatCam i, .verdict, .verdict_ok .verdictIco, .verdict_inconnu, .liste li, .nouveau { animation: none; }
   .jauge i { transition: none; }
 }
+
+@media (max-width: 639px) {
+  .tete { display: none; }
+}
+
+.plein {
+  position: fixed !important;
+  inset: 0;
+  z-index: 100;
+  width: 100% !important;
+  height: 100dvh;
+  margin: 0 !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  background: #05090f;
+  box-shadow: none;
+  animation: pleinIn 0.35s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+}
+
+@keyframes pleinIn {
+  from { opacity: 0; transform: scale(0.98); }
+  to { opacity: 1; transform: none; }
+}
+
+.plein .cadre {
+  position: absolute;
+  inset: 0;
+  aspect-ratio: auto;
+  max-height: none;
+  height: 100%;
+}
+
+.plein .barre,
+.plein .erreur { display: none; }
+
+.plein .viseur { width: min(72vw, 62vh, 340px); }
+.plein .viseur i { width: 44px; height: 44px; border-width: 4px; }
+
+.plein .cadreActif::after {
+  background: radial-gradient(ellipse at center, transparent 34%, rgba(5, 9, 15, 0.7) 100%);
+}
+
+.pleinHaut {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 3;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: calc(12px + env(safe-area-inset-top)) 14px 28px;
+  color: #fff;
+  background: linear-gradient(180deg, rgba(5, 9, 15, 0.78), rgba(5, 9, 15, 0));
+}
+
+.pleinFermer {
+  display: grid;
+  flex: none;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.14);
+  color: #fff;
+  cursor: pointer;
+  backdrop-filter: blur(8px);
+  transition: background-color 0.2s ease, transform 0.2s ease;
+}
+
+.pleinFermer:hover { background: rgba(255, 255, 255, 0.26); }
+.pleinFermer:active { transform: scale(0.92); }
+.pleinFermer:focus-visible { outline: 2px solid #fff; outline-offset: 2px; }
+
+.pleinTitre { display: grid; min-width: 0; flex: 1; }
+.pleinTitre strong { font-family: var(--font-montserrat), sans-serif; font-size: 16px; font-weight: 800; }
+
+.pleinTitre span {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.78);
+}
+
+.pleinTitre i {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--leaf);
+  animation: ondeCam 1.6s ease-out infinite;
+}
+
+.pleinCompte {
+  flex: none;
+  padding: 7px 12px;
+  border: 1px solid rgba(255, 255, 255, 0.22);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.12);
+  font-size: 13px;
+  font-weight: 600;
+  backdrop-filter: blur(8px);
+}
+
+.pleinCompte b { font-family: var(--font-montserrat), sans-serif; font-size: 15px; font-weight: 800; }
+
+.pleinBas {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 3;
+  display: grid;
+  justify-items: center;
+  padding: 40px 14px calc(18px + env(safe-area-inset-bottom));
+  background: linear-gradient(0deg, rgba(5, 9, 15, 0.82), rgba(5, 9, 15, 0));
+}
+
+.pleinAide {
+  padding: 10px 16px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.12);
+  color: #fff;
+  font-size: 14px;
+  font-weight: 600;
+  backdrop-filter: blur(8px);
+}
+
+.pleinVerdict {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: min(100%, 460px);
+  padding: 14px 16px;
+  border-radius: 18px;
+  color: #fff;
+  animation: verdictIn 0.35s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+}
+
+.pleinVerdict.verdict_inconnu { animation: verdictIn 0.35s cubic-bezier(0.2, 0.8, 0.2, 1) both, secoue 0.5s ease 0.1s; }
+
+.pleinIco {
+  display: grid;
+  flex: none;
+  place-items: center;
+  width: 46px;
+  height: 46px;
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.2);
+}
+
+.pleinVerdict.verdict_ok .pleinIco { animation: pop 0.5s cubic-bezier(0.2, 0.8, 0.2, 1) both; }
+.pleinVerdict strong { display: block; font-family: var(--font-montserrat), sans-serif; font-size: 18px; font-weight: 800; line-height: 1.2; }
+.pleinVerdict p { font-size: 14px; opacity: 0.92; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+@media (prefers-reduced-motion: reduce) {
+  .plein, .pleinTitre i, .pleinVerdict, .pleinVerdict.verdict_ok .pleinIco { animation: none; }
+}

@@ -149,6 +149,7 @@ export function AdminScanner() {
   const [saisie, setSaisie] = useState("");
   const [moteur, setMoteur] = useState<"natif" | "jsqr" | null>(null);
   const [filtre, setFiltre] = useState("");
+  const [masque, setMasque] = useState<number | null>(null);
   const me = useProfile();
   const video = useRef<HTMLVideoElement | null>(null);
   const canvas = useRef<HTMLCanvasElement | null>(null);
@@ -292,6 +293,28 @@ export function AdminScanner() {
 
   useEffect(() => () => arreter(), [arreter]);
 
+  useEffect(() => {
+    if (!verdict) return;
+    const id = window.setTimeout(() => setMasque(verdict.t), 5000);
+    return () => window.clearTimeout(id);
+  }, [verdict]);
+
+  useEffect(() => {
+    if (!actif) return;
+    const avant = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") arreter();
+    };
+    window.addEventListener("keydown", onKey);
+    return () => {
+      document.body.style.overflow = avant;
+      window.removeEventListener("keydown", onKey);
+    };
+  }, [actif, arreter]);
+
+  const verdictVisible = verdict && masque !== verdict.t ? verdict : null;
+
   function valider(e: FormEvent) {
     e.preventDefault();
     if (!saisie.trim()) return;
@@ -308,22 +331,29 @@ export function AdminScanner() {
 
   return (
     <>
-      <PageHead
-        title="Scanner"
-        accent="QR"
-        text="À l’entrée du gala : visez le QR code du billet, la vérification est immédiate. Sans caméra, saisissez l’identifiant du billet."
-        photo="accueil"
-      >
-        <Puce tone="white">
-          {entres} / {inscrits} entrés
-        </Puce>
-      </PageHead>
+      <div className={styles.tete}>
+        <PageHead
+          title="Scanner"
+          accent="QR"
+          text="À l’entrée du gala : visez le QR code du billet, la vérification est immédiate. Sans caméra, saisissez l’identifiant du billet."
+          photo="accueil"
+        >
+          <Puce tone="white">
+            {entres} / {inscrits} entrés
+          </Puce>
+        </PageHead>
+      </div>
 
       <div className={styles.grille}>
         <div className={styles.colG}>
-          <Card bleed className={styles.camera}>
+          <div
+            className={`${ui.card} m-bleed ${styles.camera} ${actif ? styles.plein : ""}`}
+            role={actif ? "dialog" : undefined}
+            aria-modal={actif ? true : undefined}
+            aria-label={actif ? "Scanner QR" : undefined}
+          >
             <div
-              className={`${styles.cadre} ${actif ? styles.cadreActif : ""} ${verdict ? styles[`cadre_${verdict.etat}`] : ""}`}
+              className={`${styles.cadre} ${actif ? styles.cadreActif : ""} ${verdictVisible ? styles[`cadre_${verdictVisible.etat}`] : ""}`}
             >
               <video
                 ref={video}
@@ -352,7 +382,64 @@ export function AdminScanner() {
                     Activer la caméra
                   </Btn>
                 </div>
-              ) : null}
+              ) : (
+                <>
+                  <div className={styles.pleinHaut}>
+                    <button
+                      type="button"
+                      onClick={arreter}
+                      className={styles.pleinFermer}
+                      aria-label="Fermer le scanner"
+                    >
+                      <XIcon width={20} height={20} />
+                    </button>
+                    <div className={styles.pleinTitre}>
+                      <strong>Scanner QR</strong>
+                      <span>
+                        <i />
+                        Lecture en cours
+                      </span>
+                    </div>
+                    <span className={styles.pleinCompte}>
+                      <b>{entres}</b> / {inscrits}
+                    </span>
+                  </div>
+                  <div className={styles.pleinBas} aria-live="polite">
+                    {verdictVisible ? (
+                      <div
+                        key={verdictVisible.t}
+                        className={`${styles.pleinVerdict} ${styles[`verdict_${verdictVisible.etat}`]}`}
+                      >
+                        <span className={styles.pleinIco}>
+                          {verdictVisible.etat === "ok" ? (
+                            <CheckIcon width={24} height={24} strokeWidth={2.6} />
+                          ) : verdictVisible.etat === "inconnu" ? (
+                            <XIcon width={24} height={24} strokeWidth={2.6} />
+                          ) : (
+                            <TicketIcon width={22} height={22} />
+                          )}
+                        </span>
+                        <div className="min-w-0">
+                          <strong>{TITRES[verdictVisible.etat]}</strong>
+                          <p>
+                            {verdictVisible.nom ?? verdictVisible.code}
+                            {verdictVisible.table
+                              ? ` · Table ${verdictVisible.table}`
+                              : ""}
+                            {verdictVisible.quand
+                              ? ` · entré à ${verdictVisible.quand}`
+                              : ""}
+                          </p>
+                        </div>
+                      </div>
+                    ) : (
+                      <p className={styles.pleinAide}>
+                        Placez le QR code du billet dans le cadre
+                      </p>
+                    )}
+                  </div>
+                </>
+              )}
             </div>
             <div className={styles.barre}>
               {actif ? (
@@ -373,7 +460,7 @@ export function AdminScanner() {
               )}
             </div>
             {erreur ? <p className={styles.erreur}>{erreur}</p> : null}
-          </Card>
+          </div>
           <form
             onSubmit={valider}
             className={`${ui.card} ${ui.pad} m-bleed ${styles.manuel}`}
