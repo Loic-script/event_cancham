@@ -79,6 +79,7 @@ export type TraverseeState = {
   fiches: Record<string, Partial<Fiche>>;
   scans: Scan[];
   notesPitch: Record<string, NotePitch>;
+  notesTombola: Record<string, NotePitch>;
 };
 
 export const DEFAULT_STATE: TraverseeState = {
@@ -126,6 +127,7 @@ export const DEFAULT_STATE: TraverseeState = {
   fiches: {},
   scans: [],
   notesPitch: {},
+  notesTombola: {},
   aconv: [
     { id: "a1", nom: "Hery Rabe", ent: "Baobab Conseil", m: [{ de: "eux", texte: "Bonjour, où puis-je retirer mon badge le 18 ?", h: "10:02" }] },
     { id: "a2", nom: "Miora Rajao", ent: "Hauts Plateaux Textile", m: [{ de: "eux", texte: "Peut-on changer de table après avoir réservé ?", h: "Hier" }, { de: "moi", texte: "Oui, depuis l’onglet Ma place : libérez votre chaise puis choisissez-en une autre.", h: "Hier" }] },
