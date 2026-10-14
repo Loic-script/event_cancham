@@ -35,7 +35,7 @@ export function Coordonnees() {
   function enregistrer(e: FormEvent) {
     e.preventDefault();
     const email = f.email.trim();
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return toast("Adresse e-mail invalide.");
+    if (!/^[^\s@]+@[^\s@]+$/.test(email)) return toast("Adresse e-mail invalide.");
     const phone = f.phone.trim();
     if (phone && !/^\+?[\d\s().-]{7,20}$/.test(phone)) return toast("Numéro de téléphone invalide.");
     let website = f.website.trim();
