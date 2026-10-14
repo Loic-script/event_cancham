@@ -21,6 +21,7 @@ export type ThreadMessage = {
 type ThreadProps = {
   peer: { firstName: string; lastName: string; name: string; hue: number; online?: boolean; role: string; company: string };
   initial: ThreadMessage[];
+  backHref?: string;
 };
 
 const REPLIES = [
@@ -41,7 +42,7 @@ function formatSeconds(s: number) {
   return `${Math.floor(s / 60)}:${(s % 60).toString().padStart(2, "0")}`;
 }
 
-export function Thread({ peer, initial }: ThreadProps) {
+export function Thread({ peer, initial, backHref = "/messages" }: ThreadProps) {
   const [messages, setMessages] = useState(initial);
   const [draft, setDraft] = useState("");
   const [typing, setTyping] = useState(false);
@@ -130,7 +131,7 @@ export function Thread({ peer, initial }: ThreadProps) {
   return (
     <section className={styles.thread} aria-label={`Conversation avec ${peer.name}`}>
       <header className={styles.threadHeader}>
-        <Link href="/messages" aria-label="Retour aux messages" className="grid h-10 w-10 place-items-center rounded-full text-palm-ink hover:bg-palm-soft focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-palm lg:hidden">
+        <Link href={backHref} aria-label="Retour aux messages" className="grid h-10 w-10 place-items-center rounded-full text-palm-ink hover:bg-palm-soft focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-palm lg:hidden">
           <ArrowLeftIcon width={22} height={22} />
         </Link>
         <Avatar person={peer} size={38} presence className="lg:ml-2" />

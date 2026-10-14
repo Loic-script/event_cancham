@@ -119,7 +119,7 @@ export function AppShell({ children }: { children: ReactNode }) {
   }
 
   const admin = pathname.startsWith("/admin");
-  const immersive = /^\/messages\/[^/]+$/.test(pathname);
+  const immersive = /^\/(admin\/messagerie|messages)\/[^/]+$/.test(pathname);
   const sections = admin ? NAV_ADMIN : NAV;
   const items = useMemo(() => sections.flatMap((s) => s.items), [sections]);
   const courant = items.filter((n) => isActive(pathname, n.href)).sort((a, b) => b.href.length - a.href.length)[0];

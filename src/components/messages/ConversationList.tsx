@@ -23,9 +23,10 @@ export type ConversationItem = {
 type ConversationListProps = {
   items: ConversationItem[];
   activeId?: string;
+  base?: string;
 };
 
-export function ConversationList({ items, activeId }: ConversationListProps) {
+export function ConversationList({ items, activeId, base = "/messages" }: ConversationListProps) {
   const [query, setQuery] = useState("");
 
   const filtered = useMemo(() => {
@@ -65,7 +66,7 @@ export function ConversationList({ items, activeId }: ConversationListProps) {
             const active = c.id === activeId;
             return (
               <li key={c.id}>
-                <Link href={`/messages/${c.id}`} className={`${styles.item} ${active ? styles.itemActive : ""}`} aria-current={active ? "page" : undefined}>
+                <Link href={`${base}/${c.id}`} className={`${styles.item} ${active ? styles.itemActive : ""}`} aria-current={active ? "page" : undefined}>
                   <Avatar person={c} size={52} presence />
                   <span className="min-w-0 flex-1">
                     <span className="flex items-baseline justify-between gap-2">
