@@ -9,7 +9,7 @@ import { lisImage, setTraversee, toast, useTraversee } from "@/lib/traversee/sto
 import { fullName } from "@/lib/mock/data";
 import { BilletModal } from "../achats/BilletModal";
 import { Presentation } from "../accueil/Presentation";
-import { Btn, Card, Champ, FileBtn, Jauge, PageHead, Sur, ui } from "../ui";
+import { Btn, Card, Champ, FileBtn, Jauge, Sur, ui } from "../ui";
 import styles from "./profil.module.css";
 
 export function Profil({ restant }: { restant: number }) {
@@ -31,7 +31,6 @@ export function Profil({ restant }: { restant: number }) {
 
   return (
     <>
-      <PageHead title="Mon" accent="profil" text="Votre profil alimente l’annuaire, votre photo « J’y serai » et votre éligibilité aux défis." photo="equipe" />
       <div className="mb-4">
         <Presentation initial={restant} />
       </div>
