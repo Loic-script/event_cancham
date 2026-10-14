@@ -64,12 +64,12 @@ export function DefiTombola() {
     setReleve(true);
     try {
       const r = await fetch(`/api/publications/reactions?url=${encodeURIComponent(url)}`, { cache: "no-store" });
-      const d = (await r.json()) as { ok: boolean; reactions?: number; comments?: number; shares?: number; at?: number; message?: string };
+      const d = (await r.json()) as { ok: boolean; reactions?: number; comments?: number; shares?: number; at?: number; message?: string; detail?: string | null };
       if (d.ok) {
         setTraversee({ lienReactions: { reactions: d.reactions ?? 0, comments: d.comments ?? 0, shares: d.shares ?? 0, at: d.at ?? Date.now() }, lienReleve: null });
         if (!silencieux) toast(`${d.reactions ?? 0} réaction${(d.reactions ?? 0) > 1 ? "s" : ""} relevée${(d.reactions ?? 0) > 1 ? "s" : ""} sur Facebook.`);
       } else {
-        setTraversee({ lienReactions: null, lienReleve: d.message ?? "Réactions indisponibles." });
+        setTraversee({ lienReactions: null, lienReleve: `${d.message ?? "Réactions indisponibles."}${d.detail ? ` (${d.detail})` : ""}` });
         if (!silencieux) toast(d.message ?? "Réactions indisponibles.");
       }
     } catch {
@@ -212,6 +212,11 @@ export function DefiTombola() {
                     <Btn small onClick={() => setTraversee({ lienPub: "", lienReactions: null, lienReleve: null })}>
                       Changer de lien
                     </Btn>
+                    {process.env.NODE_ENV !== "production" && fb?.connected ? (
+                      <a href={`/api/facebook/diag?url=${encodeURIComponent(s.lienPub)}`} target="_blank" rel="noreferrer" className="self-center text-[12px] font-semibold text-graphite-faint underline-offset-4 hover:underline">
+                        Détails techniques
+                      </a>
+                    ) : null}
                   </div>
                 </>
               ) : (

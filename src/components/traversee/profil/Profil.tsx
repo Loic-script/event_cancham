@@ -4,43 +4,15 @@ import { useState, type FormEvent } from "react";
 import { Avatar } from "@/components/app/Avatar";
 import { CameraIcon, DownloadIcon } from "@/components/app/icons";
 import { updateProfile, useProfile } from "@/components/profile/useProfile";
-import { SECTEURS, ouEst } from "@/lib/traversee/data";
+import { SECTEURS } from "@/lib/traversee/data";
 import { lisImage, setTraversee, toast, useTraversee } from "@/lib/traversee/store";
-import { event, fullName } from "@/lib/mock/data";
-import { daysUntil } from "@/lib/format";
+import { fullName } from "@/lib/mock/data";
 import { BilletModal } from "../achats/BilletModal";
-import { profilComplet } from "../defis/DefiPitch";
-import { Btn, Card, Champ, Etapes, FileBtn, Jauge, PageHead, Stat, Sur, ui } from "../ui";
+import { Presentation } from "../accueil/Presentation";
+import { Btn, Card, Champ, FileBtn, Jauge, PageHead, Sur, ui } from "../ui";
 import styles from "./profil.module.css";
 
-export function StatsProfil() {
-  const me = useProfile();
-  const s = useTraversee();
-  const jours = daysUntil(event.date);
-  const etapes = [
-    { titre: "Inscription à la Traversée", fait: true, detail: "Votre billet est enregistré." },
-    { titre: "Profil complété", fait: profilComplet(me), detail: "Nom, entreprise, fonction, secteur et photo.", href: "/profil" },
-    { titre: "Guide des défis suivi", fait: Boolean(s.lienPub) || s.pitchEnvoye, detail: "Photo « J’y serai » partagée, pitch envoyé.", href: "/defis/pitch" },
-  ];
-  const faits = etapes.filter((e) => e.fait).length;
-  return (
-    <>
-      <div className={`${ui.g3} mb-4`}>
-        <Stat label="Compte à rebours" value={`${jours} jours`} text="avant le vendredi 18 décembre 2026" />
-        <Stat label="Éligibilité aux défis" value={`${faits} / 3`} text="étapes validées">
-          <Jauge pct={(faits / 3) * 100} className="mt-3" />
-        </Stat>
-        <Stat label="Ma place au Gala" value={s.table ? `Table ${s.table}` : "À choisir"} text={s.table ? `Chaise ${(s.siege ?? 0) + 1} · ${ouEst(s.table)}` : "Choisissez votre table et votre chaise"} />
-      </div>
-      <Card pad bleed className="mb-4">
-        <Sur>Vos prochaines étapes</Sur>
-        <Etapes items={etapes.map((e) => ({ ...e, href: e.fait ? undefined : e.href === "/profil" ? undefined : e.href }))} />
-      </Card>
-    </>
-  );
-}
-
-export function Profil() {
+export function Profil({ restant }: { restant: number }) {
   const me = useProfile();
   const s = useTraversee();
   const [f, setF] = useState({ firstName: me.firstName, lastName: me.lastName, company: me.company, sector: me.sector, role: me.role, bio: me.bio ?? "" });
@@ -60,7 +32,9 @@ export function Profil() {
   return (
     <>
       <PageHead title="Mon" accent="profil" text="Votre profil alimente l’annuaire, votre photo « J’y serai » et votre éligibilité aux défis." photo="equipe" />
-      <StatsProfil />
+      <div className="mb-4">
+        <Presentation initial={restant} />
+      </div>
       <div className={styles.profil}>
         <Card bleed className={styles.id}>
           <Avatar person={me} size={112} className="ring-4 ring-surface shadow-[0_12px_28px_-18px_rgba(15,29,44,0.4)]" />

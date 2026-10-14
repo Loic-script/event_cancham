@@ -88,38 +88,46 @@ export async function permissions(token: string): Promise<string[]> {
 export async function readReactions(link: Extract<ParsedLink, { ok: true }>, token: string): Promise<ReactionsResult> {
   if (link.network === "instagram") return { ok: false, reason: "instagram" };
   if (/[?&]set=gm\./.test(link.url) || /\/groups\//.test(link.url)) return { ok: false, reason: "group" };
+  const droits = await permissions(token);
+  if (!droits.includes("user_posts")) return { ok: false, reason: "scope" };
   const champs = "reactions.summary(total_count),comments.summary(total_count),shares";
   const ids = identifiants(link.url);
   const fbid = link.url.match(/[?&]fbid=(\d+)/)?.[1];
+  const erreurs: string[] = [];
 
   const lire = async (id: string) => {
     const e = await graph<Engagement>(id, { fields: champs, access_token: token });
     return { ok: true as const, reactions: e.reactions?.summary?.total_count ?? 0, comments: e.comments?.summary?.total_count ?? 0, shares: e.shares?.count ?? 0, at: Date.now() };
   };
 
-  if (fbid) {
-    try {
-      return await lire(fbid);
-    } catch {
-      return { ok: false, reason: "not_found" };
-    }
-  }
+  type Post = { id: string; permalink_url?: string; object_id?: string; attachments?: { data?: { target?: { id?: string }; subattachments?: { data?: { target?: { id?: string } }[] } }[] } };
+  const correspond = (p: Post) => {
+    const second = p.id.split("_")[1] ?? "";
+    const cibles = [p.object_id ?? "", second, ...(p.attachments?.data ?? []).flatMap((a) => [a.target?.id ?? "", ...(a.subattachments?.data ?? []).map((s) => s.target?.id ?? "")])];
+    const perm = p.permalink_url ?? "";
+    return ids.some((x) => perm.includes(x) || cibles.includes(x));
+  };
 
   try {
     let after: string | undefined;
-    for (let page = 0; page < 4; page++) {
-      const r = await graph<{ data: { id: string; permalink_url?: string }[]; paging?: { cursors?: { after?: string }; next?: string } }>("me/posts", { fields: "id,permalink_url", limit: "100", access_token: token, ...(after ? { after } : {}) });
-      const trouve = r.data.find((p) => {
-        const perm = p.permalink_url ?? "";
-        const second = p.id.split("_")[1] ?? "";
-        return ids.some((x) => perm.includes(x) || second === x);
-      });
+    for (let page = 0; page < 5; page++) {
+      const r = await graph<{ data: Post[]; paging?: { cursors?: { after?: string }; next?: string } }>("me/posts", { fields: "id,permalink_url,object_id,attachments{target{id},subattachments{target{id}}}", limit: "100", access_token: token, ...(after ? { after } : {}) });
+      const trouve = r.data.find(correspond);
       if (trouve) return await lire(trouve.id);
       after = r.paging?.cursors?.after;
       if (!r.paging?.next || !after) break;
     }
-    return { ok: false, reason: "not_found" };
   } catch (e) {
-    return { ok: false, reason: "error", detail: e instanceof Error ? e.message : String(e) };
+    erreurs.push(`posts: ${e instanceof Error ? e.message : String(e)}`);
   }
+
+  if (fbid) {
+    try {
+      return await lire(fbid);
+    } catch (e) {
+      erreurs.push(`photo ${fbid}: ${e instanceof Error ? e.message : String(e)}`);
+    }
+  }
+
+  return { ok: false, reason: erreurs.some((x) => /posts:/.test(x)) ? "error" : "not_found", detail: erreurs.join(" · ") || `aucune correspondance pour ${ids.join(", ") || "ce lien"}` };
 }
