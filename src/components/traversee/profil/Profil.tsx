@@ -8,11 +8,12 @@ import { SECTEURS } from "@/lib/traversee/data";
 import { lisImage, setTraversee, toast, useTraversee } from "@/lib/traversee/store";
 import { fullName } from "@/lib/mock/data";
 import { BilletModal } from "../achats/BilletModal";
+import { Presentation } from "../accueil/Presentation";
 import { Coordonnees, MotDePasse } from "./Compte";
 import { Btn, Card, Champ, FileBtn, Jauge, Sur, ui } from "../ui";
 import styles from "./profil.module.css";
 
-export function Profil() {
+export function Profil({ restant }: { restant: number }) {
   const me = useProfile();
   const s = useTraversee();
   const [f, setF] = useState({ firstName: me.firstName, lastName: me.lastName, company: me.company, sector: me.sector, role: me.role, bio: me.bio ?? "" });
@@ -31,6 +32,9 @@ export function Profil() {
 
   return (
     <>
+      <div className="mb-4">
+        <Presentation initial={restant} />
+      </div>
       <div className={styles.profil}>
         <Card bleed className={styles.id}>
           <Avatar person={me} size={112} className="ring-4 ring-surface shadow-[0_12px_28px_-18px_rgba(15,29,44,0.4)]" />
