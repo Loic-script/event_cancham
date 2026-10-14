@@ -9,7 +9,7 @@ import { lisImage, setTraversee, toast, useTraversee } from "@/lib/traversee/sto
 import { fullName } from "@/lib/mock/data";
 import { parseSocialLink } from "@/lib/social/links";
 import { Modal } from "../Modal";
-import { Btn, Card, Champ, Direct, FileBtn, Note, Partie, Rang, Stat, Sur, ui } from "../ui";
+import { AvatarInitiales, Btn, Card, Champ, Direct, FileBtn, Note, Partie, Rang, Stat, Sur, ui } from "../ui";
 import { Affiche, telechargeCanvas } from "./Affiche";
 import { GainTombola, Tuiles } from "./Tuiles";
 import { useLive } from "./live";
@@ -59,7 +59,7 @@ export function DefiTombola() {
   }, []);
 
   const moiR = s.lienReactions?.reactions ?? null;
-  const classement = [...s.classement.map((c, i) => ({ nom: c.nom, r: c.reactions + inc[i], moi: false })), ...(s.lienPub ? [{ nom: `${nom} (vous)`, r: moiR ?? 0, moi: true }] : [])].sort((a, b) => b.r - a.r);
+  const classement: { nom: string; r: number; moi: boolean; photo?: string }[] = [...s.classement.map((c, i) => ({ nom: c.nom, r: c.reactions + inc[i], moi: false })), ...(s.lienPub ? [{ nom: `${nom} (vous)`, r: moiR ?? 0, moi: true, photo: me.photo || undefined }] : [])].sort((a, b) => b.r - a.r);
   const parsed = s.lienPub ? parseSocialLink(s.lienPub) : null;
 
   async function relever(url: string, silencieux = false) {
@@ -294,10 +294,15 @@ export function DefiTombola() {
                 <tbody>
                   {classement.map((x, i) => (
                     <tr key={x.nom} className={x.moi ? "moi" : ""}>
-                      <td>
+                      <td className="w-px !pr-0">
                         <Rang n={i + 1} />
                       </td>
-                      <td>{x.nom}</td>
+                      <td>
+                        <span className="flex min-w-0 items-center gap-3">
+                          <AvatarInitiales nom={x.moi ? nom : x.nom} photo={x.photo} size={36} className={x.moi ? "ring-2 ring-leaf ring-offset-2 ring-offset-surface" : ""} />
+                          <span className="min-w-0">{x.nom}</span>
+                        </span>
+                      </td>
                       <td className={ui.n}>{x.r} réactions</td>
                     </tr>
                   ))}
