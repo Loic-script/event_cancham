@@ -11,7 +11,7 @@ import styles from "./annuaire.module.css";
 const PERSONNES = personnes();
 const SECTEURS = [...new Set(ANNUAIRE.map((x) => x.secteur))].sort();
 
-function Liste() {
+function Liste({ admin = false }: { admin?: boolean }) {
   const params = useSearchParams();
   const [q, setQ] = useState(params.get("q") ?? "");
   const [secteur, setSecteur] = useState("");
@@ -23,7 +23,7 @@ function Liste() {
 
   return (
     <>
-      {actifs.length ? (
+      {!admin && actifs.length ? (
         <Card pad bleed className="mb-4">
           <Sur>Mes rendez-vous du 18 décembre</Sur>
           <ul className={ui.liste}>
@@ -67,12 +67,23 @@ function Liste() {
                 </div>
                 <p>{p.act}</p>
                 <div className={styles.actions}>
-                  <Btn small variant="primary" href="/messages">
-                    Écrire
-                  </Btn>
-                  <Btn small onClick={() => setRdv(`${p.nom} · ${p.ent}`)}>
-                    Rendez-vous
-                  </Btn>
+                  {admin ? (
+                    <>
+                      <Btn small variant="primary" href="/admin/messagerie">
+                        Écrire
+                      </Btn>
+                      <Puce tone="green">Billet payé</Puce>
+                    </>
+                  ) : (
+                    <>
+                      <Btn small variant="primary" href="/messages">
+                        Écrire
+                      </Btn>
+                      <Btn small onClick={() => setRdv(`${p.nom} · ${p.ent}`)}>
+                        Rendez-vous
+                      </Btn>
+                    </>
+                  )}
                 </div>
               </div>
             </Card>
@@ -86,12 +97,18 @@ function Liste() {
   );
 }
 
-export function Annuaire() {
+export function Annuaire({ admin = false }: { admin?: boolean }) {
   return (
     <>
-      <PageHead title="Annuaire des" accent="participants" text="Chaque participant avec son entreprise, son rôle et l’activité de l’entreprise." photo="reseau" />
+      {admin ? (
+        <PageHead title="Participants" accent="inscrits" text="La même vue que l’annuaire des participants. Liste d’exemple : la vraie liste viendra de la billetterie." photo="reseau">
+          <Puce tone="white">{PERSONNES.length} inscrits</Puce>
+        </PageHead>
+      ) : (
+        <PageHead title="Annuaire des" accent="participants" text="Chaque participant avec son entreprise, son rôle et l’activité de l’entreprise." photo="reseau" />
+      )}
       <Suspense fallback={null}>
-        <Liste />
+        <Liste admin={admin} />
       </Suspense>
     </>
   );
