@@ -47,11 +47,11 @@ export function VoiceBubble({ id, src, seconds, mine }: VoiceBubbleProps) {
         type="button"
         onClick={toggle}
         aria-label={playing ? "Mettre en pause" : "Écouter le message vocal"}
-        className={`${styles.playBtn} ${mine ? "bg-white/20 text-white hover:bg-white/30" : "bg-palm text-white hover:bg-palm-deep"}`}
+        className={`${styles.playBtn} ${mine ? "bg-white/20 text-white hover:bg-white/30" : "bg-leaf text-white hover:bg-leaf-ink"}`}
       >
         {playing ? <PauseIcon width={18} height={18} /> : <PlayIcon width={18} height={18} />}
       </button>
-      <div className={`${styles.waveform} ${mine ? "text-white" : "text-palm-ink"}`} aria-hidden>
+      <div className={`${styles.waveform} ${mine ? "text-white" : "text-gold"}`} aria-hidden>
         {heights.map((h, i) => (
           <span key={i} style={{ height: `${h * 100}%`, opacity: i / heights.length <= progress ? 1 : 0.4 }} />
         ))}

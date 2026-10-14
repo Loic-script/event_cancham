@@ -32,7 +32,7 @@ const REPLIES = [
 ];
 
 const iconBtn =
-  "grid h-11 w-11 shrink-0 cursor-pointer place-items-center rounded-full text-palm-ink transition-colors hover:bg-palm-soft focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-palm";
+  "grid h-11 w-11 shrink-0 cursor-pointer place-items-center rounded-full text-gold transition-colors hover:bg-gold-soft focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold";
 
 function now() {
   return new Intl.DateTimeFormat("fr-FR", { hour: "2-digit", minute: "2-digit" }).format(new Date());
@@ -131,7 +131,7 @@ export function Thread({ peer, initial, backHref = "/messages" }: ThreadProps) {
   return (
     <section className={styles.thread} aria-label={`Conversation avec ${peer.name}`}>
       <header className={styles.threadHeader}>
-        <Link href={backHref} aria-label="Retour aux messages" className="grid h-10 w-10 place-items-center rounded-full text-palm-ink hover:bg-palm-soft focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-palm lg:hidden">
+        <Link href={backHref} aria-label="Retour aux messages" className="grid h-10 w-10 place-items-center rounded-full text-gold hover:bg-gold-soft focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold lg:hidden">
           <ArrowLeftIcon width={22} height={22} />
         </Link>
         <Avatar person={peer} size={38} presence className="lg:ml-2" />
@@ -144,7 +144,7 @@ export function Thread({ peer, initial, backHref = "/messages" }: ThreadProps) {
           { icon: VideoIcon, label: "Appel vidéo" },
           { icon: InfoIcon, label: "Informations" },
         ].map((a) => (
-          <button key={a.label} type="button" aria-label={a.label} className="grid h-10 w-10 cursor-pointer place-items-center rounded-full text-palm-ink hover:bg-palm-soft focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-palm">
+          <button key={a.label} type="button" aria-label={a.label} className="grid h-10 w-10 cursor-pointer place-items-center rounded-full text-gold hover:bg-gold-soft focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold">
             <a.icon width={20} height={20} />
           </button>
         ))}
@@ -207,7 +207,7 @@ export function Thread({ peer, initial, backHref = "/messages" }: ThreadProps) {
             type="button"
             onClick={() => voice.stop(false)}
             aria-label="Envoyer le message vocal"
-            className="grid h-11 w-11 shrink-0 cursor-pointer place-items-center rounded-full bg-palm text-white hover:bg-palm-deep focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-palm focus-visible:ring-offset-2"
+            className="grid h-11 w-11 shrink-0 cursor-pointer place-items-center rounded-full bg-leaf text-white hover:bg-leaf-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold focus-visible:ring-offset-2"
           >
             <CheckIcon width={22} height={22} strokeWidth={2.5} />
           </button>
@@ -225,7 +225,7 @@ export function Thread({ peer, initial, backHref = "/messages" }: ThreadProps) {
             onClick={() => setEmojiOpen((v) => !v)}
             aria-label="Émojis"
             aria-expanded={emojiOpen}
-            className={`${iconBtn} ${emojiOpen ? "bg-palm-soft" : ""}`}
+            className={`${iconBtn} ${emojiOpen ? "bg-gold-soft" : ""}`}
           >
             <SmileIcon width={22} height={22} />
           </button>
@@ -239,14 +239,14 @@ export function Thread({ peer, initial, backHref = "/messages" }: ThreadProps) {
               rows={1}
               placeholder="Écrivez un message…"
               enterKeyHint="send"
-              className="max-h-32 w-full resize-none rounded-[22px] bg-paper px-4 py-2.5 text-[15px] leading-6 text-graphite placeholder:text-graphite-faint focus:outline-none focus:ring-2 focus:ring-palm/40"
+              className="max-h-32 w-full resize-none rounded-[22px] bg-paper px-4 py-2.5 text-[15px] leading-6 text-graphite placeholder:text-graphite-faint focus:outline-none focus:ring-2 focus:ring-gold/30"
             />
           </label>
           {draft.trim() ? (
             <button
               type="submit"
               aria-label="Envoyer"
-              className={`${styles.sendBtn} grid h-11 w-11 shrink-0 cursor-pointer place-items-center rounded-full bg-palm text-white hover:bg-palm-deep focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-palm focus-visible:ring-offset-2`}
+              className={`${styles.sendBtn} grid h-11 w-11 shrink-0 cursor-pointer place-items-center rounded-full bg-leaf text-white hover:bg-leaf-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold focus-visible:ring-offset-2`}
             >
               <SendIcon width={19} height={19} />
             </button>
