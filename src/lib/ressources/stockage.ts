@@ -41,7 +41,7 @@ export async function existe(chemin: string): Promise<boolean> {
 }
 
 export async function supprimer(chemin: string): Promise<void> {
-  await fs.rm(chemin, { recursive: true, force: true });
+  await fs.rm(chemin, { recursive: true, force: true, maxRetries: 6, retryDelay: 120 });
 }
 
 export async function copierSiExiste(source: string, destination: string): Promise<void> {

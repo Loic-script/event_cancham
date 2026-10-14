@@ -8,6 +8,8 @@ import sharp from "sharp";
 import { MESSAGE_FORMAT, TAILLE_MAX, detecterFormat, tailleLisible, type Detection } from "./formats";
 import { copierSiExiste, deplacer, dossierRessource, dossierTemp, existe, supprimer } from "./stockage";
 
+sharp.cache(false);
+
 export class ErreurRessource extends Error {
   constructor(
     message: string,

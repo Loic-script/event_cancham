@@ -7,6 +7,8 @@ import { indexer } from "./dossiers";
 import { estCategorie, type Categorie } from "./types";
 import { copierSiExiste, dossierImages, dossierRessource, idValide } from "./stockage";
 
+sharp.cache(false);
+
 export const ACTEUR = "Équipe CanCham";
 
 export type MetaRessource = {

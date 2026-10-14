@@ -185,7 +185,14 @@ export async function enregistrerContenu(id: string, brut: unknown): Promise<Res
   const blocs = nettoyerBlocs(brut);
   const utilises = fichiersUtilises(blocs);
   const presents = await listerBlocs(id);
-  for (const nom of presents) if (!utilises.has(nom)) await supprimer(fichierBloc(id, nom));
+  for (const nom of presents) {
+    if (utilises.has(nom)) continue;
+    try {
+      await supprimer(fichierBloc(id, nom));
+    } catch {
+      continue;
+    }
+  }
   const nettoyes = blocs.map((b) => ((b.type === "photo" || b.type === "video") && b.fichier && !presents.includes(b.fichier) ? { ...b, fichier: null } : b));
   let couverture = r.couverture;
   if (!r.couverturePerso) {
