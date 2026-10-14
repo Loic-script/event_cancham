@@ -106,6 +106,10 @@ export function Stories({ admin = false, onCreer }: StoriesProps) {
 
       {s && ouverte !== null ? (
         <div className={styles.voileSt} role="dialog" aria-modal="true" aria-label="Story">
+          <div className={styles.stScene}>
+          <button type="button" onClick={() => montrer(ouverte - 1)} disabled={ouverte === 0} aria-label="Story précédente" className={`${styles.stNav} ${styles.stNavG}`}>
+            <ChevronLeftIcon width={24} height={24} />
+          </button>
           <div key={s.id} className={styles.stCadre} style={{ backgroundImage: `linear-gradient(180deg, rgba(11,26,48,.55) 0%, rgba(11,26,48,0) 28%, rgba(11,26,48,0) 55%, rgba(11,26,48,.9) 100%), url(${s.img})` }}>
             <div className={styles.stBarres} aria-hidden>
               {stories.map((x, k) => (
@@ -138,6 +142,10 @@ export function Stories({ admin = false, onCreer }: StoriesProps) {
                 Supprimer cette story
               </button>
             ) : null}
+          </div>
+          <button type="button" onClick={() => montrer(ouverte + 1)} disabled={ouverte >= stories.length - 1} aria-label="Story suivante" className={`${styles.stNav} ${styles.stNavD}`}>
+            <ChevronRightIcon width={24} height={24} />
+          </button>
           </div>
         </div>
       ) : null}

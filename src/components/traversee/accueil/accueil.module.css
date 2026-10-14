@@ -214,6 +214,7 @@
   inset: 0;
   z-index: 80;
   display: grid;
+  grid-template-columns: minmax(0, 1fr);
   place-items: center;
   padding: 12px;
   background: rgba(5, 12, 22, 0.92);
@@ -309,6 +310,54 @@
   font-size: 24px;
   line-height: 1;
   cursor: pointer;
+}
+
+.stScene {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  max-width: 100%;
+}
+
+.stNav {
+  position: absolute;
+  top: 50%;
+  z-index: 4;
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.16);
+  color: #fff;
+  cursor: pointer;
+  transform: translateY(-50%);
+  backdrop-filter: blur(8px);
+  box-shadow: 0 10px 24px -12px rgba(0, 0, 0, 0.8);
+  transition: background-color 0.2s ease, transform 0.2s ease, opacity 0.2s ease;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.stNav:hover { background: rgba(255, 255, 255, 0.32); }
+.stNav:active { transform: translateY(-50%) scale(0.92); }
+.stNav:focus-visible { outline: 2px solid #fff; outline-offset: 2px; }
+.stNav:disabled { opacity: 0; pointer-events: none; }
+.stNavG { left: 10px; }
+.stNavD { right: 10px; }
+
+@media (min-width: 1024px) {
+  .stNav {
+    position: static;
+    width: 52px;
+    height: 52px;
+    transform: none;
+    background: rgba(255, 255, 255, 0.12);
+  }
+  .stNav:active { transform: scale(0.92); }
+  .stNav:disabled { opacity: 0.18; }
 }
 
 .stZone {
