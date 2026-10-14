@@ -1,9 +1,21 @@
-import { chaineDossiers, type DossierLite } from "./acces";
+export type DossierLite = { id: string; parentId: string | null };
 
 export const PROFONDEUR_MAX = 5;
 
 export function indexer<T extends DossierLite>(dossiers: readonly T[]): Map<string, T> {
   return new Map(dossiers.map((d) => [d.id, d]));
+}
+
+export function chaineDossiers<T extends DossierLite>(dossiers: ReadonlyMap<string, T>, id: string | null): T[] {
+  const chaine: T[] = [];
+  const vus = new Set<string>();
+  let courant = id ? dossiers.get(id) : undefined;
+  while (courant && !vus.has(courant.id)) {
+    vus.add(courant.id);
+    chaine.push(courant);
+    courant = courant.parentId ? dossiers.get(courant.parentId) : undefined;
+  }
+  return chaine;
 }
 
 export function profondeur(dossiers: ReadonlyMap<string, DossierLite>, id: string | null): number {

@@ -1,6 +1,6 @@
 import Link from "next/link";
 import type { CSSProperties, ReactNode } from "react";
-import { ChevronRightIcon, FilmIcon, FolderIcon, FolderLockIcon, LayoutIcon, SearchIcon } from "@/components/app/icons";
+import { ChevronRightIcon, FilmIcon, FolderIcon, LayoutIcon, SearchIcon } from "@/components/app/icons";
 import type { Bibliotheque } from "@/lib/ressources/requetes";
 import { CarteDossierUI, CarteRessourceUI, LigneRessourceUI } from "./Cartes";
 import { imageDossier, lienBibli, type ParamsBibli } from "./liens";
@@ -40,7 +40,7 @@ export function Parcours({ data }: { data: Bibliotheque }) {
   return (
     <>
       <section className={styles.banniere} style={{ "--couv": d.couverture ? `url(${imageDossier(d.id, "couverture")})` : undefined } as CSSProperties}>
-        <small>{d.restreintHerite ? "Dossier réservé" : "Dossier"}</small>
+        <small>Dossier</small>
         <h1>{d.nom}</h1>
         <div className={styles.banniereStats}>
           <span>
@@ -51,12 +51,6 @@ export function Parcours({ data }: { data: Bibliotheque }) {
             <span>
               <FilmIcon width={15} height={15} />
               {videos} vidéo{videos > 1 ? "s" : ""}
-            </span>
-          ) : null}
-          {d.restreintHerite ? (
-            <span>
-              <FolderLockIcon width={15} height={15} />
-              Accès réservé
             </span>
           ) : null}
         </div>
@@ -122,7 +116,7 @@ export function VueBibliotheque({ data, params, base, lienRessource, equipe, act
             <h1>
               Bibliothèque des <em>ressources</em>
             </h1>
-            <p>Guides, modèles, formations et rapports réservés aux membres de la CanCham, à lire dans un lecteur protégé.</p>
+            <p>Guides, modèles, formations et rapports de la CanCham, à consulter en ligne dans un lecteur protégé.</p>
           </div>
           {actionsEntete ? <div className={styles.teteActions}>{actionsEntete}</div> : null}
         </div>
@@ -145,7 +139,7 @@ export function VueBibliotheque({ data, params, base, lienRessource, equipe, act
           </div>
           <div className={styles.dossiers}>
             {data.sousDossiers.map((d, i) => (
-              <CarteDossierUI key={d.id} d={d} lien={lienBibli(base, { ...params, q: "" }, { dossierId: d.id })} equipe={equipe} i={i} />
+              <CarteDossierUI key={d.id} d={d} lien={lienBibli(base, { ...params, q: "" }, { dossierId: d.id })} i={i} />
             ))}
           </div>
         </>
@@ -160,7 +154,7 @@ export function VueBibliotheque({ data, params, base, lienRessource, equipe, act
           {ressourcesUI ?? (
             <div className={styles.vide}>
               {data.recherche ? <SearchIcon /> : <FolderIcon />}
-              <p>{data.recherche ? "Aucune ressource ne correspond à cette recherche." : params.filtre !== "tout" ? "Aucune ressource dans ce filtre." : "Ce dossier ne contient pas encore de ressource."}</p>
+              <p>{data.recherche ? "Aucune ressource ne correspond à cette recherche." : params.filtre !== "tout" ? "Aucune ressource dans cette catégorie." : "Ce dossier ne contient pas encore de ressource."}</p>
             </div>
           )}
         </>
@@ -169,7 +163,7 @@ export function VueBibliotheque({ data, params, base, lienRessource, equipe, act
       {data.sections.map((s) => (
         <section key={s.dossier.id}>
           <div className={styles.titreSection}>
-            {s.dossier.restreint ? <FolderLockIcon width={18} height={18} className="text-leaf-ink" /> : <FolderIcon width={18} height={18} className="text-gold" />}
+            <FolderIcon width={18} height={18} className="text-gold" />
             <h2>{s.dossier.nom}</h2>
             <b>{s.dossier.nbRessources}</b>
             <Link href={lienBibli(base, { ...params, q: "" }, { dossierId: s.dossier.id })} className="ml-auto inline-flex items-center gap-1 text-[13px] font-bold text-gold hover:underline">

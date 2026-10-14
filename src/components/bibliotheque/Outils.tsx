@@ -6,6 +6,7 @@ import { useEffect, useRef, useState, useTransition } from "react";
 import { GridIcon, ListIcon } from "@/components/app/icons";
 import { Recherche } from "@/components/traversee/ui";
 import type { Filtre } from "@/lib/ressources/requetes";
+import { CATEGORIES_PLURIEL, type Categorie } from "@/lib/ressources/types";
 import { lienBibli, type ParamsBibli } from "./liens";
 import styles from "./bibliotheque.module.css";
 
@@ -26,17 +27,14 @@ export function Outils({ base, params, compteurs, dansDossier }: Props) {
     return () => window.clearTimeout(id);
   }, [q, base, params, router]);
 
-  const filtres: { v: Filtre; label: string }[] = [
-    { v: "tout", label: "Tout" },
-    { v: "gratuites", label: "Gratuites" },
-    { v: "payantes", label: "Payantes" },
-  ];
+  const toutes: { v: Filtre; label: string }[] = [{ v: "tout", label: "Tout" }, ...(Object.keys(CATEGORIES_PLURIEL) as Categorie[]).map((c): { v: Filtre; label: string } => ({ v: c, label: CATEGORIES_PLURIEL[c] }))];
+  const filtres = toutes.filter((f) => f.v === "tout" || compteurs[f.v] > 0 || params.filtre === f.v);
   const tri = params.tri === "ordre" && !dansDossier ? "date" : params.tri;
 
   return (
     <div className={styles.outils}>
       <Recherche value={q} onChange={setQ} placeholder="Rechercher un document, un dossier…" label="Rechercher dans la bibliothèque" className={styles.recherche} />
-      <nav className={styles.filtres} aria-label="Filtrer les ressources">
+      <nav className={styles.filtres} aria-label="Filtrer par catégorie">
         {filtres.map((f) => (
           <Link key={f.v} href={lienBibli(base, params, { filtre: f.v })} aria-current={params.filtre === f.v ? "page" : undefined} scroll={false}>
             {f.label}

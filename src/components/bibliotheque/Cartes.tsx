@@ -1,10 +1,10 @@
 import Link from "next/link";
 import type { CSSProperties, ReactNode } from "react";
-import { CalendarIcon, CheckIcon, ChevronRightIcon, FileTextIcon, FilmIcon, FolderIcon, FolderLockIcon, ImageIcon, LayoutIcon, LockIcon } from "@/components/app/icons";
+import { CalendarIcon, CheckIcon, ChevronRightIcon, FileTextIcon, FilmIcon, FolderIcon, ImageIcon, LayoutIcon } from "@/components/app/icons";
 import type { CarteDossier, CarteRessource } from "@/lib/ressources/requetes";
-import { CATEGORIES, FORMATS, actionLecture, dateCourte, prixLisible, type Format } from "@/lib/ressources/types";
+import { CATEGORIES, FORMATS, actionLecture, dateCourte, type Format } from "@/lib/ressources/types";
 import { Btn } from "@/components/traversee/ui";
-import { couvertureRessource } from "./liens";
+import { couvertureRessource, imageDossier } from "./liens";
 import styles from "./bibliotheque.module.css";
 
 export function IconeFormat({ format, ...props }: { format: Format; width?: number; height?: number }) {
@@ -14,7 +14,7 @@ export function IconeFormat({ format, ...props }: { format: Format; width?: numb
   return <FileTextIcon {...props} />;
 }
 
-export function Couverture({ r }: { r: Pick<CarteRessource, "id" | "couverture" | "format" | "titre"> }) {
+export function Couverture({ r }: { r: Pick<CarteRessource, "id" | "couverture" | "format"> }) {
   return r.couverture ? (
     <img src={couvertureRessource(r.id)} alt="" loading="lazy" draggable={false} />
   ) : (
@@ -32,7 +32,6 @@ export function Puces({ r, equipe = false }: { r: CarteRessource; equipe?: boole
   return (
     <div className={styles.meta}>
       <span className={styles.chip}>{CATEGORIES[r.categorie]}</span>
-      {r.type === "payant" ? <span className={`${styles.chip} ${styles.chipPrix}`}>{prixLisible(r.prix)}</span> : <span className={`${styles.chip} ${styles.chipGratuit}`}>Gratuit</span>}
       {equipe && r.fichierManquant ? <span className={`${styles.chip} ${styles.chipManquant}`}>Fichier manquant</span> : null}
       <span>{libelleTaille(r)}</span>
       <time dateTime={new Date(r.date).toISOString()}>
@@ -44,33 +43,27 @@ export function Puces({ r, equipe = false }: { r: CarteRessource; equipe?: boole
 }
 
 export function ActionRessource({ r, lien, small = true }: { r: CarteRessource; lien: string; small?: boolean }) {
-  if (!r.ouverte) {
-    return (
-      <Btn small={small} variant="primary" href={lien}>
-        <LockIcon width={15} height={15} />
-        Acheter
-      </Btn>
-    );
-  }
   return (
     <Btn small={small} variant={r.lue ? "light" : "navy"} href={lien}>
       {r.lue ? <CheckIcon width={15} height={15} /> : null}
-      {r.lue ? "Relire" : actionLecture(r.format)}
+      {r.lue ? "Revoir" : actionLecture(r.format)}
     </Btn>
   );
 }
 
-export function CarteDossierUI({ d, lien, equipe, i }: { d: CarteDossier; lien: string; equipe: boolean; i: number }) {
+export function CarteDossierUI({ d, lien, i }: { d: CarteDossier; lien: string; i: number }) {
   return (
     <Link href={lien} className={styles.dossier} style={{ "--i": Math.min(i, 10) } as CSSProperties}>
-      <span className={`${styles.dossierIco} ${d.restreint ? styles.dossierIcoRestreint : ""}`}>{d.restreint ? <FolderLockIcon /> : <FolderIcon />}</span>
+      <span className={styles.dossierIco} style={d.couverture ? { backgroundImage: `url(${imageDossier(d.id, "couverture")})` } : undefined}>
+        {d.couverture ? null : <FolderIcon />}
+      </span>
       <span className={styles.dossierTexte}>
         <strong>{d.nom}</strong>
         <small>
           {d.nbRessources} ressource{d.nbRessources > 1 ? "s" : ""}
           {d.nbSousDossiers ? ` · ${d.nbSousDossiers} dossier${d.nbSousDossiers > 1 ? "s" : ""}` : ""}
         </small>
-        {d.restreint ? <em>{equipe ? `Réservé à ${d.nbAcces} entreprise${d.nbAcces > 1 ? "s" : ""}` : "Accès réservé"}</em> : null}
+        {d.nbVideos ? <em>{`${d.nbVideos} vidéo${d.nbVideos > 1 ? "s" : ""}`}</em> : null}
       </span>
       <ChevronRightIcon className={styles.dossierFleche} width={18} height={18} />
     </Link>
@@ -86,10 +79,6 @@ export function CarteRessourceUI({ r, lien, i, equipe = false }: { r: CarteResso
         {r.lue ? (
           <span className={styles.badgeLue} title="Terminée">
             <CheckIcon width={16} height={16} strokeWidth={3} />
-          </span>
-        ) : !r.ouverte ? (
-          <span className={styles.badgeVerrou} title="Ressource payante">
-            <LockIcon width={15} height={15} />
           </span>
         ) : null}
       </Link>

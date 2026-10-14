@@ -5,7 +5,6 @@ import path from "node:path";
 import { PrismaPg } from "@prisma/adapter-pg";
 import sharp from "sharp";
 import { PrismaClient } from "../src/generated/prisma/client";
-import { hacherMotDePasse } from "../src/lib/auth/motdepasse";
 import { dureeLecture, premierePhoto, type Bloc } from "../src/lib/ressources/blocs";
 import { pdfSimple, type PagePdf } from "../src/lib/ressources/pdf-simple";
 import { dossierBlocs, dossierImages, dossierRessource, dossierTemp } from "../src/lib/ressources/stockage";
@@ -14,7 +13,6 @@ import { genererCouverture, normaliserImage, traiterEnvoi } from "../src/lib/res
 const adapter = new PrismaPg({ connectionString: process.env.DATABASE_URL });
 const prisma = new PrismaClient({ adapter });
 
-const MOT_DE_PASSE_DEMO = "traversee2026";
 const image = (nom: string) => path.join(process.cwd(), "public", "traversee", `${nom}.jpg`);
 
 async function seedEvenements() {
@@ -39,41 +37,6 @@ async function seedEvenements() {
   });
 }
 
-async function seedComptes() {
-  const membres = [
-    { nom: "Event Studio", secteur: "Événementiel", jusqu: "2027-06-30" },
-    { nom: "Baobab Conseil", secteur: "Conseil", jusqu: "2027-03-31" },
-    { nom: "Zébu Finance", secteur: "Finance", jusqu: "2027-01-31" },
-    { nom: "Hauts Plateaux Textile", secteur: "Textile", jusqu: "2027-02-28" },
-    { nom: "Ravinala Tourisme", secteur: "Tourisme", jusqu: "2027-05-31" },
-    { nom: "Lagon Numérique", secteur: "Numérique", jusqu: "2027-04-30" },
-    { nom: "Atelier Vanille Rouge", secteur: "Agroalimentaire", jusqu: "2027-03-31" },
-    { nom: "Tsara Logistique", secteur: "Logistique", jusqu: "2026-06-30" },
-  ];
-  const ids = new Map<string, string>();
-  for (const m of membres) {
-    const existant = await prisma.membre.findFirst({ where: { nom: m.nom } });
-    const ligne = existant ?? (await prisma.membre.create({ data: { nom: m.nom, secteur: m.secteur, cotisationJusquAu: new Date(`${m.jusqu}T23:59:59Z`) } }));
-    ids.set(m.nom, ligne.id);
-  }
-  const hache = await hacherMotDePasse(MOT_DE_PASSE_DEMO);
-  const comptes = [
-    { email: "tahina@cancham.mg", prenom: "Tahina", nom: "Rakotondrabe", role: "equipe" as const, membre: null },
-    { email: "faneva@eventstudio.mg", prenom: "Faneva", nom: "Loïc", role: "contact" as const, membre: "Event Studio" },
-    { email: "hery.rabe@baobab-conseil.mg", prenom: "Hery", nom: "Rabe", role: "contact" as const, membre: "Baobab Conseil" },
-    { email: "miora.rajao@hauts-plateaux-textile.mg", prenom: "Miora", nom: "Rajao", role: "contact" as const, membre: "Hauts Plateaux Textile" },
-    { email: "tojo.andria@tsara-logistique.mg", prenom: "Tojo", nom: "Andria", role: "contact" as const, membre: "Tsara Logistique" },
-  ];
-  for (const c of comptes) {
-    await prisma.utilisateur.upsert({
-      where: { email: c.email },
-      update: {},
-      create: { email: c.email, prenom: c.prenom, nom: c.nom, role: c.role, motDePasse: hache, membreId: c.membre ? ids.get(c.membre) : null },
-    });
-  }
-  return ids;
-}
-
 async function imageDossier(id: string, source: string, nom: "couverture.jpg" | "auteur.jpg") {
   const dest = path.join(dossierImages(id), nom);
   await fs.mkdir(path.dirname(dest), { recursive: true });
@@ -89,7 +52,7 @@ async function photoBloc(ressourceId: string, source: string): Promise<string> {
   return nom;
 }
 
-type Base = { titre: string; categorie: "guide" | "modele" | "formation" | "rapport"; description: string; type?: "gratuit" | "payant"; prix?: number; dossierId: string | null; ordre: number; date: string };
+type Base = { titre: string; categorie: "guide" | "modele" | "formation" | "rapport"; description: string; dossierId: string | null; ordre: number; date: string };
 
 async function ressourcePdf(b: Base, pages: PagePdf[]) {
   const r = await prisma.ressource.create({ data: { ...cles(b), format: "pdf" } });
@@ -127,7 +90,7 @@ async function ressourcePage(b: Base, construire: (id: string) => Promise<Bloc[]
 }
 
 function cles(b: Base) {
-  return { titre: b.titre, categorie: b.categorie, description: b.description, type: b.type ?? "gratuit", prix: b.type === "payant" ? (b.prix ?? 50000) : 0, dossierId: b.dossierId, ordre: b.ordre, date: new Date(`${b.date}T09:00:00Z`) };
+  return { titre: b.titre, categorie: b.categorie, description: b.description, dossierId: b.dossierId, ordre: b.ordre, date: new Date(`${b.date}T09:00:00Z`) };
 }
 
 const id = () => `b-${randomUUID().slice(0, 12)}`;
@@ -151,13 +114,11 @@ function jourMecc(jour: string, titre: string, lieu: string, adresse: string, ho
   ];
 }
 
-async function seedBibliotheque(membres: Map<string, string>) {
+async function seedBibliotheque() {
   if ((await prisma.ressource.count()) > 0) {
     console.log("Bibliothèque déjà présente : seed ignoré.");
     return;
   }
-  const equipe = "Tahina Rakotondrabe";
-
   const kit = await prisma.dossier.create({ data: { nom: "Kit du participant", ordre: 1 } });
   await prisma.dossier.update({ where: { id: kit.id }, data: { couverture: await imageDossier(kit.id, image("accueil"), "couverture.jpg") } });
 
@@ -193,7 +154,6 @@ async function seedBibliotheque(membres: Map<string, string>) {
   const mecc = await prisma.dossier.create({
     data: {
       nom: "Agenda MECC Digital",
-      restreint: true,
       ordre: 2,
       auteurNom: "Tahina Rakotondrabe",
       auteurRole: "Responsable partenariats, CanCham",
@@ -201,7 +161,6 @@ async function seedBibliotheque(membres: Map<string, string>) {
     },
   });
   await prisma.dossier.update({ where: { id: mecc.id }, data: { couverture: await imageDossier(mecc.id, image("reseau"), "couverture.jpg"), auteurPhoto: await imageDossier(mecc.id, image("oratrice"), "auteur.jpg") } });
-  for (const nom of ["Event Studio", "Baobab Conseil"]) await prisma.accesDossier.create({ data: { dossierId: mecc.id, membreId: membres.get(nom)!, ouvertPar: equipe } });
   const jours = [
     ["Lundi 26 octobre 2026", "Départ de Tana à Montréal", "Aéroport d’Ivato", "Ivato, Antananarivo", "Rendez-vous à 6 h 00", "Départ de la délégation, briefing au comptoir d’enregistrement."],
     ["Mardi 27 octobre 2026", "Arrivée et installation", "Hôtel Le Germain", "2050 Rue Mansfield, Montréal", "Toute la journée", "Installation, remise des badges et briefing d’ouverture de la mission."],
@@ -230,14 +189,13 @@ async function seedBibliotheque(membres: Map<string, string>) {
   const etudes = await prisma.dossier.create({ data: { nom: "Études et rapports", ordre: 3 } });
   await prisma.dossier.update({ where: { id: etudes.id }, data: { couverture: await imageDossier(etudes.id, image("formation"), "couverture.jpg") } });
   await ressourcePdf(
-    { titre: "Guide export Canada 2027", categorie: "rapport", description: "Marchés porteurs, réglementation, logistique et contacts clés pour exporter de Madagascar vers le Canada.", type: "payant", prix: 50000, dossierId: etudes.id, ordre: 1, date: "2026-09-20" },
+    { titre: "Guide export Canada 2027", categorie: "rapport", description: "Marchés porteurs, réglementation, logistique et contacts clés pour exporter de Madagascar vers le Canada.", dossierId: etudes.id, ordre: 1, date: "2026-09-20" },
     ["Sommaire", "Marchés porteurs", "Réglementation", "Logistique", "Financement", "Contacts clés"].map((t, i) => ({ titre: `${i + 1}. ${t}`, lignes: ["Guide export Canada 2027 · Édition membres", `Chapitre ${i + 1} : ${t}.`, "Document réservé : reproduction interdite."] })),
   );
-  const modele = await ressourcePdf(
-    { titre: "Modèle de plan d’affaires export", categorie: "modele", description: "Un modèle prêt à remplir pour présenter votre projet d’export à un partenaire canadien.", type: "payant", prix: 25000, dossierId: etudes.id, ordre: 2, date: "2026-09-28" },
+  await ressourcePdf(
+    { titre: "Modèle de plan d’affaires export", categorie: "modele", description: "Un modèle prêt à remplir pour présenter votre projet d’export à un partenaire canadien.", dossierId: etudes.id, ordre: 2, date: "2026-09-28" },
     ["Résumé du projet", "Marché cible", "Plan d’action"].map((t) => ({ titre: t, lignes: ["Complétez chaque rubrique.", "Une page par rubrique au maximum."] })),
   );
-  await prisma.accesRessource.create({ data: { ressourceId: modele, membreId: membres.get("Baobab Conseil")!, ouvertPar: equipe } });
   await ressourcePage(
     { titre: "Réussir son pitch en 3 minutes", categorie: "formation", description: "Structure, rythme et erreurs à éviter pour convaincre un jury.", dossierId: etudes.id, ordre: 3, date: "2026-10-02" },
     async (rid) => [
@@ -247,11 +205,11 @@ async function seedBibliotheque(membres: Map<string, string>) {
     ],
   );
 
-  const comite = await prisma.dossier.create({ data: { nom: "Comité de pilotage", restreint: true, ordre: 4 } });
+  const comite = await prisma.dossier.create({ data: { nom: "Comité de pilotage", ordre: 4 } });
   const comptesRendus = await prisma.dossier.create({ data: { nom: "Comptes rendus", parentId: comite.id, ordre: 1 } });
   await ressourcePdf(
     { titre: "Compte rendu du 2 octobre 2026", categorie: "rapport", description: "Décisions du comité de pilotage du Gala des 10 ans.", dossierId: comptesRendus.id, ordre: 1, date: "2026-10-02" },
-    [{ titre: "Compte rendu du comité", lignes: ["Budget validé.", "Choix du lieu : CCI Ivato.", "Diffusion restreinte au comité."] }],
+    [{ titre: "Compte rendu du comité", lignes: ["Budget validé.", "Choix du lieu : CCI Ivato.", "Prochaine réunion : 6 novembre 2026."] }],
   );
 
   await ressourcePdf(
@@ -263,9 +221,8 @@ async function seedBibliotheque(membres: Map<string, string>) {
 
 async function main() {
   await seedEvenements();
-  const membres = await seedComptes();
-  await seedBibliotheque(membres);
-  console.log(`Seed terminé. Comptes de démonstration : mot de passe « ${MOT_DE_PASSE_DEMO} ».`);
+  await seedBibliotheque();
+  console.log("Seed terminé.");
 }
 
 main()
