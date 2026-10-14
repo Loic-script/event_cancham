@@ -18,6 +18,7 @@ export type CarteRessource = {
   taille: string | null;
   date: Date;
   couverture: boolean;
+  couverturePerso: boolean;
   dossierId: string | null;
   ordre: number;
   lue: boolean;
@@ -51,7 +52,7 @@ function normaliser(t: string): string {
   return t.normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase();
 }
 
-async function contenuManquant(r: { id: string; format: Format; pages: number; fichier: string | null; contenu: unknown }): Promise<boolean> {
+export async function contenuManquant(r: { id: string; format: Format; pages: number; fichier: string | null; contenu: unknown }): Promise<boolean> {
   if (r.format === "page") return nettoyerBlocs(r.contenu).length === 0;
   if (r.format === "video") return !r.fichier || !(await existe(fichierRessource(r.id, r.fichier)));
   return r.pages < 1 || !(await existe(fichierPage(r.id, 1)));
@@ -60,7 +61,7 @@ async function contenuManquant(r: { id: string; format: Format; pages: number; f
 export async function chargerRessources(ctx: Contexte, verifierFichiers = false): Promise<CarteRessource[]> {
   const [liste, lectures] = await Promise.all([
     prisma.ressource.findMany({
-      select: { id: true, titre: true, description: true, categorie: true, format: true, taille: true, date: true, couverture: true, dossierId: true, ordre: true, pages: true, fichier: true, contenu: verifierFichiers },
+      select: { id: true, titre: true, description: true, categorie: true, format: true, taille: true, date: true, couverture: true, couverturePerso: true, dossierId: true, ordre: true, pages: true, fichier: true, contenu: verifierFichiers },
       orderBy: [{ ordre: "asc" }, { date: "desc" }],
     }),
     ctx.lecteur ? prisma.lectureRessource.findMany({ where: { lecteur: ctx.lecteur }, select: { ressourceId: true } }) : Promise.resolve([]),
@@ -77,6 +78,7 @@ export async function chargerRessources(ctx: Contexte, verifierFichiers = false)
         taille: r.taille,
         date: r.date,
         couverture: Boolean(r.couverture),
+        couverturePerso: r.couverturePerso,
         dossierId: r.dossierId,
         ordre: r.ordre,
         lue: lues.has(r.id),
