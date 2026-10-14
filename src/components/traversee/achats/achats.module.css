@@ -135,7 +135,26 @@
   background: linear-gradient(90deg, #ad0707, #fff 50%, #007140);
 }
 
-.bc svg { width: 140px; height: 140px; border: 1px solid var(--line); border-radius: 8px; }
+.bc > svg { width: 140px; height: 140px; border: 1px solid var(--line); border-radius: 8px; }
+
+.bParticipant {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  min-width: 0;
+}
+
+.bAvatar {
+  flex: none;
+  border-radius: 50%;
+  box-shadow: 0 0 0 3px var(--surface), 0 0 0 5px var(--leaf), 0 14px 28px -14px rgba(15, 29, 44, 0.5);
+}
+
+@media (max-width: 560px) {
+  .bParticipant { align-items: flex-start; }
+  .bt { grid-template-columns: minmax(0, 1fr); }
+  .bt img { grid-column: 1; grid-row: 1; justify-self: start; height: 40px; margin-bottom: 8px; }
+}
 
 @media (max-width: 560px) {
   .bc { grid-template-columns: minmax(0, 1fr); justify-items: start; }

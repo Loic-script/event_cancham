@@ -1,5 +1,6 @@
 "use client";
 
+import { Avatar } from "@/components/app/Avatar";
 import { DownloadIcon } from "@/components/app/icons";
 import { useProfile } from "@/components/profile/useProfile";
 import { QrCode } from "@/components/ticket/QrCode";
@@ -24,18 +25,29 @@ export function BilletCard() {
       </div>
       <div className={styles.bc}>
         <QrCode value={currentUser.ticket.code} size={140} />
-        <div>
-          <Sur className="!mb-1.5">Participant</Sur>
-          <h3 className="font-display text-[22px] text-graphite">{fullName(me)}</h3>
-          <p className="font-semibold text-graphite">{me.company || "Entreprise à renseigner"}</p>
-          <p className="text-graphite-muted">{me.role || "Rôle à renseigner"}</p>
-          {table ? (
-            <p className="mt-2.5">
-              <Puce>
-                Table {table} · chaise {(siege ?? 0) + 1}
-              </Puce>
+        <div className={styles.bParticipant}>
+          <span className={styles.bAvatar}>
+            <Avatar person={me} size={68} />
+          </span>
+          <div className="min-w-0">
+            <Sur className="!mb-1.5">Participant</Sur>
+            <h3 className="font-display text-[22px] text-graphite">
+              {fullName(me)}
+            </h3>
+            <p className="font-semibold text-graphite">
+              {me.company || "Entreprise à renseigner"}
             </p>
-          ) : null}
+            <p className="text-graphite-muted">
+              {me.role || "Rôle à renseigner"}
+            </p>
+            {table ? (
+              <p className="mt-2.5">
+                <Puce>
+                  Table {table} · chaise {(siege ?? 0) + 1}
+                </Puce>
+              </p>
+            ) : null}
+          </div>
         </div>
       </div>
     </div>
@@ -52,7 +64,9 @@ export function BilletModal({ onClose }: { onClose: () => void }) {
           <DownloadIcon width={16} height={16} />
           Afficher et télécharger
         </Btn>
-        {!profilComplet(me) ? <Btn href="/profil">Compléter mon profil</Btn> : null}
+        {!profilComplet(me) ? (
+          <Btn href="/profil">Compléter mon profil</Btn>
+        ) : null}
         <Btn onClick={onClose}>Fermer</Btn>
       </div>
     </Modal>
