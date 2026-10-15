@@ -15,6 +15,7 @@ import { Avatar } from "./Avatar";
 import {
   ArmchairIcon,
   BellIcon,
+  CameraIcon,
   BookIcon,
   CalendarDaysIcon,
   CartIcon,
@@ -31,6 +32,7 @@ import {
   QrIcon,
   TrophyIcon,
   UsersIcon,
+  VideoIcon,
   type IconProps,
 } from "./icons";
 import styles from "./shell.module.css";
@@ -56,6 +58,13 @@ const NAV: NavSection[] = [
       { href: "/annuaire", label: "Annuaire", icon: ContactsIcon },
       { href: "/messages", label: "Messagerie", icon: MessageCircleIcon },
       { href: "/ressources", label: "Ressources", icon: FolderIcon },
+    ],
+  },
+  {
+    titre: "Souvenirs",
+    items: [
+      { href: "/photos", label: "Photos et vidéos", icon: CameraIcon },
+      { href: "/livre", label: "Livre d’or vidéo", icon: VideoIcon },
     ],
   },
 ];
