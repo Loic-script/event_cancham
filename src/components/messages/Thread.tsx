@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useCallback, useEffect, useRef, useState, type FormEvent, type KeyboardEvent } from "react";
 import { Avatar } from "@/components/app/Avatar";
-import { ArrowLeftIcon, CheckIcon, InfoIcon, MicIcon, PhoneIcon, SendIcon, SmileIcon, TrashIcon, VideoIcon } from "@/components/app/icons";
+import { ArrowLeftIcon, CheckIcon, InfoIcon, MicIcon, SendIcon, SmileIcon, TrashIcon, XIcon } from "@/components/app/icons";
 import { EmojiPicker } from "./EmojiPicker";
 import { useVoiceRecorder, type VoiceNote } from "./useVoiceRecorder";
 import { VoiceBubble } from "./VoiceBubble";
@@ -19,7 +19,7 @@ export type ThreadMessage = {
 };
 
 type ThreadProps = {
-  peer: { firstName: string; lastName: string; name: string; hue: number; online?: boolean; role: string; company: string };
+  peer: { firstName: string; lastName: string; name: string; hue: number; online?: boolean; role: string; company: string; sector?: string; city?: string; country?: string; bio?: string };
   initial: ThreadMessage[];
   backHref?: string;
 };
@@ -48,6 +48,9 @@ export function Thread({ peer, initial, backHref = "/messages" }: ThreadProps) {
   const [typing, setTyping] = useState(false);
   const [emojiOpen, setEmojiOpen] = useState(false);
   const [toast, setToast] = useState<string | null>(null);
+  const [infoOpen, setInfoOpen] = useState(false);
+  const infoBtnRef = useRef<HTMLButtonElement | null>(null);
+  const infoCloseRef = useRef<HTMLButtonElement | null>(null);
 
   const endRef = useRef<HTMLDivElement | null>(null);
   const inputRef = useRef<HTMLTextAreaElement | null>(null);
@@ -57,6 +60,20 @@ export function Thread({ peer, initial, backHref = "/messages" }: ThreadProps) {
   useEffect(() => {
     endRef.current?.scrollIntoView({ block: "end" });
   }, [messages, typing]);
+
+  useEffect(() => {
+    if (!infoOpen) return;
+    const bouton = infoBtnRef.current;
+    infoCloseRef.current?.focus();
+    const onKey = (e: globalThis.KeyboardEvent) => {
+      if (e.key === "Escape") setInfoOpen(false);
+    };
+    window.addEventListener("keydown", onKey);
+    return () => {
+      window.removeEventListener("keydown", onKey);
+      bouton?.focus();
+    };
+  }, [infoOpen]);
 
   useEffect(() => {
     const pending = timers.current;
@@ -139,15 +156,17 @@ export function Thread({ peer, initial, backHref = "/messages" }: ThreadProps) {
           <p className="truncate text-[15px] font-semibold leading-tight text-graphite">{peer.name}</p>
           <p className="truncate text-[12px] text-graphite-muted">{peer.online ? "En ligne" : `${peer.role} · ${peer.company}`}</p>
         </div>
-        {[
-          { icon: PhoneIcon, label: "Appeler" },
-          { icon: VideoIcon, label: "Appel vidéo" },
-          { icon: InfoIcon, label: "Informations" },
-        ].map((a) => (
-          <button key={a.label} type="button" aria-label={a.label} className="grid h-10 w-10 cursor-pointer place-items-center rounded-full text-gold hover:bg-gold-soft focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold">
-            <a.icon width={20} height={20} />
-          </button>
-        ))}
+        <button
+          ref={infoBtnRef}
+          type="button"
+          aria-label={`Informations sur ${peer.name}`}
+          aria-expanded={infoOpen}
+          aria-controls="thread-info"
+          onClick={() => setInfoOpen((v) => !v)}
+          className={`grid h-10 w-10 cursor-pointer place-items-center rounded-full text-gold hover:bg-gold-soft focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold ${infoOpen ? "bg-gold-soft" : ""}`}
+        >
+          <InfoIcon width={20} height={20} />
+        </button>
       </header>
 
       <div className={styles.scroll}>
@@ -262,6 +281,50 @@ export function Thread({ peer, initial, backHref = "/messages" }: ThreadProps) {
         <p role="status" className="fixed bottom-24 left-1/2 z-[60] -translate-x-1/2 rounded-full border border-line bg-elevated px-4 py-2.5 text-[13px] font-semibold text-graphite shadow-lg">
           {toast}
         </p>
+      ) : null}
+
+      {infoOpen ? (
+        <>
+          <div className={styles.infoScrim} onClick={() => setInfoOpen(false)} aria-hidden />
+          <aside id="thread-info" className={styles.infoPanel} role="dialog" aria-modal="true" aria-label={`Informations sur ${peer.name}`}>
+            <div className={styles.infoHead}>
+              <p className="font-display text-[15px] text-graphite">Informations</p>
+              <button ref={infoCloseRef} type="button" onClick={() => setInfoOpen(false)} aria-label="Fermer les informations" className="grid h-10 w-10 cursor-pointer place-items-center rounded-full text-graphite-muted hover:bg-gold-soft hover:text-graphite focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold">
+                <XIcon width={20} height={20} />
+              </button>
+            </div>
+            <div className={styles.infoIdentite}>
+              <Avatar person={peer} size={88} presence />
+              <p className="font-display text-[1.2rem] leading-tight text-graphite">{peer.name}</p>
+              <p className="text-[13px] text-graphite-muted">{[peer.role, peer.company].filter(Boolean).join(" · ")}</p>
+              <span className={`${styles.infoStatut} ${peer.online ? styles.infoStatutOn : ""}`}>
+                <i aria-hidden />
+                {peer.online ? "En ligne" : "Hors ligne"}
+              </span>
+            </div>
+            <dl className={styles.infoListe}>
+              {[
+                ["Entreprise", peer.company],
+                ["Fonction", peer.role],
+                ["Secteur", peer.sector],
+                ["Ville", [peer.city, peer.country].filter(Boolean).join(", ")],
+              ]
+                .filter(([, v]) => v)
+                .map(([label, valeur]) => (
+                  <div key={label}>
+                    <dt>{label}</dt>
+                    <dd>{valeur}</dd>
+                  </div>
+                ))}
+            </dl>
+            {peer.bio ? (
+              <div className={styles.infoBio}>
+                <p className="font-mono text-[10.5px] uppercase tracking-[0.16em] text-graphite-faint">À propos</p>
+                <p className="mt-1.5 text-[14px] leading-relaxed text-graphite">{peer.bio}</p>
+              </div>
+            ) : null}
+          </aside>
+        </>
       ) : null}
     </section>
   );

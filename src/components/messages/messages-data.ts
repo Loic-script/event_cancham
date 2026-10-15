@@ -39,7 +39,19 @@ export function threadData(id: string) {
     seen: m.seen,
   }));
   return {
-    peer: { firstName: p.firstName, lastName: p.lastName, name: fullName(p), hue: p.hue, online: p.online, role: p.role, company: p.company },
+    peer: {
+      firstName: p.firstName,
+      lastName: p.lastName,
+      name: fullName(p),
+      hue: p.hue,
+      online: p.online,
+      role: p.role,
+      company: p.company,
+      sector: p.sector,
+      city: p.city,
+      country: p.country === "CA" ? "Canada" : "Madagascar",
+      bio: p.bio,
+    },
     messages,
   };
 }
