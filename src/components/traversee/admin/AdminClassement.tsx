@@ -7,7 +7,7 @@ import { fullName } from "@/lib/mock/data";
 import { parseSocialLink } from "@/lib/social/links";
 import { candidaturesTombola } from "@/lib/traversee/pitchs";
 import { journaliser, setTraversee, toast, useTraversee } from "@/lib/traversee/store";
-import { Modal } from "../Modal";
+import { Confirmer } from "../Confirmer";
 import { Classement, LienPublication, type EntreeClassement } from "../defis/Classement";
 import cl from "../defis/classement.module.css";
 import { useLive } from "../defis/live";
@@ -157,22 +157,9 @@ export function AdminClassement() {
       ) : null}
 
       {aRetirer ? (
-        <Modal onClose={() => setARetirer(null)} label="Retirer la publication" size="narrow">
-          <div className={styles.confirme}>
-            <span className={styles.confirmeIcone}>
-              <TrashIcon width={24} height={24} />
-            </span>
-            <h3>Retirer la publication de {aRetirer.nom} ?</h3>
-            <p>Elle disparaît du classement du Défi 2, ici comme dans l’espace participant. Vous pourrez la rétablir à tout moment.</p>
-            <div className={styles.confirmeBoutons}>
-              <Btn onClick={() => setARetirer(null)}>Annuler</Btn>
-              <button type="button" className={styles.btnRetirer} onClick={() => retirer(aRetirer)}>
-                <TrashIcon width={16} height={16} />
-                Retirer du classement
-              </button>
-            </div>
-          </div>
-        </Modal>
+        <Confirmer titre={`Retirer la publication de ${aRetirer.nom} ?`} action="Retirer du classement" onConfirmer={() => retirer(aRetirer)} onClose={() => setARetirer(null)}>
+          <p>Elle disparaît du classement du Défi 2, ici comme dans l’espace participant. Vous pourrez la rétablir à tout moment.</p>
+        </Confirmer>
       ) : null}
     </>
   );

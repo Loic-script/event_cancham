@@ -48,3 +48,26 @@ export async function modifierParticipant(userId: number, fiche: Fiche): Promise
   revalidatePath("/annuaire");
   return { error: null };
 }
+
+export async function supprimerParticipant(userId: number): Promise<{ error: string | null }> {
+  const admin = await getCurrentUser();
+  if (!admin || admin.acces !== "ADMIN") return { error: "Action réservée aux administrateurs." };
+  if (admin.id === userId) return { error: "Vous ne pouvez pas supprimer votre propre compte." };
+
+  const cible = await prisma.user.findUnique({ where: { id: userId }, select: { acces: true } });
+  if (!cible) return { error: "Ce participant n’existe plus." };
+  if (cible.acces === "ADMIN") return { error: "Ce compte est administrateur : retirez d’abord ses droits depuis la page Administrateurs." };
+
+  try {
+    await prisma.user.delete({ where: { id: userId } });
+  } catch (error) {
+    if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === "P2025") {
+      return { error: "Ce participant n’existe plus." };
+    }
+    throw error;
+  }
+
+  revalidatePath("/admin/participants");
+  revalidatePath("/annuaire");
+  return { error: null };
+}
