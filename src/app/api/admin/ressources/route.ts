@@ -5,11 +5,14 @@ import { json } from "@/lib/ressources/servir";
 import { dossierRessource, supprimer } from "@/lib/ressources/stockage";
 import { lireEnteteJson, nomFichierEntete } from "@/lib/ressources/televersement";
 import { ErreurRessource, recevoirFlux, traiterEnvoi } from "@/lib/ressources/traitement";
+import { refusSiNonAdmin } from "@/lib/session";
 
 export const dynamic = "force-dynamic";
 export const maxDuration = 900;
 
 export async function POST(req: Request) {
+  const refus = await refusSiNonAdmin();
+  if (refus) return refus;
   const meta = await validerMeta(lireEnteteJson(req.headers.get("x-meta")));
   if (!meta.ok) return json(400, { ok: false, message: meta.message });
   const nom = nomFichierEntete(req.headers.get("x-nom-fichier"));

@@ -2,6 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/prisma";
+import { estAdmin } from "@/lib/session";
 import { arbreDossiers, dupliquerDossier, dupliquerRessource, journaliser, prochainOrdre, prochainOrdreDossier, validerMeta } from "@/lib/ressources/admin";
 import { dureeLecture, fichiersUtilises, nettoyerBlocs, premierePhoto } from "@/lib/ressources/blocs";
 import { verifierCreation, verifierDeplacement } from "@/lib/ressources/dossiers";
@@ -10,6 +11,8 @@ import { genererCouverture } from "@/lib/ressources/traitement";
 import path from "node:path";
 
 export type Resultat = { ok: true; id?: string; message?: string } | { ok: false; message: string };
+
+const NON_ADMIN: Resultat = { ok: false, message: "Action réservée aux administrateurs." };
 
 function rafraichir() {
   revalidatePath("/ressources", "layout");
@@ -28,6 +31,7 @@ function parentDe(v: unknown): string | null | "invalide" {
 }
 
 export async function creerDossier(d: DonneesDossier): Promise<Resultat> {
+  if (!(await estAdmin())) return NON_ADMIN;
   const nom = texte(d.nom, 120);
   if (!nom) return { ok: false, message: "Le nom du dossier est obligatoire." };
   const parentId = parentDe(d.parentId);
@@ -45,6 +49,7 @@ export async function creerDossier(d: DonneesDossier): Promise<Resultat> {
 }
 
 export async function modifierDossier(id: string, d: DonneesDossier): Promise<Resultat> {
+  if (!(await estAdmin())) return NON_ADMIN;
   if (!idValide(id)) return { ok: false, message: "Dossier introuvable." };
   const actuel = await prisma.dossier.findUnique({ where: { id }, select: { parentId: true } });
   if (!actuel) return { ok: false, message: "Dossier introuvable." };
@@ -66,6 +71,7 @@ export async function modifierDossier(id: string, d: DonneesDossier): Promise<Re
 }
 
 export async function supprimerDossier(id: string): Promise<Resultat> {
+  if (!(await estAdmin())) return NON_ADMIN;
   if (!idValide(id)) return { ok: false, message: "Dossier introuvable." };
   const d = await prisma.dossier.findUnique({ where: { id }, select: { nom: true, parentId: true } });
   if (!d) return { ok: false, message: "Dossier introuvable." };
@@ -85,6 +91,7 @@ export async function supprimerDossier(id: string): Promise<Resultat> {
 }
 
 export async function creerPage(meta: unknown): Promise<Resultat> {
+  if (!(await estAdmin())) return NON_ADMIN;
   const m = await validerMeta(meta);
   if (!m.ok) return { ok: false, message: m.message };
   const r = await prisma.ressource.create({ data: { ...m.valeur, format: "page", contenu: [], taille: "1 min de lecture", ordre: await prochainOrdre(m.valeur.dossierId) }, select: { id: true } });
@@ -94,6 +101,7 @@ export async function creerPage(meta: unknown): Promise<Resultat> {
 }
 
 export async function modifierRessource(id: string, meta: unknown): Promise<Resultat> {
+  if (!(await estAdmin())) return NON_ADMIN;
   if (!idValide(id)) return { ok: false, message: "Ressource introuvable." };
   const actuel = await prisma.ressource.findUnique({ where: { id }, select: { dossierId: true } });
   if (!actuel) return { ok: false, message: "Ressource introuvable." };
@@ -107,6 +115,7 @@ export async function modifierRessource(id: string, meta: unknown): Promise<Resu
 }
 
 export async function supprimerRessources(ids: string[]): Promise<Resultat> {
+  if (!(await estAdmin())) return NON_ADMIN;
   const valides = ids.filter(idValide);
   if (!valides.length) return { ok: false, message: "Aucune ressource sélectionnée." };
   const liste = await prisma.ressource.findMany({ where: { id: { in: valides } }, select: { id: true, titre: true } });
@@ -118,6 +127,7 @@ export async function supprimerRessources(ids: string[]): Promise<Resultat> {
 }
 
 export async function reordonner(dossierId: string | null, ids: string[]): Promise<Resultat> {
+  if (!(await estAdmin())) return NON_ADMIN;
   if (dossierId !== null && !idValide(dossierId)) return { ok: false, message: "Dossier introuvable." };
   const valides = ids.filter(idValide);
   const presentes = await prisma.ressource.findMany({ where: { id: { in: valides }, dossierId }, select: { id: true } });
@@ -128,6 +138,7 @@ export async function reordonner(dossierId: string | null, ids: string[]): Promi
 }
 
 export async function coller(presse: { mode: "couper" | "copier"; ressources: string[]; dossiers: string[] }, destination: string | null): Promise<Resultat> {
+  if (!(await estAdmin())) return NON_ADMIN;
   if (destination !== null && (!idValide(destination) || !(await prisma.dossier.findUnique({ where: { id: destination }, select: { id: true } })))) {
     return { ok: false, message: "Dossier de destination introuvable." };
   }
@@ -179,6 +190,7 @@ export async function coller(presse: { mode: "couper" | "copier"; ressources: st
 }
 
 export async function enregistrerContenu(id: string, brut: unknown): Promise<Resultat> {
+  if (!(await estAdmin())) return NON_ADMIN;
   if (!idValide(id)) return { ok: false, message: "Ressource introuvable." };
   const r = await prisma.ressource.findUnique({ where: { id }, select: { format: true, couverturePerso: true, couverture: true } });
   if (!r || r.format !== "page") return { ok: false, message: "Page introuvable." };

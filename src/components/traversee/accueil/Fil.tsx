@@ -47,6 +47,11 @@ export function Fil({ admin = false }: { admin?: boolean }) {
           <img className={styles.une} src={p.img} alt="" />
         </div>
       ) : null}
+      {p.video ? (
+        <div className={styles.media}>
+          <video className={styles.une} src={p.video} controls playsInline preload="metadata" />
+        </div>
+      ) : null}
       <footer>
         <Reactions id={p.id} n={0} c={0} />
         <Btn

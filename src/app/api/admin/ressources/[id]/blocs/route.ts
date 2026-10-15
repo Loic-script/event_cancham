@@ -5,11 +5,14 @@ import { detecterFormat } from "@/lib/ressources/formats";
 import { json } from "@/lib/ressources/servir";
 import { deplacer, fichierBloc, idValide, supprimer } from "@/lib/ressources/stockage";
 import { ErreurRessource, normaliserImage, recevoirFlux } from "@/lib/ressources/traitement";
+import { refusSiNonAdmin } from "@/lib/session";
 
 export const dynamic = "force-dynamic";
 export const maxDuration = 900;
 
 export async function POST(req: NextRequest, ctx: RouteContext<"/api/admin/ressources/[id]/blocs">) {
+  const refus = await refusSiNonAdmin();
+  if (refus) return refus;
   const { id } = await ctx.params;
   if (!idValide(id)) return json(404, { ok: false, message: "Ressource introuvable." });
   const r = await prisma.ressource.findUnique({ where: { id }, select: { format: true } });
