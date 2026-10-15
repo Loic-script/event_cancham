@@ -289,71 +289,6 @@
   .latOuvert .item { animation-name: itemIn2; }
 }
 
-.moi {
-  position: relative;
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  margin: 8px 12px 6px;
-  padding: 10px 12px;
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  border-radius: 14px;
-  background: rgba(255, 255, 255, 0.06);
-  color: #fff;
-  text-decoration: none;
-  backdrop-filter: blur(6px);
-  transition: background-color 0.25s ease, border-color 0.25s ease, transform 0.3s cubic-bezier(0.2, 0.8, 0.2, 1), box-shadow 0.3s ease;
-}
-
-.moi::after {
-  content: "";
-  flex: none;
-  width: 8px;
-  height: 8px;
-  margin-left: auto;
-  border-right: 2px solid rgba(255, 255, 255, 0.55);
-  border-bottom: 2px solid rgba(255, 255, 255, 0.55);
-  transform: rotate(-45deg);
-  transition: transform 0.3s cubic-bezier(0.2, 0.8, 0.2, 1), border-color 0.25s ease;
-}
-
-.moi > :first-child {
-  flex: none;
-  border-radius: 50%;
-  box-shadow: 0 0 0 2px #0f1d2c, 0 0 0 4px var(--leaf);
-}
-
-.moi:hover {
-  background: rgba(255, 255, 255, 0.1);
-  border-color: rgba(242, 107, 29, 0.45);
-  transform: translateY(-2px);
-  box-shadow: 0 16px 30px -18px rgba(0, 0, 0, 0.8);
-}
-
-.moi:hover::after { transform: translateX(3px) rotate(-45deg); border-color: #ffb27a; }
-.moi strong { display: block; font-size: 13.5px; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.moi small { display: block; font-size: 12px; color: rgba(255, 255, 255, 0.7); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-
-.sortir {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  margin: 0 12px 12px;
-  padding: 9px 12px;
-  border: 1px solid transparent;
-  border-radius: 12px;
-  background: none;
-  color: rgba(255, 255, 255, 0.72);
-  font-size: 13px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: background-color 0.25s ease, color 0.2s ease, border-color 0.25s ease;
-}
-
-.sortir:hover { background: rgba(224, 36, 94, 0.14); border-color: rgba(224, 36, 94, 0.3); color: #fff; }
-.sortir svg { width: 18px; height: 18px; transition: transform 0.3s cubic-bezier(0.2, 0.8, 0.2, 1); }
-.sortir:hover svg { transform: translateX(3px); color: #ff8fb0; }
-
 .fond {
   position: fixed;
   inset: 0;
@@ -633,7 +568,7 @@ body:has([role="dialog"]) .aide {
 .listeAnn time { font-size: 12px; color: var(--graphite-faint); }
 
 @media (prefers-reduced-motion: reduce) {
-  .lat::before, .logo small::before, .item b, .itemOn, .item, .item svg, .moi, .sortir svg { animation: none; transition: none; }
+  .lat::before, .logo small::before, .item b, .itemOn, .item, .item svg { animation: none; transition: none; }
   .lat, .item, .item svg, .aide, .page, .cloche b, .fond {
     animation: none;
     transition: none;

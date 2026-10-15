@@ -1,0 +1,135 @@
+.zone {
+  position: relative;
+  flex: none;
+}
+
+.declencheur {
+  position: relative;
+  display: grid;
+  place-items: center;
+  padding: 2px;
+  border: 0;
+  border-radius: 50%;
+  background: transparent;
+  cursor: pointer;
+  transition: transform 0.2s ease, box-shadow 0.25s ease;
+}
+
+.declencheur:hover { box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.18); }
+.declencheur:active { transform: scale(0.95); }
+.declencheur:focus-visible { outline: 2px solid var(--leaf); outline-offset: 2px; }
+.actif { box-shadow: 0 0 0 3px var(--leaf); }
+
+.chevron {
+  position: absolute;
+  right: -2px;
+  bottom: -2px;
+  display: grid;
+  place-items: center;
+  width: 18px;
+  height: 18px;
+  border: 2px solid #0f1d2c;
+  border-radius: 50%;
+  background: #e8eef6;
+  color: #12305a;
+  transition: transform 0.25s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+.actif .chevron { transform: rotate(180deg); }
+
+.panneau {
+  position: absolute;
+  top: calc(100% + 12px);
+  right: 0;
+  z-index: 80;
+  display: grid;
+  gap: 2px;
+  width: 320px;
+  max-width: calc(100vw - 24px);
+  padding: 8px;
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  background: var(--surface);
+  color: var(--graphite);
+  box-shadow: 0 2px 6px rgba(15, 29, 44, 0.08), 0 28px 50px -24px rgba(15, 29, 44, 0.55);
+  transform-origin: top right;
+  animation: ouvre 0.22s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+}
+
+@keyframes ouvre {
+  from { opacity: 0; transform: translateY(-6px) scale(0.96); }
+  to { opacity: 1; transform: none; }
+}
+
+.carte {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px;
+  border-radius: 12px;
+  color: var(--graphite);
+  text-decoration: none;
+  box-shadow: 0 1px 0 var(--line);
+  transition: background-color 0.2s ease;
+}
+
+.carte:hover { background: var(--paper); }
+.carte strong { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 15px; font-weight: 800; }
+.carte small { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 12.5px; color: var(--graphite-muted); }
+.carte em { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 12px; font-style: normal; color: var(--graphite-faint); }
+.fleche { flex: none; color: var(--graphite-faint); transition: transform 0.2s ease; }
+.carte:hover .fleche { transform: translateX(3px); color: var(--leaf-ink); }
+
+.badge {
+  justify-self: start;
+  margin: 6px 10px 2px;
+  padding: 3px 10px;
+  border-radius: 999px;
+  background: var(--gold-soft);
+  color: var(--gold);
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.separateur { height: 1px; margin: 6px 4px; background: var(--line); }
+
+.option {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  padding: 8px 10px;
+  border: 0;
+  border-radius: 10px;
+  background: transparent;
+  color: var(--graphite);
+  font-size: 14.5px;
+  font-weight: 600;
+  text-align: left;
+  text-decoration: none;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.option:hover, .option:focus-visible { background: var(--paper); outline: none; }
+
+.icone {
+  display: grid;
+  flex: none;
+  place-items: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: var(--paper);
+  color: var(--gold);
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+.option:hover .icone { background: var(--gold-soft); }
+.sortir:hover .icone { background: #fff1f4; color: #c0174d; }
+
+@media (prefers-reduced-motion: reduce) {
+  .panneau, .chevron { animation: none; transition: none; }
+}

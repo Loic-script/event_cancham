@@ -3,16 +3,13 @@
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useMemo, useState, type FormEvent, type ReactNode } from "react";
-import { logout } from "@/app/connexion/actions";
-import { useProfile, useSessionIdentity } from "@/components/profile/useProfile";
 import { AnnonceCard } from "@/components/traversee/AnnonceCard";
 import { Modal } from "@/components/traversee/Modal";
 import { Toaster } from "@/components/traversee/Toaster";
 import { Puce } from "@/components/traversee/ui";
 import { LOGO_BLANC, TYPES_ANNONCE, heureAnn } from "@/lib/traversee/data";
 import { setTraversee, useTraversee } from "@/lib/traversee/store";
-import { fullName } from "@/lib/mock/data";
-import { Avatar } from "./Avatar";
+import { MenuCompte } from "./MenuCompte";
 import {
   ArmchairIcon,
   BellIcon,
@@ -26,7 +23,6 @@ import {
   HeadsetIcon,
   HomeIcon,
   ImageIcon,
-  LogOutIcon,
   MegaphoneIcon,
   MenuIcon,
   MessageCircleIcon,
@@ -123,8 +119,6 @@ function isActive(pathname: string, href: string) {
 export function AppShell({ children }: { children: ReactNode }) {
   const pathname = usePathname();
   const router = useRouter();
-  const me = useProfile();
-  const session = useSessionIdentity();
   const state = useTraversee();
   const [ouvert, setOuvert] = useState(false);
   const [cloche, setCloche] = useState(false);
@@ -199,23 +193,6 @@ export function AppShell({ children }: { children: ReactNode }) {
             </div>
           ) : null}
         </nav>
-        <Link href={admin ? "/admin" : "/profil"} className={styles.moi}>
-          {admin ? (
-            <span className="grid h-[38px] w-[38px] flex-none place-items-center rounded-full bg-white font-display text-[14px] text-gold">CC</span>
-          ) : (
-            <Avatar person={me} size={38} />
-          )}
-          <div className="min-w-0">
-            <strong>{admin ? (session ? `${session.firstName} ${session.lastName}` : "Équipe CanCham") : fullName(me)}</strong>
-            <small>{admin ? "Administration" : me.company || "Compléter mon profil"}</small>
-          </div>
-        </Link>
-        <form action={logout} className="contents">
-          <button type="submit" className={styles.sortir}>
-            <LogOutIcon />
-            Se déconnecter
-          </button>
-        </form>
       </aside>
       {ouvert ? <div className={styles.fond} onClick={() => setOuvert(false)} aria-hidden /> : null}
 
@@ -251,6 +228,7 @@ export function AppShell({ children }: { children: ReactNode }) {
               <BellIcon />
               {!admin && nonVues.length ? <b>{nonVues.length}</b> : null}
             </button>
+            <MenuCompte admin={admin} />
           </header>
         ) : null}
 
