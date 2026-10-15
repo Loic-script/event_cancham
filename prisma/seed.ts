@@ -5,6 +5,7 @@ import path from "node:path";
 import { PrismaPg } from "@prisma/adapter-pg";
 import sharp from "sharp";
 import { PrismaClient } from "../src/generated/prisma/client";
+import { hashPassword } from "../src/lib/password";
 import { dureeLecture, premierePhoto, type Bloc } from "../src/lib/ressources/blocs";
 import { pdfSimple, type PagePdf } from "../src/lib/ressources/pdf-simple";
 import { dossierBlocs, dossierImages, dossierRessource, dossierTemp } from "../src/lib/ressources/stockage";
@@ -13,9 +14,52 @@ import { genererCouverture, normaliserImage, traiterEnvoi } from "../src/lib/res
 const adapter = new PrismaPg({ connectionString: process.env.DATABASE_URL });
 const prisma = new PrismaClient({ adapter });
 
+const DEMO_EMAIL = "faneva.loic@event-studio.mg";
+const DEMO_PASSWORD = "LaTraversee2026!";
+
+const TEST_ACCOUNTS = [
+  { email: "membre@gmail.com", password: "12345678", firstName: "Membre", lastName: "Test", acces: "MEMBRE" },
+  { email: "admin@gmail.com", password: "12345678", firstName: "Admin", lastName: "CanCham", acces: "ADMIN" },
+] as const;
+
+async function seedComptes() {
+  await prisma.user.upsert({
+    where: { email: DEMO_EMAIL },
+    update: {},
+    create: {
+      email: DEMO_EMAIL,
+      passwordHash: await hashPassword(DEMO_PASSWORD),
+      firstName: "Faneva",
+      lastName: "Loïc",
+      role: "Fondateur",
+      company: "Event Studio",
+      city: "Antananarivo",
+      country: "MG",
+    },
+  });
+
+  for (const account of TEST_ACCOUNTS) {
+    const passwordHash = await hashPassword(account.password);
+    await prisma.user.upsert({
+      where: { email: account.email },
+      update: { passwordHash, acces: account.acces },
+      create: {
+        email: account.email,
+        passwordHash,
+        firstName: account.firstName,
+        lastName: account.lastName,
+        acces: account.acces,
+      },
+    });
+  }
+  console.log(`Comptes à jour : ${DEMO_EMAIL}, ${TEST_ACCOUNTS.map((a) => a.email).join(", ")}.`);
+}
+
 const image = (nom: string) => path.join(process.cwd(), "public", "traversee", `${nom}.jpg`);
 
 async function seedEvenements() {
+  if ((await prisma.event.count()) > 0) return;
+
   await prisma.event.createMany({
     data: [
       {
@@ -220,6 +264,7 @@ async function seedBibliotheque() {
 }
 
 async function main() {
+  await seedComptes();
   await seedEvenements();
   await seedBibliotheque();
   console.log("Seed terminé.");

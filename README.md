@@ -9,31 +9,41 @@ Application [Next.js 16](https://nextjs.org) (App Router, TypeScript, Tailwind C
 
 ## Mise en route
 
-1. **Configurer la connexion** : ouvrez `.env` et remplacez `VOTRE_MOT_DE_PASSE` par le mot de passe de l'utilisateur `postgres` (celui choisi à l'installation de PostgreSQL).
+1. **Configurer la connexion** : copiez `.env.example` vers `.env` (fichier non versionné), puis remplacez `VOTRE_MOT_DE_PASSE` par le mot de passe de l'utilisateur `postgres` (celui choisi à l'installation de PostgreSQL).
+
+   ```bash
+   cp .env.example .env
+   ```
 
    ```env
    DATABASE_URL="postgresql://postgres:VOTRE_MOT_DE_PASSE@localhost:5432/event_db?schema=public"
    ```
 
-2. **Créer la base et les tables** (la base `event_db` est créée automatiquement si elle n'existe pas) :
+2. **Installer les dépendances** (le client Prisma est généré dans la foulée ; `npm install` échoue si `.env` n'existe pas encore) :
+
+   ```bash
+   npm install
+   ```
+
+3. **Créer la base et les tables** (la base `event_db` est créée automatiquement si elle n'existe pas) :
 
    ```bash
    npm run db:migrate
    ```
 
-3. **Insérer des données d'exemple** (optionnel) :
+4. **Insérer les données d'exemple**, dont le compte de démonstration nécessaire pour se connecter :
 
    ```bash
    npm run db:seed
    ```
 
-4. **Lancer le serveur de développement** :
+5. **Lancer le serveur de développement** :
 
    ```bash
    npm run dev
    ```
 
-   Ouvrez [http://localhost:3000](http://localhost:3000).
+   Ouvrez [http://localhost:3000](http://localhost:3000) : l'application demande de se connecter. Compte de démonstration créé par le seed : `faneva.loic@event-studio.mg` / `LaTraversee2026!`.
 
 ## Scripts
 
@@ -55,6 +65,8 @@ Plateforme du gala **La Traversée · Gala des 10 ans** (CanCham Madagascar, 18 
 
 | Route            | Rôle                                                                                     |
 | ---------------- | ---------------------------------------------------------------------------------------- |
+| `/connexion`     | Page de connexion (e-mail, mot de passe), accessible sans session                        |
+| `/inscription`   | Création de compte (prénom, nom, e-mail, entreprise, mot de passe), accessible sans session |
 | `/`              | Accueil : compte à rebours, raccourcis, derniers échos du fil                            |
 | `/billet`        | Billet d'entrée présenté dans une maquette de téléphone (QR code, identifiant, titulaire), plein écran, partage et téléchargement |
 | `/communaute`    | Fil de communauté : publications, défis relevés, annuaire des participants avec recherche |
@@ -91,11 +103,24 @@ Les couleurs sont déclarées dans `src/app/globals.css` et exposées à Tailwin
 
 Polices : Fraunces (titres), Geist (interface), Geist Mono (étiquettes).
 
+## Comptes et connexion
+
+- **Tables** : `users` (e-mail unique, mot de passe haché, nom, poste, entreprise, ville, pays) et `sessions` (empreinte SHA-256 du jeton, utilisateur, expiration), définies dans `prisma/schema.prisma` et créées par la migration `20261009140000_users_sessions`.
+- **Mots de passe** : hachés avec `scrypt` de Node (`src/lib/password.ts`), jamais stockés en clair ; la comparaison est à temps constant.
+- **Sessions** : jeton aléatoire de 32 octets dans un cookie `session` (`httpOnly`, `SameSite=Lax`, `Secure` en production, 30 jours), dont seule l'empreinte est en base (`src/lib/session.ts` : `createSession`, `getCurrentUser`, `requireUser`, `destroySession`).
+- **Page `/connexion`** (`src/app/connexion/`, composants `src/components/auth/`) : écran partagé à la charte « Plateforme La Traversée », propre à ces pages (jetons locaux dans `auth.module.css`, police IBM Plex Sans chargée dans `AuthScene.tsx`), sans image de fond. À gauche, un panneau bleu nuit uni : logo blanc (`public/connexion/logo-blanc.png`), emblème doré « 10 ans » (`public/connexion/10-ans.png`), titre blanc avec accent pêche, compte à rebours jusqu'au gala sur ordinateur (`AuthCountdown.tsx`, valeur initiale calculée par le serveur), fond photo qui change toutes les 5 secondes en fondu enchaîné avec un léger zoom (`PanelSlideshow.tsx`, six photos d'événements CanCham dans `public/connexion/fonds/`, sous un voile bleu nuit ; photo suivante chargée juste avant son tour, pause quand l'onglet est masqué, image fixe si l'utilisateur limite les animations), date et lieu du gala. À droite, le formulaire sur fond blanc, dont le bord s'avance sur la photo en une courbe douce (ellipse blanche en `::before`, variable `--vague` ; courbe horizontale en haut du formulaire sur mobile) : libellés visibles, erreurs affichées sous le champ concerné (e-mail vérifié à la sortie du champ, focus sur le premier champ en erreur), indicateur de chargement sur le bouton, bouton principal orange foncé `#c94d0c` (contraste 4,6:1 avec le texte blanc), « Mot de passe oublié ? » à côté du libellé du mot de passe. Sur mobile, l'en-tête (même fond photo, voile plus soutenu) est suivi directement du formulaire. Le formulaire appelle l'action serveur `login` (`src/app/connexion/actions.ts`) ; après connexion, retour vers la page demandée (`?next=…`, chemins internes seulement). Les boutons Google et Facebook sont des emplacements (« arrive bientôt ») ; « Mot de passe oublié ? » mène vers `/mot-de-passe-oublie`, encore à construire.
+- **Page `/inscription`** (`src/app/inscription/`, formulaire `RegisterForm.tsx`) : même écran, mêmes règles de formulaire (libellés visibles, erreurs par champ), champs prénom, nom, e-mail, entreprise (facultatif) et mot de passe (8 caractères minimum). L'action serveur `register` vérifie les champs, refuse un e-mail déjà utilisé (comparaison en minuscules), hache le mot de passe, crée l'utilisateur, ouvre la session et renvoie vers la page demandée.
+- **Protection des pages** : `src/proxy.ts` redirige vers `/connexion` toute requête sans cookie de session (sauf `/connexion`, `/inscription`, `/mot-de-passe-oublie`, `/api/health` et les fichiers statiques) et renvoie 401 sur `/api/*`. La session est ensuite vérifiée en base dans les layouts `src/app/(app)/layout.tsx` et `src/app/decouvrir/layout.tsx`, la page `/events` et les routes `/api/events`.
+- **Déconnexion** : bouton « Se déconnecter » du profil (action serveur `logout`), qui supprime la session en base et le cookie.
+- **Synchronisation avec la plateforme** : `src/app/(app)/layout.tsx` exige une session (`requireUser`) et transmet l'utilisateur connecté à toute l'interface (`SessionIdentityProvider` dans `src/components/profile/useProfile.ts`) : `useProfile()` reprend son prénom, son nom, son e-mail et son entreprise depuis la base, et les retouches de profil faites dans le navigateur sont rangées par compte. `src/app/(app)/admin/layout.tsx` réserve tout le back-office aux administrateurs (`requireAdmin`) ; le lien « Back-office CanCham » n'apparaît que pour eux, un administrateur arrive directement sur `/admin` après connexion, et « Se déconnecter » dans la barre latérale ferme vraiment la session.
+- **Niveaux d'accès** : colonne `acces` des utilisateurs (`MEMBRE` par défaut, ou `ADMIN`, migration `20261015120000_acces_utilisateurs`), lue avec la session ; `requireAdmin()` (`src/lib/session.ts`) renvoie vers l'accueil un compte qui n'est pas administrateur. Comptes de test créés par le seed : membre `membre@gmail.com` / `12345678`, administrateur `admin@gmail.com` / `12345678` (mots de passe remis à `12345678` à chaque seed).
+- **Ajouter un compte sans passer par le formulaire** : dans `prisma/seed.ts` (comme le compte de démonstration) ou via Prisma Studio, avec un e-mail en minuscules et un mot de passe produit par `hashPassword`.
+
 ## Structure
 
 ```
 prisma/
-  schema.prisma          # Modèles (table `events`)
+  schema.prisma          # Modèles (tables `events`, `users`, `sessions`)
   seed.ts                # Données d'exemple
   migrations/            # Migrations SQL générées
 prisma.config.ts         # Config Prisma (lit DATABASE_URL depuis .env)
@@ -103,17 +128,24 @@ public/cancham-logo.png  # Symbole CanCham (fond transparent, navigation)
 public/cancham-logo-full.png # Logo complet avec le nom de la chambre
 src/app/icon.png, apple-icon.png # Icônes de l'application (onglet, écran d'accueil iOS)
 src/
+  proxy.ts               # Redirige vers /connexion sans cookie de session
   lib/prisma.ts          # Client Prisma unique (adapter pg)
+  lib/auth.ts            # Nom du cookie, chemins publics, contrôle du paramètre next
+  lib/password.ts        # Hachage et vérification des mots de passe (scrypt)
+  lib/session.ts         # Sessions en base et cookie, utilisateur courant
   lib/format.ts          # Dates et durées en français
   lib/mock/data.ts       # Données de démonstration de l'espace participant
   generated/prisma/      # Client généré (ignoré par git)
   components/
+    auth/                # Décor commun (AuthScene), formulaires de connexion et d'inscription, feuille de style
     app/                 # Coquille (AppShell), icônes, avatar, titres de page
     ticket/              # QR code (SVG serveur) et maquette de téléphone du billet
     feed/                # Fil de communauté et cartes de publication
     messages/            # Liste des conversations et fil de discussion
     profile/             # Onglets du profil
   app/
+    connexion/           # Page de connexion et actions serveur login / logout
+    inscription/         # Page de création de compte et action serveur register
     (app)/               # Espace participant : accueil, billet, communauté, messages, profil…
     events/page.tsx      # Liste des événements (Server Component)
     api/health/route.ts  # GET  /api/health  → état de la base

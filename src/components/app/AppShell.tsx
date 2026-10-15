@@ -3,13 +3,14 @@
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useMemo, useState, type FormEvent, type ReactNode } from "react";
-import { useProfile } from "@/components/profile/useProfile";
+import { logout } from "@/app/connexion/actions";
+import { useProfile, useSessionIdentity } from "@/components/profile/useProfile";
 import { AnnonceCard } from "@/components/traversee/AnnonceCard";
 import { Modal } from "@/components/traversee/Modal";
 import { Toaster } from "@/components/traversee/Toaster";
 import { Puce } from "@/components/traversee/ui";
 import { LOGO_BLANC, TYPES_ANNONCE, heureAnn } from "@/lib/traversee/data";
-import { setTraversee, toast, useTraversee } from "@/lib/traversee/store";
+import { setTraversee, useTraversee } from "@/lib/traversee/store";
 import { fullName } from "@/lib/mock/data";
 import { Avatar } from "./Avatar";
 import {
@@ -121,6 +122,8 @@ export function AppShell({ children }: { children: ReactNode }) {
   const pathname = usePathname();
   const router = useRouter();
   const me = useProfile();
+  const session = useSessionIdentity();
+  const estAdmin = session?.acces === "ADMIN";
   const state = useTraversee();
   const [ouvert, setOuvert] = useState(false);
   const [cloche, setCloche] = useState(false);
@@ -193,7 +196,7 @@ export function AppShell({ children }: { children: ReactNode }) {
                 <span>Ouvrir l’appli participant</span>
               </Link>
             </div>
-          ) : (
+          ) : estAdmin ? (
             <div>
               <h4>Équipe</h4>
               <Link href="/admin" className={styles.item}>
@@ -201,7 +204,7 @@ export function AppShell({ children }: { children: ReactNode }) {
                 <span>Back-office CanCham</span>
               </Link>
             </div>
-          )}
+          ) : null}
         </nav>
         <Link href={admin ? "/admin" : "/profil"} className={styles.moi}>
           {admin ? (
@@ -210,14 +213,16 @@ export function AppShell({ children }: { children: ReactNode }) {
             <Avatar person={me} size={38} />
           )}
           <div className="min-w-0">
-            <strong>{admin ? "Équipe CanCham" : fullName(me)}</strong>
+            <strong>{admin ? (session ? `${session.firstName} ${session.lastName}` : "Équipe CanCham") : fullName(me)}</strong>
             <small>{admin ? "Administration" : me.company || "Compléter mon profil"}</small>
           </div>
         </Link>
-        <button type="button" className={styles.sortir} onClick={() => toast("Déconnexion désactivée dans la maquette.")}>
-          <LogOutIcon />
-          Se déconnecter
-        </button>
+        <form action={logout} className="contents">
+          <button type="submit" className={styles.sortir}>
+            <LogOutIcon />
+            Se déconnecter
+          </button>
+        </form>
       </aside>
       {ouvert ? <div className={styles.fond} onClick={() => setOuvert(false)} aria-hidden /> : null}
 

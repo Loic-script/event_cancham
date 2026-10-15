@@ -1,6 +1,6 @@
 "use client";
 
-import { useSyncExternalStore } from "react";
+import { createContext, createElement, useContext, useEffect, useSyncExternalStore, type ReactNode } from "react";
 import { currentUser, type Country } from "@/lib/mock/data";
 
 export type ProfileOverrides = Partial<{
@@ -23,36 +23,56 @@ export type ProfileOverrides = Partial<{
 
 export type Profile = typeof currentUser & { photo?: string; phone?: string; blocked: string[]; passwordChangedAt?: string };
 
-const KEY = "event.profile.v1";
+export type SessionIdentity = {
+  id: number;
+  email: string;
+  firstName: string;
+  lastName: string;
+  role: string | null;
+  company: string | null;
+  city: string | null;
+  country: string | null;
+  acces: "MEMBRE" | "ADMIN";
+  createdAt: string;
+};
+
+const BASE_KEY = "event.profile.v1";
 const EVENT = "event:profile";
 const EMPTY: ProfileOverrides = {};
 
-let cachedRaw: string | null = null;
-let cachedValue: ProfileOverrides = EMPTY;
+const SessionIdentityContext = createContext<SessionIdentity | null>(null);
 
-function read(): ProfileOverrides {
+let activeKey = BASE_KEY;
+const cache = new Map<string, { raw: string | null; value: ProfileOverrides }>();
+
+function keyFor(identity: SessionIdentity | null) {
+  return identity ? `${BASE_KEY}.u${identity.id}` : BASE_KEY;
+}
+
+function read(key: string): ProfileOverrides {
   let raw: string | null = null;
   try {
-    raw = window.localStorage.getItem(KEY);
+    raw = window.localStorage.getItem(key);
   } catch {
     raw = null;
   }
-  if (raw === cachedRaw) return cachedValue;
-  cachedRaw = raw;
+  const hit = cache.get(key);
+  if (hit && hit.raw === raw) return hit.value;
+  let value: ProfileOverrides = EMPTY;
   try {
-    cachedValue = raw ? (JSON.parse(raw) as ProfileOverrides) : EMPTY;
+    value = raw ? (JSON.parse(raw) as ProfileOverrides) : EMPTY;
   } catch {
-    cachedValue = EMPTY;
+    value = EMPTY;
   }
-  return cachedValue;
+  cache.set(key, { raw, value });
+  return value;
 }
 
-function write(next: ProfileOverrides) {
+function write(key: string, next: ProfileOverrides) {
   try {
-    window.localStorage.setItem(KEY, JSON.stringify(next));
+    window.localStorage.setItem(key, JSON.stringify(next));
   } catch {
-    cachedRaw = null;
-    cachedValue = next;
+    cache.set(key, { raw: null, value: next });
   }
   window.dispatchEvent(new Event(EVENT));
 }
@@ -66,19 +86,53 @@ function subscribe(onChange: () => void) {
   };
 }
 
+function identityFields(identity: SessionIdentity | null): Partial<Profile> {
+  if (!identity) return {};
+  return {
+    firstName: identity.firstName,
+    lastName: identity.lastName,
+    email: identity.email,
+    role: identity.role ?? "",
+    company: identity.company ?? "",
+    city: identity.city ?? "",
+    country: identity.country === "CA" ? "CA" : "MG",
+    memberSince: identity.createdAt.slice(0, 10),
+  };
+}
+
+export function SessionIdentityProvider({ user, children }: { user: SessionIdentity; children: ReactNode }) {
+  useEffect(() => {
+    activeKey = keyFor(user);
+    return () => {
+      activeKey = BASE_KEY;
+    };
+  }, [user]);
+  return createElement(SessionIdentityContext.Provider, { value: user }, children);
+}
+
+export function useSessionIdentity(): SessionIdentity | null {
+  return useContext(SessionIdentityContext);
+}
+
 export function useProfileOverrides(): ProfileOverrides {
-  return useSyncExternalStore(subscribe, read, () => EMPTY);
+  const key = keyFor(useSessionIdentity());
+  return useSyncExternalStore(
+    subscribe,
+    () => read(key),
+    () => EMPTY,
+  );
 }
 
 export function useProfile(): Profile {
+  const identity = useSessionIdentity();
   const o = useProfileOverrides();
-  return { ...currentUser, blocked: [], ...o };
+  return { ...currentUser, ...identityFields(identity), blocked: [], ...o };
 }
 
 export function updateProfile(patch: ProfileOverrides) {
-  write({ ...read(), ...patch });
+  write(activeKey, { ...read(activeKey), ...patch });
 }
 
 export function resetProfile() {
-  write({});
+  write(activeKey, {});
 }

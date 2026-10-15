@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState, type ReactNode } from "react";
+import { logout } from "@/app/connexion/actions";
 import { Avatar } from "@/components/app/Avatar";
 import {
   BriefcaseIcon,
@@ -175,14 +176,15 @@ export function ProfileSettings({ extra }: ProfileSettingsProps) {
             })}
           </nav>
 
-          <button
-            type="button"
-            onClick={() => setToast("La déconnexion sera active avec les comptes")}
-            className="mt-5 flex h-12 w-full cursor-pointer items-center justify-center gap-2 rounded-xl border border-leaf/30 bg-leaf-soft text-[14.5px] font-semibold text-leaf-ink transition-colors hover:bg-[#f0d0d0] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-leaf"
-          >
-            <LogOutIcon width={18} height={18} />
-            Se déconnecter
-          </button>
+          <form action={logout}>
+            <button
+              type="submit"
+              className="mt-5 flex h-12 w-full cursor-pointer items-center justify-center gap-2 rounded-xl border border-leaf/30 bg-leaf-soft text-[14.5px] font-semibold text-leaf-ink transition-colors hover:bg-[#f0d0d0] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-leaf"
+            >
+              <LogOutIcon width={18} height={18} />
+              Se déconnecter
+            </button>
+          </form>
         </section>
 
         {extra ? <div className="flex flex-col gap-5">{extra}</div> : null}
