@@ -15,7 +15,38 @@ export function Stories({ admin = false, onCreer }: StoriesProps) {
   const stories = useMemo(() => toutesStories(etat), [etat]);
   const [ouverte, setOuverte] = useState<number | null>(null);
   const rail = useRef<HTMLDivElement | null>(null);
+  const plein = useRef(false);
   const [bord, setBord] = useState<"debut" | "milieu" | "fin">("debut");
+
+  const pleinEcran = useCallback((actif: boolean) => {
+    if (actif) {
+      const racine = document.documentElement;
+      if (document.fullscreenElement || !racine.requestFullscreen || !window.matchMedia("(max-width: 1023px)").matches) return;
+      racine
+        .requestFullscreen({ navigationUI: "hide" })
+        .then(() => {
+          plein.current = true;
+        })
+        .catch(() => undefined);
+      return;
+    }
+    if (!plein.current) return;
+    plein.current = false;
+    if (document.fullscreenElement) document.exitFullscreen().catch(() => undefined);
+  }, []);
+
+  useEffect(() => {
+    const surChange = () => {
+      if (document.fullscreenElement || !plein.current) return;
+      plein.current = false;
+      setOuverte(null);
+    };
+    document.addEventListener("fullscreenchange", surChange);
+    return () => {
+      document.removeEventListener("fullscreenchange", surChange);
+      pleinEcran(false);
+    };
+  }, [pleinEcran]);
 
   function defiler(sens: 1 | -1) {
     const el = rail.current;
@@ -30,19 +61,22 @@ export function Stories({ admin = false, onCreer }: StoriesProps) {
     setBord(el.scrollLeft <= 4 ? "debut" : fin ? "fin" : "milieu");
   }
 
-  const fermer = useCallback(() => setOuverte(null), []);
+  const fermer = useCallback(() => {
+    setOuverte(null);
+    pleinEcran(false);
+  }, [pleinEcran]);
   const montrer = useCallback(
     (i: number) => {
       if (i < 0) i = 0;
       if (i >= stories.length) {
-        setOuverte(null);
+        fermer();
         return;
       }
       const s = stories[i];
       setTraversee((st) => ({ storiesVues: { ...st.storiesVues, [s.id]: 1 } }));
       setOuverte(i);
     },
-    [stories],
+    [stories, fermer],
   );
 
   useEffect(() => {
@@ -89,7 +123,10 @@ export function Stories({ admin = false, onCreer }: StoriesProps) {
           <button
             key={st.id}
             type="button"
-            onClick={() => montrer(i)}
+            onClick={() => {
+              pleinEcran(true);
+              montrer(i);
+            }}
             className={`${styles.story} ${storiesVues[st.id] ? styles.storyVue : ""}`}
             style={{ "--i": i + (admin ? 1 : 0), "--img": `url(${st.img})` } as React.CSSProperties}
             aria-label={st.auteur === "CanCham" ? "Voir la story de la CanCham" : "Voir la story d’un participant"}
@@ -109,7 +146,8 @@ export function Stories({ admin = false, onCreer }: StoriesProps) {
           <button type="button" onClick={() => montrer(ouverte - 1)} disabled={ouverte === 0} aria-label="Story précédente" className={`${styles.stNav} ${styles.stNavG}`}>
             <ChevronLeftIcon width={24} height={24} />
           </button>
-          <div key={s.id} className={styles.stCadre} style={{ backgroundImage: `linear-gradient(180deg, rgba(11,26,48,.55) 0%, rgba(11,26,48,0) 22%, rgba(11,26,48,0) 78%, rgba(11,26,48,.35) 100%), url(${s.img})` }}>
+          <div key={s.id} className={styles.stCadre} style={{ "--img": `url(${s.img})` } as React.CSSProperties}>
+            <img src={s.img} alt="" className={styles.stImage} />
             <div className={styles.stBarres} aria-hidden>
               {stories.map((x, k) => (
                 <i key={x.id} className={k < ouverte ? "fait" : k === ouverte ? "cours" : ""} />

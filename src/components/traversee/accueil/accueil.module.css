@@ -313,11 +313,40 @@
   max-width: 100%;
   padding: 18px;
   overflow: hidden;
+  isolation: isolate;
   border-radius: 18px;
-  background-size: cover;
-  background-position: center;
+  background: #0b1a30;
   color: #fff;
   animation: cadreIn 0.3s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+}
+
+.stCadre::before {
+  content: "";
+  position: absolute;
+  inset: -40px;
+  z-index: -2;
+  background: var(--img) center / cover;
+  filter: blur(28px) saturate(1.2) brightness(0.55);
+}
+
+.stCadre::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background: linear-gradient(180deg, rgba(11, 26, 48, 0.55) 0%, rgba(11, 26, 48, 0) 22%, rgba(11, 26, 48, 0) 78%, rgba(11, 26, 48, 0.35) 100%);
+  pointer-events: none;
+}
+
+.stImage {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  user-select: none;
+  -webkit-user-drag: none;
 }
 
 @keyframes cadreIn {
@@ -451,8 +480,19 @@
 .stZoneD { right: 0; }
 
 @media (max-width: 1023px) {
-  .voileSt { padding: 0; }
-  .stCadre { height: 100svh; width: 100%; aspect-ratio: auto; border-radius: 0; }
+  .voileSt { place-items: stretch; padding: 0; background: #000; }
+  .stScene { width: 100%; height: 100%; }
+  .stCadre {
+    width: 100%;
+    height: 100svh;
+    height: 100dvh;
+    max-width: none;
+    aspect-ratio: auto;
+    padding: 18px 18px calc(18px + env(safe-area-inset-bottom));
+    border-radius: 0;
+  }
+  .stBarres { top: calc(10px + env(safe-area-inset-top)); }
+  .stTete { top: calc(24px + env(safe-area-inset-top)); }
 }
 
 .article {
