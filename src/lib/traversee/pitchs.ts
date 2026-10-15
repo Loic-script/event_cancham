@@ -47,6 +47,10 @@ function slug(texte: string): string {
     .replace(/[^a-z0-9]+/g, "");
 }
 
+export function idPublication(nom: string): string {
+  return `pub-${slug(nom)}`;
+}
+
 function lienPublicationDe(nom: string, i: number): string {
   if (i % 3 === 2) return `https://www.instagram.com/p/${empreinte(nom, 11, B64)}/`;
   return `https://www.facebook.com/${slug(nom)}/posts/pfbid0${empreinte(nom, 40, "abcdefghijkmnopqrstuvwxyzABCDEFGHJKLMNPQRSTUVWXYZ123456789")}`;
@@ -70,7 +74,7 @@ export function candidaturesTombola(s: TraverseeState, moi: Moi): Candidature[] 
     const f = fiches.find((x) => x.ent === c.nom);
     const porteur = f?.nom ?? c.nom;
     return {
-      id: `pub-${slug(c.nom)}`,
+      id: idPublication(c.nom),
       porteur,
       ent: c.nom,
       role: f?.role ?? "Participant",

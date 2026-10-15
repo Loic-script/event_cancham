@@ -5,6 +5,7 @@ import { CameraIcon, DownloadIcon, EyeIcon, FacebookIcon, SpinnerIcon } from "@/
 import { updateProfile, useProfile } from "@/components/profile/useProfile";
 import { PostEmbed } from "@/components/social/PostEmbed";
 import { LEGENDE_JY_SERAI, PAGE_FACEBOOK } from "@/lib/traversee/data";
+import { idPublication } from "@/lib/traversee/pitchs";
 import { lisImage, setTraversee, toast, useTraversee } from "@/lib/traversee/store";
 import { fullName } from "@/lib/mock/data";
 import { parseSocialLink } from "@/lib/social/links";
@@ -60,7 +61,12 @@ export function DefiTombola() {
   }, []);
 
   const moiR = s.lienReactions?.reactions ?? null;
-  const classement: { nom: string; r: number; moi: boolean; photo?: string }[] = [...s.classement.map((c, i) => ({ nom: c.nom, r: c.reactions + inc[i], moi: false })), ...(s.lienPub ? [{ nom: `${nom} (vous)`, r: moiR ?? 0, moi: true, photo: me.photo || undefined }] : [])].sort((a, b) => b.r - a.r);
+  const retraits = new Set(s.retraitsTombola);
+  const moiRetire = retraits.has("moi");
+  const classement: { nom: string; r: number; moi: boolean; photo?: string }[] = [
+    ...s.classement.map((c, i) => ({ nom: c.nom, r: c.reactions + inc[i], moi: false })).filter((c) => !retraits.has(idPublication(c.nom))),
+    ...(s.lienPub && !moiRetire ? [{ nom: `${nom} (vous)`, r: moiR ?? 0, moi: true, photo: me.photo || undefined }] : []),
+  ].sort((a, b) => b.r - a.r);
   const parsed = s.lienPub ? parseSocialLink(s.lienPub) : null;
 
   async function relever(url: string, silencieux = false) {
@@ -266,7 +272,7 @@ export function DefiTombola() {
             <div className={styles.pasC}>
               <h3>Suivez l’évolution en temps réel</h3>
               <p className={styles.court}>
-                {s.lienPub ? "Votre publication est dans le classement. " : "Votre publication entre dans le classement dès que le lien est enregistré. "}
+                {!s.lienPub ? "Votre publication entre dans le classement dès que le lien est enregistré. " : moiRetire ? "Votre publication a été retirée du classement par l’équipe CanCham. " : "Votre publication est dans le classement. "}
                 <a
                   href="#suivi-tombola"
                   onClick={(e) => {

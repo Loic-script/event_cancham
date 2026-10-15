@@ -1,13 +1,13 @@
 "use client";
 
-import { useEffect, useLayoutEffect, useRef, useState, type CSSProperties } from "react";
+import { useEffect, useLayoutEffect, useRef, useState, type CSSProperties, type ReactNode } from "react";
 import { ExternalLinkIcon, FacebookIcon, InstagramIcon } from "@/components/app/icons";
 import { AvatarInitiales } from "../ui";
 import styles from "./classement.module.css";
 
-export type EntreeClassement = { nom: string; r: number; moi: boolean; photo?: string; initiales?: string; sous?: string; lien?: string; reseau?: "facebook" | "instagram" | null };
+export type EntreeClassement = { id?: string; nom: string; r: number; moi: boolean; photo?: string; initiales?: string; sous?: string; lien?: string; reseau?: "facebook" | "instagram" | null };
 
-function LienPublication({ e, compact = false }: { e: EntreeClassement; compact?: boolean }) {
+export function LienPublication({ e, compact = false }: { e: EntreeClassement; compact?: boolean }) {
   if (!e.lien) return null;
   const icone = e.reseau === "instagram" ? <InstagramIcon width={15} height={15} /> : e.reseau === "facebook" ? <FacebookIcon width={15} height={15} /> : <ExternalLinkIcon width={14} height={14} />;
   return (
@@ -84,10 +84,15 @@ const MEDAILLES = ["or", "argent", "bronze"] as const;
 
 const nomAffiche = (e: EntreeClassement) => (e.moi ? e.nom.replace(/\s*\(vous\)$/i, "") : e.nom);
 
-export function Classement({ entrees, total }: { entrees: EntreeClassement[]; total?: number }) {
+const RANGS = ["r1", "r2", "r3"] as const;
+
+type ClassementProps = { entrees: EntreeClassement[]; total?: number; avecPodium?: boolean; actions?: (e: EntreeClassement) => ReactNode };
+
+export function Classement({ entrees, total, avecPodium = true, actions }: ClassementProps) {
   const max = Math.max(1, ...entrees.map((e) => e.r));
-  const podium = entrees.slice(0, 3);
-  const suite = entrees.slice(3);
+  const decalage = avecPodium ? 3 : 0;
+  const podium = entrees.slice(0, decalage);
+  const suite = entrees.slice(decalage);
   const iMoi = entrees.findIndex((e) => e.moi);
   const moi = iMoi >= 0 ? entrees[iMoi] : null;
   const devant = iMoi > 0 ? entrees[iMoi - 1] : null;
@@ -120,7 +125,7 @@ export function Classement({ entrees, total }: { entrees: EntreeClassement[]; to
   };
 
   return (
-    <div className={styles.classement}>
+    <div className={`${styles.classement} ${avecPodium ? "" : styles.sansPodium}`}>
       {podium.length ? (
         <ol className={styles.podium} aria-label="Podium">
           {podium.map((e, i) => (
@@ -162,12 +167,12 @@ export function Classement({ entrees, total }: { entrees: EntreeClassement[]; to
       ) : null}
 
       {suite.length ? (
-        <ol className={styles.liste} start={4}>
+        <ol className={styles.liste} start={decalage + 1}>
           {suite.map((e, j) => {
-            const i = j + 3;
+            const i = j + decalage;
             return (
-              <li key={e.nom} ref={enregistrer(e.nom)} className={`${styles.ligne} ${e.moi ? styles.moi : ""}`} style={{ "--i": j } as CSSProperties}>
-                <span className={styles.rang}>{i + 1}</span>
+              <li key={e.nom} ref={enregistrer(e.nom)} className={`${styles.ligne} ${e.moi ? styles.moi : ""} ${actions ? styles.avecActions : ""}`} style={{ "--i": j } as CSSProperties}>
+                <span className={`${styles.rang} ${i < 3 ? styles[RANGS[i]] : ""}`}>{i + 1}</span>
                 <AvatarInitiales nom={e.initiales ?? e.nom} photo={e.photo} size={40} className={e.moi ? styles.avatarMoi : ""} />
                 <div className={styles.corps}>
                   <div className={styles.tete}>
@@ -183,7 +188,7 @@ export function Classement({ entrees, total }: { entrees: EntreeClassement[]; to
                   <Compteur valeur={e.r} />
                   <small>réactions</small>
                 </div>
-                <LienPublication e={e} compact />
+                {actions ? <div className={styles.actions}>{actions(e)}</div> : <LienPublication e={e} compact />}
               </li>
             );
           })}

@@ -1,14 +1,17 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import { TrashIcon } from "@/components/app/icons";
 import { useProfile } from "@/components/profile/useProfile";
 import { fullName } from "@/lib/mock/data";
 import { parseSocialLink } from "@/lib/social/links";
 import { candidaturesTombola } from "@/lib/traversee/pitchs";
-import { useTraversee } from "@/lib/traversee/store";
-import { Classement, type EntreeClassement } from "../defis/Classement";
+import { setTraversee, toast, useTraversee } from "@/lib/traversee/store";
+import { Modal } from "../Modal";
+import { Classement, LienPublication, type EntreeClassement } from "../defis/Classement";
+import cl from "../defis/classement.module.css";
 import { useLive } from "../defis/live";
-import { Card, Direct, Recherche, Sur, ui } from "../ui";
+import { AvatarInitiales, Btn, Card, Direct, Recherche, Sur, ui } from "../ui";
 import styles from "./candidatures.module.css";
 
 export function AdminClassement() {
@@ -16,12 +19,15 @@ export function AdminClassement() {
   const me = useProfile();
   const inc = useLive(s.classement.length, 4);
   const [q, setQ] = useState("");
+  const [aRetirer, setARetirer] = useState<EntreeClassement | null>(null);
 
   const toutes = useMemo(() => candidaturesTombola(s, { nom: fullName(me), ent: me.company, role: me.role, sect: me.sector }), [s, me]);
+  const retraits = new Set(s.retraitsTombola);
   const entrees: EntreeClassement[] = toutes
     .map((c, i) => {
       const p = parseSocialLink(c.lien);
       return {
+        id: c.id,
         nom: c.porteur,
         sous: c.ent,
         r: (c.reactions ?? 0) + (c.moi ? 0 : (inc[i] ?? 0)),
@@ -32,11 +38,24 @@ export function AdminClassement() {
       };
     })
     .sort((a, b) => b.r - a.r);
+  const actives = entrees.filter((e) => !retraits.has(e.id!));
+  const retirees = entrees.filter((e) => retraits.has(e.id!));
 
-  const total = entrees.reduce((a, e) => a + e.r, 0);
-  const tete = entrees[0];
+  const total = actives.reduce((a, e) => a + e.r, 0);
+  const tete = actives[0];
   const ql = q.trim().toLowerCase();
-  const recherche = ql ? entrees.map((e, i) => ({ e, rang: i + 1 })).filter(({ e }) => `${e.nom} ${e.sous ?? ""}`.toLowerCase().includes(ql)) : [];
+  const recherche = ql ? actives.map((e, i) => ({ e, rang: i + 1 })).filter(({ e }) => `${e.nom} ${e.sous ?? ""}`.toLowerCase().includes(ql)) : [];
+
+  function retirer(e: EntreeClassement) {
+    setTraversee((st) => ({ retraitsTombola: [...st.retraitsTombola.filter((id) => id !== e.id), e.id!] }));
+    setARetirer(null);
+    toast(`Publication de ${e.nom} retirée du classement.`);
+  }
+
+  function retablir(e: EntreeClassement) {
+    setTraversee((st) => ({ retraitsTombola: st.retraitsTombola.filter((id) => id !== e.id) }));
+    toast(`Publication de ${e.nom} rétablie dans le classement.`);
+  }
 
   return (
     <>
@@ -48,7 +67,7 @@ export function AdminClassement() {
         </div>
         <div className={styles.chiffres}>
           <div>
-            <b>{entrees.length}</b>
+            <b>{actives.length}</b>
             <small>participants</small>
           </div>
           <div>
@@ -89,8 +108,70 @@ export function AdminClassement() {
           <Sur className="!mb-0">Classement des publications</Sur>
           <Direct>En temps réel · simulation</Direct>
         </div>
-        <Classement entrees={entrees} />
+        {actives.length ? (
+          <Classement
+            entrees={actives}
+            avecPodium={false}
+            actions={(e) => (
+              <>
+                <LienPublication e={e} />
+                <button type="button" className={cl.retirer} onClick={() => setARetirer(e)} aria-label={`Retirer la publication de ${e.nom}`}>
+                  <TrashIcon width={14} height={14} />
+                  Retirer
+                </button>
+              </>
+            )}
+          />
+        ) : (
+          <p className={`${styles.aucune} mx-5 mb-5`}>Aucune publication dans le classement.</p>
+        )}
       </Card>
+
+      {retirees.length ? (
+        <Card bleed className="mt-5">
+          <div className={`${ui.pad} !pb-2`}>
+            <Sur className="!mb-0">Publications retirées · {retirees.length}</Sur>
+          </div>
+          <ul className={styles.retirees}>
+            {retirees.map((e) => (
+              <li key={e.id} className={styles.retiree}>
+                <AvatarInitiales nom={e.nom} photo={e.photo} size={40} />
+                <span className="min-w-0 flex-1">
+                  <strong>{e.nom}</strong>
+                  <small>
+                    {e.sous} · {e.r.toLocaleString("fr-FR")} réactions
+                  </small>
+                </span>
+                <span className={cl.actions}>
+                  <LienPublication e={e} compact />
+                  <Btn small onClick={() => retablir(e)}>
+                    Rétablir
+                  </Btn>
+                </span>
+              </li>
+            ))}
+          </ul>
+        </Card>
+      ) : null}
+
+      {aRetirer ? (
+        <Modal onClose={() => setARetirer(null)} label="Retirer la publication" size="narrow">
+          <div className={styles.confirme}>
+            <span className={styles.confirmeIcone}>
+              <TrashIcon width={24} height={24} />
+            </span>
+            <h3>Retirer la publication de {aRetirer.nom} ?</h3>
+            <p>Elle disparaît du classement du Défi 2, ici comme dans l’espace participant. Vous pourrez la rétablir à tout moment.</p>
+            <div className={styles.confirmeBoutons}>
+              <Btn onClick={() => setARetirer(null)}>Annuler</Btn>
+              <button type="button" className={styles.btnRetirer} onClick={() => retirer(aRetirer)}>
+                <TrashIcon width={16} height={16} />
+                Retirer du classement
+              </button>
+            </div>
+          </div>
+        </Modal>
+      ) : null}
     </>
   );
 }
