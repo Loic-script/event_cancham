@@ -153,7 +153,7 @@ Depuis le 12 octobre 2026, l’application reproduit la maquette « Plateforme L
 | `/rdv` | Rendez-vous confirmés avec notes, demandes envoyées (simulation de réponse), demandes reçues à valider |
 | `/ressources` | Bibliothèque de ressources ouverte à tous (voir « Bibliothèque de ressources ») : dossiers en parcours, recherche, catégories, tri, grille ou liste, lecteur protégé (`/ressources/[id]`) |
 | `/photos` | Section « Souvenirs » du menu participant, page « Non disponible » jusqu’au gala ; l’ancienne galerie reste dans `src/components/traversee/photos/Photos.tsx` (ses photos alimentent toujours les stories) |
-| `/livre` | Section « Souvenirs » du menu participant, page « Non disponible » jusqu’au gala ; l’ancien livre d’or reste dans `src/components/traversee/livre/Livre.tsx` |
+| `/livre` | Livre d’or vidéo feuilleté page à page (section « Souvenirs » du menu), recherche dans les sous-titres, dépôt d’une vidéo publiée après validation par l’équipe |
 | `/profil` | Chiffres clés, prochaines étapes, fiche et formulaire, consentements, billet |
 | `/admin` | Accueil du back-office, même présentation que l’accueil participant : composer « Publier au nom de la CanCham » (publication ou story dans la fenêtre), stories, fil avec suppression, promotions modifiables |
 | `/admin/annonces` | Annonces en popup chez les participants, modèles, aperçu téléphone, historique (renvoyer, supprimer) |
