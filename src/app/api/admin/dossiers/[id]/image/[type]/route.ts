@@ -6,6 +6,7 @@ import { detecterImage } from "@/lib/ressources/formats";
 import { json } from "@/lib/ressources/servir";
 import { fichierImageDossier, idValide, supprimer } from "@/lib/ressources/stockage";
 import { ErreurRessource, recevoirFlux } from "@/lib/ressources/traitement";
+import { refusSiNonAdmin } from "@/lib/session";
 
 export const dynamic = "force-dynamic";
 
@@ -19,6 +20,8 @@ function rafraichir() {
 }
 
 export async function PUT(req: NextRequest, ctx: RouteContext<"/api/admin/dossiers/[id]/image/[type]">) {
+  const refus = await refusSiNonAdmin();
+  if (refus) return refus;
   const { id, type } = await ctx.params;
   const c = champ(type);
   if (!c || !idValide(id)) return json(404, { ok: false, message: "Dossier introuvable." });
@@ -44,6 +47,8 @@ export async function PUT(req: NextRequest, ctx: RouteContext<"/api/admin/dossie
 }
 
 export async function DELETE(_req: NextRequest, ctx: RouteContext<"/api/admin/dossiers/[id]/image/[type]">) {
+  const refus = await refusSiNonAdmin();
+  if (refus) return refus;
   const { id, type } = await ctx.params;
   const c = champ(type);
   if (!c || !idValide(id)) return json(404, { ok: false, message: "Dossier introuvable." });

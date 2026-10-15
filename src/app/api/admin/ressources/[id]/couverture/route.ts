@@ -6,6 +6,7 @@ import { nettoyerBlocs, premierePhoto } from "@/lib/ressources/blocs";
 import { json } from "@/lib/ressources/servir";
 import { dossierBlocs, dossierRessource, existe, fichierPage, idValide, supprimer } from "@/lib/ressources/stockage";
 import { ErreurRessource, enregistrerCouverturePerso, genererCouverture, recevoirFlux } from "@/lib/ressources/traitement";
+import { refusSiNonAdmin } from "@/lib/session";
 
 export const dynamic = "force-dynamic";
 
@@ -15,6 +16,8 @@ function rafraichir() {
 }
 
 export async function PUT(req: NextRequest, ctx: RouteContext<"/api/admin/ressources/[id]/couverture">) {
+  const refus = await refusSiNonAdmin();
+  if (refus) return refus;
   const { id } = await ctx.params;
   if (!idValide(id) || !(await prisma.ressource.findUnique({ where: { id }, select: { id: true } }))) return json(404, { ok: false, message: "Ressource introuvable." });
   try {
@@ -30,6 +33,8 @@ export async function PUT(req: NextRequest, ctx: RouteContext<"/api/admin/ressou
 }
 
 export async function DELETE(_req: NextRequest, ctx: RouteContext<"/api/admin/ressources/[id]/couverture">) {
+  const refus = await refusSiNonAdmin();
+  if (refus) return refus;
   const { id } = await ctx.params;
   if (!idValide(id)) return json(404, { ok: false, message: "Ressource introuvable." });
   const r = await prisma.ressource.findUnique({ where: { id }, select: { format: true, pages: true, contenu: true } });

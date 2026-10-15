@@ -16,6 +16,10 @@ const userSelect = {
   role: true,
   acces: true,
   company: true,
+  sector: true,
+  bio: true,
+  phone: true,
+  website: true,
   city: true,
   country: true,
   createdAt: true,
@@ -64,6 +68,17 @@ export async function requireUser(): Promise<SessionUser> {
   const user = await getCurrentUser();
   if (!user) redirect(LOGIN_PATH);
   return user;
+}
+
+export async function estAdmin(): Promise<boolean> {
+  return (await getCurrentUser())?.acces === "ADMIN";
+}
+
+export async function refusSiNonAdmin(): Promise<Response | null> {
+  const user = await getCurrentUser();
+  if (!user) return Response.json({ ok: false, message: "Connexion requise." }, { status: 401 });
+  if (user.acces !== "ADMIN") return Response.json({ ok: false, message: "Action réservée aux administrateurs." }, { status: 403 });
+  return null;
 }
 
 export async function requireAdmin(): Promise<SessionUser> {

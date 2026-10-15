@@ -19,7 +19,7 @@ Application [Next.js 16](https://nextjs.org) (App Router, TypeScript, Tailwind C
    DATABASE_URL="postgresql://postgres:VOTRE_MOT_DE_PASSE@localhost:5432/event_db?schema=public"
    ```
 
-2. **Installer les dépendances** (le client Prisma est généré dans la foulée ; `npm install` échoue si `.env` n'existe pas encore) :
+2. **Installer les dépendances** (le client Prisma est généré dans la foulée, même sans `.env` : `DATABASE_URL` n'est nécessaire que pour les migrations et au démarrage, ce qui permet aussi de construire une image Docker sans la base) :
 
    ```bash
    npm install
@@ -114,6 +114,10 @@ Polices : Fraunces (titres), Geist (interface), Geist Mono (étiquettes).
 - **Déconnexion** : bouton « Se déconnecter » du profil (action serveur `logout`), qui supprime la session en base et le cookie.
 - **Synchronisation avec la plateforme** : `src/app/(app)/layout.tsx` exige une session (`requireUser`) et transmet l'utilisateur connecté à toute l'interface (`SessionIdentityProvider` dans `src/components/profile/useProfile.ts`) : `useProfile()` reprend son prénom, son nom, son e-mail et son entreprise depuis la base, et les retouches de profil faites dans le navigateur sont rangées par compte. `src/app/(app)/admin/layout.tsx` réserve tout le back-office aux administrateurs (`requireAdmin`) ; le lien « Back-office CanCham » n'apparaît que pour eux, un administrateur arrive directement sur `/admin` après connexion, et « Se déconnecter » dans la barre latérale ferme vraiment la session.
 - **Niveaux d'accès** : colonne `acces` des utilisateurs (`MEMBRE` par défaut, ou `ADMIN`, migration `20261015120000_acces_utilisateurs`), lue avec la session ; `requireAdmin()` (`src/lib/session.ts`) renvoie vers l'accueil un compte qui n'est pas administrateur. Comptes de test créés par le seed : membre `membre@gmail.com` / `12345678`, administrateur `admin@gmail.com` / `12345678` (mots de passe remis à `12345678` à chaque seed).
+- **Annuaire et profils en base** : les annuaires (`/annuaire` et `/admin/participants`) affichent les comptes membres de la base (`src/lib/annuaire.ts`), et non plus des fiches d'exemple ; l'annuaire des participants n'affiche pas l'utilisateur connecté. Le profil (entreprise, fonction, secteur, présentation, téléphone, site web) est enregistré en base à chaque modification (`updateProfile` appelle l'action `enregistrerProfil`, colonnes ajoutées par la migration `20261015130000_profil_annuaire`). Depuis le back-office, « Voir le profil » modifie la fiche et l'état du billet en base (`billet_paye`).
+- **Administrateurs** : page `/admin/administrateurs` (menu Pilotage). Une adresse déjà inscrite est promue administrateur ; une nouvelle adresse crée un compte administrateur avec un mot de passe provisoire. « Retirer les droits » repasse un compte en membre, sauf le sien et le dernier administrateur. Chaque action vérifie côté serveur que l'appelant est administrateur.
+- **Back-office protégé côté serveur** : les routes `/api/admin/*` (`refusSiNonAdmin()`) et les actions de `src/app/(app)/admin/ressources/actions.ts` (`estAdmin()`) refusent tout compte qui n'est pas administrateur (403), en plus du layout `/admin`. Les routes d'envoi (`/api/admin/*`, `/api/videos`) sont exclues de `proxy.ts` pour que leurs fichiers ne soient pas mis en mémoire ni coupés à 10 Mo, et vérifient elles-mêmes la session.
+- **Vidéos dans les publications** : le bouton « Vidéo » de l'accueil envoie une vidéo MP4, MOV ou WebM (100 Mo maximum, progression affichée) à `POST /api/videos`, qui la range dans `stockage/videos/` après avoir vérifié son format ; `GET /api/videos/[id]` la diffuse en flux (lecture par morceaux) aux comptes connectés. La publication garde seulement l'adresse de la vidéo.
 - **Ajouter un compte sans passer par le formulaire** : dans `prisma/seed.ts` (comme le compte de démonstration) ou via Prisma Studio, avec un e-mail en minuscules et un mot de passe produit par `hashPassword`.
 
 ## Structure

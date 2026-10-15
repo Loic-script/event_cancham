@@ -15,15 +15,20 @@ const EMOJIS = ["😀", "😂", "🥂", "🎉", "👏", "🔥", "❤️", "🙌"
 
 type Mode = "publication" | "story";
 
+const VIDEO_MAX = 100 * 1024 * 1024;
+
 export function Composer({ admin = false, modeInitial = null, onModeConsomme }: { admin?: boolean; modeInitial?: Mode | null; onModeConsomme?: () => void }) {
   const me = useProfile();
   const [ouvert, setOuvert] = useState(false);
   const [mode, setMode] = useState<Mode>("publication");
   const [texte, setTexte] = useState("");
   const [img, setImg] = useState<string | null>(null);
+  const [video, setVideo] = useState<{ file: File; apercu: string } | null>(null);
+  const [envoi, setEnvoi] = useState<number | null>(null);
   const [emojis, setEmojis] = useState(false);
   const zone = useRef<HTMLTextAreaElement | null>(null);
   const fichier = useRef<HTMLInputElement | null>(null);
+  const fichierVideo = useRef<HTMLInputElement | null>(null);
   const story = admin && mode === "story";
 
   useEffect(() => {
@@ -55,8 +60,52 @@ export function Composer({ admin = false, modeInitial = null, onModeConsomme }: 
     window.setTimeout(() => fichier.current?.click(), 80);
   }
 
-  function publier(e: FormEvent) {
+  function ouvrirAvecVideo() {
+    ouvrir();
+    window.setTimeout(() => fichierVideo.current?.click(), 80);
+  }
+
+  function retirerVideo() {
+    if (video) URL.revokeObjectURL(video.apercu);
+    setVideo(null);
+  }
+
+  function choisirVideo(f: File | undefined) {
+    if (fichierVideo.current) fichierVideo.current.value = "";
+    if (!f) return;
+    if (!/^video\/(mp4|quicktime|webm)$/.test(f.type)) return toast("Choisissez une vidéo MP4, MOV ou WebM.");
+    if (f.size > VIDEO_MAX) return toast("Vidéo trop lourde : 100 Mo maximum.");
+    retirerVideo();
+    setImg(null);
+    setVideo({ file: f, apercu: URL.createObjectURL(f) });
+  }
+
+  function envoyerVideo(f: File): Promise<string> {
+    return new Promise((resolve, reject) => {
+      const xhr = new XMLHttpRequest();
+      xhr.open("POST", "/api/videos");
+      xhr.setRequestHeader("Content-Type", f.type || "application/octet-stream");
+      xhr.upload.onprogress = (ev) => {
+        if (ev.lengthComputable) setEnvoi(Math.round((ev.loaded / ev.total) * 100));
+      };
+      xhr.onload = () => {
+        let corps: { ok?: boolean; url?: string; message?: string } = {};
+        try {
+          corps = JSON.parse(xhr.responseText);
+        } catch {
+          corps = {};
+        }
+        if (xhr.status >= 200 && xhr.status < 300 && corps.url) resolve(corps.url);
+        else reject(new Error(corps.message ?? "La vidéo n’a pas pu être envoyée."));
+      };
+      xhr.onerror = () => reject(new Error("Connexion interrompue pendant l’envoi de la vidéo."));
+      xhr.send(f);
+    });
+  }
+
+  async function publier(e: FormEvent) {
     e.preventDefault();
+    if (envoi !== null) return;
     const tx = texte.trim();
     if (story) {
       if (!img) return toast("Choisissez la photo de la story.");
@@ -67,8 +116,20 @@ export function Composer({ admin = false, modeInitial = null, onModeConsomme }: 
       setTraversee((s) => ({ pubs: [{ id: uid("c"), texte: tx, img: img ?? undefined, date: `Publié aujourd’hui à ${heureNow().replace(":", " h ")}` }, ...s.pubs] }));
       toast("Publication en ligne sur l’accueil des participants.");
     } else {
-      if (!tx && !img) return toast("Écrivez un texte ou ajoutez une photo.");
-      setTraversee((s) => ({ posts: [{ id: uid("p"), texte: tx, img: img ?? undefined, t: Date.now() }, ...s.posts] }));
+      if (!tx && !img && !video) return toast("Écrivez un texte ou ajoutez une photo ou une vidéo.");
+      let url: string | undefined;
+      if (video) {
+        setEnvoi(0);
+        try {
+          url = await envoyerVideo(video.file);
+        } catch (err) {
+          setEnvoi(null);
+          return toast(err instanceof Error ? err.message : "La vidéo n’a pas pu être envoyée.");
+        }
+        setEnvoi(null);
+        retirerVideo();
+      }
+      setTraversee((s) => ({ posts: [{ id: uid("p"), texte: tx, img: img ?? undefined, video: url, t: Date.now() }, ...s.posts] }));
       toast("Publication partagée avec les participants.");
     }
     setTexte("");
@@ -78,7 +139,10 @@ export function Composer({ admin = false, modeInitial = null, onModeConsomme }: 
 
   async function choisir(f: File | undefined) {
     const u = await lisImage(f, 1080);
-    if (u) setImg(u);
+    if (u) {
+      retirerVideo();
+      setImg(u);
+    }
   }
 
   const prenom = admin ? "CanCham" : me.firstName;
@@ -98,7 +162,7 @@ export function Composer({ admin = false, modeInitial = null, onModeConsomme }: 
               <span>Story</span>
             </button>
           ) : (
-            <button type="button" className={`${styles.outilC} ${styles.outilVideo}`} onClick={() => toast("Les vidéos arrivent dans la prochaine version.")} aria-label="Vidéo">
+            <button type="button" className={`${styles.outilC} ${styles.outilVideo}`} onClick={ouvrirAvecVideo} aria-label="Vidéo">
               <VideoIcon width={20} height={20} />
               <span>Vidéo</span>
             </button>
@@ -160,6 +224,17 @@ export function Composer({ admin = false, modeInitial = null, onModeConsomme }: 
                 </button>
               </div>
             ) : null}
+            {video ? (
+              <div className="relative">
+                <video className={styles.une} src={video.apercu} controls playsInline preload="metadata" />
+                <button type="button" onClick={retirerVideo} disabled={envoi !== null} aria-label="Retirer la vidéo" className="absolute right-2 top-2 grid h-8 w-8 cursor-pointer place-items-center rounded-full bg-white/90 text-graphite shadow">
+                  <XIcon width={16} height={16} />
+                </button>
+                <small className="mt-1.5 block text-graphite-muted">
+                  {video.file.name} · {(video.file.size / 1024 / 1024).toFixed(1).replace(".", ",")} Mo
+                </small>
+              </div>
+            ) : null}
             {emojis && !story ? (
               <div className={styles.emojis}>
                 {EMOJIS.map((e) => (
@@ -175,6 +250,11 @@ export function Composer({ admin = false, modeInitial = null, onModeConsomme }: 
                 <button type="button" className={`${styles.outilC} ${styles.outilPhoto}`} onClick={() => fichier.current?.click()} aria-label="Joindre une photo">
                   <ImageIcon width={20} height={20} />
                 </button>
+                {admin ? null : (
+                  <button type="button" className={`${styles.outilC} ${styles.outilVideo}`} onClick={() => fichierVideo.current?.click()} aria-label="Joindre une vidéo">
+                    <VideoIcon width={20} height={20} />
+                  </button>
+                )}
                 {story ? null : (
                   <button type="button" className={`${styles.outilC} ${styles.outilEmoji}`} onClick={() => setEmojis((v) => !v)} aria-label="Émojis" aria-pressed={emojis}>
                     <SmileIcon width={20} height={20} />
@@ -183,8 +263,9 @@ export function Composer({ admin = false, modeInitial = null, onModeConsomme }: 
               </div>
             </div>
             <input ref={fichier} type="file" accept="image/*" className="sr-only" tabIndex={-1} aria-hidden onChange={(e) => void choisir(e.target.files?.[0])} />
-            <Btn variant="primary" type="submit" disabled={story ? !img : !texte.trim() && !img} className="w-full">
-              {story ? "Publier la story" : "Publier"}
+            <input ref={fichierVideo} type="file" accept="video/mp4,video/quicktime,video/webm" className="sr-only" tabIndex={-1} aria-hidden onChange={(e) => choisirVideo(e.target.files?.[0])} />
+            <Btn variant="primary" type="submit" disabled={story ? !img : (!texte.trim() && !img && !video) || envoi !== null} className="w-full">
+              {story ? "Publier la story" : envoi !== null ? `Envoi de la vidéo… ${envoi} %` : "Publier"}
             </Btn>
           </form>
         </Modal>

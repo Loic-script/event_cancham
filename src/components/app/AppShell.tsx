@@ -32,6 +32,7 @@ import {
   MessageCircleIcon,
   QrIcon,
   TrophyIcon,
+  ShieldCheckIcon,
   UsersIcon,
   VideoIcon,
   type IconProps,
@@ -77,6 +78,7 @@ const NAV_ADMIN: NavSection[] = [
       { href: "/admin", label: "Accueil", icon: HomeIcon },
       { href: "/admin/annonces", label: "Annonces", icon: MegaphoneIcon },
       { href: "/admin/messagerie", label: "Messagerie", icon: MessageCircleIcon },
+      { href: "/admin/administrateurs", label: "Administrateurs", icon: ShieldCheckIcon },
     ],
   },
   {
@@ -123,7 +125,6 @@ export function AppShell({ children }: { children: ReactNode }) {
   const router = useRouter();
   const me = useProfile();
   const session = useSessionIdentity();
-  const estAdmin = session?.acces === "ADMIN";
   const state = useTraversee();
   const [ouvert, setOuvert] = useState(false);
   const [cloche, setCloche] = useState(false);
@@ -194,14 +195,6 @@ export function AppShell({ children }: { children: ReactNode }) {
               <Link href="/" className={styles.item}>
                 <HomeIcon />
                 <span>Ouvrir l’appli participant</span>
-              </Link>
-            </div>
-          ) : estAdmin ? (
-            <div>
-              <h4>Équipe</h4>
-              <Link href="/admin" className={styles.item}>
-                <MegaphoneIcon />
-                <span>Back-office CanCham</span>
               </Link>
             </div>
           ) : null}

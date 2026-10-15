@@ -27,7 +27,7 @@ import {
 export type Rdv = { id: string; avec: string; ci: number; li: number; etat: "attente" | "confirme" | "decline" | "expire"; t: number; note?: string };
 export type Demande = { id: string; avec: string; ci: number; li: number };
 export type Achat = { quoi: string; ou: string; montant: number; etat: "Payé" | "À régler à table"; date: string };
-export type PostPerso = { id: string; texte: string; img?: string; t: number };
+export type PostPerso = { id: string; texte: string; img?: string; video?: string; t: number };
 export type Pub = { id: string; texte: string; img?: string; date: string };
 export type Annonce = { id: string; titre: string; message: string; type: AnnonceType; cta: string; img?: string; t: number };
 export type MediaAjoute = { id: string; src: string };

@@ -9,7 +9,7 @@
 
 @media (min-width: 1024px) {
   .thread {
-    position: static;
+    position: relative;
     inset: auto;
     z-index: auto;
     height: 100%;
@@ -282,7 +282,131 @@
   outline-offset: 2px;
 }
 
+.infoScrim {
+  position: absolute;
+  inset: 0;
+  z-index: 5;
+  background: rgba(11, 26, 48, 0.35);
+  animation: infoFondu 0.2s ease-out;
+}
+
+.infoPanel {
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 6;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  width: min(340px, 100%);
+  padding: calc(env(safe-area-inset-top) + 8px) 18px calc(env(safe-area-inset-bottom) + 20px);
+  overflow-y: auto;
+  background: var(--elevated);
+  border-left: 1px solid var(--line);
+  box-shadow: -24px 0 48px -28px rgba(15, 29, 44, 0.45);
+  animation: infoEntree 0.28s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.infoHead {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  min-height: 48px;
+  margin-right: -8px;
+}
+
+.infoIdentite {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  text-align: center;
+}
+
+.infoStatut {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 4px;
+  padding: 4px 10px;
+  border-radius: 999px;
+  background: var(--paper);
+  color: var(--graphite-muted);
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.infoStatut i {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--graphite-faint);
+}
+
+.infoStatutOn {
+  background: var(--palm-soft);
+  color: var(--palm-ink);
+}
+
+.infoStatutOn i {
+  background: var(--palm);
+}
+
+.infoListe {
+  display: grid;
+  margin: 0;
+  border-top: 1px solid var(--line);
+}
+
+.infoListe div {
+  display: grid;
+  gap: 2px;
+  padding: 11px 2px;
+  border-bottom: 1px solid var(--line);
+}
+
+.infoListe dt {
+  font-size: 12px;
+  color: var(--graphite-muted);
+}
+
+.infoListe dd {
+  margin: 0;
+  font-size: 14.5px;
+  font-weight: 600;
+  color: var(--graphite);
+}
+
+.infoBio {
+  padding: 14px;
+  border-radius: 12px;
+  background: var(--paper);
+}
+
+@keyframes infoEntree {
+  from { transform: translateX(24px); opacity: 0; }
+}
+
+@keyframes infoFondu {
+  from { opacity: 0; }
+}
+
+@media (max-width: 1023px) {
+  .infoScrim {
+    position: fixed;
+  }
+
+  .infoPanel {
+    position: fixed;
+    width: 100%;
+    border-left: 0;
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
+  .infoPanel,
+  .infoScrim,
   .in,
   .picker,
   .recording,

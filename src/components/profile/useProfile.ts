@@ -1,6 +1,7 @@
 "use client";
 
 import { createContext, createElement, useContext, useEffect, useSyncExternalStore, type ReactNode } from "react";
+import { enregistrerProfil } from "@/app/(app)/profil/actions";
 import { currentUser, type Country } from "@/lib/mock/data";
 
 export type ProfileOverrides = Partial<{
@@ -30,6 +31,10 @@ export type SessionIdentity = {
   lastName: string;
   role: string | null;
   company: string | null;
+  sector: string | null;
+  bio: string | null;
+  phone: string | null;
+  website: string | null;
   city: string | null;
   country: string | null;
   acces: "MEMBRE" | "ADMIN";
@@ -37,6 +42,7 @@ export type SessionIdentity = {
 };
 
 const BASE_KEY = "event.profile.v1";
+const SYNCHRONISES = ["firstName", "lastName", "company", "role", "sector", "bio", "phone", "website", "city"] as const;
 const EVENT = "event:profile";
 const EMPTY: ProfileOverrides = {};
 
@@ -94,6 +100,10 @@ function identityFields(identity: SessionIdentity | null): Partial<Profile> {
     email: identity.email,
     role: identity.role ?? "",
     company: identity.company ?? "",
+    sector: identity.sector ?? "",
+    bio: identity.bio ?? "",
+    phone: identity.phone ?? "",
+    website: identity.website ?? "",
     city: identity.city ?? "",
     country: identity.country === "CA" ? "CA" : "MG",
     memberSince: identity.createdAt.slice(0, 10),
@@ -131,6 +141,9 @@ export function useProfile(): Profile {
 
 export function updateProfile(patch: ProfileOverrides) {
   write(activeKey, { ...read(activeKey), ...patch });
+  if (activeKey === BASE_KEY) return;
+  const champs = Object.fromEntries(SYNCHRONISES.filter((k) => typeof patch[k] === "string").map((k) => [k, patch[k] as string]));
+  if (Object.keys(champs).length) void enregistrerProfil(champs).catch(() => undefined);
 }
 
 export function resetProfile() {

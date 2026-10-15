@@ -7,11 +7,14 @@ import { json } from "@/lib/ressources/servir";
 import { idValide } from "@/lib/ressources/stockage";
 import { nomFichierEntete } from "@/lib/ressources/televersement";
 import { ErreurRessource, recevoirFlux, traiterEnvoi } from "@/lib/ressources/traitement";
+import { refusSiNonAdmin } from "@/lib/session";
 
 export const dynamic = "force-dynamic";
 export const maxDuration = 900;
 
 export async function PUT(req: NextRequest, ctx: RouteContext<"/api/admin/ressources/[id]/fichier">) {
+  const refus = await refusSiNonAdmin();
+  if (refus) return refus;
   const { id } = await ctx.params;
   if (!idValide(id)) return json(404, { ok: false, message: "Ressource introuvable." });
   const r = await prisma.ressource.findUnique({ where: { id }, select: { id: true, titre: true, couverturePerso: true } });
