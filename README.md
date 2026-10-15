@@ -19,7 +19,7 @@ Application [Next.js 16](https://nextjs.org) (App Router, TypeScript, Tailwind C
    DATABASE_URL="postgresql://postgres:VOTRE_MOT_DE_PASSE@localhost:5432/event_db?schema=public"
    ```
 
-2. **Installer les dépendances** (le client Prisma est généré dans la foulée ; `npm install` échoue si `.env` n'existe pas encore) :
+2. **Installer les dépendances** (le client Prisma est généré dans la foulée, même sans `.env` : `DATABASE_URL` n'est nécessaire que pour les migrations et au démarrage, ce qui permet aussi de construire une image Docker sans la base) :
 
    ```bash
    npm install
