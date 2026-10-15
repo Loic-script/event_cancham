@@ -7,6 +7,7 @@ import livreStyles from "../livre/livre.module.css";
 import { Vignette, galerie } from "../photos/Photos";
 import photosStyles from "../photos/photos.module.css";
 import { Btn, Card, Champ, Onglets, PageHead, Puce, Vide, ui } from "../ui";
+import { AdminPrisePhoto } from "./AdminPrisePhoto";
 
 export function AdminPhotos() {
   const s = useTraversee();
@@ -15,9 +16,7 @@ export function AdminPhotos() {
   const liste = gal.filter((x) => f === "toutes" || (f === "participants" ? x.par === "vous" : x.par === "CanCham"));
   return (
     <>
-      <PageHead title="Photos et" accent="vidéos" text="Supprimez les photos et vidéos non pertinentes. Celles ajoutées par les participants sont signalées." photo="public">
-        <Puce tone="white">{gal.length} éléments en ligne</Puce>
-      </PageHead>
+      <AdminPrisePhoto total={gal.length} />
       <div className={ui.outils}>
         <Onglets
           items={[
@@ -39,6 +38,7 @@ export function AdminPhotos() {
                 className={photosStyles.suppr}
                 onClick={() => {
                   setTraversee((st) => ({ galSupprimees: [...st.galSupprimees, m.id], galAjoutees: st.galAjoutees.filter((x) => x.id !== m.id) }));
+                  if (m.src.startsWith("/api/photos/")) void fetch(m.src, { method: "DELETE" }).catch(() => undefined);
                   toast("Élément supprimé de la galerie.");
                 }}
               >

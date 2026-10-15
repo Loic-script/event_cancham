@@ -4,7 +4,7 @@ import type { TraverseeState } from "./store";
 export type StoryVue = Story & { auteur: string; media?: string };
 
 export function galerie(s: TraverseeState): Media[] {
-  const ajoutees: Media[] = s.galAjoutees.map((m) => ({ id: m.id, src: m.src, video: false, par: "vous", moi: true }));
+  const ajoutees: Media[] = s.galAjoutees.map((m) => ({ id: m.id, src: m.src, video: false, par: m.par ?? "vous", moi: (m.par ?? "vous") === "vous" }));
   return [...ajoutees, ...GALERIE].filter((m) => !s.galSupprimees.includes(m.id));
 }
 
