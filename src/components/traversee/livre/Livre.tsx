@@ -4,7 +4,7 @@ import { useState } from "react";
 import { PlayIcon, PlusIcon } from "@/components/app/icons";
 import { useProfile } from "@/components/profile/useProfile";
 import { IMG } from "@/lib/traversee/data";
-import { setTraversee, toast, uid, useTraversee } from "@/lib/traversee/store";
+import { journaliser, setTraversee, toast, uid, useTraversee } from "@/lib/traversee/store";
 import { fullName } from "@/lib/mock/data";
 import { Btn, Card, FileBtn, PageHead, Puce, Recherche, Sur, Vide, ui } from "../ui";
 import styles from "./livre.module.css";
@@ -118,6 +118,7 @@ export function Livre() {
               if (!f) return;
               const vid = URL.createObjectURL(f);
               setTraversee((st) => ({ livre: [...st.livre, { id: uid("m"), img: "accueil", vid, duree: "Votre vidéo", nom: fullName(me), texte: "Sous-titres en cours de génération.", etat: "attente", moi: true }] }));
+              journaliser({ pour: "admin", type: "livre", titre: `${fullName(me)} a laissé un message au livre d’or`, texte: "Vidéo souvenir en attente de validation.", href: "/admin/livre", acteur: fullName(me) });
               toast("Vidéo envoyée. Elle sera publiée après validation par l’équipe.");
             }}
           />

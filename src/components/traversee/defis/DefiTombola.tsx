@@ -6,7 +6,7 @@ import { updateProfile, useProfile } from "@/components/profile/useProfile";
 import { PostEmbed } from "@/components/social/PostEmbed";
 import { LEGENDE_JY_SERAI, PAGE_FACEBOOK } from "@/lib/traversee/data";
 import { idPublication } from "@/lib/traversee/pitchs";
-import { lisImage, setTraversee, toast, useTraversee } from "@/lib/traversee/store";
+import { journaliser, lisImage, setTraversee, toast, useTraversee } from "@/lib/traversee/store";
 import { fullName } from "@/lib/mock/data";
 import { parseSocialLink } from "@/lib/social/links";
 import { Modal } from "../Modal";
@@ -93,6 +93,7 @@ export function DefiTombola() {
     const u = lien.trim();
     if (!/^https?:\/\/\S+\.\S+/.test(u)) return toast("Collez le lien complet de votre publication.");
     setTraversee({ lienPub: u, lienReactions: null, lienReleve: null });
+    journaliser({ pour: "admin", type: "defi2", titre: `${nom} s’est inscrit au Défi 2`, texte: "Publication « J’y serai » ajoutée au classement · Gagnez 3 000 000 Ar.", href: "/admin/defis/tombola", acteur: nom });
     setLien("");
     toast("Publication suivie : vous entrez dans le classement.");
     void relever(u, true);

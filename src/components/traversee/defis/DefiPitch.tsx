@@ -3,8 +3,9 @@
 import { useState, type FormEvent } from "react";
 import { CheckIcon, ExternalLinkIcon, LinkIcon, PlayIcon } from "@/components/app/icons";
 import { useProfile } from "@/components/profile/useProfile";
+import { fullName } from "@/lib/mock/data";
 import { IMG, VIGNETTES } from "@/lib/traversee/data";
-import { setTraversee, toast, useTraversee } from "@/lib/traversee/store";
+import { journaliser, setTraversee, toast, useTraversee } from "@/lib/traversee/store";
 import { Modal } from "../Modal";
 import { Btn, Card, Champ, Direct, Etapes, Note, Partie, Puce, Sur, ui } from "../ui";
 import { GainPitch, Tuiles } from "./Tuiles";
@@ -62,6 +63,7 @@ export function DefiPitch() {
       return;
     }
     setTraversee({ pitch: info.url, pitchEnvoye: true });
+    journaliser({ pour: "admin", type: "defi1", titre: `${fullName(me)} a déposé son pitch`, texte: `Défi 1 · Gagnez un voyage au Canada · vidéo ${info.service} à évaluer.`, href: "/admin/defis/pitch", acteur: fullName(me) });
     setSaisie(null);
     toast(`Pitch envoyé : le lien ${info.service} est transmis au jury.`);
   }

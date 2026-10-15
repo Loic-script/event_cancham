@@ -5,7 +5,7 @@ import { Avatar } from "@/components/app/Avatar";
 import { ImageIcon, SmileIcon, VideoIcon, XIcon } from "@/components/app/icons";
 import { useProfile } from "@/components/profile/useProfile";
 import { heureNow } from "@/lib/traversee/data";
-import { lisImage, setTraversee, toast, uid } from "@/lib/traversee/store";
+import { journaliser, lisImage, setTraversee, toast, uid } from "@/lib/traversee/store";
 import { fullName } from "@/lib/mock/data";
 import { Modal } from "../Modal";
 import { AvatarSigle, Btn, Card, Onglets } from "../ui";
@@ -110,10 +110,13 @@ export function Composer({ admin = false, modeInitial = null, onModeConsomme }: 
     if (story) {
       if (!img) return toast("Choisissez la photo de la story.");
       setTraversee((s) => ({ stories: [{ id: uid("s"), img, texte: "" }, ...s.stories] }));
+      if (admin) journaliser({ pour: "participant", type: "story", titre: "CanCham Madagascar a ajouté une story", texte: "Ouvrez l’accueil pour la découvrir avant qu’elle ne disparaisse.", href: "/" });
+      else journaliser({ pour: "admin", type: "story", titre: `${fullName(me)} a partagé une story`, texte: "Visible par tous les participants en haut de l’accueil.", href: "/admin", acteur: fullName(me) });
       toast("Story publiée : elle apparaît en haut de l’accueil des participants.");
     } else if (admin) {
       if (!tx && !img) return toast("Écrivez un texte ou ajoutez une photo.");
       setTraversee((s) => ({ pubs: [{ id: uid("c"), texte: tx, img: img ?? undefined, date: `Publié aujourd’hui à ${heureNow().replace(":", " h ")}` }, ...s.pubs] }));
+      journaliser({ pour: "participant", type: "publication", titre: "CanCham Madagascar a publié une actualité", texte: tx || "Nouvelle photo dans le fil d’actualités.", href: "/" });
       toast("Publication en ligne sur l’accueil des participants.");
     } else {
       if (!tx && !img && !video) return toast("Écrivez un texte ou ajoutez une photo ou une vidéo.");
@@ -130,6 +133,7 @@ export function Composer({ admin = false, modeInitial = null, onModeConsomme }: 
         retirerVideo();
       }
       setTraversee((s) => ({ posts: [{ id: uid("p"), texte: tx, img: img ?? undefined, video: url, t: Date.now() }, ...s.posts] }));
+      journaliser({ pour: "admin", type: "publication", titre: `${fullName(me)} a publié dans le fil`, texte: tx || (url ? "Nouvelle vidéo partagée." : "Nouvelle photo partagée."), href: "/admin", acteur: fullName(me) });
       toast("Publication partagée avec les participants.");
     }
     setTexte("");

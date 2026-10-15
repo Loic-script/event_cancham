@@ -396,47 +396,6 @@
   .cherche { display: none; }
 }
 
-.cloche {
-  position: relative;
-  flex: none;
-  display: grid;
-  place-items: center;
-  width: 40px;
-  height: 40px;
-  border: 1px solid rgba(255, 255, 255, 0.18);
-  border-radius: 10px;
-  background: rgba(255, 255, 255, 0.08);
-  color: #fff;
-  cursor: pointer;
-  transition: background-color 0.2s ease, transform 0.2s ease;
-}
-
-.cloche:hover { background: rgba(255, 255, 255, 0.16); }
-.cloche:active { transform: scale(0.95); }
-.cloche svg { width: 20px; height: 20px; }
-
-.cloche b {
-  position: absolute;
-  right: -5px;
-  top: -5px;
-  min-width: 19px;
-  height: 19px;
-  padding: 0 5px;
-  border-radius: 999px;
-  background: var(--leaf);
-  color: #fff;
-  font-size: 11px;
-  font-weight: 700;
-  line-height: 19px;
-  text-align: center;
-  animation: pop 0.4s cubic-bezier(0.2, 0.8, 0.2, 1) both;
-}
-
-@keyframes pop {
-  from { transform: scale(0.4); opacity: 0; }
-  to { transform: scale(1); opacity: 1; }
-}
-
 .page {
   max-width: 1200px;
   margin: 0 auto;
@@ -546,30 +505,9 @@ body:has([role="dialog"]) .aide {
   .aide { right: 14px; bottom: calc(88px + env(safe-area-inset-bottom)); width: 52px; height: 52px; }
 }
 
-.listeAnn {
-  list-style: none;
-  margin: 0;
-  padding: 0;
-  display: grid;
-  width: 100%;
-}
-
-.listeAnn li {
-  display: grid;
-  gap: 4px;
-  padding: 14px 0;
-  border-top: 1px solid var(--line);
-  text-align: left;
-}
-
-.listeAnn li:first-child { border-top: 0; }
-.listeAnn strong { font-family: var(--font-montserrat), sans-serif; font-size: 15px; font-weight: 700; }
-.listeAnn p { font-size: 14px; color: var(--graphite-muted); white-space: pre-wrap; }
-.listeAnn time { font-size: 12px; color: var(--graphite-faint); }
-
 @media (prefers-reduced-motion: reduce) {
   .lat::before, .logo small::before, .item b, .itemOn, .item, .item svg { animation: none; transition: none; }
-  .lat, .item, .item svg, .aide, .page, .cloche b, .fond {
+  .lat, .item, .item svg, .aide, .page, .fond {
     animation: none;
     transition: none;
   }

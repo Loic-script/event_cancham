@@ -6,13 +6,12 @@ import { useEffect, useMemo, useState, type FormEvent, type ReactNode } from "re
 import { AnnonceCard } from "@/components/traversee/AnnonceCard";
 import { Modal } from "@/components/traversee/Modal";
 import { Toaster } from "@/components/traversee/Toaster";
-import { Puce } from "@/components/traversee/ui";
-import { LOGO_BLANC, TYPES_ANNONCE, heureAnn } from "@/lib/traversee/data";
+import { LOGO_BLANC } from "@/lib/traversee/data";
 import { setTraversee, useTraversee } from "@/lib/traversee/store";
 import { MenuCompte } from "./MenuCompte";
+import { Notifications } from "./Notifications";
 import {
   ArmchairIcon,
-  BellIcon,
   CameraIcon,
   BookIcon,
   CalendarDaysIcon,
@@ -121,7 +120,6 @@ export function AppShell({ children }: { children: ReactNode }) {
   const router = useRouter();
   const state = useTraversee();
   const [ouvert, setOuvert] = useState(false);
-  const [cloche, setCloche] = useState(false);
   const [recherche, setRecherche] = useState("");
   const [cheminPrecedent, setCheminPrecedent] = useState(pathname);
   if (cheminPrecedent !== pathname) {
@@ -207,18 +205,7 @@ export function AppShell({ children }: { children: ReactNode }) {
             ) : (
               <span className="ml-auto" />
             )}
-            <button
-              type="button"
-              className={styles.cloche}
-              onClick={() => {
-                toutVu();
-                setCloche(true);
-              }}
-              aria-label="Annonces"
-            >
-              <BellIcon />
-              {!admin && nonVues.length ? <b>{nonVues.length}</b> : null}
-            </button>
+            <Notifications admin={admin} />
             <MenuCompte admin={admin} />
           </header>
         ) : null}
@@ -250,33 +237,6 @@ export function AppShell({ children }: { children: ReactNode }) {
         <Link href="/messages/c1" className={styles.aide} aria-label="Écrire à l’équipe CanCham">
           <HeadsetIcon />
         </Link>
-      ) : null}
-
-      {cloche ? (
-        <Modal onClose={() => setCloche(false)} label="Annonces" size="large">
-          <h3 className="font-display text-[20px] text-graphite">Annonces</h3>
-          <ul className={styles.listeAnn}>
-            {state.annonces.length ? (
-              state.annonces.map((a) => (
-                <li key={a.id}>
-                  <div className="flex flex-wrap items-center gap-2">
-                    <Puce tone={a.type === "urgent" ? "red" : "blue"}>{TYPES_ANNONCE[a.type]}</Puce>
-                    <time>{heureAnn(a.t)}</time>
-                  </div>
-                  <strong>{a.titre}</strong>
-                  <p>{a.message}</p>
-                </li>
-              ))
-            ) : (
-              <li>
-                <p>Aucune annonce pour l’instant.</p>
-              </li>
-            )}
-          </ul>
-          <button type="button" onClick={() => setCloche(false)} className="h-11 cursor-pointer rounded-xl border border-line bg-surface text-[13px] font-bold text-graphite hover:border-gold hover:text-gold">
-            Fermer
-          </button>
-        </Modal>
       ) : null}
 
       {popup ? (

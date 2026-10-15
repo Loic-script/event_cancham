@@ -6,7 +6,7 @@ import { useProfile } from "@/components/profile/useProfile";
 import { fullName } from "@/lib/mock/data";
 import { parseSocialLink } from "@/lib/social/links";
 import { candidaturesTombola } from "@/lib/traversee/pitchs";
-import { setTraversee, toast, useTraversee } from "@/lib/traversee/store";
+import { journaliser, setTraversee, toast, useTraversee } from "@/lib/traversee/store";
 import { Modal } from "../Modal";
 import { Classement, LienPublication, type EntreeClassement } from "../defis/Classement";
 import cl from "../defis/classement.module.css";
@@ -49,11 +49,13 @@ export function AdminClassement() {
   function retirer(e: EntreeClassement) {
     setTraversee((st) => ({ retraitsTombola: [...st.retraitsTombola.filter((id) => id !== e.id), e.id!] }));
     setARetirer(null);
+    if (e.id === "moi") journaliser({ pour: "participant", type: "defi2", titre: "Votre publication a été retirée du classement", texte: "L’équipe CanCham a retiré votre publication « J’y serai » du Défi 2.", href: "/defis/tombola" });
     toast(`Publication de ${e.nom} retirée du classement.`);
   }
 
   function retablir(e: EntreeClassement) {
     setTraversee((st) => ({ retraitsTombola: st.retraitsTombola.filter((id) => id !== e.id) }));
+    if (e.id === "moi") journaliser({ pour: "participant", type: "defi2", titre: "Votre publication est de retour dans le classement", texte: "Votre publication « J’y serai » compte à nouveau pour le Défi 2.", href: "/defis/tombola" });
     toast(`Publication de ${e.nom} rétablie dans le classement.`);
   }
 

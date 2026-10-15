@@ -35,6 +35,8 @@ export type AConv = { id: string; nom: string; ent: string; m: { de: "eux" | "mo
 export type NotePitch = { note: number; avis: string; t: number };
 export type Scan = { code: string; nom: string; t: number };
 export type Fiche = { nom: string; role: string; ent: string; sect: string; act: string; email: string; phone: string; website: string; billet: "paye" | "attente" };
+export type TypeNotif = "annonce" | "message" | "compte" | "publication" | "story" | "defi1" | "defi2" | "rdv" | "livre";
+export type Evenement = { id: string; pour: "admin" | "participant"; type: TypeNotif; titre: string; texte: string; href: string; t: number; acteur?: string };
 
 export type TraverseeState = {
   prog: Record<string, boolean>;
@@ -80,6 +82,8 @@ export type TraverseeState = {
   scans: Scan[];
   notesPitch: Record<string, NotePitch>;
   retraitsTombola: string[];
+  journal: Evenement[];
+  notifsLues: Record<string, 1>;
 };
 
 export const DEFAULT_STATE: TraverseeState = {
@@ -128,6 +132,8 @@ export const DEFAULT_STATE: TraverseeState = {
   scans: [],
   notesPitch: {},
   retraitsTombola: [],
+  journal: [],
+  notifsLues: {},
   aconv: [
     { id: "a1", nom: "Hery Rabe", ent: "Baobab Conseil", m: [{ de: "eux", texte: "Bonjour, où puis-je retirer mon badge le 18 ?", h: "10:02" }] },
     { id: "a2", nom: "Miora Rajao", ent: "Hauts Plateaux Textile", m: [{ de: "eux", texte: "Peut-on changer de table après avoir réservé ?", h: "Hier" }, { de: "moi", texte: "Oui, depuis l’onglet Ma place : libérez votre chaise puis choisissez-en une autre.", h: "Hier" }] },
@@ -198,6 +204,10 @@ export function resetTraversee() {
 
 export function uid(prefix = "x") {
   return `${prefix}${Date.now().toString(36)}${Math.random().toString(36).slice(2, 6)}`;
+}
+
+export function journaliser(e: Omit<Evenement, "id" | "t">) {
+  setTraversee((s) => ({ journal: [{ ...e, id: uid("n"), t: Date.now() }, ...s.journal].slice(0, 80) }));
 }
 
 export function toast(message: string) {
