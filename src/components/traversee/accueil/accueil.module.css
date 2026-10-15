@@ -27,13 +27,13 @@
   gap: 10px;
   align-content: start;
   min-width: 0;
-  padding: 14px;
+  padding: 18px 14px 14px;
+  border: 1px solid rgba(242, 107, 29, 0.16);
   border-radius: 18px;
   background:
-    radial-gradient(120% 55% at 100% 0%, rgba(242, 107, 29, 0.24), transparent 60%),
-    radial-gradient(90% 40% at 0% 100%, rgba(74, 106, 148, 0.35), transparent 70%),
-    linear-gradient(165deg, #173d6c 0%, #12305a 45%, #0f1d2c 100%);
-  box-shadow: 0 26px 50px -30px rgba(15, 29, 44, 0.8), inset 0 1px 0 rgba(255, 255, 255, 0.08);
+    linear-gradient(90deg, var(--leaf), #12305a) top / 100% 4px no-repeat,
+    linear-gradient(180deg, #fff7f3 0%, #fdf0e9 100%);
+  box-shadow: 0 22px 44px -32px rgba(217, 86, 12, 0.35);
 }
 
 .colPromo > .titre {
@@ -42,7 +42,7 @@
   align-items: center;
   gap: 9px;
   padding: 2px 2px 4px;
-  color: rgba(255, 255, 255, 0.86);
+  color: var(--gold);
 }
 
 .colPromo > .titre::before {
@@ -55,8 +55,8 @@
   box-shadow: 0 0 0 4px rgba(242, 107, 29, 0.22);
 }
 
-.colPromo .promo { border-color: transparent; box-shadow: 0 14px 28px -20px rgba(0, 0, 0, 0.7); }
-.colPromo .promo:hover { border-color: rgba(242, 107, 29, 0.55); box-shadow: 0 30px 46px -24px rgba(0, 0, 0, 0.75); }
+.colPromo .promo { border-color: rgba(242, 107, 29, 0.12); box-shadow: 0 10px 22px -18px rgba(18, 48, 90, 0.4); }
+.colPromo .promo:hover { border-color: rgba(242, 107, 29, 0.5); box-shadow: 0 26px 40px -24px rgba(18, 48, 90, 0.5); }
 
 @media (max-width: 1023px) {
   .grille {
