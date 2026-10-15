@@ -144,11 +144,11 @@ Depuis le 12 octobre 2026, l’application reproduit la maquette « Plateforme L
 | Route | Page |
 |---|---|
 | `/` | Accueil : stories en cartes avec visionneuse (stories créées par la CanCham puis toutes les photos en ligne de la galerie, dérivées par `src/lib/traversee/galerie.ts` ; une photo supprimée dans Photos et vidéos disparaît des stories), publication des participants, fil (publications CanCham, actualités), quatre emplacements promotion |
-| `/programme`, `/programme/[id]` | Programme filtré par catégorie, inscription avec places restantes, fiche détaillée |
+| `/programme`, `/programme/[id]` | Dans le menu participant, page « Non disponible » pour le moment (`src/components/traversee/NonDisponible.tsx`) ; l’ancien programme reste dans `src/components/traversee/programme/Programme.tsx` pour une réactivation |
 | `/defis/pitch` | Gagnez un voyage au Canada : gain, étapes, envoi du pitch par lien vidéo (Google Drive, YouTube, Vimeo, Dropbox, OneDrive ou WeTransfer reconnus, bouton Vérifier pour ouvrir la vidéo), vote des demi-finalistes en direct, finale simulée |
 | `/defis/tombola` | Gagnez 3 000 000 Ar : affiche « J’y serai » générée (photo, nom, QR), texte à copier, lien de publication avec aperçu, classement en direct |
 | `/place` | Plan de salle de 24 tables à dix chaises, réservation d’une chaise, convives, recherche d’une entreprise |
-| `/achats` | Appel à manifestation d’intérêt MECC 2027, carte et panier, commande (table, règlement), mes achats, billet nominatif |
+| `/achats` | Dans le menu participant, page « Non disponible » pour le moment ; l’ancienne page de commande reste dans `src/components/traversee/achats/Achats.tsx` |
 | `/annuaire` | Fiches des participants, recherche et secteur, demande de rendez-vous B2B (heure, emplacement, réservation 48 h) |
 | `/rdv` | Rendez-vous confirmés avec notes, demandes envoyées (simulation de réponse), demandes reçues à valider |
 | `/ressources` | Bibliothèque de ressources ouverte à tous (voir « Bibliothèque de ressources ») : dossiers en parcours, recherche, catégories, tri, grille ou liste, lecteur protégé (`/ressources/[id]`) |

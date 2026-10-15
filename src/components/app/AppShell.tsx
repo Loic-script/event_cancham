@@ -43,9 +43,11 @@ const NAV: NavSection[] = [
     titre: "Événement",
     items: [
       { href: "/", label: "Accueil", icon: HomeIcon },
+      { href: "/programme", label: "Programme", icon: CalendarDaysIcon },
       { href: "/defis/pitch", label: "Gagnez un voyage au Canada", icon: TrophyIcon },
       { href: "/defis/tombola", label: "Gagnez 3 000 000 Ar", icon: GiftIcon },
       { href: "/place", label: "Ma place", icon: ArmchairIcon },
+      { href: "/achats", label: "Achats", icon: CartIcon },
     ],
   },
   {
