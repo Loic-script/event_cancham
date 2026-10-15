@@ -27,11 +27,36 @@
   gap: 10px;
   align-content: start;
   min-width: 0;
+  padding: 14px;
+  border-radius: 18px;
+  background:
+    radial-gradient(120% 55% at 100% 0%, rgba(242, 107, 29, 0.24), transparent 60%),
+    radial-gradient(90% 40% at 0% 100%, rgba(74, 106, 148, 0.35), transparent 70%),
+    linear-gradient(165deg, #173d6c 0%, #12305a 45%, #0f1d2c 100%);
+  box-shadow: 0 26px 50px -30px rgba(15, 29, 44, 0.8), inset 0 1px 0 rgba(255, 255, 255, 0.08);
 }
 
 .colPromo > .titre {
   grid-column: 1 / -1;
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  padding: 2px 2px 4px;
+  color: rgba(255, 255, 255, 0.86);
 }
+
+.colPromo > .titre::before {
+  content: "";
+  flex: none;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--leaf);
+  box-shadow: 0 0 0 4px rgba(242, 107, 29, 0.22);
+}
+
+.colPromo .promo { border-color: transparent; box-shadow: 0 14px 28px -20px rgba(0, 0, 0, 0.7); }
+.colPromo .promo:hover { border-color: rgba(242, 107, 29, 0.55); box-shadow: 0 30px 46px -24px rgba(0, 0, 0, 0.75); }
 
 @media (max-width: 1023px) {
   .grille {
