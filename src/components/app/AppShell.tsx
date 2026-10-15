@@ -71,7 +71,7 @@ const NAV_ADMIN: NavSection[] = [
     titre: "Événement",
     items: [
       { href: "/admin/programme", label: "Programme", icon: CalendarDaysIcon },
-      { href: "/admin/participants", label: "Participants", icon: UsersIcon },
+      { href: "/admin/participants", label: "Annuaire", icon: UsersIcon },
       { href: "/admin/scanner", label: "Scanner QR", icon: QrIcon },
       { href: "/admin/places", label: "Places", icon: ArmchairIcon },
       { href: "/admin/commandes", label: "Commandes", icon: CartIcon },
@@ -99,7 +99,7 @@ const TITRES: Record<string, string> = {
 
 const BAS = ["/", "/defis/pitch", "/place", "/annuaire"];
 const BAS_ADMIN = ["/admin", "/admin/scanner", "/admin/participants", "/admin/commandes"];
-const BAS_LABEL: Record<string, string> = { "/defis/pitch": "Défis", "/place": "Ma place", "/admin/participants": "Inscrits", "/admin/scanner": "Scanner" };
+const BAS_LABEL: Record<string, string> = { "/defis/pitch": "Défis", "/place": "Ma place", "/admin/participants": "Annuaire", "/admin/scanner": "Scanner" };
 
 function isActive(pathname: string, href: string) {
   if (href === "/" || href === "/admin") return pathname === href;
