@@ -34,8 +34,13 @@ model User {
   role         String?
   acces        Acces     @default(MEMBRE)
   company      String?
+  sector       String?
+  bio          String?   @db.VarChar(600)
+  phone        String?
+  website      String?
   city         String?
   country      String?
+  billetPaye   Boolean   @default(false) @map("billet_paye")
   createdAt    DateTime  @default(now()) @map("created_at")
   updatedAt    DateTime  @updatedAt @map("updated_at")
   sessions     Session[]

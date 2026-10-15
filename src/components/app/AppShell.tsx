@@ -32,6 +32,7 @@ import {
   MessageCircleIcon,
   QrIcon,
   TrophyIcon,
+  ShieldCheckIcon,
   UsersIcon,
   VideoIcon,
   type IconProps,
@@ -77,6 +78,7 @@ const NAV_ADMIN: NavSection[] = [
       { href: "/admin", label: "Accueil", icon: HomeIcon },
       { href: "/admin/annonces", label: "Annonces", icon: MegaphoneIcon },
       { href: "/admin/messagerie", label: "Messagerie", icon: MessageCircleIcon },
+      { href: "/admin/administrateurs", label: "Administrateurs", icon: ShieldCheckIcon },
     ],
   },
   {

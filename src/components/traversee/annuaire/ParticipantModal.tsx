@@ -10,7 +10,7 @@ import { Modal } from "../Modal";
 import { Btn, Champ, Puce, Sur, ui } from "../ui";
 import styles from "./annuaire.module.css";
 
-type Props = { fiche: FicheComplete; modifiee: boolean; onClose: () => void };
+type Props = { fiche: FicheComplete; modifiee: boolean; onClose: () => void; onSave?: (fiche: Fiche) => Promise<string | null>; inscritLe?: string };
 
 function Ligne({ icon, label, children, href }: { icon: React.ReactNode; label: string; children: React.ReactNode; href?: string }) {
   const inner = (
@@ -32,18 +32,19 @@ function Ligne({ icon, label, children, href }: { icon: React.ReactNode; label: 
   );
 }
 
-export function ParticipantModal({ fiche, modifiee, onClose }: Props) {
+export function ParticipantModal({ fiche, modifiee, onClose, onSave, inscritLe }: Props) {
   const [edition, setEdition] = useState(false);
   const [grand, setGrand] = useState(false);
   const [copie, setCopie] = useState(false);
+  const [envoi, setEnvoi] = useState(false);
   const [f, setF] = useState<Fiche>(fiche);
   const maj = (k: keyof Fiche) => (e: { target: { value: string } }) => setF({ ...f, [k]: e.target.value });
 
-  function enregistrer(e: FormEvent) {
+  async function enregistrer(e: FormEvent) {
     e.preventDefault();
     const nom = f.nom.trim();
     const ent = f.ent.trim();
-    if (!nom || !ent) return toast("Le nom et l’entreprise sont obligatoires.");
+    if (!nom || (!onSave && !ent)) return toast(onSave ? "Le nom est obligatoire." : "Le nom et l’entreprise sont obligatoires.");
     const email = f.email.trim();
     if (email && !/^[^\s@]+@[^\s@]+$/.test(email)) return toast("Adresse e-mail invalide.");
     const phone = f.phone.trim();
@@ -52,7 +53,14 @@ export function ParticipantModal({ fiche, modifiee, onClose }: Props) {
     if (website && !/^https?:\/\//i.test(website)) website = `https://${website}`;
     if (website && !/^https?:\/\/[^\s/]+\.[^\s]+$/i.test(website)) return toast("Adresse de site web invalide.");
     const propre: Fiche = { ...f, nom, ent, role: f.role.trim(), act: f.act.trim(), email, phone, website };
-    setTraversee((s) => ({ fiches: { ...s.fiches, [fiche.id]: propre } }));
+    if (onSave) {
+      setEnvoi(true);
+      const erreur = await onSave(propre);
+      setEnvoi(false);
+      if (erreur) return toast(erreur);
+    } else {
+      setTraversee((s) => ({ fiches: { ...s.fiches, [fiche.id]: propre } }));
+    }
     setF(propre);
     setEdition(false);
     toast("Profil du participant enregistré.");
@@ -92,14 +100,13 @@ export function ParticipantModal({ fiche, modifiee, onClose }: Props) {
           <span className={styles.pLg}>{initiales(f.nom)}</span>
           <div className="min-w-0">
             <h3>{f.nom}</h3>
-            <p>
-              {f.role} · {f.ent}
-            </p>
+            <p>{[f.role, f.ent].filter(Boolean).join(" · ") || "Profil à compléter"}</p>
           </div>
         </div>
         <div className={styles.pPuces}>
-          <Puce tone="white">{f.sect}</Puce>
+          {f.sect ? <Puce tone="white">{f.sect}</Puce> : null}
           <Puce tone={billet ? "green" : "red"}>{billet ? "Billet payé" : "Paiement en attente"}</Puce>
+          {inscritLe ? <Puce tone="grey">Inscrit le {new Date(inscritLe).toLocaleDateString("fr-FR")}</Puce> : null}
           {modifiee ? <Puce tone="grey">Modifié par CanCham</Puce> : null}
         </div>
       </header>
@@ -126,12 +133,14 @@ export function ParticipantModal({ fiche, modifiee, onClose }: Props) {
             <Sur>Entreprise</Sur>
             <div className={ui.g2}>
               <Champ label="Nom de l’entreprise" htmlFor="p-ent">
-                <input id="p-ent" className={ui.saisie} required value={f.ent} onChange={maj("ent")} />
+                <input id="p-ent" className={ui.saisie} required={!onSave} value={f.ent} onChange={maj("ent")} />
               </Champ>
               <Champ label="Secteur" htmlFor="p-sect">
                 <select id="p-sect" className={ui.saisie} value={f.sect} onChange={maj("sect")}>
                   {[...new Set([...SECTEURS, f.sect])].map((x) => (
-                    <option key={x}>{x}</option>
+                    <option key={x} value={x}>
+                      {x || "Non renseigné"}
+                    </option>
                   ))}
                 </select>
               </Champ>
@@ -189,7 +198,7 @@ export function ParticipantModal({ fiche, modifiee, onClose }: Props) {
                 <BriefcaseIcon width={18} height={18} />
               </span>
               <div className="min-w-0">
-                <strong>{f.ent}</strong>
+                <strong>{f.ent || "Entreprise non renseignée"}</strong>
                 <p>{f.act || "Activité non renseignée."}</p>
               </div>
             </div>
@@ -243,9 +252,9 @@ export function ParticipantModal({ fiche, modifiee, onClose }: Props) {
       <footer className={styles.pPied}>
         {edition ? (
           <>
-            <Btn key="enregistrer" variant="primary" type="submit" form="p-form">
+            <Btn key="enregistrer" variant="primary" type="submit" form="p-form" disabled={envoi}>
               <CheckIcon width={16} height={16} />
-              Enregistrer
+              {envoi ? "Enregistrement…" : "Enregistrer"}
             </Btn>
             <Btn
               key="annuler"

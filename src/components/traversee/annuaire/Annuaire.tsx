@@ -1,30 +1,38 @@
 "use client";
 
-import { useSearchParams } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { Suspense, useState } from "react";
-import { ANNUAIRE, CRENEAUX, IMG, LIEUX, initiales, personnes } from "@/lib/traversee/data";
-import { fichesParticipants } from "@/lib/traversee/participants";
+import { modifierParticipant } from "@/app/(app)/admin/participants/actions";
+import type { FicheInscrit } from "@/lib/annuaire";
+import { CRENEAUX, IMG, LIEUX, initiales } from "@/lib/traversee/data";
+import type { Fiche } from "@/lib/traversee/store";
 import { useTraversee } from "@/lib/traversee/store";
 import { Btn, Card, PageHead, Puce, Recherche, Sur, ui } from "../ui";
 import { ParticipantModal } from "./ParticipantModal";
 import { RdvModal } from "./RdvModal";
 import styles from "./annuaire.module.css";
 
-const PERSONNES = personnes();
-const SECTEURS = [...new Set(ANNUAIRE.map((x) => x.secteur))].sort();
+type Props = { participants: FicheInscrit[]; admin?: boolean };
 
-function Liste({ admin = false }: { admin?: boolean }) {
+function Liste({ participants, admin = false }: Props) {
+  const router = useRouter();
   const params = useSearchParams();
   const [q, setQ] = useState(params.get("q") ?? "");
   const [secteur, setSecteur] = useState("");
   const [rdv, setRdv] = useState<string | null>(null);
   const [profil, setProfil] = useState<string | null>(null);
   const s = useTraversee();
-  const tous = fichesParticipants(s);
-  const ouvert = profil ? tous.find((p) => p.id === profil) : undefined;
+  const secteurs = [...new Set(participants.map((p) => p.sect).filter(Boolean))].sort();
+  const ouvert = profil ? participants.find((p) => p.id === profil) : undefined;
   const actifs = s.rdv.filter((r) => r.etat === "confirme" || r.etat === "attente");
   const ql = q.toLowerCase().trim();
-  const liste = tous.filter((p) => (!ql || `${p.nom} ${p.ent} ${p.role} ${p.sect}`.toLowerCase().includes(ql)) && (!secteur || p.sect === secteur));
+  const liste = participants.filter((p) => (!ql || `${p.nom} ${p.ent} ${p.role} ${p.sect}`.toLowerCase().includes(ql)) && (!secteur || p.sect === secteur));
+
+  async function enregistrer(userId: number, fiche: Fiche) {
+    const { error } = await modifierParticipant(userId, fiche);
+    if (!error) router.refresh();
+    return error;
+  }
 
   return (
     <>
@@ -50,12 +58,14 @@ function Liste({ admin = false }: { admin?: boolean }) {
       ) : null}
       <div className={ui.outils}>
         <Recherche value={q} onChange={setQ} placeholder="Rechercher par nom, entreprise, rôle ou secteur…" label="Rechercher dans l’annuaire" className={ui.recherche} />
-        <select className={ui.saisie} style={{ width: "auto" }} value={secteur} onChange={(e) => setSecteur(e.target.value)} aria-label="Secteur">
-          <option value="">Tous les secteurs</option>
-          {SECTEURS.map((x) => (
-            <option key={x}>{x}</option>
-          ))}
-        </select>
+        {secteurs.length ? (
+          <select className={ui.saisie} style={{ width: "auto" }} value={secteur} onChange={(e) => setSecteur(e.target.value)} aria-label="Secteur">
+            <option value="">Tous les secteurs</option>
+            {secteurs.map((x) => (
+              <option key={x}>{x}</option>
+            ))}
+          </select>
+        ) : null}
       </div>
       {liste.length ? (
         <div className={`${styles.fiches} ${ui.stagger}`}>
@@ -65,12 +75,14 @@ function Liste({ admin = false }: { admin?: boolean }) {
               <div className={styles.corps}>
                 <div className={styles.lg}>{initiales(p.nom)}</div>
                 <h3>{p.nom}</h3>
-                <p className={styles.ent}>{p.ent}</p>
-                <p className={styles.role}>{p.role}</p>
-                <div>
-                  <Puce>{p.sect}</Puce>
-                </div>
-                <p>{p.act}</p>
+                <p className={styles.ent}>{p.ent || "Entreprise non renseignée"}</p>
+                {p.role ? <p className={styles.role}>{p.role}</p> : null}
+                {p.sect ? (
+                  <div>
+                    <Puce>{p.sect}</Puce>
+                  </div>
+                ) : null}
+                {p.act ? <p>{p.act}</p> : null}
                 <div className={styles.actions}>
                   {admin ? (
                     <>
@@ -84,7 +96,7 @@ function Liste({ admin = false }: { admin?: boolean }) {
                       <Btn small variant="primary" href="/messages">
                         Écrire
                       </Btn>
-                      <Btn small onClick={() => setRdv(`${p.nom} · ${p.ent}`)}>
+                      <Btn small onClick={() => setRdv(p.ent ? `${p.nom} · ${p.ent}` : p.nom)}>
                         Rendez-vous
                       </Btn>
                     </>
@@ -95,26 +107,37 @@ function Liste({ admin = false }: { admin?: boolean }) {
           ))}
         </div>
       ) : (
-        <p className={ui.vide}>Aucun participant ne correspond.</p>
+        <p className={ui.vide}>{participants.length ? "Aucun participant ne correspond." : admin ? "Aucun participant inscrit pour le moment." : "Aucun autre participant inscrit pour le moment."}</p>
       )}
       {rdv ? <RdvModal nom={rdv} onClose={() => setRdv(null)} /> : null}
-      {ouvert ? <ParticipantModal key={ouvert.id} fiche={ouvert} modifiee={Boolean(s.fiches[ouvert.id])} onClose={() => setProfil(null)} /> : null}
+      {ouvert ? (
+        <ParticipantModal
+          key={`${ouvert.id}-${ouvert.nom}-${ouvert.email}`}
+          fiche={ouvert}
+          modifiee={false}
+          inscritLe={ouvert.inscritLe}
+          onSave={(fiche) => enregistrer(ouvert.userId, fiche)}
+          onClose={() => setProfil(null)}
+        />
+      ) : null}
     </>
   );
 }
 
-export function Annuaire({ admin = false }: { admin?: boolean }) {
+export function Annuaire({ participants, admin = false }: Props) {
   return (
     <>
       {admin ? (
-        <PageHead title="Participants" accent="inscrits" text="Ouvrez une fiche pour voir et modifier le profil d’un participant. Liste d’exemple : la vraie liste viendra de la billetterie." photo="reseau">
-          <Puce tone="white">{PERSONNES.length} inscrits</Puce>
+        <PageHead title="Participants" accent="inscrits" text="Les membres inscrits sur la plateforme. Ouvrez une fiche pour voir et modifier un profil ou l’état du billet." photo="reseau">
+          <Puce tone="white">
+            {participants.length} inscrit{participants.length > 1 ? "s" : ""}
+          </Puce>
         </PageHead>
       ) : (
-        <PageHead title="Annuaire des" accent="participants" text="Chaque participant avec son entreprise, son rôle et l’activité de l’entreprise." photo="reseau" />
+        <PageHead title="Annuaire des" accent="participants" text="Chaque participant avec son entreprise, son rôle et ce qu’il vient chercher à la Traversée." photo="reseau" />
       )}
       <Suspense fallback={null}>
-        <Liste admin={admin} />
+        <Liste participants={participants} admin={admin} />
       </Suspense>
     </>
   );
