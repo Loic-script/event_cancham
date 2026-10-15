@@ -183,15 +183,6 @@ export function AppShell({ children }: { children: ReactNode }) {
               })}
             </div>
           ))}
-          {admin ? (
-            <div>
-              <h4>Aperçu</h4>
-              <Link href="/" className={styles.item}>
-                <HomeIcon />
-                <span>Ouvrir l’appli participant</span>
-              </Link>
-            </div>
-          ) : null}
         </nav>
       </aside>
       {ouvert ? <div className={styles.fond} onClick={() => setOuvert(false)} aria-hidden /> : null}

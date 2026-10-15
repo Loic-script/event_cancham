@@ -7,7 +7,7 @@ import { logout } from "@/app/connexion/actions";
 import { useProfile, useSessionIdentity } from "@/components/profile/useProfile";
 import { fullName } from "@/lib/mock/data";
 import { Avatar } from "./Avatar";
-import { ChevronRightIcon, HomeIcon, LogOutIcon, MegaphoneIcon, TicketIcon, UserIcon } from "./icons";
+import { ChevronRightIcon, LogOutIcon, MegaphoneIcon, TicketIcon, UserIcon } from "./icons";
 import styles from "./menuCompte.module.css";
 
 export function MenuCompte({ admin }: { admin: boolean }) {
@@ -81,14 +81,7 @@ export function MenuCompte({ admin }: { admin: boolean }) {
               Mon billet
             </Link>
           ) : null}
-          {admin ? (
-            <Link href="/" className={styles.option} role="menuitem">
-              <span className={styles.icone}>
-                <HomeIcon width={18} height={18} />
-              </span>
-              Espace participant
-            </Link>
-          ) : estAdmin ? (
+          {!admin && estAdmin ? (
             <Link href="/admin" className={styles.option} role="menuitem">
               <span className={styles.icone}>
                 <MegaphoneIcon width={18} height={18} />
