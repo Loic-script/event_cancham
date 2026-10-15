@@ -1,11 +1,30 @@
 import "dotenv/config";
 import { PrismaPg } from "@prisma/adapter-pg";
 import { PrismaClient } from "../src/generated/prisma/client";
+import { hashPassword } from "../src/lib/password";
 
 const adapter = new PrismaPg({ connectionString: process.env.DATABASE_URL });
 const prisma = new PrismaClient({ adapter });
 
+const DEMO_EMAIL = "faneva.loic@event-studio.mg";
+const DEMO_PASSWORD = "LaTraversee2026!";
+
 async function main() {
+  await prisma.user.upsert({
+    where: { email: DEMO_EMAIL },
+    update: {},
+    create: {
+      email: DEMO_EMAIL,
+      passwordHash: await hashPassword(DEMO_PASSWORD),
+      firstName: "Faneva",
+      lastName: "Loïc",
+      role: "Fondateur",
+      company: "Event Studio",
+      city: "Antananarivo",
+      country: "MG",
+    },
+  });
+
   await prisma.event.createMany({
     data: [
       {
@@ -25,7 +44,7 @@ async function main() {
     ],
     skipDuplicates: true,
   });
-  console.log("Seed terminé : événements insérés.");
+  console.log(`Seed terminé : événements insérés, compte de démonstration ${DEMO_EMAIL} (mot de passe : ${DEMO_PASSWORD}).`);
 }
 
 main()

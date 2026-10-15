@@ -1,11 +1,18 @@
 import { prisma } from "@/lib/prisma";
+import { getCurrentUser } from "@/lib/session";
+
+const unauthorized = () => Response.json({ error: "Connexion requise." }, { status: 401 });
 
 export async function GET() {
+  if (!(await getCurrentUser())) return unauthorized();
+
   const events = await prisma.event.findMany({ orderBy: { startsAt: "asc" } });
   return Response.json(events);
 }
 
 export async function POST(request: Request) {
+  if (!(await getCurrentUser())) return unauthorized();
+
   const body = await request.json().catch(() => null);
 
   if (!body || typeof body.title !== "string" || !body.startsAt) {
