@@ -9,6 +9,11 @@ const prisma = new PrismaClient({ adapter });
 const DEMO_EMAIL = "faneva.loic@event-studio.mg";
 const DEMO_PASSWORD = "LaTraversee2026!";
 
+const TEST_ACCOUNTS = [
+  { email: "membre@gmail.com", password: "12345678", firstName: "Membre", lastName: "Test", acces: "MEMBRE" },
+  { email: "admin@gmail.com", password: "12345678", firstName: "Admin", lastName: "CanCham", acces: "ADMIN" },
+] as const;
+
 async function main() {
   await prisma.user.upsert({
     where: { email: DEMO_EMAIL },
@@ -24,6 +29,26 @@ async function main() {
       country: "MG",
     },
   });
+
+  for (const account of TEST_ACCOUNTS) {
+    const passwordHash = await hashPassword(account.password);
+    await prisma.user.upsert({
+      where: { email: account.email },
+      update: { passwordHash, acces: account.acces },
+      create: {
+        email: account.email,
+        passwordHash,
+        firstName: account.firstName,
+        lastName: account.lastName,
+        acces: account.acces,
+      },
+    });
+  }
+
+  if ((await prisma.event.count()) > 0) {
+    console.log(`Seed terminé : comptes de démonstration et de test à jour (${TEST_ACCOUNTS.map((a) => a.email).join(", ")}), événements déjà présents.`);
+    return;
+  }
 
   await prisma.event.createMany({
     data: [

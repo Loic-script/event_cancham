@@ -14,6 +14,7 @@ const userSelect = {
   firstName: true,
   lastName: true,
   role: true,
+  acces: true,
   company: true,
   city: true,
   country: true,
@@ -62,6 +63,12 @@ export const getCurrentUser = cache(async (): Promise<SessionUser | null> => {
 export async function requireUser(): Promise<SessionUser> {
   const user = await getCurrentUser();
   if (!user) redirect(LOGIN_PATH);
+  return user;
+}
+
+export async function requireAdmin(): Promise<SessionUser> {
+  const user = await requireUser();
+  if (user.acces !== "ADMIN") redirect("/");
   return user;
 }
 
