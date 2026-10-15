@@ -11,6 +11,7 @@ export type Challenge = {
   prize: string;
   prizeNote: string;
   summary: string;
+  hook: string;
   steps: string[];
   notes: string[];
   kind: ChallengeKind;
@@ -33,10 +34,11 @@ export const challenges: Challenge[] = [
     prize: "5 000 000 Ar",
     prizeNote: "à gagner",
     summary: "Annoncez votre venue au gala sur les réseaux et faites réagir votre communauté.",
+    hook: "Annoncez votre venue, faites réagir votre réseau.",
     steps: [
       "Publiez une photo de vous sur Facebook ou Instagram en taguant **@CanCham Madagascar** et en annonçant que vous serez au gala.",
       "Invitez votre réseau à réagir à votre publication.",
-      "Ajoutez votre photo et le lien de votre publication ci-dessous pour valider votre participation.",
+      "Collez le lien de votre publication ci-dessous pour valider votre participation.",
     ],
     notes: [
       "Relevé des réactions par l'équipe le **[date d'arrêt à fixer]**. Les comptes ou réactions suspects sont exclus. La publication doit rester publique jusqu'à l'annonce du gagnant pendant la soirée.",
@@ -56,6 +58,7 @@ export const challenges: Challenge[] = [
     prize: "Une MECC tout inclus",
     prizeNote: "participation, billet d'avion, logement, per diem : tout est pris en charge par la CanCham",
     summary: "Déposez la vidéo de pitch de votre entreprise et décrochez une mission tout inclus.",
+    hook: "Deux minutes de pitch, une mission au Canada.",
     steps: [
       "Déposez la vidéo de pitch de votre entreprise (**2 minutes maximum**) dans l'application.",
       "Le jury étudie toutes les candidatures et présélectionne 10 projets.",
@@ -76,9 +79,10 @@ export const challenges: Challenge[] = [
     prize: "5 000 000 Ar",
     prizeNote: "à gagner",
     summary: "Partagez votre plus belle photo de la soirée et récoltez le plus de réactions.",
+    hook: "La plus belle photo de la soirée l’emporte.",
     steps: [
       "Publiez une photo de vous prise pendant le gala, en taguant **@CanCham Madagascar**.",
-      "Ajoutez votre photo et le lien de votre publication ici pour valider votre participation.",
+      "Collez le lien de votre publication ici pour valider votre participation.",
       "La publication avec le plus de réactions au **28 décembre 2026 à 19 h** (J+10) l'emporte. Annonce en direct sur nos réseaux.",
     ],
     notes: ["Réservé aux participants dont le billet a été scanné à l'entrée du gala."],

@@ -7,7 +7,6 @@ export type Participation = {
   slug: ChallengeSlug;
   submittedAt: string;
   status: "received";
-  photo?: string;
   link?: string;
   video?: { name: string; seconds: number; sizeMb: number };
   company?: string;

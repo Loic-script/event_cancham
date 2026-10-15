@@ -74,7 +74,7 @@
 }
 
 .mine {
-  background: linear-gradient(145deg, #007140, #005a33);
+  background: linear-gradient(145deg, #1f4f86, #12305a);
   color: #fff;
   border-bottom-right-radius: 6px;
 }
@@ -124,16 +124,16 @@
 }
 
 .item:hover {
-  background: rgba(0, 113, 64, 0.05);
+  background: rgba(18, 48, 90, 0.05);
 }
 
 .itemActive,
 .itemActive:hover {
-  background: var(--palm-soft);
+  background: var(--gold-soft);
 }
 
 .item:focus-visible {
-  outline: 2px solid var(--palm);
+  outline: 2px solid var(--gold);
   outline-offset: -2px;
 }
 
@@ -184,7 +184,7 @@
 
 .emoji:hover,
 .emoji:focus-visible {
-  background: var(--palm-soft);
+  background: var(--leaf-soft);
   transform: scale(1.18);
   outline: none;
 }
@@ -225,7 +225,7 @@
   max-width: 5px;
   height: 30%;
   border-radius: 3px;
-  background: var(--palm);
+  background: var(--leaf);
   animation: eq 0.9s ease-in-out infinite;
 }
 

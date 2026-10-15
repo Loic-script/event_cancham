@@ -1,9 +1,11 @@
 "use client";
 
 import { useState } from "react";
-import { CheckIcon, ExternalLinkIcon, FilmIcon, LockIcon, PencilIcon, TrashIcon } from "@/components/app/icons";
+import { CheckIcon, ExternalLinkIcon, FilmIcon, LinkIcon, LockIcon, PencilIcon, TrashIcon } from "@/components/app/icons";
 import appStyles from "@/components/app/app.module.css";
 import { opensAtLabel, type Challenge, type ChallengeStatus } from "@/lib/mock/challenges";
+import { PostEmbed } from "@/components/social/PostEmbed";
+import { parseSocialLink } from "@/lib/social/links";
 import { ParticipationSheet } from "./ParticipationSheet";
 import { removeParticipation, useParticipation } from "./useParticipation";
 import styles from "./challenges.module.css";
@@ -22,9 +24,10 @@ export function ChallengeActions({ challenge, status }: ChallengeActionsProps) {
   const isVideo = challenge.kind === "video";
 
   if (participation) {
+    const linked = participation.link ? parseSocialLink(participation.link) : null;
     return (
       <>
-        <section className={`${appStyles.card} ${styles.mine} p-4`} aria-label="Votre participation">
+        <section className={`${appStyles.card} ${styles.mine} m-bleed p-4`} aria-label="Votre participation">
           <div className="mb-3 flex items-center justify-between gap-3">
             <h2 className="text-[15px] font-semibold text-graphite">Votre participation</h2>
             <span className="inline-flex items-center gap-1.5 rounded-full bg-palm-soft px-2.5 py-1 text-[12px] font-semibold text-palm-ink">
@@ -33,13 +36,9 @@ export function ChallengeActions({ challenge, status }: ChallengeActionsProps) {
             </span>
           </div>
           <div className="flex gap-3">
-            {participation.photo ? (
-              <img src={participation.photo} alt="Votre photo" className={styles.thumb} />
-            ) : (
-              <span className={`${styles.thumb} grid place-items-center text-graphite-muted`}>
-                <FilmIcon width={26} height={26} />
-              </span>
-            )}
+            <span className={`${styles.thumb} grid place-items-center text-graphite-muted`}>
+              {isVideo ? <FilmIcon width={26} height={26} /> : <LinkIcon width={26} height={26} />}
+            </span>
             <div className="min-w-0 flex-1 text-[13.5px] leading-5 text-graphite-muted">
               <p>Envoyée le {when.format(new Date(participation.submittedAt))}.</p>
               {participation.company ? <p className="truncate font-semibold text-graphite">{participation.company}</p> : null}
@@ -53,6 +52,11 @@ export function ChallengeActions({ challenge, status }: ChallengeActionsProps) {
               ) : null}
             </div>
           </div>
+          {linked?.ok ? (
+            <div className="mt-4">
+              <PostEmbed link={linked} height={420} />
+            </div>
+          ) : null}
           <div className="mt-4 flex gap-2">
             <button
               type="button"
@@ -92,7 +96,7 @@ export function ChallengeActions({ challenge, status }: ChallengeActionsProps) {
 
   if (status.key === "locked") {
     return (
-      <div className={`${appStyles.card} flex items-start gap-3 p-4`}>
+      <div className={`${appStyles.card} m-bleed flex items-start gap-3 p-4`}>
         <span className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-paper text-graphite-muted">
           <LockIcon width={20} height={20} />
         </span>
@@ -105,7 +109,7 @@ export function ChallengeActions({ challenge, status }: ChallengeActionsProps) {
   }
 
   if (status.key === "closed") {
-    return <p className={`${appStyles.card} p-4 text-center text-[14px] text-graphite-muted`}>Ce défi est terminé. Merci à toutes les personnes qui ont participé !</p>;
+    return <p className={`${appStyles.card} m-bleed p-4 text-center text-[14px] text-graphite-muted`}>Ce défi est terminé. Merci à toutes les personnes qui ont participé !</p>;
   }
 
   return (

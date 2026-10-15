@@ -1,9 +1,8 @@
 import type { Metadata, Viewport } from "next";
 import Image from "next/image";
 import Link from "next/link";
-import { ArrowLeftIcon, ChevronRightIcon, QrIcon, SparklesIcon, TrophyIcon, UsersIcon, XIcon } from "@/components/app/icons";
-import { StatusChip } from "@/components/challenges/StatusChip";
-import { DiscoverProgress } from "@/components/discover/DiscoverProgress";
+import { ArrowLeftIcon, ChevronRightIcon, QrIcon, SparklesIcon, XIcon } from "@/components/app/icons";
+import { ChallengePicker } from "@/components/discover/ChallengePicker";
 import styles from "@/components/discover/discover.module.css";
 import { daysUntil } from "@/lib/format";
 import { challenges, challengeStatus } from "@/lib/mock/challenges";
@@ -49,7 +48,7 @@ export default function DiscoverPage() {
       </header>
 
       <main className={`${styles.stagger} mx-auto flex max-w-5xl flex-col gap-10 px-4 pb-36 pt-8 lg:px-8 lg:pt-12`}>
-        <section className={`${styles.glass} p-6 lg:p-10`} style={{ "--i": 0 } as React.CSSProperties} aria-labelledby="discover-title">
+        <section className={`${styles.glass} m-bleed p-6 lg:p-10`} style={{ "--i": 0 } as React.CSSProperties} aria-labelledby="discover-title">
           <p className="flex items-center gap-2 font-mono text-[11px] uppercase tracking-[0.18em] text-white/70">
             <SparklesIcon width={14} height={14} />
             {event.edition} · {event.dateLabel}
@@ -91,60 +90,28 @@ export default function DiscoverPage() {
         </section>
 
         <section id="choisir" className="scroll-mt-24" style={{ "--i": 1 } as React.CSSProperties} aria-labelledby="pick-title">
-          <p className="font-mono text-[11px] uppercase tracking-[0.18em] text-white/60">Étape 1</p>
-          <h2 id="pick-title" className="mt-2 font-display text-[1.9rem] leading-tight lg:text-[2.4rem]">
+          <h2 id="pick-title" className="font-display text-[1.9rem] leading-tight lg:text-[2.4rem]">
             Choisissez le défi
             <br />
             que vous voulez relever.
           </h2>
-          <div className={`${styles.pick} mt-6`}>
-            {challenges.map((c, i) => {
-              const s = statuses[i];
-              const featured = i === featuredIndex;
-              return (
-                <Link
-                  key={c.slug}
-                  href={`/decouvrir/${c.slug}`}
-                  className={`${styles.glass} ${styles.card} ${featured ? styles.featured : ""} ${s.key === "locked" ? styles.locked : ""}`}
-                  aria-label={`Défi ${c.number} : ${c.title}, ${s.label}`}
-                >
-                  <div className="flex items-start justify-between gap-3">
-                    <span className={styles.num}>{c.number}</span>
-                    <StatusChip status={s} />
-                  </div>
-                  <div>
-                    <p className="font-mono text-[10.5px] uppercase tracking-[0.18em] text-white/65">{c.phase}</p>
-                    <h3 className="mt-1 font-display text-[1.35rem] leading-tight">{c.title}</h3>
-                  </div>
-                  <p className="text-[13.5px] leading-5 text-white/80">{c.summary}</p>
-                  <div className="mt-auto flex items-end justify-between gap-3 pt-2">
-                    <p className="font-display text-[1.1rem] leading-tight">{c.prize}</p>
-                    <span className="inline-flex items-center gap-1 text-[13px] font-semibold">
-                      {s.key === "open" ? c.cta : "Voir"}
-                      <ChevronRightIcon width={16} height={16} />
-                    </span>
-                  </div>
-                  {c.participants > 0 ? (
-                    <p className="inline-flex items-center gap-1.5 text-[12px] text-white/60">
-                      <UsersIcon width={13} height={13} />
-                      {c.participants} participations
-                    </p>
-                  ) : null}
-                </Link>
-              );
-            })}
+          <div className="mt-8">
+            <ChallengePicker
+              items={challenges.map((c, i) => ({
+                slug: c.slug,
+                number: c.number,
+                phase: c.phase,
+                title: c.title,
+                hook: c.hook,
+                prize: c.prize,
+                kind: c.kind,
+                status: statuses[i],
+              }))}
+            />
           </div>
         </section>
 
-        <section id="progression" className="scroll-mt-24" style={{ "--i": 2 } as React.CSSProperties} aria-labelledby="progress-title">
-          <p className="font-mono text-[11px] uppercase tracking-[0.18em] text-white/60">Étape 2</p>
-          <h2 id="progress-title" className="mt-2 font-display text-[1.9rem] leading-tight lg:text-[2.4rem]">Où en êtes-vous ?</h2>
-          <div className="mt-6">
-            <DiscoverProgress daysLeft={days} />
-          </div>
-        </section>
-
-        <p style={{ "--i": 3 } as React.CSSProperties} className="text-center text-[13px] text-white/55">
+        <p style={{ "--i": 2 } as React.CSSProperties} className="text-center text-[13px] text-white/55">
           <Link href="/defis" className="inline-flex items-center gap-1 underline-offset-4 hover:text-white hover:underline">
             <ArrowLeftIcon width={15} height={15} />
             Revenir à l’espace participant
@@ -153,18 +120,12 @@ export default function DiscoverPage() {
       </main>
 
       <nav className={styles.dock} aria-label="Navigation de l’espace défis">
-        <a href="#choisir" className={`${styles.dockItem} ${styles.dockAccent}`}>
-          <TrophyIcon width={20} height={20} />
-          Défis
-        </a>
-        <a href="#progression" className={styles.dockItem}>
-          <SparklesIcon width={20} height={20} />
-          Progression
-        </a>
-        <Link href="/billet" className={styles.dockItem}>
-          <QrIcon width={20} height={20} />
-          Billet
-        </Link>
+        {challenges.map((c, i) => (
+          <Link key={c.slug} href={`/decouvrir/${c.slug}`} className={`${styles.dockItem} ${i === featuredIndex ? styles.dockAccent : ""}`} aria-label={`Défi ${c.number} : ${c.title}`}>
+            <span className={styles.dockNum} aria-hidden>{c.number}</span>
+            Défi {c.number}
+          </Link>
+        ))}
         <Link href="/defis" className={styles.dockItem}>
           <XIcon width={20} height={20} />
           Quitter

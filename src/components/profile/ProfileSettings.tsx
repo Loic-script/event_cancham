@@ -135,7 +135,7 @@ export function ProfileSettings({ extra }: ProfileSettingsProps) {
   return (
     <div className="mx-auto flex w-full max-w-2xl flex-col gap-5">
       <div className="flex flex-col gap-5">
-        <section className={`${styles.identity} px-4 pb-4 pt-10`} aria-label="Identité">
+        <section className={`${styles.identity} m-bleed px-4 pb-4 pt-10`} aria-label="Identité">
           <div className="relative flex flex-col items-center text-center">
             <span className={styles.avatarWrap}>
               <Avatar person={profile} size={104} className="ring-4 ring-surface" />
@@ -164,7 +164,7 @@ export function ProfileSettings({ extra }: ProfileSettingsProps) {
                   aria-haspopup="dialog"
                   aria-expanded={isActive}
                   aria-current={isActive ? "true" : undefined}
-                  className={`${styles.row} ${isActive ? styles.rowActive : ""}`}
+                  className={`${styles.row} ${isActive ? styles.rowActive : ""} m-bleed`}
                 >
                   <span className="min-w-0 flex-1">
                     <span className={styles.rowLabel}>{s.label}</span>

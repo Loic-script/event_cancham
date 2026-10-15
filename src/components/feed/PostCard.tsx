@@ -44,7 +44,7 @@ export function PostCard({ post }: { post: FeedPost }) {
   const tag = post.tag ? TAG_STYLE[post.tag] : null;
 
   return (
-    <article className={`${appStyles.card} ${post.fresh ? styles.postIn : ""} p-4`}>
+    <article className={`${appStyles.card} ${post.fresh ? styles.postIn : ""} m-bleed p-4`}>
       <header className="flex items-start gap-3">
         <Avatar person={post.author} size={42} presence />
         <div className="min-w-0 flex-1">

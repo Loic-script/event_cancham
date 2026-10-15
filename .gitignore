@@ -46,3 +46,6 @@ next-env.d.ts
 
 # instructions locales de Claude Code
 CLAUDE.md
+
+# fichiers de la bibliothèque de ressources
+/stockage

@@ -294,47 +294,207 @@
   -webkit-backdrop-filter: blur(18px);
 }
 
+.sideNav {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.sideLabel {
+  margin: 0 0 8px 14px;
+  font-family: var(--font-montserrat), sans-serif;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--graphite-faint);
+}
+
+.sideIndicator {
+  position: absolute;
+  left: 0;
+  top: 0;
+  z-index: 0;
+  width: 100%;
+  height: 46px;
+  border-radius: 14px;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  box-shadow: 0 1px 2px rgba(15, 29, 44, 0.05), 0 14px 30px -18px rgba(15, 29, 44, 0.35);
+  transform: translateY(calc(var(--active) * 50px));
+  opacity: var(--visible, 1);
+  pointer-events: none;
+  transition: transform 0.45s cubic-bezier(0.2, 0.8, 0.2, 1), opacity 0.2s ease;
+}
+
+.sideIndicator::before {
+  content: "";
+  position: absolute;
+  left: -1px;
+  top: 11px;
+  bottom: 11px;
+  width: 3px;
+  border-radius: 0 3px 3px 0;
+  background: linear-gradient(180deg, #ad0707, #007140);
+}
+
 .sideItem {
   position: relative;
+  z-index: 1;
   display: flex;
   align-items: center;
   gap: 12px;
-  padding: 10px 14px;
-  border-radius: 12px;
+  height: 46px;
+  padding: 0 12px 0 10px;
+  border-radius: 14px;
   font-size: 15px;
   font-weight: 500;
   color: var(--graphite-muted);
-  transition:
-    background-color 0.2s ease,
-    color 0.2s ease;
+  text-decoration: none;
+  animation: sideIn 0.5s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+  animation-delay: calc(var(--i, 0) * 45ms);
+  transition: color 0.25s ease, background-color 0.25s ease, transform 0.25s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+@keyframes sideIn {
+  from { opacity: 0; transform: translateX(-10px); }
+  to { opacity: 1; transform: translateX(0); }
 }
 
 .sideItem:hover {
-  background: rgba(15, 29, 44, 0.05);
   color: var(--graphite);
+  background: rgba(15, 29, 44, 0.04);
 }
 
-.sideItemActive,
-.sideItemActive:hover {
-  background: linear-gradient(90deg, rgba(0, 113, 64, 0.16), rgba(0, 113, 64, 0.04));
-  color: var(--palm-ink);
-  font-weight: 600;
-}
-
-.sideItemActive::before {
-  content: "";
-  position: absolute;
-  left: 0;
-  top: 25%;
-  height: 50%;
-  width: 3px;
-  border-radius: 0 3px 3px 0;
-  background: var(--palm-ink);
+.sideItem:active {
+  transform: scale(0.98);
 }
 
 .sideItem:focus-visible {
   outline: 2px solid var(--palm-ink);
   outline-offset: 2px;
+}
+
+.sideIcon {
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+  width: 34px;
+  height: 34px;
+  border-radius: 11px;
+  background: var(--paper);
+  color: var(--graphite-muted);
+  transition: background 0.3s ease, color 0.3s ease, transform 0.3s cubic-bezier(0.2, 0.8, 0.2, 1), box-shadow 0.3s ease;
+}
+
+.sideItem:hover .sideIcon {
+  color: var(--graphite);
+  transform: translateY(-1px) rotate(-4deg);
+}
+
+.sideText {
+  flex: 1;
+  min-width: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  transition: transform 0.25s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+.sideItem:hover .sideText {
+  transform: translateX(2px);
+}
+
+.sideItemActive,
+.sideItemActive:hover {
+  color: var(--graphite);
+  font-weight: 600;
+  background: transparent;
+}
+
+.sideItemActive .sideIcon,
+.sideItemActive:hover .sideIcon {
+  background: linear-gradient(135deg, #ad0707, #007140);
+  color: #fff;
+  box-shadow: 0 8px 18px -8px rgba(173, 7, 7, 0.6);
+  transform: none;
+}
+
+.sideArrow {
+  position: absolute;
+  right: 12px;
+  color: var(--graphite-faint);
+  opacity: 0;
+  transform: translateX(-6px);
+  transition: opacity 0.25s ease, transform 0.25s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+.sideItem:hover .sideArrow {
+  opacity: 1;
+  transform: translateX(0);
+}
+
+.sideItemActive .sideArrow {
+  opacity: 0;
+}
+
+.sideBadge {
+  display: inline-grid;
+  place-items: center;
+  min-width: 22px;
+  height: 22px;
+  padding: 0 7px;
+  border-radius: 999px;
+  background: var(--leaf);
+  color: #fff;
+  font-size: 11px;
+  font-weight: 700;
+  box-shadow: 0 0 0 0 rgba(173, 7, 7, 0.45);
+  animation: badgePulse 2.4s ease-out infinite;
+}
+
+@keyframes badgePulse {
+  from { box-shadow: 0 0 0 0 rgba(173, 7, 7, 0.45); }
+  70% { box-shadow: 0 0 0 8px rgba(173, 7, 7, 0); }
+  to { box-shadow: 0 0 0 0 rgba(173, 7, 7, 0); }
+}
+
+.sideProfile {
+  position: relative;
+  overflow: hidden;
+  isolation: isolate;
+  transition: transform 0.3s cubic-bezier(0.2, 0.8, 0.2, 1), box-shadow 0.3s ease;
+}
+
+.sideProfile::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background: linear-gradient(90deg, rgba(173, 7, 7, 0.06), rgba(0, 113, 64, 0.08));
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.sideProfile:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 18px 34px -20px rgba(15, 29, 44, 0.45);
+}
+
+.sideProfile:hover::before {
+  opacity: 1;
+}
+
+.sideProfile .sideArrow {
+  position: static;
+  opacity: 0.6;
+  transform: none;
+}
+
+.sideProfile:hover .sideArrow {
+  opacity: 1;
+  transform: translateX(2px);
 }
 
 .aside {
@@ -387,12 +547,23 @@
   position: relative;
   overflow: hidden;
   border-radius: 24px;
-  border: 1px solid var(--line);
+  border: 1px solid rgba(255, 255, 255, 0.1);
   background:
-    radial-gradient(60% 80% at 100% 0%, rgba(0, 113, 64, 0.2), transparent 60%),
-    radial-gradient(70% 90% at 0% 100%, rgba(173, 7, 7, 0.2), transparent 60%),
-    linear-gradient(135deg, #ffffff 0%, #f3f6f9 100%);
-  box-shadow: 0 30px 60px -36px rgba(15, 29, 44, 0.28);
+    radial-gradient(60% 80% at 100% 0%, rgba(0, 113, 64, 0.45), transparent 60%),
+    radial-gradient(70% 90% at 0% 100%, rgba(173, 7, 7, 0.45), transparent 60%),
+    linear-gradient(135deg, #14263a 0%, #0f1d2c 100%);
+  box-shadow: 0 30px 60px -36px rgba(15, 29, 44, 0.7);
+}
+
+.hero .glass {
+  background: rgba(255, 255, 255, 0.07);
+  border-color: rgba(255, 255, 255, 0.16);
+}
+
+.hero .cdTile {
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.12), 0 10px 20px -14px rgba(0, 0, 0, 0.8);
 }
 
 .heroBlob {
@@ -412,7 +583,7 @@
 .heroRing {
   position: absolute;
   border-radius: 50%;
-  border: 1px solid rgba(15, 29, 44, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.08);
   pointer-events: none;
 }
 
@@ -501,6 +672,19 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
+  .sideItem,
+  .sideBadge {
+    animation: none;
+  }
+
+  .sideIndicator,
+  .sideIcon,
+  .sideText,
+  .sideArrow,
+  .sideProfile {
+    transition: none;
+  }
+
   .page,
   .stagger > *,
   .badge,

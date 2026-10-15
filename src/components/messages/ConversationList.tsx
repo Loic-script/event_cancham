@@ -23,9 +23,10 @@ export type ConversationItem = {
 type ConversationListProps = {
   items: ConversationItem[];
   activeId?: string;
+  base?: string;
 };
 
-export function ConversationList({ items, activeId }: ConversationListProps) {
+export function ConversationList({ items, activeId, base = "/messages" }: ConversationListProps) {
   const [query, setQuery] = useState("");
 
   const filtered = useMemo(() => {
@@ -45,13 +46,13 @@ export function ConversationList({ items, activeId }: ConversationListProps) {
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             placeholder="Rechercher"
-            className="h-11 w-full rounded-full border border-line bg-surface pl-10 pr-4 text-[15px] text-graphite placeholder:text-graphite-faint focus:border-palm focus:outline-none focus:ring-2 focus:ring-palm/30"
+            className="h-11 w-full rounded-full border border-line bg-surface pl-10 pr-4 text-[15px] text-graphite placeholder:text-graphite-faint focus:border-gold focus:outline-none focus:ring-2 focus:ring-gold/30"
           />
         </label>
         <button
           type="button"
           aria-label="Nouveau message"
-          className="grid h-11 w-11 shrink-0 cursor-pointer place-items-center rounded-full bg-palm text-white transition-colors hover:bg-palm-deep focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-palm focus-visible:ring-offset-2"
+          className="grid h-11 w-11 shrink-0 cursor-pointer place-items-center rounded-full bg-leaf text-white transition-colors hover:bg-leaf-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold focus-visible:ring-offset-2"
         >
           <PencilIcon width={18} height={18} />
         </button>
@@ -65,12 +66,12 @@ export function ConversationList({ items, activeId }: ConversationListProps) {
             const active = c.id === activeId;
             return (
               <li key={c.id}>
-                <Link href={`/messages/${c.id}`} className={`${styles.item} ${active ? styles.itemActive : ""}`} aria-current={active ? "page" : undefined}>
+                <Link href={`${base}/${c.id}`} className={`${styles.item} ${active ? styles.itemActive : ""}`} aria-current={active ? "page" : undefined}>
                   <Avatar person={c} size={52} presence />
                   <span className="min-w-0 flex-1">
                     <span className="flex items-baseline justify-between gap-2">
                       <span className={`truncate text-[15px] ${c.unread ? "font-bold text-graphite" : "font-semibold text-graphite"}`}>{c.name}</span>
-                      <span className={`shrink-0 text-[12px] ${c.unread ? "font-semibold text-palm-ink" : "text-graphite-faint"}`}>{c.lastWhen}</span>
+                      <span className={`shrink-0 text-[12px] ${c.unread ? "font-semibold text-gold" : "text-graphite-faint"}`}>{c.lastWhen}</span>
                     </span>
                     <span className="flex items-center justify-between gap-2">
                       <span className={`truncate text-[13.5px] ${c.unread ? "font-medium text-graphite" : "text-graphite-muted"}`}>

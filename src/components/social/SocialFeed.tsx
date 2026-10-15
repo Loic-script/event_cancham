@@ -174,7 +174,7 @@ export function SocialFeed({ posts, challenges }: SocialFeedProps) {
 
       <div className="mx-auto w-full max-w-2xl">
         {visible.length === 0 ? (
-          <div className={styles.empty}>
+          <div className={`${styles.empty} m-bleed`}>
             <p className="font-semibold text-graphite">Aucune publication pour ces filtres.</p>
             <button type="button" onClick={reset} className="mt-2 cursor-pointer text-[14px] font-semibold text-palm-ink underline-offset-4 hover:underline focus-visible:outline-none focus-visible:underline">
               Réinitialiser les filtres
@@ -183,7 +183,7 @@ export function SocialFeed({ posts, challenges }: SocialFeedProps) {
         ) : (
           <div key={`${network}-${challenge}-${sort}`} className={styles.feed}>
             {visible.map((p, i) => (
-              <article key={p.id} id={p.id} className={styles.card} style={{ "--i": Math.min(i, 8) } as React.CSSProperties} aria-label={`Publication de ${p.authorName} sur ${NETWORK_LABEL[p.network]}`}>
+              <article key={p.id} id={p.id} className={`${styles.card} m-bleed`} style={{ "--i": Math.min(i, 8) } as React.CSSProperties} aria-label={`Publication de ${p.authorName} sur ${NETWORK_LABEL[p.network]}`}>
                 <header className={styles.head}>
                   <Avatar person={p.author} size={42} presence />
                   <div className="min-w-0 flex-1">

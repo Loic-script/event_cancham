@@ -85,7 +85,7 @@ export function Feed({ me, posts: initialPosts, people, initialQuery = "", initi
 
       {tab === "posts" ? (
         <div className={`${appStyles.stagger} flex flex-col gap-4`} role="tabpanel">
-          <form onSubmit={publish} className={`${appStyles.card} p-3`} style={{ "--i": 0 } as React.CSSProperties}>
+          <form onSubmit={publish} className={`${appStyles.card} m-bleed p-3`} style={{ "--i": 0 } as React.CSSProperties}>
             <div className="flex items-start gap-3">
               <Avatar person={meLive} size={40} />
               <div className="min-w-0 flex-1">
@@ -156,11 +156,11 @@ export function Feed({ me, posts: initialPosts, people, initialQuery = "", initi
           </label>
 
           {filtered.length === 0 ? (
-            <p className={`${appStyles.card} p-6 text-center text-[14px] text-graphite-muted`}>Aucun participant ne correspond à « {query} ».</p>
+            <p className={`${appStyles.card} m-bleed p-6 text-center text-[14px] text-graphite-muted`}>Aucun participant ne correspond à « {query} ».</p>
           ) : (
             <ul className={`${appStyles.stagger} flex flex-col gap-2`}>
               {filtered.map((p, i) => (
-                <li key={p.id} style={{ "--i": Math.min(i, 8) } as React.CSSProperties} className={`${appStyles.card} flex items-center gap-3 p-3`}>
+                <li key={p.id} style={{ "--i": Math.min(i, 8) } as React.CSSProperties} className={`${appStyles.card} m-bleed flex items-center gap-3 p-3`}>
                   <Avatar person={p} size={46} presence />
                   <div className="min-w-0 flex-1">
                     <p className="truncate text-[15px] font-semibold text-graphite">{p.name}</p>

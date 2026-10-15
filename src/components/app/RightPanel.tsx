@@ -25,7 +25,7 @@ export function ProfileCard() {
   const me = currentUser;
   const myPosts = posts.filter((p) => p.authorId === me.id).length;
   return (
-    <section className={`${styles.card} flex flex-col items-center px-4 pb-4 pt-4 text-center`} aria-label="Mon billet">
+    <section className={`${styles.card} m-bleed flex flex-col items-center px-4 pb-4 pt-4 text-center`} aria-label="Mon billet">
       <dl className="grid w-full grid-cols-3 gap-1">
         {[
           { label: "Défis", value: challenges.length },
@@ -54,14 +54,14 @@ export function ProfileCard() {
   );
 }
 
-export function NewMembers({ compact = false }: { compact?: boolean }) {
+export function NewMembers() {
   return (
     <section aria-labelledby="new-members-title">
       <div className="mb-2 flex items-center justify-between px-1">
         <h2 id="new-members-title" className="text-[13px] font-semibold uppercase tracking-[0.12em] text-graphite-muted">Nouveaux participants</h2>
         <Link href="/communaute?tab=people" className="text-[12.5px] font-semibold text-palm-ink underline-offset-4 hover:underline">Tous</Link>
       </div>
-      <ul className={`${styles.card} divide-y divide-line ${compact ? "" : ""}`}>
+      <ul className={`${styles.card} m-bleed divide-y divide-line`}>
         {NEW_MEMBERS.map(({ id, minutesAgo }) => {
           const p = participants.find((x) => x.id === id)!;
           return (
@@ -91,7 +91,7 @@ export function FollowUs() {
               href={s.href}
               target="_blank"
               rel="noreferrer"
-              className={`${styles.card} ${styles.pressable} flex items-center gap-3 px-3 py-2.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-palm-ink`}
+              className={`${styles.card} ${styles.pressable} m-bleed flex items-center gap-3 px-3 py-2.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-palm-ink`}
             >
               <s.logo size={38} className="shrink-0 drop-shadow-[0_6px_14px_rgba(0,0,0,0.45)]" />
               <span className="min-w-0 flex-1">
