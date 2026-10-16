@@ -5,7 +5,7 @@ import { CameraIcon, CheckIcon, ImageIcon, RefreshIcon, SpinnerIcon, XIcon } fro
 import { setTraversee, toast, uid } from "@/lib/traversee/store";
 import styles from "./prisePhoto.module.css";
 
-type Envoi = { id: string; apercu: string; etat: "envoi" | "ok" | "echec" };
+type Envoi = { id: string; apercu: string; blob: Blob; etat: "envoi" | "ok" | "echec" };
 
 const COTE_MAX = 1920;
 
@@ -48,6 +48,8 @@ export function AdminPrisePhoto({ total }: { total: number }) {
   const [envois, setEnvois] = useState<Envoi[]>([]);
   const [flash, setFlash] = useState(0);
   const prises = envois.filter((e) => e.etat === "ok").length;
+  const enCours = envois.filter((e) => e.etat === "envoi").length;
+  const echecs = envois.filter((e) => e.etat === "echec").length;
 
   useEffect(() => {
     const v = video.current;
@@ -55,7 +57,7 @@ export function AdminPrisePhoto({ total }: { total: number }) {
     v.srcObject = flux;
     v.play().catch(() => undefined);
     const scroll = document.body.style.overflow;
-    if (window.matchMedia("(max-width: 1023px)").matches) document.body.style.overflow = "hidden";
+    document.body.style.overflow = "hidden";
     return () => {
       flux.getTracks().forEach((t) => t.stop());
       document.body.style.overflow = scroll;
@@ -93,23 +95,36 @@ export function AdminPrisePhoto({ total }: { total: number }) {
     void demarrer(suivante);
   }
 
-  async function envoyer(blob: Blob) {
-    const id = uid("e");
-    const apercu = URL.createObjectURL(blob);
-    apercus.current.add(apercu);
-    setEnvois((e) => [{ id, apercu, etat: "envoi" as const }, ...e].slice(0, 12));
+  async function transmettre(id: string, blob: Blob) {
     try {
       const r = await fetch("/api/photos", { method: "POST", headers: { "Content-Type": blob.type || "image/jpeg" }, body: blob });
-      const d = (await r.json().catch(() => ({}))) as { ok?: boolean; id?: string; url?: string; message?: string };
-      if (!r.ok || !d.ok || !d.url || !d.id) throw new Error(d.message ?? "La photo n’a pas pu être enregistrée.");
+      const d = (await r.json().catch(() => ({}))) as { ok?: boolean; id?: string; url?: string; message?: string; error?: string };
+      if (!r.ok || !d.ok || !d.url || !d.id) {
+        const raison = d.message ?? d.error ?? (r.status === 401 ? "Session expirée : reconnectez-vous." : `Le serveur a répondu ${r.status}.`);
+        throw new Error(`Photo non enregistrée. ${raison}`);
+      }
       const url = d.url;
       const idPhoto = d.id;
       setTraversee((st) => ({ galAjoutees: [{ id: `ph-${idPhoto}`, src: url, par: "CanCham" as const, t: Date.now() }, ...st.galAjoutees] }));
       setEnvois((e) => e.map((x) => (x.id === id ? { ...x, etat: "ok" } : x)));
     } catch (err) {
       setEnvois((e) => e.map((x) => (x.id === id ? { ...x, etat: "echec" } : x)));
-      toast(err instanceof Error ? err.message : "La photo n’a pas pu être enregistrée.");
+      toast(err instanceof Error && err.message.startsWith("Photo") ? err.message : "Photo non enregistrée : connexion au serveur impossible. Touchez la vignette pour réessayer.");
     }
+  }
+
+  function envoyer(blob: Blob) {
+    const id = uid("e");
+    const apercu = URL.createObjectURL(blob);
+    apercus.current.add(apercu);
+    setEnvois((e) => [{ id, apercu, blob, etat: "envoi" as const }, ...e].slice(0, 24));
+    void transmettre(id, blob);
+  }
+
+  function reessayer(e: Envoi) {
+    if (e.etat !== "echec") return;
+    setEnvois((liste) => liste.map((x) => (x.id === e.id ? { ...x, etat: "envoi" } : x)));
+    void transmettre(e.id, e.blob);
   }
 
   async function declencher() {
@@ -117,14 +132,14 @@ export function AdminPrisePhoto({ total }: { total: number }) {
     if (!v || !v.videoWidth) return;
     setFlash((n) => n + 1);
     const blob = await versBlob(v, v.videoWidth, v.videoHeight);
-    if (blob) void envoyer(blob);
+    if (blob) envoyer(blob);
   }
 
   async function importer(fichiers: FileList | null) {
     const liste = Array.from(fichiers ?? []).filter((f) => f.type.startsWith("image/"));
     for (const f of liste) {
       const blob = await fichierVersBlob(f);
-      if (blob) void envoyer(blob);
+      if (blob) envoyer(blob);
       else toast(`« ${f.name} » n’a pas pu être lue.`);
     }
   }
@@ -142,18 +157,20 @@ export function AdminPrisePhoto({ total }: { total: number }) {
     return () => window.removeEventListener("keydown", touche);
   });
 
-  const pellicule = envois.length ? (
-    <div className={styles.pellicule} aria-label="Dernières photos prises">
-      {envois.map((e) => (
-        <span key={e.id} className={`${styles.miniature} ${styles[e.etat]}`}>
-          <img src={e.apercu} alt="" />
-          <i aria-label={e.etat === "envoi" ? "Envoi en cours" : e.etat === "ok" ? "Ajoutée à la galerie" : "Échec de l’envoi"}>
-            {e.etat === "envoi" ? <SpinnerIcon width={14} height={14} className="animate-spin" /> : e.etat === "ok" ? <CheckIcon width={14} height={14} /> : <XIcon width={14} height={14} />}
-          </i>
-        </span>
-      ))}
-    </div>
-  ) : null;
+  const miniature = (e: Envoi) => (
+    <button
+      key={e.id}
+      type="button"
+      className={`${styles.miniature} ${styles[e.etat]}`}
+      onClick={() => reessayer(e)}
+      disabled={e.etat !== "echec"}
+      aria-label={e.etat === "envoi" ? "Envoi en cours" : e.etat === "ok" ? "Ajoutée à la galerie" : "Échec de l’envoi, toucher pour réessayer"}
+      title={e.etat === "echec" ? "Réessayer l’envoi" : undefined}
+    >
+      <img src={e.apercu} alt="" />
+      <i>{e.etat === "envoi" ? <SpinnerIcon width={14} height={14} className="animate-spin" /> : e.etat === "ok" ? <CheckIcon width={14} height={14} /> : <RefreshIcon width={13} height={13} />}</i>
+    </button>
+  );
 
   return (
     <section className={styles.prise} aria-labelledby="prise-titre">
@@ -175,63 +192,84 @@ export function AdminPrisePhoto({ total }: { total: number }) {
         </div>
       </div>
 
-      {flux ? (
-        <div className={styles.viseur}>
-          <video ref={video} playsInline muted autoPlay className={face === "user" ? styles.miroir : ""} />
-          {flash ? <i key={flash} className={styles.flash} aria-hidden /> : null}
-          <button type="button" className={styles.fermer} onClick={arreter} aria-label="Fermer la caméra">
-            <XIcon width={22} height={22} />
-          </button>
-          <div className={styles.commandes}>
-            <span className={styles.derniere}>{envois[0] ? <img src={envois[0].apercu} alt="Dernière photo" /> : null}</span>
-            <button type="button" className={styles.declencheur} onClick={() => void declencher()} aria-label="Prendre la photo">
-              <span />
-            </button>
-            <button type="button" className={styles.retourner} onClick={retourner} aria-label="Changer de caméra">
-              <RefreshIcon width={22} height={22} />
-            </button>
-          </div>
-        </div>
-      ) : (
-        <div className={styles.boutons}>
-          <button type="button" className={styles.ouvrir} onClick={() => void demarrer()}>
-            <CameraIcon width={20} height={20} />
-            Prendre une photo
-          </button>
-          <label className={styles.importer}>
-            <ImageIcon width={18} height={18} />
-            Importer des photos
-            <input
-              type="file"
-              accept="image/*"
-              multiple
-              hidden
-              onChange={(e) => {
-                void importer(e.target.files);
-                e.target.value = "";
-              }}
-            />
-          </label>
+      <div className={styles.boutons}>
+        <button type="button" className={styles.ouvrir} onClick={() => void demarrer()}>
+          <CameraIcon width={20} height={20} />
+          Prendre une photo
+        </button>
+        <label className={styles.importer}>
+          <ImageIcon width={18} height={18} />
+          Importer des photos
           <input
-            ref={appareil}
             type="file"
             accept="image/*"
-            capture="environment"
+            multiple
             hidden
             onChange={(e) => {
               void importer(e.target.files);
               e.target.value = "";
             }}
           />
-        </div>
-      )}
+        </label>
+        <input
+          ref={appareil}
+          type="file"
+          accept="image/*"
+          capture="environment"
+          hidden
+          onChange={(e) => {
+            void importer(e.target.files);
+            e.target.value = "";
+          }}
+        />
+      </div>
 
       {erreur ? (
         <p className={styles.alerte} role="alert">
           {erreur}
         </p>
       ) : null}
-      {pellicule}
+      {envois.length ? (
+        <div className={styles.pellicule} aria-label="Dernières photos prises">
+          {envois.map(miniature)}
+        </div>
+      ) : null}
+
+      {flux ? (
+        <div className={styles.plein} role="dialog" aria-modal="true" aria-label="Appareil photo">
+          <video ref={video} playsInline muted autoPlay className={face === "user" ? styles.miroir : ""} />
+          {flash ? <i key={flash} className={styles.flash} aria-hidden /> : null}
+
+          <div className={styles.pleinHaut}>
+            <button type="button" className={styles.rond} onClick={arreter} aria-label="Fermer l’appareil photo">
+              <XIcon width={22} height={22} />
+            </button>
+            <div className={styles.pleinTitre}>
+              <strong>Prendre une photo</strong>
+              <span>Ajout automatique à la galerie</span>
+            </div>
+            <span className={styles.compteur} aria-live="polite">
+              {enCours ? <SpinnerIcon width={14} height={14} className="animate-spin" /> : <CheckIcon width={14} height={14} />}
+              {prises} ajoutée{prises > 1 ? "s" : ""}
+              {echecs ? <em>{echecs} en échec</em> : null}
+            </span>
+          </div>
+
+          <div className={styles.pleinBas}>
+            {envois.length > 1 ? <div className={styles.pelliculePlein}>{envois.slice(1, 8).map(miniature)}</div> : null}
+            <div className={styles.commandes}>
+              <span className={styles.derniere}>{envois[0] ? miniature(envois[0]) : null}</span>
+              <button type="button" className={styles.declencheur} onClick={() => void declencher()} aria-label="Prendre la photo">
+                <span />
+              </button>
+              <button type="button" className={`${styles.rond} ${styles.retourner}`} onClick={retourner} aria-label="Changer de caméra">
+                <RefreshIcon width={22} height={22} />
+              </button>
+            </div>
+            <p className={styles.aide}>Espace ou Entrée pour déclencher · Échap pour fermer</p>
+          </div>
+        </div>
+      ) : null}
     </section>
   );
 }
