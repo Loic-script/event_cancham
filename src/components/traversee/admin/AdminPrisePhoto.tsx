@@ -100,7 +100,10 @@ export function AdminPrisePhoto({ total }: { total: number }) {
       const r = await fetch("/api/photos", { method: "POST", headers: { "Content-Type": blob.type || "image/jpeg" }, body: blob });
       const d = (await r.json().catch(() => ({}))) as { ok?: boolean; id?: string; url?: string; message?: string; error?: string };
       if (!r.ok || !d.ok || !d.url || !d.id) {
-        const raison = d.message ?? d.error ?? (r.status === 401 ? "Session expirée : reconnectez-vous." : `Le serveur a répondu ${r.status}.`);
+        const raison =
+          d.message ??
+          d.error ??
+          (r.status === 401 ? "Session expirée : reconnectez-vous." : r.status === 413 ? "Le serveur en ligne refuse un fichier de cette taille (limite du proxy)." : `Le serveur a répondu ${r.status}.`);
         throw new Error(`Photo non enregistrée. ${raison}`);
       }
       const url = d.url;

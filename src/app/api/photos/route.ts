@@ -1,8 +1,8 @@
 import { randomUUID } from "node:crypto";
 import { TAILLE_MAX_PHOTO, cheminPhoto, detecterPhoto } from "@/lib/photos";
+import { erreurStockage, recevoirFlux } from "@/lib/ressources/reception";
 import { json } from "@/lib/ressources/servir";
 import { deplacer, supprimer } from "@/lib/ressources/stockage";
-import { ErreurRessource, recevoirFlux } from "@/lib/ressources/traitement";
 import { refusSiNonAdmin } from "@/lib/session";
 
 export const dynamic = "force-dynamic";
@@ -25,8 +25,13 @@ export async function POST(req: Request) {
     await deplacer(recu.chemin, cheminPhoto(id, format));
     return json(201, { ok: true, id, url: `/api/photos/${id}` });
   } catch (e) {
-    if (temporaire) await supprimer(temporaire);
-    if (e instanceof ErreurRessource) return json(e.statut, { ok: false, message: e.message });
+    if (temporaire) await supprimer(temporaire).catch(() => undefined);
+    const connue = erreurStockage(e);
+    if (connue) {
+      if (connue.statut >= 500) console.error("Envoi de photo impossible :", e);
+      return json(connue.statut, { ok: false, message: connue.message });
+    }
+    console.error("Envoi de photo impossible :", e);
     return json(500, { ok: false, message: "La photo n’a pas pu être enregistrée. Réessayez." });
   }
 }

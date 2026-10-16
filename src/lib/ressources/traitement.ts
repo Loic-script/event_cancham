@@ -1,25 +1,17 @@
 import { spawn } from "node:child_process";
 import { randomUUID } from "node:crypto";
-import { createWriteStream, promises as fs } from "node:fs";
+import { promises as fs } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import { pathToFileURL } from "node:url";
 import sharp from "sharp";
-import { MESSAGE_FORMAT, TAILLE_MAX, detecterFormat, tailleLisible, type Detection } from "./formats";
-import { copierSiExiste, deplacer, dossierRessource, dossierTemp, existe, supprimer } from "./stockage";
+import { MESSAGE_FORMAT, detecterFormat, tailleLisible, type Detection } from "./formats";
+import { ErreurRessource, type FichierRecu } from "./reception";
+import { copierSiExiste, deplacer, dossierRessource, existe, supprimer } from "./stockage";
 
 sharp.cache(false);
 
-export class ErreurRessource extends Error {
-  constructor(
-    message: string,
-    public statut = 400,
-  ) {
-    super(message);
-  }
-}
-
-export type FichierRecu = { chemin: string; octets: number; entete: Buffer };
+export { ErreurRessource, recevoirFlux, type FichierRecu } from "./reception";
 
 export type ResultatTraitement = {
   format: Detection["format"];
@@ -29,41 +21,6 @@ export type ResultatTraitement = {
   tailleOctets: number;
   couverture: string | null;
 };
-
-export async function recevoirFlux(flux: ReadableStream<Uint8Array> | null, maxOctets = TAILLE_MAX): Promise<FichierRecu> {
-  if (!flux) throw new ErreurRessource("Aucun fichier reçu.");
-  await fs.mkdir(dossierTemp(), { recursive: true });
-  const chemin = path.join(dossierTemp(), randomUUID());
-  const sortie = createWriteStream(chemin);
-  const morceauxEntete: Buffer[] = [];
-  let tailleEntete = 0;
-  let octets = 0;
-  const lecteur = flux.getReader();
-  try {
-    for (;;) {
-      const { done, value } = await lecteur.read();
-      if (done) break;
-      octets += value.byteLength;
-      if (octets > maxOctets) throw new ErreurRessource(`Fichier trop volumineux : ${Math.round(maxOctets / 1024 / 1024)} Mo maximum.`, 413);
-      if (tailleEntete < 64) {
-        morceauxEntete.push(Buffer.from(value.subarray(0, 64 - tailleEntete)));
-        tailleEntete += Math.min(value.byteLength, 64 - tailleEntete);
-      }
-      if (!sortie.write(value)) await new Promise<void>((r) => sortie.once("drain", r));
-    }
-    await new Promise<void>((resolve, reject) => sortie.end((err?: Error | null) => (err ? reject(err) : resolve())));
-  } catch (e) {
-    lecteur.cancel().catch(() => undefined);
-    sortie.destroy();
-    await supprimer(chemin);
-    throw e;
-  }
-  if (!octets) {
-    await supprimer(chemin);
-    throw new ErreurRessource("Le fichier est vide.");
-  }
-  return { chemin, octets, entete: Buffer.concat(morceauxEntete) };
-}
 
 type Execution = { code: number | null; sortie: string; erreur: string };
 
