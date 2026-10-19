@@ -1,9 +1,15 @@
 import type { Metadata } from "next";
-import { CalendarDaysIcon } from "@/components/app/icons";
-import { NonDisponible } from "@/components/traversee/NonDisponible";
+import { notFound } from "next/navigation";
+import { ProgrammeDetail } from "@/components/traversee/programme/Programme";
+import { chargerRendezVous } from "@/lib/programme";
+import { requireMembreActif } from "@/lib/session";
 
 export const metadata: Metadata = { title: "Programme" };
 
-export default function ProgrammeDetailPage() {
-  return <NonDisponible titre="Programme" texte="Le programme de la soirée n’est pas encore disponible. Il sera publié ici avant le gala du 18 décembre." icone={<CalendarDaysIcon />} />;
+export default async function ProgrammeDetailPage(props: PageProps<"/programme/[id]">) {
+  const { id } = await props.params;
+  const user = await requireMembreActif();
+  const item = await chargerRendezVous(id, user.id);
+  if (!item) notFound();
+  return <ProgrammeDetail item={item} />;
 }

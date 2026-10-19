@@ -17,37 +17,6 @@ export type ProgCat = "Expositions" | "Panels" | "Réseautage" | "Gala";
 export const CATS: ProgCat[] = ["Expositions", "Panels", "Réseautage", "Gala"];
 export const IMAGES = ["accueil", "pitch", "groupe", "ecran", "rdv", "formation", "public", "reseau", "musique", "hero", "salle", "diner", "equipe", "oratrice", "assistance"];
 
-export type ProgItem = {
-  id: string;
-  img: string;
-  cat: ProgCat;
-  h: string;
-  t: string;
-  d: string;
-  details: string;
-  lieu: string;
-  cap: number;
-  ins: number;
-  phare?: boolean;
-};
-
-const PROG_BASE: Omit<ProgItem, "lieu" | "cap" | "ins" | "details">[] = [
-  { id: "expo", img: "accueil", cat: "Expositions", h: "Toute la journée", t: "Expositions des membres", d: "Les entreprises membres présentent leurs produits et services." },
-  { id: "p1", img: "pitch", cat: "Panels", h: "En journée", t: "Panel · Culture d’affaires canadienne", d: "Horaire précis à confirmer." },
-  { id: "p2", img: "groupe", cat: "Panels", h: "En journée", t: "Panel · Investissement", d: "Horaire précis à confirmer." },
-  { id: "p3", img: "ecran", cat: "Panels", h: "En journée", t: "Panel · Commerce", d: "Horaire précis à confirmer." },
-  { id: "p4", img: "rdv", cat: "Panels", h: "En journée", t: "Panel · Accès au financement", d: "Horaire précis à confirmer." },
-  { id: "p5", img: "formation", cat: "Panels", h: "En journée", t: "Panel · Entreprendre et immigrer au Canada", d: "Horaire précis à confirmer." },
-  { id: "p6", img: "public", cat: "Panels", h: "En journée", t: "Panel · Réseautage", d: "Horaire précis à confirmer." },
-  { id: "57", img: "reseau", cat: "Réseautage", h: "17 h 00", t: "Réseautage 5 à 7", d: "Deux heures d’échanges directs." },
-  { id: "gala", img: "musique", cat: "Gala", h: "19 h 00", t: "Soirée Gala des 10 ans", d: "Dîner, finale des pitchs et remise des lots.", phare: true },
-];
-
-export const PROGRAMME: ProgItem[] = PROG_BASE.map((p, k) => {
-  const cap = p.cat === "Panels" ? 80 : p.cat === "Gala" ? 240 : p.cat === "Réseautage" ? 200 : 0;
-  return { ...p, lieu: LIEU, cap, ins: cap ? (k * 17 + 23) % Math.round(cap * 0.7) : 0, details: `${p.d} Description d’exemple, à compléter depuis l’administration.` };
-});
-
 export type Entreprise = { nom: string; secteur: string; activite: string };
 export const ANNUAIRE: Entreprise[] = [
   { nom: "Atelier Vanille Rouge", secteur: "Agroalimentaire", activite: "Épices et vanille préparées pour l’export." },

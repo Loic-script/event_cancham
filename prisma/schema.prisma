@@ -34,29 +34,30 @@ enum StatutCompte {
 }
 
 model User {
-  id              Int              @id @default(autoincrement())
-  email           String           @unique
-  passwordHash    String           @map("password_hash")
-  firstName       String           @map("first_name")
-  lastName        String           @map("last_name")
-  role            String?
-  acces           Acces            @default(MEMBRE)
-  statut          StatutCompte     @default(EN_ATTENTE)
-  decisionLe      DateTime?        @map("decision_le")
-  company         String?
-  sector          String?
-  bio             String?          @db.VarChar(600)
-  phone           String?
-  website         String?
-  city            String?
-  country         String?
-  billetPaye      Boolean          @default(false) @map("billet_paye")
-  createdAt       DateTime         @default(now()) @map("created_at")
-  updatedAt       DateTime         @updatedAt @map("updated_at")
-  sessions        Session[]
-  publications    Publication[]
-  jaimesFil       JaimeFil[]
-  commentairesFil CommentaireFil[]
+  id                    Int                    @id @default(autoincrement())
+  email                 String                 @unique
+  passwordHash          String                 @map("password_hash")
+  firstName             String                 @map("first_name")
+  lastName              String                 @map("last_name")
+  role                  String?
+  acces                 Acces                  @default(MEMBRE)
+  statut                StatutCompte           @default(EN_ATTENTE)
+  decisionLe            DateTime?              @map("decision_le")
+  company               String?
+  sector                String?
+  bio                   String?                @db.VarChar(600)
+  phone                 String?
+  website               String?
+  city                  String?
+  country               String?
+  billetPaye            Boolean                @default(false) @map("billet_paye")
+  createdAt             DateTime               @default(now()) @map("created_at")
+  updatedAt             DateTime               @updatedAt @map("updated_at")
+  sessions              Session[]
+  publications          Publication[]
+  jaimesFil             JaimeFil[]
+  commentairesFil       CommentaireFil[]
+  inscriptionsProgramme InscriptionProgramme[]
 
   @@map("users")
 }
@@ -194,4 +195,36 @@ model CommentaireFil {
 
   @@index([cible, creeLe])
   @@map("fil_commentaires")
+}
+
+/// Rendez-vous du programme de la journée, géré depuis /admin/programme.
+/// categorie : Expositions, Panels, Réseautage ou Gala (CATS) ; places à 0 = accès libre ; image : nom d'une photo de /public/traversee.
+model RendezVousProgramme {
+  id           String                 @id @default(cuid())
+  titre        String                 @db.VarChar(160)
+  categorie    String                 @db.VarChar(40)
+  heure        String                 @db.VarChar(60)
+  lieu         String                 @db.VarChar(160)
+  places       Int                    @default(0)
+  resume       String                 @db.VarChar(300)
+  details      String                 @default("") @db.VarChar(4000)
+  image        String                 @db.VarChar(40)
+  ordre        Int                    @default(0)
+  creeLe       DateTime               @default(now()) @map("cree_le")
+  inscriptions InscriptionProgramme[]
+
+  @@map("programme")
+}
+
+/// Inscription d'un participant à un rendez-vous du programme.
+model InscriptionProgramme {
+  rendezVousId String              @map("rendez_vous_id")
+  rendezVous   RendezVousProgramme @relation(fields: [rendezVousId], references: [id], onDelete: Cascade)
+  userId       Int                 @map("user_id")
+  user         User                @relation(fields: [userId], references: [id], onDelete: Cascade)
+  creeLe       DateTime            @default(now()) @map("cree_le")
+
+  @@id([rendezVousId, userId])
+  @@index([userId])
+  @@map("programme_inscriptions")
 }

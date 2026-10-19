@@ -7,7 +7,6 @@ import {
   DEMI,
   DOSSIERS,
   LIVRE,
-  PROGRAMME,
   PROMOS,
   RESSOURCES,
   STORIES,
@@ -16,7 +15,6 @@ import {
   type Commande,
   type Demi,
   type Dossier,
-  type ProgItem,
   type Promo,
   type Ressource,
   type Sieges,
@@ -37,7 +35,6 @@ export type TypeNotif = "annonce" | "message" | "compte" | "publication" | "stor
 export type Evenement = { id: string; pour: "admin" | "participant"; type: TypeNotif; titre: string; texte: string; href: string; t: number; acteur?: string };
 
 export type TraverseeState = {
-  prog: Record<string, boolean>;
   table: number | null;
   siege: number | null;
   pitch: string | null;
@@ -58,7 +55,6 @@ export type TraverseeState = {
   annonces: Annonce[];
   annoncesVues: Record<string, 1>;
   storiesVues: Record<string, 1>;
-  programme: ProgItem[];
   demi: Demi[];
   voix: number[];
   classement: { nom: string; reactions: number }[];
@@ -82,7 +78,6 @@ export type TraverseeState = {
 };
 
 export const DEFAULT_STATE: TraverseeState = {
-  prog: {},
   table: null,
   siege: null,
   pitch: null,
@@ -106,7 +101,6 @@ export const DEFAULT_STATE: TraverseeState = {
   annonces: [],
   annoncesVues: {},
   storiesVues: {},
-  programme: PROGRAMME,
   demi: DEMI,
   voix: VOIX_INIT,
   classement: CLASSEMENT_INIT,
