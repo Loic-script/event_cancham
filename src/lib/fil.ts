@@ -1,7 +1,8 @@
 import path from "node:path";
-import type { FormatPhoto } from "@/lib/photos";
+import { FORMATS_PHOTO, type FormatPhoto } from "@/lib/photos";
 import { prisma } from "@/lib/prisma";
-import { racineStockage } from "@/lib/ressources/stockage";
+import { racineStockage, supprimer } from "@/lib/ressources/stockage";
+import { FORMATS_VIDEO, cheminVideo, type FormatVideo } from "@/lib/videos";
 import { ACTUS } from "@/lib/traversee/data";
 
 /** Photos jointes aux publications : réduites à 1080 px dans le navigateur avant l'envoi. */
@@ -20,6 +21,16 @@ export function idFichierValide(id: unknown): id is string {
 export function cheminImageFil(id: string, format: FormatPhoto): string {
   if (!idFichierValide(id)) throw new Error("Identifiant d’image invalide");
   return path.join(racineStockage(), "fil", `${id}.${format}`);
+}
+
+/** Efface du stockage la photo ou la vidéo d'une publication supprimée. */
+export async function effacerFichiersPublication(image: string | null, video: string | null): Promise<void> {
+  const idImage = image?.match(URL_IMAGE_FIL)?.[1];
+  const idVideo = video?.match(URL_VIDEO)?.[1];
+  await Promise.all([
+    ...(idImage ? (Object.keys(FORMATS_PHOTO) as FormatPhoto[]).map((f) => supprimer(cheminImageFil(idImage, f))) : []),
+    ...(idVideo ? (Object.keys(FORMATS_VIDEO) as FormatVideo[]).map((f) => supprimer(cheminVideo(idVideo, f))) : []),
+  ]).catch((e) => console.error("Fichiers d’une publication non effacés :", e));
 }
 
 /** Une cible de j'aime ou de commentaire : publication du fil, ou article officiel (ACTUS). */

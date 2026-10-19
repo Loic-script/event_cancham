@@ -38,6 +38,7 @@ export type SessionIdentity = {
   city: string | null;
   country: string | null;
   acces: "MEMBRE" | "ADMIN";
+  superAdmin: boolean;
   createdAt: string;
 };
 

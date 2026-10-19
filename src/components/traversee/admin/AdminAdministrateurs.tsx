@@ -2,35 +2,35 @@
 
 import { useRouter } from "next/navigation";
 import { useActionState, useState } from "react";
-import { ajouterAdmin, retirerAdmin, type AjoutState } from "@/app/(app)/admin/administrateurs/actions";
+import { ajouterAdmin, retirerAdmin, supprimerAdmin, type AjoutState } from "@/app/(app)/admin/administrateurs/actions";
 import { UserPlusIcon } from "@/components/app/icons";
 import { toast } from "@/lib/traversee/store";
 import { AvatarInitiales, Btn, Card, Champ, Note, PageHead, Puce, Sur, ui } from "../ui";
 
-type Admin = { id: number; email: string; nom: string; depuis: string };
+type Admin = { id: number; email: string; nom: string; depuis: string; superAdmin: boolean };
 type Membre = { email: string; nom: string };
 
 const initial: AjoutState = { error: null, message: null };
 
-export function AdminAdministrateurs({ moi, admins, membres }: { moi: number; admins: Admin[]; membres: Membre[] }) {
+export function AdminAdministrateurs({ moi, superAdmin, superAdmins, admins, membres }: { moi: number; superAdmin: boolean; superAdmins: string[]; admins: Admin[]; membres: Membre[] }) {
   const router = useRouter();
   const [state, formAction, pending] = useActionState(ajouterAdmin, initial);
-  const [aConfirmer, setAConfirmer] = useState<number | null>(null);
-  const [retrait, setRetrait] = useState<number | null>(null);
+  const [aConfirmer, setAConfirmer] = useState<{ id: number; quoi: "retirer" | "supprimer" } | null>(null);
+  const [enCours, setEnCours] = useState<number | null>(null);
 
-  async function retirer(admin: Admin) {
-    setRetrait(admin.id);
-    const { error } = await retirerAdmin(admin.id);
-    setRetrait(null);
+  async function confirmer(admin: Admin, quoi: "retirer" | "supprimer") {
+    setEnCours(admin.id);
+    const { error } = quoi === "retirer" ? await retirerAdmin(admin.id) : await supprimerAdmin(admin.id);
+    setEnCours(null);
     setAConfirmer(null);
     if (error) return toast(error);
-    toast(`${admin.nom} n’est plus administrateur.`);
+    toast(quoi === "retirer" ? `${admin.nom} n’est plus administrateur.` : `Le compte de ${admin.nom} a été supprimé.`);
     router.refresh();
   }
 
   return (
     <>
-      <PageHead title="Équipe" accent="administrateurs" text="Les comptes qui ont accès au back-office. Ajoutez un collègue ou retirez des droits." photo="equipe">
+      <PageHead title="Équipe" accent="administrateurs" text={superAdmin ? "Les comptes qui ont accès au back-office. Ajoutez un collègue, retirez des droits ou supprimez un compte." : "Les comptes qui ont accès au back-office."} photo="equipe">
         <Puce tone="white">
           {admins.length} administrateur{admins.length > 1 ? "s" : ""}
         </Puce>
@@ -45,60 +45,75 @@ export function AdminAdministrateurs({ moi, admins, membres }: { moi: number; ad
                 <AvatarInitiales nom={a.nom} size={40} />
                 <div className="min-w-0 flex-1">
                   <strong>
-                    {a.nom} {a.id === moi ? <Puce tone="grey">Vous</Puce> : null}
+                    {a.nom} {a.superAdmin ? <Puce tone="red">Super admin</Puce> : null} {a.id === moi ? <Puce tone="grey">Vous</Puce> : null}
                   </strong>
                   <small>
                     {a.email} · compte créé le {new Date(a.depuis).toLocaleDateString("fr-FR")}
                   </small>
                 </div>
-                {a.id === moi ? null : aConfirmer === a.id ? (
-                  <div className="flex gap-2">
-                    <Btn small variant="primary" onClick={() => retirer(a)} disabled={retrait === a.id}>
-                      {retrait === a.id ? "Retrait…" : "Confirmer"}
+                {!superAdmin || a.id === moi || a.superAdmin ? null : aConfirmer?.id === a.id ? (
+                  <div className="flex flex-wrap items-center gap-2">
+                    <small className="text-graphite-muted">{aConfirmer.quoi === "retirer" ? "Il redeviendra membre." : "Suppression définitive."}</small>
+                    <Btn small variant="primary" onClick={() => confirmer(a, aConfirmer.quoi)} disabled={enCours === a.id}>
+                      {enCours === a.id ? "En cours…" : aConfirmer.quoi === "retirer" ? "Confirmer le retrait" : "Supprimer le compte"}
                     </Btn>
-                    <Btn small onClick={() => setAConfirmer(null)} disabled={retrait === a.id}>
+                    <Btn small onClick={() => setAConfirmer(null)} disabled={enCours === a.id}>
                       Annuler
                     </Btn>
                   </div>
                 ) : (
-                  <Btn small variant="ghost" onClick={() => setAConfirmer(a.id)}>
-                    Retirer les droits
-                  </Btn>
+                  <div className="flex flex-wrap gap-2">
+                    <Btn small variant="ghost" onClick={() => setAConfirmer({ id: a.id, quoi: "retirer" })}>
+                      Retirer les droits
+                    </Btn>
+                    <Btn small variant="ghost" onClick={() => setAConfirmer({ id: a.id, quoi: "supprimer" })}>
+                      Supprimer le compte
+                    </Btn>
+                  </div>
                 )}
               </li>
             ))}
           </ul>
         </Card>
 
-        <Card pad bleed>
-          <Sur>Ajouter un administrateur</Sur>
-          <form action={formAction} className="grid gap-3.5">
-            <Champ label="Adresse e-mail" htmlFor="admin-email" hint="Un membre déjà inscrit devient administrateur et en est informé par e-mail. Sinon, un compte est créé et son mot de passe lui est envoyé par e-mail.">
-              <input id="admin-email" name="email" type="email" required className={ui.saisie} list="admin-membres" autoComplete="off" placeholder="nom@cancham.mg" />
-              <datalist id="admin-membres">
-                {membres.map((m) => (
-                  <option key={m.email} value={m.email}>
-                    {m.nom}
-                  </option>
-                ))}
-              </datalist>
-            </Champ>
-            <div className={ui.g2}>
-              <Champ label="Prénom" htmlFor="admin-prenom">
-                <input id="admin-prenom" name="firstName" className={ui.saisie} autoComplete="off" />
+        {superAdmin ? (
+          <Card pad bleed>
+            <Sur>Ajouter un administrateur</Sur>
+            <form action={formAction} className="grid gap-3.5">
+              <Champ label="Adresse e-mail" htmlFor="admin-email" hint="Un membre déjà inscrit devient administrateur ; sinon, un compte est créé. Dans les deux cas, un mot de passe tiré au hasard lui est envoyé par e-mail.">
+                <input id="admin-email" name="email" type="email" required className={ui.saisie} list="admin-membres" autoComplete="off" placeholder="nom@cancham.mg" />
+                <datalist id="admin-membres">
+                  {membres.map((m) => (
+                    <option key={m.email} value={m.email}>
+                      {m.nom}
+                    </option>
+                  ))}
+                </datalist>
               </Champ>
-              <Champ label="Nom" htmlFor="admin-nom">
-                <input id="admin-nom" name="lastName" className={ui.saisie} autoComplete="off" />
-              </Champ>
-            </div>
-            {state.error ? <Note tone="red">{state.error}</Note> : null}
-            {state.message ? <Note tone="green">{state.message}</Note> : null}
-            <Btn type="submit" variant="primary" disabled={pending}>
-              <UserPlusIcon width={16} height={16} />
-              {pending ? "Ajout…" : "Ajouter l’administrateur"}
-            </Btn>
-          </form>
-        </Card>
+              <div className={ui.g2}>
+                <Champ label="Prénom" htmlFor="admin-prenom">
+                  <input id="admin-prenom" name="firstName" className={ui.saisie} autoComplete="off" />
+                </Champ>
+                <Champ label="Nom" htmlFor="admin-nom">
+                  <input id="admin-nom" name="lastName" className={ui.saisie} autoComplete="off" />
+                </Champ>
+              </div>
+              {state.error ? <Note tone="red">{state.error}</Note> : null}
+              {state.message ? <Note tone="green">{state.message}</Note> : null}
+              <Btn type="submit" variant="primary" disabled={pending}>
+                <UserPlusIcon width={16} height={16} />
+                {pending ? "Ajout…" : "Ajouter l’administrateur"}
+              </Btn>
+            </form>
+          </Card>
+        ) : (
+          <Card pad bleed className="grid content-start gap-1.5">
+            <Sur className="!mb-0">Gestion des administrateurs</Sur>
+            <p className="text-graphite-muted">
+              Seul le super admin{superAdmins.length ? ` (${superAdmins.join(", ")})` : ""} peut ajouter un administrateur, lui retirer ses droits ou supprimer son compte.
+            </p>
+          </Card>
+        )}
       </div>
     </>
   );

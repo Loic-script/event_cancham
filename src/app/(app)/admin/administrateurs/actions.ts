@@ -3,20 +3,25 @@
 import { revalidatePath } from "next/cache";
 import { Prisma } from "@/generated/prisma/client";
 import { baseCourriel } from "@/lib/alertes-admin";
+import { supprimerCompte } from "@/lib/comptes";
 import { courrielConfigure, courrielDisponible, envoyerCourriel } from "@/lib/courriel";
 import { courrielNouvelAdmin, courrielPromotionAdmin } from "@/lib/courriels";
 import { genererMotDePasse, hashPassword } from "@/lib/password";
 import { prisma } from "@/lib/prisma";
 import { getCurrentUser } from "@/lib/session";
+import { adressesSuperAdmins, estAdresseSuperAdmin, estSuperAdmin } from "@/lib/super-admin";
 
 export type AjoutState = { error: string | null; message: string | null };
 
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
-async function administrateur() {
+/** Gérer les administrateurs est réservé au super admin (adresses de SUPER_ADMINS). */
+async function superAdmin() {
   const user = await getCurrentUser();
-  return user && user.acces === "ADMIN" ? user : null;
+  return user && estSuperAdmin(user) ? user : null;
 }
+
+const RESERVE = `Seul le super admin${adressesSuperAdmins().length ? ` (${adressesSuperAdmins().join(", ")})` : ""} peut gérer les administrateurs.`;
 
 function rafraichir() {
   revalidatePath("/admin/administrateurs");
@@ -25,44 +30,48 @@ function rafraichir() {
 }
 
 export async function ajouterAdmin(_previous: AjoutState, formData: FormData): Promise<AjoutState> {
-  const admin = await administrateur();
-  if (!admin) return { error: "Action réservée aux administrateurs.", message: null };
+  const admin = await superAdmin();
+  if (!admin) return { error: RESERVE, message: null };
 
   const email = String(formData.get("email") ?? "").trim().toLowerCase();
   const firstName = String(formData.get("firstName") ?? "").trim();
   const lastName = String(formData.get("lastName") ?? "").trim();
   if (!EMAIL_PATTERN.test(email)) return { error: "Indiquez une adresse e-mail valide.", message: null };
 
-  const createur = `${admin.firstName} ${admin.lastName}`.trim() || "L’équipe CanCham";
   const base = await baseCourriel();
-  const existant = await prisma.user.findUnique({ where: { email }, select: { id: true, firstName: true, lastName: true, acces: true } });
+  if (!courrielDisponible() || !base) {
+    return { error: "L’envoi d’e-mails n’est pas configuré (RESEND_API_KEY, COURRIEL_EXPEDITEUR, APP_URL) : le mot de passe ne peut pas être envoyé.", message: null };
+  }
+  const createur = `${admin.firstName} ${admin.lastName}`.trim() || "L’équipe CanCham";
+  // Le mot de passe n'est connu que du destinataire : il le reçoit par e-mail.
+  const motDePasse = genererMotDePasse();
+  const passwordHash = await hashPassword(motDePasse);
+  const enDev = courrielConfigure() ? "" : " (développement : l’e-mail est affiché dans le terminal du serveur)";
+
+  const existant = await prisma.user.findUnique({ where: { email }, select: { id: true, firstName: true, lastName: true, acces: true, statut: true, decisionLe: true, passwordHash: true } });
   if (existant) {
     const nom = `${existant.firstName} ${existant.lastName}`.trim() || email;
     if (existant.acces === "ADMIN") return { error: `${nom} est déjà administrateur.`, message: null };
     // Promu, le compte est aussi validé : s'il perd un jour ses droits, il garde l'accès à l'espace participant.
-    await prisma.user.update({ where: { id: existant.id }, data: { acces: "ADMIN", statut: "ACTIF", decisionLe: new Date() } });
-    rafraichir();
+    await prisma.user.update({ where: { id: existant.id }, data: { acces: "ADMIN", statut: "ACTIF", decisionLe: new Date(), passwordHash } });
     try {
-      await envoyerCourriel(courrielPromotionAdmin({ email, prenom: existant.firstName, createur, base }));
-      return { error: null, message: `${nom} est maintenant administrateur : un e-mail l’en informe.` };
+      await envoyerCourriel(courrielPromotionAdmin({ email, prenom: existant.firstName, createur, motDePasse, base }));
     } catch (error) {
       console.error("E-mail de promotion non envoyé :", error);
-      return { error: null, message: `${nom} est maintenant administrateur, mais l’e-mail d’information n’a pas pu partir : prévenez-le vous-même.` };
+      await prisma.user.update({ where: { id: existant.id }, data: { acces: existant.acces, statut: existant.statut, decisionLe: existant.decisionLe, passwordHash: existant.passwordHash } });
+      return { error: `L’e-mail n’a pas pu être envoyé à ${email} : ${nom} reste membre et garde son mot de passe. Réessayez.`, message: null };
     }
+    rafraichir();
+    return { error: null, message: `${nom} est maintenant administrateur : son nouveau mot de passe lui a été envoyé par e-mail${enDev}.` };
   }
 
   if (!firstName || !lastName) return { error: "Aucun compte n’utilise cette adresse : indiquez le prénom et le nom pour le créer.", message: null };
   if (firstName.length > 60 || lastName.length > 60) return { error: "Le prénom ou le nom est trop long.", message: null };
-  if (!courrielDisponible() || !base) {
-    return { error: "L’envoi d’e-mails n’est pas configuré (RESEND_API_KEY, COURRIEL_EXPEDITEUR, APP_URL) : le mot de passe ne peut pas être envoyé.", message: null };
-  }
 
-  // Le mot de passe n'est connu que du nouvel administrateur : il le reçoit par e-mail.
-  const motDePasse = genererMotDePasse();
   let cree: { id: number };
   try {
     cree = await prisma.user.create({
-      data: { email, firstName, lastName, acces: "ADMIN", statut: "ACTIF", decisionLe: new Date(), passwordHash: await hashPassword(motDePasse) },
+      data: { email, firstName, lastName, acces: "ADMIN", statut: "ACTIF", decisionLe: new Date(), passwordHash },
       select: { id: true },
     });
   } catch (error) {
@@ -78,24 +87,43 @@ export async function ajouterAdmin(_previous: AjoutState, formData: FormData): P
     return { error: `L’e-mail n’a pas pu être envoyé à ${email} : le compte n’a pas été créé. Vérifiez l’adresse et réessayez.`, message: null };
   }
   rafraichir();
-  return {
-    error: null,
-    message: courrielConfigure()
-      ? `Compte administrateur créé : ${email} a reçu son mot de passe par e-mail.`
-      : `Compte administrateur créé pour ${email} (développement : l’e-mail et le mot de passe sont affichés dans le terminal du serveur).`,
-  };
+  return { error: null, message: `Compte administrateur créé : ${email} a reçu son mot de passe par e-mail${enDev}.` };
+}
+
+/** Vérifie que le super admin peut agir sur ce compte administrateur. */
+async function cibleModifiable(admin: { id: number }, userId: number) {
+  if (admin.id === userId) return { error: "Vous ne pouvez pas agir sur votre propre compte ici." };
+  const cible = await prisma.user.findUnique({ where: { id: userId }, select: { acces: true, email: true } });
+  if (!cible || cible.acces !== "ADMIN") return { error: "Ce compte n’est plus administrateur." };
+  if (estAdresseSuperAdmin(cible.email)) return { error: "Un super admin ne peut pas être modifié depuis la plateforme." };
+  return { error: null };
 }
 
 export async function retirerAdmin(userId: number): Promise<{ error: string | null }> {
-  const admin = await administrateur();
-  if (!admin) return { error: "Action réservée aux administrateurs." };
-  if (admin.id === userId) return { error: "Vous ne pouvez pas retirer vos propres droits." };
-
-  const nombre = await prisma.user.count({ where: { acces: "ADMIN" } });
-  if (nombre <= 1) return { error: "Il doit rester au moins un administrateur." };
+  const admin = await superAdmin();
+  if (!admin) return { error: RESERVE };
+  const { error } = await cibleModifiable(admin, userId);
+  if (error) return { error };
 
   const resultat = await prisma.user.updateMany({ where: { id: userId, acces: "ADMIN" }, data: { acces: "MEMBRE" } });
   if (!resultat.count) return { error: "Ce compte n’est plus administrateur." };
+  rafraichir();
+  return { error: null };
+}
+
+/** Supprime définitivement le compte d'un administrateur (pas d'un super admin). */
+export async function supprimerAdmin(userId: number): Promise<{ error: string | null }> {
+  const admin = await superAdmin();
+  if (!admin) return { error: RESERVE };
+  const { error } = await cibleModifiable(admin, userId);
+  if (error) return { error };
+
+  try {
+    await supprimerCompte(userId);
+  } catch (e) {
+    if (e instanceof Prisma.PrismaClientKnownRequestError && e.code === "P2025") return { error: "Ce compte n’existe plus." };
+    throw e;
+  }
   rafraichir();
   return { error: null };
 }

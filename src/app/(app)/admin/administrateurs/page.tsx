@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { AdminAdministrateurs } from "@/components/traversee/admin/AdminAdministrateurs";
 import { prisma } from "@/lib/prisma";
 import { requireAdmin } from "@/lib/session";
+import { adressesSuperAdmins, estAdresseSuperAdmin, estSuperAdmin } from "@/lib/super-admin";
 
 export const metadata: Metadata = { title: "Administrateurs · Back-office" };
 
@@ -23,7 +24,9 @@ export default async function Page() {
   return (
     <AdminAdministrateurs
       moi={moi.id}
-      admins={admins.map((a) => ({ id: a.id, email: a.email, nom: `${a.firstName} ${a.lastName}`, depuis: a.createdAt.toISOString() }))}
+      superAdmin={estSuperAdmin(moi)}
+      superAdmins={adressesSuperAdmins()}
+      admins={admins.map((a) => ({ id: a.id, email: a.email, nom: `${a.firstName} ${a.lastName}`, depuis: a.createdAt.toISOString(), superAdmin: estAdresseSuperAdmin(a.email) }))}
       membres={membres.map((m) => ({ email: m.email, nom: `${m.firstName} ${m.lastName}` }))}
     />
   );

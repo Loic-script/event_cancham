@@ -88,17 +88,22 @@ export function courrielNouvelAdmin(d: { email: string; prenom: string; createur
   };
 }
 
-/** À un membre devenu administrateur : il garde son mot de passe habituel. */
-export function courrielPromotionAdmin(d: { email: string; prenom: string; createur: string; base: string | null }): Courriel {
-  const lien = d.base ? `${d.base}/admin` : null;
+/** À un membre devenu administrateur : un nouveau mot de passe tiré au hasard remplace l'ancien. */
+export function courrielPromotionAdmin(d: { email: string; prenom: string; createur: string; motDePasse: string; base: string }): Courriel {
+  const lien = `${d.base}/connexion`;
   return {
     a: d.email,
     sujet: "Vous êtes maintenant administrateur de La Traversée",
-    texte: `${bonjour(d.prenom)}\n\n${d.createur} vous a donné les droits d’administrateur sur La Traversée. Connectez-vous avec votre adresse e-mail et votre mot de passe habituels pour accéder au back-office${lien ? ` : ${lien}` : "."}\n\nL’équipe CanCham Madagascar`,
+    texte: `${bonjour(d.prenom)}\n\n${d.createur} vous a donné les droits d’administrateur sur La Traversée. Voici vos identifiants pour vous connecter ; ce mot de passe remplace l’ancien.\n\nAdresse e-mail : ${d.email}\nMot de passe : ${d.motDePasse}\n\nConnexion : ${lien}\n\nVous pourrez le changer dans « Mon compte » (back-office), puis supprimer cet e-mail.\n\nL’équipe CanCham Madagascar`,
     html: page(
       p(bonjour(d.prenom)) +
-        p(`${d.createur} vous a donné les droits d’administrateur sur La Traversée. Connectez-vous avec votre adresse e-mail et votre mot de passe habituels pour accéder au back-office.`) +
-        (lien ? bouton(lien, "Ouvrir le back-office") : "") +
+        p(`${d.createur} vous a donné les droits d’administrateur sur La Traversée. Voici vos identifiants pour vous connecter ; ce mot de passe remplace l’ancien.`) +
+        tableau([
+          ["Adresse e-mail", d.email],
+          ["Mot de passe", d.motDePasse],
+        ]) +
+        bouton(lien, "Se connecter") +
+        p("Vous pourrez le changer dans « Mon compte » (back-office), puis supprimer cet e-mail.", DISCRET) +
         p("L’équipe CanCham Madagascar"),
     ),
   };

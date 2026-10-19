@@ -7,18 +7,15 @@ import {
   MAX_TEXTE_PUBLICATION,
   URL_IMAGE_FIL,
   URL_VIDEO,
-  cheminImageFil,
   cibleExiste,
   ciblePublication,
+  effacerFichiersPublication,
   selectionCommentaire,
   vueCommentaire,
   type CommentaireVue,
 } from "@/lib/fil";
-import { FORMATS_PHOTO, type FormatPhoto } from "@/lib/photos";
 import { prisma } from "@/lib/prisma";
-import { supprimer } from "@/lib/ressources/stockage";
 import { aAccesEspace, getCurrentUser } from "@/lib/session";
-import { FORMATS_VIDEO, cheminVideo, type FormatVideo } from "@/lib/videos";
 
 type Resultat = { error: string | null };
 
@@ -33,16 +30,6 @@ async function membre() {
 function rafraichir() {
   revalidatePath("/");
   revalidatePath("/admin");
-}
-
-/** Efface du stockage la photo ou la vidéo d'une publication supprimée. */
-async function effacerFichiers(image: string | null, video: string | null) {
-  const idImage = image?.match(URL_IMAGE_FIL)?.[1];
-  const idVideo = video?.match(URL_VIDEO)?.[1];
-  await Promise.all([
-    ...(idImage ? (Object.keys(FORMATS_PHOTO) as FormatPhoto[]).map((f) => supprimer(cheminImageFil(idImage, f))) : []),
-    ...(idVideo ? (Object.keys(FORMATS_VIDEO) as FormatVideo[]).map((f) => supprimer(cheminVideo(idVideo, f))) : []),
-  ]).catch((e) => console.error("Fichiers d’une publication non effacés :", e));
 }
 
 export async function publier(entree: { texte?: unknown; image?: unknown; video?: unknown; equipe?: unknown }): Promise<Resultat> {
@@ -79,7 +66,7 @@ export async function supprimerPublication(id: unknown): Promise<Resultat> {
     prisma.commentaireFil.deleteMany({ where: { cible } }),
     prisma.publication.delete({ where: { id } }),
   ]);
-  await effacerFichiers(publication.image, publication.video);
+  await effacerFichiersPublication(publication.image, publication.video);
   rafraichir();
   return { error: null };
 }

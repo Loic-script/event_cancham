@@ -2,9 +2,11 @@
 
 import { revalidatePath } from "next/cache";
 import { Prisma } from "@/generated/prisma/client";
+import { supprimerCompte } from "@/lib/comptes";
 import type { Fiche } from "@/lib/traversee/store";
 import { prisma } from "@/lib/prisma";
 import { getCurrentUser } from "@/lib/session";
+import { estAdresseSuperAdmin } from "@/lib/super-admin";
 
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
@@ -17,6 +19,12 @@ export async function modifierParticipant(userId: number, fiche: Fiche): Promise
   if (!firstName || !lastName) return { error: "Indiquez le prénom et le nom." };
   const email = fiche.email.trim().toLowerCase();
   if (!EMAIL_PATTERN.test(email)) return { error: "Adresse e-mail invalide." };
+  if (estAdresseSuperAdmin(email)) return { error: "Cette adresse est réservée au super admin." };
+
+  // Changer l'adresse d'un administrateur permettrait de prendre son compte (« Mot de passe oublié ») : seuls les membres se modifient ici.
+  const cible = await prisma.user.findUnique({ where: { id: userId }, select: { acces: true } });
+  if (!cible) return { error: "Ce participant n’existe plus." };
+  if (cible.acces === "ADMIN") return { error: "Ce compte est administrateur : il se modifie depuis « Mon compte »." };
 
   try {
     await prisma.user.update({
@@ -59,7 +67,7 @@ export async function supprimerParticipant(userId: number): Promise<{ error: str
   if (cible.acces === "ADMIN") return { error: "Ce compte est administrateur : retirez d’abord ses droits depuis la page Administrateurs." };
 
   try {
-    await prisma.user.delete({ where: { id: userId } });
+    await supprimerCompte(userId);
   } catch (error) {
     if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === "P2025") {
       return { error: "Ce participant n’existe plus." };

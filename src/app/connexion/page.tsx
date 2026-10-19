@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { redirect } from "next/navigation";
 import { AuthScene } from "@/components/auth/AuthScene";
+import styles from "@/components/auth/auth.module.css";
 import { LoginForm } from "@/components/auth/LoginForm";
 import { safeNext } from "@/lib/auth";
 import { fournisseursActifs, messageErreurSociale } from "@/lib/oauth";
@@ -17,7 +18,7 @@ export const viewport: Viewport = {
 };
 
 export default async function LoginPage({ searchParams }: PageProps<"/connexion">) {
-  const { next, erreur, via } = await searchParams;
+  const { next, erreur, via, compte } = await searchParams;
   const destination = safeNext(next);
 
   if (await getCurrentUser()) redirect(destination);
@@ -28,6 +29,11 @@ export default async function LoginPage({ searchParams }: PageProps<"/connexion"
       lead="Un réseau qui ouvre de nouvelles perspectives."
       cardTitle="Se connecter"
     >
+      {compte === "supprime" ? (
+        <p role="status" className={styles.notice}>
+          Votre compte a été supprimé. Merci d’avoir participé à La Traversée.
+        </p>
+      ) : null}
       <LoginForm next={destination} fournisseurs={fournisseursActifs()} erreurSociale={messageErreurSociale(erreur, via)} />
     </AuthScene>
   );

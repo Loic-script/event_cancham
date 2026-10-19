@@ -2,6 +2,7 @@ import { AppShell } from "@/components/app/AppShell";
 import { SessionIdentityProvider } from "@/components/profile/useProfile";
 import { prisma } from "@/lib/prisma";
 import { requireMembreActif } from "@/lib/session";
+import { estSuperAdmin } from "@/lib/super-admin";
 
 export default async function AppLayout({ children }: LayoutProps<"/">) {
   const user = await requireMembreActif();
@@ -20,6 +21,7 @@ export default async function AppLayout({ children }: LayoutProps<"/">) {
     city: user.city,
     country: user.country,
     acces: user.acces,
+    superAdmin: estSuperAdmin(user),
     createdAt: user.createdAt.toISOString(),
   };
 

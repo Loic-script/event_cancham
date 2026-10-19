@@ -4,7 +4,10 @@ import { revalidatePath } from "next/cache";
 import { Prisma } from "@/generated/prisma/client";
 import { hashPassword, verifyPassword } from "@/lib/password";
 import { prisma } from "@/lib/prisma";
-import { fermerAutresSessions, getCurrentUser } from "@/lib/session";
+import { redirect } from "next/navigation";
+import { supprimerCompte } from "@/lib/comptes";
+import { destroySession, fermerAutresSessions, getCurrentUser } from "@/lib/session";
+import { estAdresseSuperAdmin, estSuperAdmin } from "@/lib/super-admin";
 
 const LIMITES = { firstName: 60, lastName: 60, company: 80, role: 80, sector: 60, bio: 600, phone: 30, website: 200, city: 80 } as const;
 
@@ -62,6 +65,8 @@ export async function modifierIdentifiants(_previous: CompteState, formData: For
   if (!EMAIL_PATTERN.test(email)) return { error: "Indiquez une adresse e-mail valide (exemple : nom@entreprise.mg).", message: null };
 
   const nouvelleAdresse = email !== user.email;
+  if (nouvelleAdresse && estSuperAdmin(user)) return { error: "L’adresse du super admin est fixée par la configuration du serveur (SUPER_ADMINS).", message: null };
+  if (nouvelleAdresse && estAdresseSuperAdmin(email)) return { error: "Cette adresse e-mail est déjà utilisée par un autre compte.", message: null };
   if (nouvelleAdresse) {
     if (!motDePasse) return { error: "Saisissez votre mot de passe actuel pour changer d’adresse e-mail.", message: null };
     if (!(await motDePasseCorrect(user.id, motDePasse))) return { error: "Le mot de passe actuel est incorrect.", message: null };
@@ -110,4 +115,27 @@ export async function changerMotDePasse(_previous: CompteState, formData: FormDa
       ? `Mot de passe modifié. ${deconnectes} autre${deconnectes > 1 ? "s" : ""} appareil${deconnectes > 1 ? "s ont" : " a"} été déconnecté${deconnectes > 1 ? "s" : ""}.`
       : "Mot de passe modifié.",
   };
+}
+
+export type SuppressionState = { error: string | null };
+
+const MOT_DE_CONFIRMATION = "SUPPRIMER";
+
+/** La personne supprime elle-même son compte, après avoir tapé SUPPRIMER. Le super admin ne le peut pas. */
+export async function supprimerMonCompte(_previous: SuppressionState, formData: FormData): Promise<SuppressionState> {
+  const user = await getCurrentUser();
+  if (!user) return { error: "Votre session a expiré : reconnectez-vous." };
+  if (String(formData.get("confirmation") ?? "").trim().toUpperCase() !== MOT_DE_CONFIRMATION) return { error: `Tapez ${MOT_DE_CONFIRMATION} pour confirmer.` };
+  if (estSuperAdmin(user)) return { error: "Le compte du super admin ne peut pas être supprimé depuis la plateforme." };
+
+  try {
+    await supprimerCompte(user.id);
+  } catch (error) {
+    console.error("Suppression du compte impossible :", error);
+    return { error: "La suppression n’a pas abouti. Réessayez dans un instant." };
+  }
+  await destroySession();
+  revalidatePath("/annuaire");
+  revalidatePath("/admin/participants");
+  redirect("/connexion?compte=supprime");
 }

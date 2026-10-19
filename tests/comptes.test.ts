@@ -2,7 +2,8 @@ import assert from "node:assert/strict";
 import { describe, it } from "node:test";
 import { erreurCoordonnees, profilIncomplet } from "../src/lib/coordonnees";
 import { messageErreurSociale, nouvelEtat, urlAutorisation, urlRetour } from "../src/lib/oauth";
-import { courrielNouvelAdmin, courrielNouvelleInscription, courrielReinitialisation } from "../src/lib/courriels";
+import { courrielNouvelAdmin, courrielNouvelleInscription, courrielPromotionAdmin, courrielReinitialisation } from "../src/lib/courriels";
+import { adressesSuperAdmins, estSuperAdmin } from "../src/lib/super-admin";
 import { genererMotDePasse } from "../src/lib/password";
 
 const valides = { firstName: "Hanta", lastName: "Rakoto", company: "Baobab Conseil", role: "Gérante", phone: "+261 34 00 000 00" };
@@ -91,5 +92,27 @@ describe("e-mails aux administrateurs", () => {
     assert.ok(c.texte.includes("Kx7m-P2qr-Hn9d") && c.html.includes("Kx7m-P2qr-Hn9d"));
     assert.ok(c.html.includes('href="https://latraversee.example/connexion"'));
     assert.ok(c.texte.includes("Mon compte"));
+  });
+});
+
+describe("super admin", () => {
+  it("lit SUPER_ADMINS sans tenir compte des majuscules ni des espaces", () => {
+    process.env.SUPER_ADMINS = " Info@CanCham.mg , autre@cancham.mg,";
+    assert.deepEqual(adressesSuperAdmins(), ["info@cancham.mg", "autre@cancham.mg"]);
+    assert.equal(estSuperAdmin({ acces: "ADMIN", email: "INFO@cancham.mg" }), true);
+  });
+
+  it("exige aussi le rôle administrateur en base", () => {
+    process.env.SUPER_ADMINS = "info@cancham.mg";
+    assert.equal(estSuperAdmin({ acces: "MEMBRE", email: "info@cancham.mg" }), false);
+    assert.equal(estSuperAdmin({ acces: "ADMIN", email: "admin@cancham.mg" }), false);
+    process.env.SUPER_ADMINS = "";
+    assert.equal(estSuperAdmin({ acces: "ADMIN", email: "info@cancham.mg" }), false);
+  });
+
+  it("donne au membre promu un nouveau mot de passe et le lien de connexion", () => {
+    const c = courrielPromotionAdmin({ email: "membre@cancham.mg", prenom: "Marco", createur: "Équipe CanCham", motDePasse: "wWP7-MErq-DTZr", base: "https://latraversee.example" });
+    assert.ok(c.texte.includes("Mot de passe : wWP7-MErq-DTZr") && c.texte.includes("remplace l’ancien"));
+    assert.ok(c.html.includes('href="https://latraversee.example/connexion"'));
   });
 });

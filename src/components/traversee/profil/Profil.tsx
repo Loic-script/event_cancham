@@ -10,6 +10,7 @@ import { fullName } from "@/lib/mock/data";
 import { BilletModal } from "../achats/BilletModal";
 import { Presentation } from "../accueil/Presentation";
 import { Coordonnees, MotDePasse } from "./Compte";
+import { SupprimerCompte } from "./SupprimerCompte";
 import { Btn, Card, Champ, FileBtn, Jauge, Sur, ui } from "../ui";
 import styles from "./profil.module.css";
 
@@ -133,6 +134,7 @@ export function Profil({ restant }: { restant: number }) {
           </Btn>
         </div>
       </Card>
+      <SupprimerCompte />
       {billet ? <BilletModal onClose={() => setBillet(false)} /> : null}
     </>
   );
