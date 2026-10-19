@@ -11,7 +11,7 @@ export function codeBilletInscrit(id: number) {
 
 export async function fichesInscrits(): Promise<FicheInscrit[]> {
   const users = await prisma.user.findMany({
-    where: { acces: "MEMBRE" },
+    where: { acces: "MEMBRE", statut: "ACTIF" },
     orderBy: [{ firstName: "asc" }, { lastName: "asc" }],
     select: { id: true, email: true, firstName: true, lastName: true, role: true, company: true, sector: true, bio: true, phone: true, website: true, billetPaye: true, createdAt: true },
   });

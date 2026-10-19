@@ -15,6 +15,7 @@ const userSelect = {
   lastName: true,
   role: true,
   acces: true,
+  statut: true,
   company: true,
   sector: true,
   bio: true,
@@ -68,6 +69,27 @@ export async function requireUser(): Promise<SessionUser> {
   const user = await getCurrentUser();
   if (!user) redirect(LOGIN_PATH);
   return user;
+}
+
+export const PAGE_ATTENTE = "/en-attente";
+
+/** Espace participant : administrateurs, et membres dont l'inscription est validée. */
+export function aAccesEspace(user: Pick<SessionUser, "acces" | "statut">): boolean {
+  return user.acces === "ADMIN" || user.statut === "ACTIF";
+}
+
+/** Comme requireUser, mais renvoie vers la page d'attente tant que l'inscription n'est pas validée. */
+export async function requireMembreActif(): Promise<SessionUser> {
+  const user = await requireUser();
+  if (!aAccesEspace(user)) redirect(PAGE_ATTENTE);
+  return user;
+}
+
+export async function refusSiSansAcces(): Promise<Response | null> {
+  const user = await getCurrentUser();
+  if (!user) return Response.json({ ok: false, message: "Connexion requise." }, { status: 401 });
+  if (!aAccesEspace(user)) return Response.json({ ok: false, message: "Votre inscription n’est pas encore validée." }, { status: 403 });
+  return null;
 }
 
 export async function estAdmin(): Promise<boolean> {

@@ -1,9 +1,11 @@
 import { AppShell } from "@/components/app/AppShell";
 import { SessionIdentityProvider } from "@/components/profile/useProfile";
-import { requireUser } from "@/lib/session";
+import { prisma } from "@/lib/prisma";
+import { requireMembreActif } from "@/lib/session";
 
 export default async function AppLayout({ children }: LayoutProps<"/">) {
-  const user = await requireUser();
+  const user = await requireMembreActif();
+  const enAttente = user.acces === "ADMIN" ? await prisma.user.count({ where: { acces: "MEMBRE", statut: "EN_ATTENTE" } }) : 0;
   const identity = {
     id: user.id,
     email: user.email,
@@ -23,7 +25,7 @@ export default async function AppLayout({ children }: LayoutProps<"/">) {
 
   return (
     <SessionIdentityProvider user={identity}>
-      <AppShell>{children}</AppShell>
+      <AppShell enAttente={enAttente}>{children}</AppShell>
     </SessionIdentityProvider>
   );
 }

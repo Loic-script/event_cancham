@@ -2,14 +2,15 @@ import { randomUUID } from "node:crypto";
 import { erreurStockage, recevoirFlux } from "@/lib/ressources/reception";
 import { json } from "@/lib/ressources/servir";
 import { deplacer, supprimer } from "@/lib/ressources/stockage";
-import { getCurrentUser } from "@/lib/session";
+import { refusSiSansAcces } from "@/lib/session";
 import { TAILLE_MAX_VIDEO, cheminVideo, detecterVideo } from "@/lib/videos";
 
 export const dynamic = "force-dynamic";
 export const maxDuration = 300;
 
 export async function POST(req: Request) {
-  if (!(await getCurrentUser())) return json(401, { ok: false, message: "Connexion requise." });
+  const refusAcces = await refusSiSansAcces();
+  if (refusAcces) return refusAcces;
 
   let temporaire: string | null = null;
   try {

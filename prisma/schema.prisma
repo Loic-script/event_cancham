@@ -8,14 +8,14 @@ datasource db {
 }
 
 model Event {
-  id          Int      @id @default(autoincrement())
+  id          Int       @id @default(autoincrement())
   title       String
   description String?
   location    String?
-  startsAt    DateTime @map("starts_at")
+  startsAt    DateTime  @map("starts_at")
   endsAt      DateTime? @map("ends_at")
-  createdAt   DateTime @default(now()) @map("created_at")
-  updatedAt   DateTime @updatedAt @map("updated_at")
+  createdAt   DateTime  @default(now()) @map("created_at")
+  updatedAt   DateTime  @updatedAt @map("updated_at")
 
   @@map("events")
 }
@@ -25,24 +25,34 @@ enum Acces {
   ADMIN
 }
 
+/// Accès d'un membre à l'espace participant : en attente après l'inscription,
+/// actif une fois validé par l'équipe (plus tard : par le paiement), ou refusé.
+enum StatutCompte {
+  EN_ATTENTE
+  ACTIF
+  REFUSE
+}
+
 model User {
-  id           Int       @id @default(autoincrement())
-  email        String    @unique
-  passwordHash String    @map("password_hash")
-  firstName    String    @map("first_name")
-  lastName     String    @map("last_name")
+  id           Int          @id @default(autoincrement())
+  email        String       @unique
+  passwordHash String       @map("password_hash")
+  firstName    String       @map("first_name")
+  lastName     String       @map("last_name")
   role         String?
-  acces        Acces     @default(MEMBRE)
+  acces        Acces        @default(MEMBRE)
+  statut       StatutCompte @default(EN_ATTENTE)
+  decisionLe   DateTime?    @map("decision_le")
   company      String?
   sector       String?
-  bio          String?   @db.VarChar(600)
+  bio          String?      @db.VarChar(600)
   phone        String?
   website      String?
   city         String?
   country      String?
-  billetPaye   Boolean   @default(false) @map("billet_paye")
-  createdAt    DateTime  @default(now()) @map("created_at")
-  updatedAt    DateTime  @updatedAt @map("updated_at")
+  billetPaye   Boolean      @default(false) @map("billet_paye")
+  createdAt    DateTime     @default(now()) @map("created_at")
+  updatedAt    DateTime     @updatedAt @map("updated_at")
   sessions     Session[]
 
   @@map("users")

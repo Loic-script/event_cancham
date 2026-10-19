@@ -53,6 +53,7 @@ const NAV_ADMIN: NavSection[] = [
     titre: "Participants",
     icon: ICONES.personnes,
     items: [
+      { href: "/admin/acces", label: "Demandes d’accès" },
       { href: "/admin/participants", label: "Annuaire", icon: ICONES.personnes },
       { href: "/admin/scanner", label: "Scanner QR", icon: ICONES.qr },
       { href: "/admin/places", label: "Places" },
@@ -107,7 +108,8 @@ function groupeDe(pathname: string) {
   return NAV_ADMIN.find((s) => s.icon && s.items.some((n) => isActive(pathname, n.href)))?.titre ?? null;
 }
 
-export function AppShell({ children }: { children: ReactNode }) {
+/** `enAttente` : inscriptions à valider, affichées en pastille dans le back-office. */
+export function AppShell({ children, enAttente = 0 }: { children: ReactNode; enAttente?: number }) {
   const pathname = usePathname();
   const router = useRouter();
   const state = useTraversee();
@@ -152,6 +154,7 @@ export function AppShell({ children }: { children: ReactNode }) {
   const basItems = (admin ? BAS_ADMIN : BAS).map((href) => items.find((n) => n.href === href)!);
 
   function badgeDe(href: string) {
+    if (href === "/admin/acces") return enAttente;
     return href === "/messages" ? 1 : href === "/admin/annonces" ? state.annonces.length : 0;
   }
 

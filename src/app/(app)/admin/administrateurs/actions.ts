@@ -46,7 +46,7 @@ export async function ajouterAdmin(_previous: AjoutState, formData: FormData): P
   }
 
   await prisma.user.create({
-    data: { email, firstName, lastName, acces: "ADMIN", passwordHash: await hashPassword(password) },
+    data: { email, firstName, lastName, acces: "ADMIN", statut: "ACTIF", decisionLe: new Date(), passwordHash: await hashPassword(password) },
   });
   rafraichir();
   return { error: null, message: `Compte administrateur créé pour ${email}. Transmettez-lui son mot de passe provisoire.` };

@@ -15,7 +15,7 @@ export type Notif = {
   lue: boolean;
 };
 
-export type CompteRecent = { id: number; nom: string; entreprise: string | null; acces: "MEMBRE" | "ADMIN"; t: number };
+export type CompteRecent = { id: number; nom: string; entreprise: string | null; acces: "MEMBRE" | "ADMIN"; enAttente?: boolean; t: number };
 
 const MINUTE = 60_000;
 
@@ -88,8 +88,12 @@ export function notificationsAdmin(s: TraverseeState, o: { comptes: CompteRecent
       id,
       type: "compte",
       titre: c.acces === "ADMIN" ? `${c.nom} a un compte administrateur` : `${c.nom} a créé son compte`,
-      texte: c.entreprise ? `${c.entreprise} · nouvel inscrit sur la plateforme` : "Nouvel inscrit sur la plateforme",
-      href: "/admin/participants",
+      texte: c.enAttente
+        ? `${c.entreprise ? `${c.entreprise} · ` : ""}inscription à valider`
+        : c.entreprise
+          ? `${c.entreprise} · nouvel inscrit sur la plateforme`
+          : "Nouvel inscrit sur la plateforme",
+      href: c.enAttente ? "/admin/acces" : "/admin/participants",
       t: c.t,
       acteur: c.nom,
       lue: lue(s, id),

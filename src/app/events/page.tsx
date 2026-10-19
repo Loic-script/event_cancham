@@ -1,5 +1,5 @@
 import { prisma } from "@/lib/prisma";
-import { requireUser } from "@/lib/session";
+import { requireMembreActif } from "@/lib/session";
 import type { Event } from "@/generated/prisma/client";
 
 export const dynamic = "force-dynamic";
@@ -21,7 +21,7 @@ async function loadEvents(): Promise<
 }
 
 export default async function Home() {
-  await requireUser();
+  await requireMembreActif();
   const result = await loadEvents();
 
   return (

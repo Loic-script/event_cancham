@@ -1,6 +1,6 @@
-import { requireUser } from "@/lib/session";
+import { requireMembreActif } from "@/lib/session";
 
 export default async function DiscoverLayout({ children }: LayoutProps<"/decouvrir">) {
-  await requireUser();
+  await requireMembreActif();
   return children;
 }

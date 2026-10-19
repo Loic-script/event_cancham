@@ -1,13 +1,15 @@
 import type { NextRequest } from "next/server";
 import { refus, reponseFlux } from "@/lib/ressources/servir";
 import { existe } from "@/lib/ressources/stockage";
-import { getCurrentUser } from "@/lib/session";
+import { aAccesEspace, getCurrentUser } from "@/lib/session";
 import { FORMATS_VIDEO, cheminVideo, idVideoValide, type FormatVideo } from "@/lib/videos";
 
 export const dynamic = "force-dynamic";
 
 export async function GET(req: NextRequest, ctx: RouteContext<"/api/videos/[id]">) {
-  if (!(await getCurrentUser())) return refus(401, "Connexion requise");
+  const user = await getCurrentUser();
+  if (!user) return refus(401, "Connexion requise");
+  if (!aAccesEspace(user)) return refus(403, "Inscription non validée");
   const { id } = await ctx.params;
   if (!idVideoValide(id)) return refus(404, "Vidéo introuvable");
 

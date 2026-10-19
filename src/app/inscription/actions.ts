@@ -2,10 +2,9 @@
 
 import { redirect } from "next/navigation";
 import { Prisma } from "@/generated/prisma/client";
-import { safeNext } from "@/lib/auth";
 import { hashPassword } from "@/lib/password";
 import { prisma } from "@/lib/prisma";
-import { createSession } from "@/lib/session";
+import { createSession, PAGE_ATTENTE } from "@/lib/session";
 
 export type RegisterState = { error: string | null };
 
@@ -24,7 +23,6 @@ export async function register(_previous: RegisterState, formData: FormData): Pr
   const role = String(formData.get("role") ?? "").trim();
   const phone = String(formData.get("phone") ?? "").trim();
   const password = String(formData.get("password") ?? "");
-  const next = safeNext(formData.get("next"));
 
   if (!firstName || !lastName) return { error: "Renseignez votre prénom et votre nom." };
   if (!company || !role) return { error: "Renseignez votre entreprise et votre rôle." };
@@ -58,5 +56,6 @@ export async function register(_previous: RegisterState, formData: FormData): Pr
     return { error: "La base de données ne répond pas. Réessayez dans un instant." };
   }
 
-  redirect(next);
+  // L'espace s'ouvre une fois l'inscription validée par l'équipe (plus tard : après le paiement).
+  redirect(PAGE_ATTENTE);
 }

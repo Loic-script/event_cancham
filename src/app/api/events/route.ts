@@ -1,17 +1,22 @@
 import { prisma } from "@/lib/prisma";
-import { getCurrentUser } from "@/lib/session";
+import { aAccesEspace, getCurrentUser } from "@/lib/session";
 
 const unauthorized = () => Response.json({ error: "Connexion requise." }, { status: 401 });
 
+async function autorise() {
+  const user = await getCurrentUser();
+  return !!user && aAccesEspace(user);
+}
+
 export async function GET() {
-  if (!(await getCurrentUser())) return unauthorized();
+  if (!(await autorise())) return unauthorized();
 
   const events = await prisma.event.findMany({ orderBy: { startsAt: "asc" } });
   return Response.json(events);
 }
 
 export async function POST(request: Request) {
-  if (!(await getCurrentUser())) return unauthorized();
+  if (!(await autorise())) return unauthorized();
 
   const body = await request.json().catch(() => null);
 

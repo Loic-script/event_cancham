@@ -33,6 +33,7 @@ async function seedComptes() {
       lastName: "Loïc",
       role: "Fondateur",
       company: "Event Studio",
+      statut: "ACTIF",
       city: "Antananarivo",
       country: "MG",
     },
@@ -42,13 +43,14 @@ async function seedComptes() {
     const passwordHash = await hashPassword(account.password);
     await prisma.user.upsert({
       where: { email: account.email },
-      update: { passwordHash, acces: account.acces },
+      update: { passwordHash, acces: account.acces, statut: "ACTIF" },
       create: {
         email: account.email,
         passwordHash,
         firstName: account.firstName,
         lastName: account.lastName,
         acces: account.acces,
+        statut: "ACTIF",
       },
     });
   }

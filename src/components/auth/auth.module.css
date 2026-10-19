@@ -539,6 +539,45 @@
   font-size: 14px;
 }
 
+/* Page d'attente (/en-attente) */
+.attente {
+  display: grid;
+  gap: 16px;
+  margin-top: 8px;
+}
+
+.attente > p:not(.notice) {
+  color: var(--doux);
+  font-size: 15px;
+  line-height: 1.6;
+}
+
+.attente .notice {
+  margin-top: 0;
+}
+
+.attente .submit {
+  text-decoration: none;
+}
+
+.secondaire {
+  width: 100%;
+  height: 48px;
+  border: 1px solid var(--champ);
+  border-radius: 8px;
+  background: #ffffff;
+  color: var(--texte);
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: border-color 0.15s ease, color 0.15s ease;
+}
+
+.secondaire:hover {
+  border-color: var(--bleu);
+  color: var(--bleu);
+}
+
 .switch {
   margin-top: 28px;
   text-align: center;
