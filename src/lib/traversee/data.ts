@@ -207,19 +207,16 @@ export const DESTINATIONS: { href: string; label: string; nom: string }[] = [
   { href: "/programme", label: "Voir le programme", nom: "Programme" },
   { href: "/defis/pitch", label: "Voir les défis", nom: "Gagnez un voyage au Canada" },
   { href: "/defis/tombola", label: "Voir le défi 3 000 000 Ar", nom: "Gagnez 3 000 000 Ar" },
-  { href: "/place", label: "Voir ma place", nom: "Ma place" },
-  { href: "/achats", label: "Commander", nom: "Achats" },
   { href: "/annuaire", label: "Voir l’annuaire", nom: "Annuaire" },
   { href: "/rdv", label: "Mes rendez-vous", nom: "Mes rendez-vous" },
   { href: "/messages", label: "Écrire à l’équipe", nom: "Messagerie" },
   { href: "/ressources", label: "Voir les ressources", nom: "Ressources" },
   { href: "/photos", label: "Voir les photos", nom: "Photos et vidéos" },
-  { href: "/livre", label: "Ouvrir le livre d’or", nom: "Livre d’or vidéo" },
   { href: "/profil", label: "Mon profil", nom: "Profil" },
 ];
 export const MODELES_ANNONCE: { titre: string; message: string; type: AnnonceType; cta: string }[] = [
   { titre: "Le 5 à 7 commence", message: "Rejoignez-nous à l’espace réseautage : le 5 à 7 démarre maintenant.", type: "programme", cta: "/programme" },
-  { titre: "Le Gala ouvre ses portes", message: "Les portes du Gala des 10 ans sont ouvertes. Retrouvez votre table sur le plan.", type: "info", cta: "/place" },
+  { titre: "Le Gala ouvre ses portes", message: "Les portes du Gala des 10 ans sont ouvertes. Retrouvez le déroulé de la soirée dans le programme.", type: "info", cta: "/programme" },
   { titre: "Finale des pitchs : votez", message: "Les trois finalistes sont sur scène. Votez maintenant pour le grand gagnant.", type: "urgent", cta: "/defis/pitch" },
 ];
 

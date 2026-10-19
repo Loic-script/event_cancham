@@ -29,7 +29,6 @@ import {
   TrophyIcon,
   ShieldCheckIcon,
   UsersIcon,
-  VideoIcon,
   type IconProps,
 } from "./icons";
 import styles from "./shell.module.css";
@@ -45,8 +44,6 @@ const NAV: NavSection[] = [
       { href: "/programme", label: "Programme", icon: CalendarDaysIcon },
       { href: "/defis/pitch", label: "Gagnez un voyage au Canada", icon: TrophyIcon },
       { href: "/defis/tombola", label: "Gagnez 3 000 000 Ar", icon: GiftIcon },
-      { href: "/place", label: "Ma place", icon: ArmchairIcon },
-      { href: "/achats", label: "Achats", icon: CartIcon },
     ],
   },
   {
@@ -61,7 +58,6 @@ const NAV: NavSection[] = [
     titre: "Souvenirs",
     items: [
       { href: "/photos", label: "Photos et vidéos", icon: CameraIcon },
-      { href: "/livre", label: "Livre d’or vidéo", icon: VideoIcon },
     ],
   },
 ];
@@ -106,9 +102,9 @@ const TITRES: Record<string, string> = {
   "/defis": "Défis",
 };
 
-const BAS = ["/", "/defis/pitch", "/place", "/annuaire"];
+const BAS = ["/", "/defis/pitch", "/programme", "/annuaire"];
 const BAS_ADMIN = ["/admin", "/admin/scanner", "/admin/participants", "/admin/commandes"];
-const BAS_LABEL: Record<string, string> = { "/defis/pitch": "Défis", "/place": "Ma place", "/admin/participants": "Annuaire", "/admin/scanner": "Scanner" };
+const BAS_LABEL: Record<string, string> = { "/defis/pitch": "Défis", "/admin/participants": "Annuaire", "/admin/scanner": "Scanner" };
 
 function isActive(pathname: string, href: string) {
   if (href === "/" || href === "/admin") return pathname === href;
