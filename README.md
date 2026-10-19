@@ -216,6 +216,13 @@ Documents, vidéos et pages composées, rangés en dossiers et lus dans un lecte
 - **Démonstration** : `npm run db:seed` crée quatre dossiers (dont un parcours « Agenda MECC Digital » avec auteur et sous-dossier) et des PDF, photos et pages composées convertis réellement.
 - **Tests** : `npm test` vérifie la détection des formats, la conversion d’un PDF de 20 pages en 20 images, l’arborescence des dossiers (boucles, 5 niveaux) et le nettoyage des blocs et des liens vidéo.
 
+## Déploiement (Docker)
+
+Le `Dockerfile` reprend celui que génère TwinsDeploi (Node 22 Alpine, `npm ci`, `npm run build`, `npm prune --omit=dev`), avec un démarrage par `scripts/demarrer.sh` : lancé en root, il donne le dossier `STOCKAGE_DIR` à l’utilisateur `node`, puis démarre l’application sous cet utilisateur. Sans cela, le volume persistant monté sur `/data` appartient à root et tout envoi de photo, vidéo ou ressource échoue avec `EACCES`.
+
+- **Variables** : `DATABASE_URL`, `STOCKAGE_DIR=/data` (avec un volume monté sur `/data`).
+- **Vérification** : au démarrage, les logs affichent `Stockage prêt : /data`.
+
 ## Liaison avec Facebook et Instagram
 
 Quand un participant colle le lien de sa publication (défis 1 et 3), l'application :
