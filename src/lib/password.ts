@@ -1,4 +1,4 @@
-import { randomBytes, scrypt as scryptCallback, timingSafeEqual } from "node:crypto";
+import { randomBytes, randomInt, scrypt as scryptCallback, timingSafeEqual } from "node:crypto";
 import { promisify } from "node:util";
 
 const scrypt = promisify(scryptCallback) as (
@@ -29,4 +29,11 @@ export async function verifyPassword(password: string, stored: string): Promise<
     p: Number(p),
   });
   return key.length === expected.length && timingSafeEqual(key, expected);
+}
+
+/** Mot de passe provisoire lisible (sans 0/O ni 1/l/I), par exemple « Kx7m-P2qr-Hn9d » : environ 69 bits d'aléa. */
+export function genererMotDePasse(): string {
+  const alphabet = "abcdefghjkmnpqrstuvwxyzABCDEFGHJKMNPQRSTUVWXYZ23456789";
+  const bloc = () => Array.from({ length: 4 }, () => alphabet[randomInt(alphabet.length)]).join("");
+  return [bloc(), bloc(), bloc()].join("-");
 }

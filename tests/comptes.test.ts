@@ -2,7 +2,8 @@ import assert from "node:assert/strict";
 import { describe, it } from "node:test";
 import { erreurCoordonnees, profilIncomplet } from "../src/lib/coordonnees";
 import { messageErreurSociale, nouvelEtat, urlAutorisation, urlRetour } from "../src/lib/oauth";
-import { courrielReinitialisation } from "../src/lib/reinitialisation";
+import { courrielNouvelAdmin, courrielNouvelleInscription, courrielReinitialisation } from "../src/lib/courriels";
+import { genererMotDePasse } from "../src/lib/password";
 
 const valides = { firstName: "Hanta", lastName: "Rakoto", company: "Baobab Conseil", role: "Gérante", phone: "+261 34 00 000 00" };
 
@@ -60,5 +61,35 @@ describe("e-mail « mot de passe oublié »", () => {
     assert.ok(c.html.includes(`href="${lien}"`));
     assert.ok(!c.html.includes("<b>Hanta</b>"));
     assert.ok(c.html.includes("&lt;b&gt;Hanta&lt;/b&gt;"));
+  });
+});
+
+describe("e-mails aux administrateurs", () => {
+  it("génère des mots de passe provisoires lisibles et tous différents", () => {
+    const lot = Array.from({ length: 200 }, genererMotDePasse);
+    for (const m of lot) assert.match(m, /^[a-km-zA-HJ-NP-Z2-9]{4}-[a-km-zA-HJ-NP-Z2-9]{4}-[a-km-zA-HJ-NP-Z2-9]{4}$/);
+    assert.equal(new Set(lot).size, lot.length);
+  });
+
+  it("annonce une nouvelle inscription à tous les administrateurs, données échappées", () => {
+    const c = courrielNouvelleInscription(
+      { firstName: "Hanta", lastName: "<i>Rakoto</i>", email: "hanta@exemple.mg", company: "Baobab", role: "Gérante", phone: "+261 34 00 000 00", via: "avec Google" },
+      ["a@cancham.mg", "b@cancham.mg"],
+      "https://latraversee.example",
+    );
+    assert.deepEqual(c.a, ["a@cancham.mg", "b@cancham.mg"]);
+    assert.equal(c.sujet, "Nouvelle inscription : Hanta <i>Rakoto</i> (Baobab)");
+    assert.ok(c.html.includes('href="https://latraversee.example/admin/acces"'));
+    assert.ok(!c.html.includes("<i>Rakoto</i>"));
+    assert.ok(c.texte.includes("Téléphone : +261 34 00 000 00") && c.texte.includes("Inscription : avec Google"));
+    assert.ok(courrielNouvelleInscription({ firstName: "A", lastName: "B", email: "a@b.mg", company: null, role: null, phone: null, via: "par le formulaire" }, ["x@y.mg"], null).texte.includes("Demandes d’accès"));
+  });
+
+  it("envoie au nouvel administrateur son mot de passe provisoire et le lien de connexion", () => {
+    const c = courrielNouvelAdmin({ email: "nouveau@cancham.mg", prenom: "Tiana", createur: "Admin CanCham", motDePasse: "Kx7m-P2qr-Hn9d", base: "https://latraversee.example" });
+    assert.equal(c.a, "nouveau@cancham.mg");
+    assert.ok(c.texte.includes("Kx7m-P2qr-Hn9d") && c.html.includes("Kx7m-P2qr-Hn9d"));
+    assert.ok(c.html.includes('href="https://latraversee.example/connexion"'));
+    assert.ok(c.texte.includes("Mon compte"));
   });
 });

@@ -1,7 +1,9 @@
 "use server";
 
 import { redirect } from "next/navigation";
+import { after } from "next/server";
 import { Prisma } from "@/generated/prisma/client";
+import { alerterNouvelleInscription, baseCourriel } from "@/lib/alertes-admin";
 import { EMAIL_PATTERN, MIN_PASSWORD_LENGTH, erreurCoordonnees, lireCoordonnees } from "@/lib/coordonnees";
 import { hashPassword } from "@/lib/password";
 import { prisma } from "@/lib/prisma";
@@ -21,11 +23,13 @@ export async function register(_previous: RegisterState, formData: FormData): Pr
     return { error: `Le mot de passe doit contenir au moins ${MIN_PASSWORD_LENGTH} caractères.` };
   }
 
+  let userId: number;
   try {
     const user = await prisma.user.create({
       data: { email, passwordHash: await hashPassword(password), ...coordonnees },
       select: { id: true },
     });
+    userId = user.id;
     await createSession(user.id);
   } catch (error) {
     if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === "P2002") {
@@ -34,6 +38,9 @@ export async function register(_previous: RegisterState, formData: FormData): Pr
     console.error("Inscription impossible :", error);
     return { error: "La base de données ne répond pas. Réessayez dans un instant." };
   }
+
+  const base = await baseCourriel();
+  after(() => alerterNouvelleInscription(userId, base));
 
   // L'espace s'ouvre une fois l'inscription validée par l'équipe (plus tard : après le paiement).
   redirect(PAGE_ATTENTE);

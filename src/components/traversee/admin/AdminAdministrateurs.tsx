@@ -73,7 +73,7 @@ export function AdminAdministrateurs({ moi, admins, membres }: { moi: number; ad
         <Card pad bleed>
           <Sur>Ajouter un administrateur</Sur>
           <form action={formAction} className="grid gap-3.5">
-            <Champ label="Adresse e-mail" htmlFor="admin-email" hint="Un membre déjà inscrit devient administrateur. Sinon, un compte est créé avec les informations ci-dessous.">
+            <Champ label="Adresse e-mail" htmlFor="admin-email" hint="Un membre déjà inscrit devient administrateur et en est informé par e-mail. Sinon, un compte est créé et son mot de passe lui est envoyé par e-mail.">
               <input id="admin-email" name="email" type="email" required className={ui.saisie} list="admin-membres" autoComplete="off" placeholder="nom@cancham.mg" />
               <datalist id="admin-membres">
                 {membres.map((m) => (
@@ -91,9 +91,6 @@ export function AdminAdministrateurs({ moi, admins, membres }: { moi: number; ad
                 <input id="admin-nom" name="lastName" className={ui.saisie} autoComplete="off" />
               </Champ>
             </div>
-            <Champ label="Mot de passe provisoire" htmlFor="admin-mdp" hint="8 caractères minimum, seulement pour un nouveau compte.">
-              <input id="admin-mdp" name="password" type="text" className={ui.saisie} autoComplete="new-password" />
-            </Champ>
             {state.error ? <Note tone="red">{state.error}</Note> : null}
             {state.message ? <Note tone="green">{state.message}</Note> : null}
             <Btn type="submit" variant="primary" disabled={pending}>

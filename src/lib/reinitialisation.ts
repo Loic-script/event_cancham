@@ -33,22 +33,3 @@ export async function lireJeton(jeton: string): Promise<{ userId: number; email:
   if (!lien || lien.utiliseLe || lien.expiresAt <= new Date()) return null;
   return { userId: lien.user.id, email: lien.user.email };
 }
-
-const echapper = (v: string) => v.replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c] ?? c);
-
-export function courrielReinitialisation(email: string, prenom: string, lien: string) {
-  const bonjour = prenom ? `Bonjour ${prenom},` : "Bonjour,";
-  return {
-    a: email,
-    sujet: "Choisissez un nouveau mot de passe – La Traversée",
-    texte: `${bonjour}\n\nVous avez demandé à changer le mot de passe de votre compte La Traversée (${email}).\nOuvrez ce lien pour en choisir un nouveau (valable ${DUREE_LIEN_MINUTES} minutes, une seule fois) :\n\n${lien}\n\nSi vous n’êtes pas à l’origine de cette demande, ignorez cet e-mail : votre mot de passe reste inchangé.\n\nL’équipe CanCham Madagascar`,
-    html: `<div style="font-family:Arial,Helvetica,sans-serif;font-size:15px;line-height:1.55;color:#0f1d2c;max-width:520px">
-<p>${echapper(bonjour)}</p>
-<p>Vous avez demandé à changer le mot de passe de votre compte La Traversée (${echapper(email)}).</p>
-<p style="margin:24px 0"><a href="${echapper(lien)}" style="display:inline-block;padding:12px 22px;border-radius:8px;background:#c94d0c;color:#ffffff;font-weight:bold;text-decoration:none">Choisir un nouveau mot de passe</a></p>
-<p style="color:#5b6b7a;font-size:13px">Ce lien est valable ${DUREE_LIEN_MINUTES} minutes et ne sert qu’une fois. Si le bouton ne marche pas, copiez cette adresse dans votre navigateur :<br><span style="word-break:break-all">${echapper(lien)}</span></p>
-<p style="color:#5b6b7a;font-size:13px">Si vous n’êtes pas à l’origine de cette demande, ignorez cet e-mail : votre mot de passe reste inchangé.</p>
-<p>L’équipe CanCham Madagascar</p>
-</div>`,
-  };
-}
