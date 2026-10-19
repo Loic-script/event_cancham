@@ -203,7 +203,7 @@ Depuis le 12 octobre 2026, l’application reproduit la maquette « Plateforme L
 | `/admin/photos`, `/admin/livre` | Tri de la galerie, validation et sous-titres du livre d’or |
 | `/admin/ressources` | Gestion de la bibliothèque : ajout par fichier ou page composée, dossiers, organisation, éditeur de page (`/admin/ressources/[id]/contenu`) |
 
-Les anciennes pages `/billet`, `/reseaux`, `/communaute` et l’espace `/decouvrir` restent accessibles (le billet est lié depuis Achats et Profil). Images de la maquette dans `public/traversee/`.
+Les anciennes pages `/billet`, `/reseaux`, `/communaute` et l’espace `/decouvrir` restent accessibles (le billet est lié depuis Achats et Profil). Photos de la plateforme dans `public/traversee/` (15 images partagées : `hero`, `accueil`, `public`, `reseau`, `rdv`, `ecran`, `pitch`, `oratrice`, `formation`, `groupe`, `equipe`, `assistance`, `diner`, `musique`, `salle`) et `public/stories/` (`/reseaux`) : photos des événements CanCham tirées du Drive « PHOTOS » de la Chambre, recadrées (1 600 × 1 067, stories 736 × 1 104) et sans métadonnées. Les images `actu-*` sont celles des articles de cancham.mg.
 
 ## Bibliothèque de ressources
 
