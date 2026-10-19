@@ -3,6 +3,7 @@ import { redirect } from "next/navigation";
 import { AuthScene } from "@/components/auth/AuthScene";
 import { RegisterForm } from "@/components/auth/RegisterForm";
 import { safeNext } from "@/lib/auth";
+import { fournisseursActifs, messageErreurSociale } from "@/lib/oauth";
 import { getCurrentUser } from "@/lib/session";
 
 export const metadata: Metadata = {
@@ -16,7 +17,7 @@ export const viewport: Viewport = {
 };
 
 export default async function RegisterPage({ searchParams }: PageProps<"/inscription">) {
-  const { next } = await searchParams;
+  const { next, erreur, via } = await searchParams;
   const destination = safeNext(next);
 
   if (await getCurrentUser()) redirect(destination);
@@ -28,7 +29,7 @@ export default async function RegisterPage({ searchParams }: PageProps<"/inscrip
       cardTitle="Créer un compte"
       inverse
     >
-      <RegisterForm next={destination} />
+      <RegisterForm next={destination} fournisseurs={fournisseursActifs()} erreurSociale={messageErreurSociale(erreur, via)} />
     </AuthScene>
   );
 }

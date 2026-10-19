@@ -3,14 +3,9 @@
 import Link from "next/link";
 import { useActionState, useRef, useState, type FormEvent } from "react";
 import { login, type LoginState } from "@/app/connexion/actions";
-import { FacebookLogo, GoogleLogo } from "@/components/app/BrandLogos";
 import { EyeIcon, EyeOffIcon, SpinnerIcon } from "@/components/app/icons";
+import { BoutonsSociaux } from "./BoutonsSociaux";
 import styles from "./auth.module.css";
-
-const providers = [
-  { key: "google", label: "Google", logo: <GoogleLogo size={20} /> },
-  { key: "facebook", label: "Facebook", logo: <FacebookLogo size={22} /> },
-];
 
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
@@ -24,13 +19,12 @@ function emailError(value: string) {
   return undefined;
 }
 
-export function LoginForm({ next }: { next: string }) {
+export function LoginForm({ next, fournisseurs, erreurSociale }: { next: string; fournisseurs: { google: boolean; facebook: boolean }; erreurSociale: string | null }) {
   const [state, formAction, pending] = useActionState(login, initialState);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [errors, setErrors] = useState<FieldErrors>({});
-  const [notice, setNotice] = useState<string | null>(null);
   const [seenState, setSeenState] = useState(state);
   const [dismissed, setDismissed] = useState(false);
   const emailRef = useRef<HTMLInputElement>(null);
@@ -41,7 +35,7 @@ export function LoginForm({ next }: { next: string }) {
     setDismissed(false);
   }
 
-  const serverError = dismissed ? null : state.error;
+  const serverError = dismissed ? null : (state.error ?? (seenState === initialState ? erreurSociale : null));
 
   function onSubmit(e: FormEvent<HTMLFormElement>) {
     const found: FieldErrors = {
@@ -99,7 +93,7 @@ export function LoginForm({ next }: { next: string }) {
             <label htmlFor="login-password" className={styles.label}>
               Mot de passe
             </label>
-            <Link href="/mot-de-passe-oublie" className={styles.forgot}>
+            <Link href={EMAIL_PATTERN.test(email.trim()) ? `/mot-de-passe-oublie?email=${encodeURIComponent(email.trim())}` : "/mot-de-passe-oublie"} className={styles.forgot}>
               Mot de passe oublié ?
             </Link>
           </div>
@@ -151,17 +145,7 @@ export function LoginForm({ next }: { next: string }) {
 
       <p className={styles.or}>ou continuer avec</p>
 
-      <div className={styles.social}>
-        {providers.map(({ key, label, logo }) => (
-          <button key={key} type="button" className={styles.socialBtn} onClick={() => setNotice(`La connexion avec ${label} arrive bientôt.`)}>
-            {logo}
-            {label}
-          </button>
-        ))}
-      </div>
-      <p role="status" className={notice ? styles.notice : "sr-only"}>
-        {notice}
-      </p>
+      <BoutonsSociaux actifs={fournisseurs} depuis="connexion" next={next} />
 
       <p className={styles.switch}>
         Pas encore de compte ?{" "}

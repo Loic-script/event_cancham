@@ -785,3 +785,33 @@
     transition: none;
   }
 }
+
+/* Liens présentés comme des boutons (mot de passe oublié, Google et Facebook). */
+a.secondaire {
+  display: grid;
+  place-items: center;
+  text-decoration: none;
+}
+
+a.socialBtn {
+  text-decoration: none;
+}
+
+button.switchLink {
+  padding: 0;
+  border: 0;
+  background: none;
+  font: inherit;
+  cursor: pointer;
+}
+
+/* Inscription : Google et Facebook en tête, puis le formulaire. */
+.socialEnTete {
+  display: grid;
+  gap: 12px;
+  margin-top: 28px;
+}
+
+.formSuite {
+  margin-top: 4px;
+}

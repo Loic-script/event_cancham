@@ -2,7 +2,7 @@ export const SESSION_COOKIE = "session";
 
 export const LOGIN_PATH = "/connexion";
 
-export const PUBLIC_PATHS = ["/connexion", "/inscription", "/mot-de-passe-oublie", "/api/health"];
+export const PUBLIC_PATHS = ["/connexion", "/inscription", "/mot-de-passe-oublie", "/api/health", "/api/auth"];
 
 export function isPublicPath(pathname: string): boolean {
   return PUBLIC_PATHS.some((p) => pathname === p || pathname.startsWith(`${p}/`));

@@ -3,6 +3,7 @@ import { redirect } from "next/navigation";
 import { AuthScene } from "@/components/auth/AuthScene";
 import { LoginForm } from "@/components/auth/LoginForm";
 import { safeNext } from "@/lib/auth";
+import { fournisseursActifs, messageErreurSociale } from "@/lib/oauth";
 import { getCurrentUser } from "@/lib/session";
 
 export const metadata: Metadata = {
@@ -16,7 +17,7 @@ export const viewport: Viewport = {
 };
 
 export default async function LoginPage({ searchParams }: PageProps<"/connexion">) {
-  const { next } = await searchParams;
+  const { next, erreur, via } = await searchParams;
   const destination = safeNext(next);
 
   if (await getCurrentUser()) redirect(destination);
@@ -27,7 +28,7 @@ export default async function LoginPage({ searchParams }: PageProps<"/connexion"
       lead="Un réseau qui ouvre de nouvelles perspectives."
       cardTitle="Se connecter"
     >
-      <LoginForm next={destination} />
+      <LoginForm next={destination} fournisseurs={fournisseursActifs()} erreurSociale={messageErreurSociale(erreur, via)} />
     </AuthScene>
   );
 }

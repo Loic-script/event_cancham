@@ -34,30 +34,34 @@ enum StatutCompte {
 }
 
 model User {
-  id                    Int                    @id @default(autoincrement())
-  email                 String                 @unique
-  passwordHash          String                 @map("password_hash")
-  firstName             String                 @map("first_name")
-  lastName              String                 @map("last_name")
+  id                    Int                          @id @default(autoincrement())
+  email                 String                       @unique
+  passwordHash          String                       @map("password_hash")
+  firstName             String                       @map("first_name")
+  lastName              String                       @map("last_name")
   role                  String?
-  acces                 Acces                  @default(MEMBRE)
-  statut                StatutCompte           @default(EN_ATTENTE)
-  decisionLe            DateTime?              @map("decision_le")
+  acces                 Acces                        @default(MEMBRE)
+  statut                StatutCompte                 @default(EN_ATTENTE)
+  decisionLe            DateTime?                    @map("decision_le")
   company               String?
   sector                String?
-  bio                   String?                @db.VarChar(600)
+  bio                   String?                      @db.VarChar(600)
   phone                 String?
   website               String?
   city                  String?
   country               String?
-  billetPaye            Boolean                @default(false) @map("billet_paye")
-  createdAt             DateTime               @default(now()) @map("created_at")
-  updatedAt             DateTime               @updatedAt @map("updated_at")
+  billetPaye            Boolean                      @default(false) @map("billet_paye")
+  /// Identifiants des comptes Google et Facebook reliés (connexion et inscription en un clic).
+  googleId              String?                      @unique @map("google_id")
+  facebookId            String?                      @unique @map("facebook_id")
+  createdAt             DateTime                     @default(now()) @map("created_at")
+  updatedAt             DateTime                     @updatedAt @map("updated_at")
   sessions              Session[]
   publications          Publication[]
   jaimesFil             JaimeFil[]
   commentairesFil       CommentaireFil[]
   inscriptionsProgramme InscriptionProgramme[]
+  reinitialisations     ReinitialisationMotDePasse[]
 
   @@map("users")
 }
@@ -227,4 +231,18 @@ model InscriptionProgramme {
   @@id([rendezVousId, userId])
   @@index([userId])
   @@map("programme_inscriptions")
+}
+
+/// Lien « mot de passe oublié » envoyé par e-mail : seule l'empreinte SHA-256 du jeton est gardée ; valable 1 heure, une seule fois.
+model ReinitialisationMotDePasse {
+  id        Int       @id @default(autoincrement())
+  tokenHash String    @unique @map("token_hash")
+  userId    Int       @map("user_id")
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  expiresAt DateTime  @map("expires_at")
+  utiliseLe DateTime? @map("utilise_le")
+  createdAt DateTime  @default(now()) @map("created_at")
+
+  @@index([userId])
+  @@map("reinitialisations_mot_de_passe")
 }

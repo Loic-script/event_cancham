@@ -5,6 +5,8 @@ import { logout } from "@/app/connexion/actions";
 import { AuthScene } from "@/components/auth/AuthScene";
 import styles from "@/components/auth/auth.module.css";
 import { LOGIN_PATH } from "@/lib/auth";
+import { PAGE_COMPLETER } from "@/lib/connexion-sociale";
+import { profilIncomplet } from "@/lib/coordonnees";
 import { aAccesEspace, getCurrentUser } from "@/lib/session";
 
 export const metadata: Metadata = {
@@ -21,6 +23,7 @@ export default async function EnAttentePage() {
   const user = await getCurrentUser();
   if (!user) redirect(LOGIN_PATH);
   if (aAccesEspace(user)) redirect("/");
+  if (user.statut === "EN_ATTENTE" && profilIncomplet(user)) redirect(PAGE_COMPLETER);
 
   const refuse = user.statut === "REFUSE";
 

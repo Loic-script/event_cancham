@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useActionState, useState, type FormEvent } from "react";
 import { register, type RegisterState } from "@/app/inscription/actions";
 import { EyeIcon, EyeOffIcon, SpinnerIcon } from "@/components/app/icons";
+import { BoutonsSociaux } from "./BoutonsSociaux";
 import styles from "./auth.module.css";
 
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -44,7 +45,7 @@ function validate(name: FieldName, value: string) {
   }
 }
 
-export function RegisterForm({ next }: { next: string }) {
+export function RegisterForm({ next, fournisseurs, erreurSociale }: { next: string; fournisseurs: { google: boolean; facebook: boolean }; erreurSociale: string | null }) {
   const [state, formAction, pending] = useActionState(register, initialState);
   const [fields, setFields] = useState(emptyFields);
   const [errors, setErrors] = useState<FieldErrors>({});
@@ -58,6 +59,7 @@ export function RegisterForm({ next }: { next: string }) {
   }
 
   const serverError = dismissed ? null : state.error;
+  const [erreurSocialeVisible, setErreurSocialeVisible] = useState(erreurSociale);
 
   function inputProps(name: FieldName) {
     const errorId = `register-${name}-error`;
@@ -102,7 +104,17 @@ export function RegisterForm({ next }: { next: string }) {
 
   return (
     <>
-      <form className={styles.form} action={formAction} onSubmit={onSubmit} noValidate>
+      <div className={styles.socialEnTete}>
+        {erreurSocialeVisible ? (
+          <p role="alert" className={styles.error}>
+            {erreurSocialeVisible}
+          </p>
+        ) : null}
+        <BoutonsSociaux actifs={fournisseurs} depuis="inscription" next={next} />
+      </div>
+      <p className={styles.or}>ou avec votre adresse e-mail</p>
+
+      <form className={`${styles.form} ${styles.formSuite}`} action={formAction} onSubmit={onSubmit} noValidate onChange={() => setErreurSocialeVisible(null)}>
         <input type="hidden" name="next" value={next} />
 
         <div className={styles.row}>
