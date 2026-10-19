@@ -605,6 +605,39 @@
   }
 }
 
+/* Inscription : formulaire à gauche, photo à droite ; la vague s'avance vers la droite. */
+@media (min-width: 1024px) {
+  .inverse {
+    grid-template-columns: minmax(0, 44fr) minmax(0, 56fr);
+    grid-template-areas:
+      "form brand"
+      "form intro"
+      "form facts";
+  }
+
+  .inverse .panel {
+    grid-column: 2;
+  }
+
+  /* Marge extérieure : le bloc du logo garde sa taille, il glisse sans se dédoubler. */
+  .inverse .brand {
+    margin-left: var(--vague);
+  }
+
+  .inverse .intro {
+    padding-left: calc(var(--panel-pad) + var(--vague));
+  }
+
+  .inverse .facts {
+    margin-left: calc(var(--panel-pad) + var(--vague));
+  }
+
+  .inverse .formSide::before {
+    left: auto;
+    right: calc(-1 * var(--vague));
+  }
+}
+
 @media (max-width: 1023px) {
   .page {
     --panel-pad: 20px;

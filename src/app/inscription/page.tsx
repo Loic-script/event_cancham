@@ -26,6 +26,7 @@ export default async function RegisterPage({ searchParams }: PageProps<"/inscrip
       headline={{ first: "Rejoignez", accent: "La Traversée." }}
       lead="Un réseau qui ouvre de nouvelles perspectives."
       cardTitle="Créer un compte"
+      inverse
     >
       <RegisterForm next={destination} />
     </AuthScene>

@@ -212,3 +212,49 @@ html {
     font-weight: 600;
   }
 }
+
+/* Connexion <-> inscription : panneau photo et formulaire glissent vers leur nouvelle place (AuthScene). */
+::view-transition-group(.auth-glisse) {
+  animation-duration: 0.7s;
+  animation-timing-function: cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+::view-transition-old(.auth-glisse),
+::view-transition-new(.auth-glisse) {
+  animation-duration: 0.45s;
+}
+
+/* Titre et formulaire changent de texte : relais plutôt que superposition des deux versions. */
+::view-transition-old(.auth-relais) {
+  animation: 0.22s ease-out both auth-efface;
+}
+
+::view-transition-new(.auth-relais) {
+  animation: 0.36s ease-out 0.24s both auth-apparait;
+}
+
+/* Panneau photo : l'ancien rendu glisse tel quel, le nouveau prend le relais à l'arrivée. */
+::view-transition-old(.auth-garde) {
+  animation: none;
+}
+
+::view-transition-new(.auth-garde) {
+  animation: none;
+  opacity: 0;
+}
+
+@keyframes auth-efface {
+  to { opacity: 0; }
+}
+
+@keyframes auth-apparait {
+  from { opacity: 0; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  ::view-transition-group(.auth-glisse),
+  ::view-transition-old(.auth-glisse),
+  ::view-transition-new(.auth-glisse) {
+    animation: none;
+  }
+}
