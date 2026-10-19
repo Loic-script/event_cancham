@@ -10,97 +10,78 @@ import { LOGO_BLANC } from "@/lib/traversee/data";
 import { setTraversee, useTraversee } from "@/lib/traversee/store";
 import { MenuCompte } from "./MenuCompte";
 import { Notifications } from "./Notifications";
-import {
-  ArmchairIcon,
-  CameraIcon,
-  BookIcon,
-  CalendarDaysIcon,
-  CartIcon,
-  ChevronRightIcon,
-  ContactsIcon,
-  FolderIcon,
-  GiftIcon,
-  HeadsetIcon,
-  HomeIcon,
-  ImageIcon,
-  MegaphoneIcon,
-  MenuIcon,
-  MessageCircleIcon,
-  QrIcon,
-  TrophyIcon,
-  ShieldCheckIcon,
-  UsersIcon,
-  type IconProps,
-} from "./icons";
+import { ChevronRightIcon, HeadsetIcon, MenuIcon } from "./icons";
+import { ICONES, IconeNavigation, type IconeNav } from "./iconesNav";
 import styles from "./shell.module.css";
 
-type NavItem = { href: string; label: string; icon: (props: IconProps) => React.JSX.Element };
+/** Les rubriques d'un sous-menu n'affichent pas d'icône : elle ne sert qu'à la barre du bas. */
+type NavItem = { href: string; label: string; icon?: IconeNav };
 /** Une section avec `icon` s'affiche comme un sous-menu dépliable. */
-type NavSection = { titre?: string; icon?: NavItem["icon"]; pied?: boolean; items: NavItem[] };
+type NavSection = { titre?: string; icon?: IconeNav; pied?: boolean; items: NavItem[] };
 
 const NAV: NavSection[] = [
   {
     titre: "Événement",
     items: [
-      { href: "/", label: "Accueil", icon: HomeIcon },
-      { href: "/programme", label: "Programme", icon: CalendarDaysIcon },
-      { href: "/defis/pitch", label: "Gagnez un voyage au Canada", icon: TrophyIcon },
-      { href: "/defis/tombola", label: "Gagnez 3 000 000 Ar", icon: GiftIcon },
+      { href: "/", label: "Accueil", icon: ICONES.accueil },
+      { href: "/programme", label: "Programme", icon: ICONES.programme },
+      { href: "/defis/pitch", label: "Gagnez un voyage au Canada", icon: ICONES.trophee },
+      { href: "/defis/tombola", label: "Gagnez 3 000 000 Ar", icon: ICONES.cadeau },
     ],
   },
   {
     titre: "Réseau",
     items: [
-      { href: "/annuaire", label: "Annuaire", icon: ContactsIcon },
-      { href: "/messages", label: "Messagerie", icon: MessageCircleIcon },
-      { href: "/ressources", label: "Ressources", icon: FolderIcon },
+      { href: "/annuaire", label: "Annuaire", icon: ICONES.annuaire },
+      { href: "/messages", label: "Messagerie", icon: ICONES.messagerie },
+      { href: "/ressources", label: "Ressources", icon: ICONES.dossier },
     ],
   },
   {
     titre: "Souvenirs",
     items: [
-      { href: "/photos", label: "Photos et vidéos", icon: CameraIcon },
+      { href: "/photos", label: "Photos et vidéos", icon: ICONES.appareil },
     ],
   },
 ];
 
 const NAV_ADMIN: NavSection[] = [
   {
-    items: [{ href: "/admin", label: "Tableau de bord", icon: HomeIcon }],
+    items: [{ href: "/admin", label: "Tableau de bord", icon: ICONES.accueil }],
   },
   {
     titre: "Participants",
-    icon: UsersIcon,
+    icon: ICONES.personnes,
     items: [
-      { href: "/admin/participants", label: "Annuaire", icon: UsersIcon },
-      { href: "/admin/scanner", label: "Scanner QR", icon: QrIcon },
-      { href: "/admin/places", label: "Places", icon: ArmchairIcon },
-      { href: "/admin/commandes", label: "Commandes", icon: CartIcon },
-      { href: "/admin/messagerie", label: "Messagerie", icon: MessageCircleIcon },
+      { href: "/admin/participants", label: "Annuaire", icon: ICONES.personnes },
+      { href: "/admin/scanner", label: "Scanner QR", icon: ICONES.qr },
+      { href: "/admin/places", label: "Places" },
+      { href: "/admin/commandes", label: "Commandes", icon: ICONES.panier },
+      { href: "/admin/messagerie", label: "Messagerie" },
     ],
   },
   {
     titre: "Communication",
-    icon: MegaphoneIcon,
+    icon: ICONES.megaphone,
     items: [
-      { href: "/admin/annonces", label: "Annonces", icon: MegaphoneIcon },
-      { href: "/admin/programme", label: "Programme", icon: CalendarDaysIcon },
-      { href: "/admin/photos", label: "Photos et vidéos", icon: ImageIcon },
-      { href: "/admin/livre", label: "Livre d’or", icon: BookIcon },
-      { href: "/admin/ressources", label: "Ressources", icon: FolderIcon },
+      { href: "/admin/annonces", label: "Annonces" },
+      { href: "/admin/programme", label: "Programme" },
+      { href: "/admin/photos", label: "Photos et vidéos" },
+      { href: "/admin/livre", label: "Livre d’or" },
+      { href: "/admin/ressources", label: "Ressources" },
     ],
   },
   {
     titre: "Défis",
-    icon: TrophyIcon,
+    icon: ICONES.trophee,
     items: [
-      { href: "/admin/defis/pitch", label: "Voyage au Canada", icon: TrophyIcon },
-      { href: "/admin/defis/tombola", label: "3 000 000 Ar", icon: GiftIcon },
+      { href: "/admin/defis/pitch", label: "Voyage au Canada" },
+      { href: "/admin/defis/tombola", label: "3 000 000 Ar" },
     ],
   },
   {
     pied: true,
-    items: [{ href: "/admin/administrateurs", label: "Administrateurs", icon: ShieldCheckIcon }],
+    items: [{ href: "/admin/administrateurs", label: "Administrateurs", icon: ICONES.bouclier }],
   },
 ];
 
@@ -169,16 +150,20 @@ export function AppShell({ children }: { children: ReactNode }) {
 
   const basItems = (admin ? BAS_ADMIN : BAS).map((href) => items.find((n) => n.href === href)!);
 
-  function badgeDe(n: NavItem) {
-    return n.href === "/messages" ? 1 : n.href === "/admin/annonces" ? state.annonces.length : 0;
+  function badgeDe(href: string) {
+    return href === "/messages" ? 1 : href === "/admin/annonces" ? state.annonces.length : 0;
   }
+
+  const accueilHref = admin ? "/admin" : "/";
+  const messagerieHref = admin ? "/admin/messagerie" : "/messages";
+  const badgeMessagerie = badgeDe(messagerieHref);
 
   function lien(n: NavItem, i: number) {
     const on = n === courant;
-    const badge = badgeDe(n);
+    const badge = badgeDe(n.href);
     return (
       <Link key={n.href} href={n.href} aria-current={on ? "page" : undefined} className={`${styles.item} ${on ? styles.itemOn : ""}`} style={{ "--i": i } as React.CSSProperties}>
-        <n.icon />
+        {n.icon ? <IconeNavigation icone={n.icon} active={on} /> : null}
         <span>{n.label}</span>
         {badge ? <b>{badge}</b> : null}
       </Link>
@@ -187,10 +172,9 @@ export function AppShell({ children }: { children: ReactNode }) {
 
   function sousMenu(s: NavSection, k: number) {
     const titre = s.titre ?? "";
-    const Icone = s.icon!;
     const deplie = groupe === titre;
     const contientCourant = !!courant && s.items.includes(courant);
-    const total = s.items.reduce((t, n) => t + badgeDe(n), 0);
+    const total = s.items.reduce((t, n) => t + badgeDe(n.href), 0);
     const id = `sous-menu-${k}`;
     return (
       <div key={titre}>
@@ -202,7 +186,7 @@ export function AppShell({ children }: { children: ReactNode }) {
           aria-controls={id}
           onClick={() => setGroupe(deplie ? null : titre)}
         >
-          <Icone />
+          <IconeNavigation icone={s.icon!} active={contientCourant} />
           <span>{titre}</span>
           {!deplie && total ? <b>{total}</b> : null}
           <ChevronRightIcon className={styles.chevron} aria-hidden />
@@ -211,7 +195,7 @@ export function AppShell({ children }: { children: ReactNode }) {
           <div>
             {s.items.map((n) => {
               const on = n === courant;
-              const badge = badgeDe(n);
+              const badge = badgeDe(n.href);
               return (
                 <Link key={n.href} href={n.href} aria-current={on ? "page" : undefined} className={`${styles.sousItem} ${on ? styles.sousItemOn : ""}`}>
                   <span>{n.label}</span>
@@ -259,7 +243,8 @@ export function AppShell({ children }: { children: ReactNode }) {
               <MenuIcon width={22} height={22} />
             </button>
             <p className={styles.fil}>
-              {admin ? "Back-office" : "La Traversée"} / <b>{titre}</b>
+              <span className={styles.filPrefixe}>{admin ? "Back-office" : "La Traversée"} / </span>
+              <b>{titre}</b>
             </p>
             {!admin ? (
               <form className={styles.cherche} onSubmit={chercher} role="search">
@@ -272,7 +257,21 @@ export function AppShell({ children }: { children: ReactNode }) {
             ) : (
               <span className="ml-auto" />
             )}
-            <Notifications admin={admin} />
+            <div className={styles.raccourcis}>
+              <Link href={accueilHref} className={`${styles.raccourci} ${styles.raccourciAccueil}`} aria-label="Accueil" aria-current={pathname === accueilHref ? "page" : undefined}>
+                <IconeNavigation icone={ICONES.accueil} active={pathname === accueilHref} />
+              </Link>
+              <Notifications admin={admin} />
+              <Link
+                href={messagerieHref}
+                className={styles.raccourci}
+                aria-label={badgeMessagerie ? `Messagerie, ${badgeMessagerie} non lu${badgeMessagerie > 1 ? "s" : ""}` : "Messagerie"}
+                aria-current={isActive(pathname, messagerieHref) ? "page" : undefined}
+              >
+                <IconeNavigation icone={ICONES.messagerie} active={isActive(pathname, messagerieHref)} />
+                {badgeMessagerie ? <b>{badgeMessagerie}</b> : null}
+              </Link>
+            </div>
             <MenuCompte admin={admin} />
           </header>
         ) : null}
@@ -288,7 +287,7 @@ export function AppShell({ children }: { children: ReactNode }) {
             const on = n === courant;
             return (
               <Link key={n.href} href={n.href} aria-current={on ? "page" : undefined} className={`${styles.basItem} ${on ? styles.basOn : ""}`}>
-                <n.icon />
+                {n.icon ? <IconeNavigation icone={n.icon} active={on} /> : null}
                 {BAS_LABEL[n.href] ?? n.label}
               </Link>
             );

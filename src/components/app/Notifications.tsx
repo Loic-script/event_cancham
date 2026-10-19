@@ -12,6 +12,7 @@ import { SIGLE, TYPES_ANNONCE } from "@/lib/traversee/data";
 import { notificationsAdmin, notificationsParticipant, type CompteRecent, type Notif } from "@/lib/traversee/notifications";
 import { setTraversee, useTraversee, type Annonce, type TypeNotif } from "@/lib/traversee/store";
 import { BellIcon, CalendarDaysIcon, CameraIcon, CheckIcon, GiftIcon, ImageIcon, MegaphoneIcon, MessageCircleIcon, TrophyIcon, UserPlusIcon, VideoIcon, type IconProps } from "./icons";
+import { ClochePleine } from "./iconesNav";
 import styles from "./notifications.module.css";
 
 const TYPES: Record<TypeNotif, { icone: (p: IconProps) => JSX.Element; classe: string }> = {
@@ -130,7 +131,7 @@ export function Notifications({ admin }: { admin: boolean }) {
         aria-expanded={ouvert}
         aria-label={nonLues.length ? `Notifications, ${nonLues.length} non lue${nonLues.length > 1 ? "s" : ""}` : "Notifications"}
       >
-        <BellIcon />
+        {ouvert ? <ClochePleine /> : <BellIcon />}
         {nonLues.length ? <b key={nonLues.length}>{nonLues.length > 9 ? "9+" : nonLues.length}</b> : null}
       </button>
 

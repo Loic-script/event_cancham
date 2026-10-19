@@ -9,19 +9,19 @@
   place-items: center;
   width: 40px;
   height: 40px;
-  border: 1px solid rgba(255, 255, 255, 0.18);
+  border: 0;
   border-radius: 10px;
-  background: rgba(255, 255, 255, 0.08);
-  color: #fff;
+  background: transparent;
+  color: rgba(255, 255, 255, 0.78);
   cursor: pointer;
   transition: background-color 0.2s ease, transform 0.2s ease, border-color 0.2s ease;
 }
 
-.cloche:hover { background: rgba(255, 255, 255, 0.16); }
+.cloche:hover { background: rgba(255, 255, 255, 0.1); color: #fff; }
 .cloche:active { transform: scale(0.95); }
 .cloche:focus-visible { outline: 2px solid var(--leaf); outline-offset: 2px; }
-.cloche svg { width: 20px; height: 20px; }
-.actif { border-color: var(--leaf); background: rgba(242, 107, 29, 0.18); }
+.cloche svg { width: 22px; height: 22px; }
+.actif { background: rgba(255, 255, 255, 0.1); color: #fff; }
 .actif svg { animation: sonne 0.6s ease; }
 
 @keyframes sonne {
@@ -34,14 +34,14 @@
 
 .cloche b {
   position: absolute;
-  right: -6px;
-  top: -6px;
+  right: -2px;
+  top: -2px;
   min-width: 20px;
   height: 20px;
   padding: 0 5px;
   border: 2px solid #0f1d2c;
   border-radius: 999px;
-  background: var(--leaf);
+  background: var(--pastille, #e5484d);
   color: #fff;
   font-size: 10.5px;
   font-weight: 800;
