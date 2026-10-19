@@ -289,6 +289,19 @@
   .latOuvert .item { animation-name: itemIn2; }
 }
 
+.pied {
+  flex: none;
+  margin: 0 10px;
+  padding: 8px 0 12px;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+@media (min-width: 1024px) {
+  .latAdm .nav h4 { margin: 14px 10px 6px; }
+  .latAdm .item { padding-block: 5px; }
+  .latAdm .item svg { width: 30px; height: 30px; padding: 7px; }
+}
+
 .fond {
   position: fixed;
   inset: 0;
