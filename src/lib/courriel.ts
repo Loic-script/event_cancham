@@ -1,41 +1,28 @@
-import nodemailer from "nodemailer";
-
 export type Courriel = { a: string; sujet: string; texte: string; html: string };
 
-/** SMTP_HOST suffit pour envoyer (SMTP_PORT, SMTP_USER, SMTP_PASS, SMTP_SECURE et MAIL_FROM sont facultatifs). */
+/** Envoi par l'API de Resend : RESEND_API_KEY, COURRIEL_EXPEDITEUR (domaine vérifié chez Resend) et COURRIEL_EQUIPE (adresse de réponse). */
 export function courrielConfigure(): boolean {
-  return Boolean(process.env.SMTP_HOST);
+  return Boolean(process.env.RESEND_API_KEY && process.env.COURRIEL_EXPEDITEUR);
 }
 
-/** En développement sans SMTP, le message est écrit dans le terminal du serveur au lieu d'être envoyé. */
+/** En développement sans Resend, le message est écrit dans le terminal du serveur au lieu d'être envoyé. */
 export function courrielDisponible(): boolean {
   return courrielConfigure() || process.env.NODE_ENV !== "production";
 }
 
 export async function envoyerCourriel({ a, sujet, texte, html }: Courriel): Promise<void> {
   if (!courrielConfigure()) {
-    if (process.env.NODE_ENV === "production") throw new Error("SMTP non configuré (SMTP_HOST manquant)");
-    console.info(`\n[Courriel non envoyé : SMTP non configuré]\nÀ : ${a}\nSujet : ${sujet}\n\n${texte}\n`);
+    if (process.env.NODE_ENV === "production") throw new Error("Resend non configuré (RESEND_API_KEY ou COURRIEL_EXPEDITEUR manquant)");
+    console.info(`\n[Courriel non envoyé : Resend non configuré]\nÀ : ${a}\nSujet : ${sujet}\n\n${texte}\n`);
     return;
   }
-  const port = Number(process.env.SMTP_PORT || 587);
-  const user = process.env.SMTP_USER;
-  const transport = nodemailer.createTransport({
-    host: process.env.SMTP_HOST,
-    port,
-    secure: process.env.SMTP_SECURE ? process.env.SMTP_SECURE === "true" : port === 465,
-    auth: user ? { user, pass: process.env.SMTP_PASS ?? "" } : undefined,
-    connectionTimeout: 10_000,
-    greetingTimeout: 10_000,
-    socketTimeout: 20_000,
+  const equipe = process.env.COURRIEL_EQUIPE?.trim();
+  const reponse = await fetch("https://api.resend.com/emails", {
+    method: "POST",
+    headers: { Authorization: `Bearer ${process.env.RESEND_API_KEY}`, "Content-Type": "application/json" },
+    body: JSON.stringify({ from: process.env.COURRIEL_EXPEDITEUR, to: [a], subject: sujet, text: texte, html, ...(equipe ? { reply_to: equipe } : {}) }),
+    signal: AbortSignal.timeout(15_000),
+    cache: "no-store",
   });
-  await transport.sendMail({
-    from: process.env.MAIL_FROM || (user ? `La Traversée <${user}>` : "La Traversée <no-reply@cancham.mg>"),
-    to: a,
-    subject: sujet,
-    text: texte,
-    html,
-    disableFileAccess: true,
-    disableUrlAccess: true,
-  });
+  if (!reponse.ok) throw new Error(`Resend ${reponse.status} : ${(await reponse.text()).slice(0, 300)}`);
 }

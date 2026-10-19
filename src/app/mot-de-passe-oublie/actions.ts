@@ -17,7 +17,7 @@ export async function demanderLien(_previous: DemandeState, formData: FormData):
   const email = String(formData.get("email") ?? "").trim().toLowerCase();
   if (!EMAIL_PATTERN.test(email)) return { error: "L’adresse e-mail n’est pas valide.", envoyeA: null };
   if (!courrielDisponible() || (process.env.NODE_ENV === "production" && !process.env.APP_URL)) {
-    console.error("Mot de passe oublié : configurez SMTP_HOST (et SMTP_USER, SMTP_PASS, MAIL_FROM) ainsi que APP_URL.");
+    console.error("Mot de passe oublié : configurez RESEND_API_KEY, COURRIEL_EXPEDITEUR et APP_URL.");
     return { error: "L’envoi d’e-mails n’est pas encore activé sur la plateforme. Contactez l’équipe CanCham pour changer votre mot de passe.", envoyeA: null };
   }
 
