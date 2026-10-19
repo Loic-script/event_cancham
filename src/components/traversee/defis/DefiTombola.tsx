@@ -17,6 +17,9 @@ import { GainTombola, Tuiles } from "./Tuiles";
 import { useLive } from "./live";
 import styles from "./defis.module.css";
 
+/** Classement des publications (simulé pour l'instant) : affiché quand l'équipe le décide. */
+const CLASSEMENT_VISIBLE = false;
+
 export function DefiTombola() {
   const me = useProfile();
   const s = useTraversee();
@@ -95,7 +98,7 @@ export function DefiTombola() {
     setTraversee({ lienPub: u, lienReactions: null, lienReleve: null });
     journaliser({ pour: "admin", type: "defi2", titre: `${nom} s’est inscrit au Défi 2`, texte: "Publication « J’y serai » ajoutée au classement · Gagnez 3 000 000 Ar.", href: "/admin/defis/tombola", acteur: nom });
     setLien("");
-    toast("Publication suivie : vous entrez dans le classement.");
+    toast(CLASSEMENT_VISIBLE ? "Publication suivie : vous entrez dans le classement." : "Publication enregistrée pour le défi.");
     void relever(u, true);
   }
 
@@ -272,18 +275,22 @@ export function DefiTombola() {
             <span className={styles.pasN}>5</span>
             <div className={styles.pasC}>
               <h3>Suivez l’évolution en temps réel</h3>
-              <p className={styles.court}>
-                {!s.lienPub ? "Votre publication entre dans le classement dès que le lien est enregistré. " : moiRetire ? "Votre publication a été retirée du classement par l’équipe CanCham. " : "Votre publication est dans le classement. "}
-                <a
-                  href="#suivi-tombola"
-                  onClick={(e) => {
-                    e.preventDefault();
-                    suivi.current?.scrollIntoView({ behavior: "smooth", block: "start" });
-                  }}
-                >
-                  Voir le classement
-                </a>
-              </p>
+              {CLASSEMENT_VISIBLE ? (
+                <p className={styles.court}>
+                  {!s.lienPub ? "Votre publication entre dans le classement dès que le lien est enregistré. " : moiRetire ? "Votre publication a été retirée du classement par l’équipe CanCham. " : "Votre publication est dans le classement. "}
+                  <a
+                    href="#suivi-tombola"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      suivi.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+                    }}
+                  >
+                    Voir le classement
+                  </a>
+                </p>
+              ) : (
+                <p className={styles.court}>{s.lienPub ? "Votre publication est enregistrée : actualisez ses réactions quand vous voulez." : "Enregistrez le lien de votre publication pour suivre ses réactions."} Le classement des publications sera affiché ici prochainement.</p>
+              )}
             </div>
           </li>
         </ol>
@@ -292,19 +299,27 @@ export function DefiTombola() {
       <div ref={suivi} id="suivi-tombola" className="scroll-mt-20" />
       <Partie n={3} titre="Suivi du défi">
         <div className={ui.gLarge}>
-          <Card bleed>
-            <div className={`${ui.pad} flex flex-wrap items-center justify-between gap-2.5 !pb-2`}>
+          {CLASSEMENT_VISIBLE ? (
+            <Card bleed>
+              <div className={`${ui.pad} flex flex-wrap items-center justify-between gap-2.5 !pb-2`}>
+                <Sur className="!mb-0">Classement des publications</Sur>
+                <Direct>En temps réel · simulation</Direct>
+              </div>
+              <Classement entrees={classement.map((x) => (x.moi ? { ...x, initiales: nom } : x))} />
+            </Card>
+          ) : (
+            <Card pad bleed className="grid content-start gap-1.5">
               <Sur className="!mb-0">Classement des publications</Sur>
-              <Direct>En temps réel · simulation</Direct>
-            </div>
-            <Classement entrees={classement.map((x) => (x.moi ? { ...x, initiales: nom } : x))} />
-          </Card>
+              <strong className="text-graphite">Le classement sera affiché ici prochainement.</strong>
+              <p className="text-graphite-muted">En attendant, suivez les réactions de votre publication.</p>
+            </Card>
+          )}
           <Stat
             label="Ma publication"
             value={s.lienPub && moiR !== null ? moiR : "—"}
             text={
               !s.lienPub
-                ? "Enregistrez votre lien pour entrer dans le classement"
+                ? CLASSEMENT_VISIBLE ? "Enregistrez votre lien pour entrer dans le classement" : "Enregistrez votre lien pour suivre ses réactions"
                 : moiR !== null && s.lienReactions
                   ? `réactions Facebook · ${s.lienReactions.comments} commentaires · ${s.lienReactions.shares} partages · relevé à ${new Date(s.lienReactions.at).toLocaleTimeString("fr-FR", { hour: "2-digit", minute: "2-digit" })}`
                   : s.lienReleve ?? "Relevé en cours…"
