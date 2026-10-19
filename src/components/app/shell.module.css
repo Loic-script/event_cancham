@@ -251,7 +251,8 @@
   to { transform: none; }
 }
 
-.item b {
+.item b,
+.sousItem b {
   margin-left: auto;
   min-width: 22px;
   padding: 3px 7px;
@@ -266,7 +267,8 @@
   animation: badgeVif 2.4s ease-out infinite;
 }
 
-.itemOn b {
+.itemOn b,
+.sousItemOn b {
   background: #fff;
   color: var(--leaf-ink);
   animation: none;
@@ -296,10 +298,94 @@
   border-top: 1px solid rgba(255, 255, 255, 0.1);
 }
 
-@media (min-width: 1024px) {
-  .latAdm .nav h4 { margin: 14px 10px 6px; }
-  .latAdm .item { padding-block: 5px; }
-  .latAdm .item svg { width: 30px; height: 30px; padding: 7px; }
+.parent {
+  width: 100%;
+  background: transparent;
+  font-family: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.parent span { flex: 1; }
+
+.parentOn { color: #fff; }
+
+.parentOn > svg:first-child {
+  background: rgba(242, 107, 29, 0.2);
+  border-color: rgba(242, 107, 29, 0.4);
+  color: #ffb27a;
+}
+
+.item .chevron {
+  width: 16px;
+  height: 16px;
+  padding: 0;
+  border: 0;
+  background: none;
+  opacity: 0.55;
+  transition: transform 0.3s cubic-bezier(0.2, 0.8, 0.2, 1), opacity 0.2s ease;
+}
+
+.item:hover .chevron {
+  background: none;
+  color: inherit;
+  opacity: 1;
+  transform: none;
+}
+
+.parent[aria-expanded="true"] .chevron,
+.parent[aria-expanded="true"]:hover .chevron {
+  opacity: 1;
+  transform: rotate(90deg);
+}
+
+.sous {
+  display: grid;
+  grid-template-rows: 0fr;
+  transition: grid-template-rows 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+.sousOuvert { grid-template-rows: 1fr; }
+
+.sous > div {
+  min-height: 0;
+  overflow: hidden;
+  margin-left: 25px;
+  padding-left: 10px;
+  border-left: 1px solid rgba(255, 255, 255, 0.14);
+}
+
+.sousOuvert > div { padding-block: 2px 6px; }
+
+.sousItem {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 2px 0;
+  padding: 8px 10px;
+  border-radius: 10px;
+  color: rgba(255, 255, 255, 0.7);
+  text-decoration: none;
+  font-size: 13px;
+  font-weight: 500;
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+.sousItem:hover {
+  background: rgba(255, 255, 255, 0.08);
+  color: #fff;
+}
+
+.sousItemOn,
+.sousItemOn:hover {
+  color: #fff;
+  background: linear-gradient(100deg, #ff8a3d 0%, #f26b1d 70%, #e85f12 100%);
+  box-shadow: 0 10px 22px -14px rgba(242, 107, 29, 0.95), inset 0 1px 0 rgba(255, 255, 255, 0.22);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sous,
+  .item .chevron { transition: none; }
 }
 
 .fond {

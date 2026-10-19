@@ -16,6 +16,7 @@ import {
   BookIcon,
   CalendarDaysIcon,
   CartIcon,
+  ChevronRightIcon,
   ContactsIcon,
   FolderIcon,
   GiftIcon,
@@ -34,7 +35,8 @@ import {
 import styles from "./shell.module.css";
 
 type NavItem = { href: string; label: string; icon: (props: IconProps) => React.JSX.Element };
-type NavSection = { titre?: string; pied?: boolean; items: NavItem[] };
+/** Une section avec `icon` s'affiche comme un sous-menu dépliable. */
+type NavSection = { titre?: string; icon?: NavItem["icon"]; pied?: boolean; items: NavItem[] };
 
 const NAV: NavSection[] = [
   {
@@ -68,6 +70,7 @@ const NAV_ADMIN: NavSection[] = [
   },
   {
     titre: "Participants",
+    icon: UsersIcon,
     items: [
       { href: "/admin/participants", label: "Annuaire", icon: UsersIcon },
       { href: "/admin/scanner", label: "Scanner QR", icon: QrIcon },
@@ -78,6 +81,7 @@ const NAV_ADMIN: NavSection[] = [
   },
   {
     titre: "Communication",
+    icon: MegaphoneIcon,
     items: [
       { href: "/admin/annonces", label: "Annonces", icon: MegaphoneIcon },
       { href: "/admin/programme", label: "Programme", icon: CalendarDaysIcon },
@@ -88,6 +92,7 @@ const NAV_ADMIN: NavSection[] = [
   },
   {
     titre: "Défis",
+    icon: TrophyIcon,
     items: [
       { href: "/admin/defis/pitch", label: "Voyage au Canada", icon: TrophyIcon },
       { href: "/admin/defis/tombola", label: "3 000 000 Ar", icon: GiftIcon },
@@ -116,16 +121,22 @@ function isActive(pathname: string, href: string) {
   return pathname === href || pathname.startsWith(`${href}/`);
 }
 
+function groupeDe(pathname: string) {
+  return NAV_ADMIN.find((s) => s.icon && s.items.some((n) => isActive(pathname, n.href)))?.titre ?? null;
+}
+
 export function AppShell({ children }: { children: ReactNode }) {
   const pathname = usePathname();
   const router = useRouter();
   const state = useTraversee();
   const [ouvert, setOuvert] = useState(false);
   const [recherche, setRecherche] = useState("");
+  const [groupe, setGroupe] = useState(() => groupeDe(pathname));
   const [cheminPrecedent, setCheminPrecedent] = useState(pathname);
   if (cheminPrecedent !== pathname) {
     setCheminPrecedent(pathname);
     setOuvert(false);
+    setGroupe(groupeDe(pathname));
   }
 
   const admin = pathname.startsWith("/admin");
@@ -158,15 +169,59 @@ export function AppShell({ children }: { children: ReactNode }) {
 
   const basItems = (admin ? BAS_ADMIN : BAS).map((href) => items.find((n) => n.href === href)!);
 
+  function badgeDe(n: NavItem) {
+    return n.href === "/messages" ? 1 : n.href === "/admin/annonces" ? state.annonces.length : 0;
+  }
+
   function lien(n: NavItem, i: number) {
     const on = n === courant;
-    const badge = n.href === "/messages" ? 1 : n.href === "/admin/annonces" ? state.annonces.length : 0;
+    const badge = badgeDe(n);
     return (
       <Link key={n.href} href={n.href} aria-current={on ? "page" : undefined} className={`${styles.item} ${on ? styles.itemOn : ""}`} style={{ "--i": i } as React.CSSProperties}>
         <n.icon />
         <span>{n.label}</span>
         {badge ? <b>{badge}</b> : null}
       </Link>
+    );
+  }
+
+  function sousMenu(s: NavSection, k: number) {
+    const titre = s.titre ?? "";
+    const Icone = s.icon!;
+    const deplie = groupe === titre;
+    const contientCourant = !!courant && s.items.includes(courant);
+    const total = s.items.reduce((t, n) => t + badgeDe(n), 0);
+    const id = `sous-menu-${k}`;
+    return (
+      <div key={titre}>
+        <button
+          type="button"
+          className={`${styles.item} ${styles.parent} ${contientCourant ? styles.parentOn : ""}`}
+          style={{ "--i": k } as React.CSSProperties}
+          aria-expanded={deplie}
+          aria-controls={id}
+          onClick={() => setGroupe(deplie ? null : titre)}
+        >
+          <Icone />
+          <span>{titre}</span>
+          {!deplie && total ? <b>{total}</b> : null}
+          <ChevronRightIcon className={styles.chevron} aria-hidden />
+        </button>
+        <div id={id} className={`${styles.sous} ${deplie ? styles.sousOuvert : ""}`} inert={!deplie}>
+          <div>
+            {s.items.map((n) => {
+              const on = n === courant;
+              const badge = badgeDe(n);
+              return (
+                <Link key={n.href} href={n.href} aria-current={on ? "page" : undefined} className={`${styles.sousItem} ${on ? styles.sousItemOn : ""}`}>
+                  <span>{n.label}</span>
+                  {badge ? <b>{badge}</b> : null}
+                </Link>
+              );
+            })}
+          </div>
+        </div>
+      </div>
     );
   }
 
@@ -182,12 +237,16 @@ export function AppShell({ children }: { children: ReactNode }) {
         <nav className={`${styles.nav} scroll-nuit`}>
           {sections
             .filter((s) => !s.pied)
-            .map((s) => (
-              <div key={s.titre ?? s.items[0].href}>
-                {s.titre ? <h4>{s.titre}</h4> : null}
-                {s.items.map(lien)}
-              </div>
-            ))}
+            .map((s, k) =>
+              s.icon ? (
+                sousMenu(s, k)
+              ) : (
+                <div key={s.titre ?? s.items[0].href}>
+                  {s.titre ? <h4>{s.titre}</h4> : null}
+                  {s.items.map(lien)}
+                </div>
+              ),
+            )}
         </nav>
         {pied.length ? <div className={styles.pied}>{pied.map(lien)}</div> : null}
       </aside>
