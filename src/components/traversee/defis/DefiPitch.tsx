@@ -44,6 +44,9 @@ export function lienVideo(brut: string | null | undefined) {
   return { url: u.toString(), service, prive };
 }
 
+/** Demi-finalistes, vote du public et finale : à ouvrir une fois la sélection du jury dévoilée (13 décembre). */
+const SUIVI_OUVERT = false;
+
 export function DefiPitch() {
   const me = useProfile();
   const s = useTraversee();
@@ -188,106 +191,115 @@ export function DefiPitch() {
       </Partie>
 
       <Partie n={3} titre="Suivi du défi">
-        <div className="mb-3.5 flex flex-wrap items-end justify-between gap-3">
-          <div>
-            <h3 className="font-display text-[17px] text-graphite">
-              Les demi-finalistes <Puce tone="grey">{s.demi.length} sur 10 affichés</Puce>
-            </h3>
-            <p className="text-graphite-muted">
-              Regardez chaque pitch, puis votez pour un seul projet.{" "}
-              {s.vote === null ? (
-                "Vous n’avez pas encore voté."
-              ) : (
-                <>
-                  Vous avez voté pour <strong className="text-graphite">{s.demi[s.vote]?.porteur}</strong>.
-                </>
-              )}
-            </p>
-          </div>
-          <Direct>Vote du public ouvert · simulation</Direct>
-        </div>
-        <div className={`${styles.demis} mb-6 ${ui.stagger}`}>
-          {s.demi.map((d, i) => {
-            const moi = s.vote === i;
-            return (
-              <Card key={`${d.ent}-${i}`} className={`${styles.demi} ${moi ? styles.choisi : ""}`} style={{ "--i": i } as React.CSSProperties}>
-                <button type="button" className={styles.miniV} style={{ backgroundImage: `linear-gradient(rgba(15,29,44,.4), rgba(22,50,84,.55)), url(${IMG(VIGNETTES[i % VIGNETTES.length])})` }} onClick={() => setLecteur(i)} aria-label={`Voir le pitch de ${d.porteur}`}>
-                  <PlayIcon fill="currentColor" strokeWidth={0} />
-                </button>
-                <div className={styles.demiC}>
-                  <h3>{d.porteur}</h3>
-                  <p className="-mt-1 text-[13px] text-graphite-muted">{d.ent}</p>
-                  <div>
-                    <Puce>{d.sect}</Puce>
-                  </div>
-                  {s.vote !== null ? (
-                    <>
-                      <div className={styles.barre}>
-                        <i style={{ width: `${pct(i)}%` }} />
-                      </div>
-                      <span className={styles.pct}>{pct(i)} % des voix</span>
-                    </>
-                  ) : null}
-                  <Btn small variant={moi || s.vote === null ? "primary" : "light"} disabled={moi} onClick={() => voter(i)}>
-                    {moi ? "✓ Votre vote" : s.vote === null ? "Voter" : "Choisir ce projet"}
-                  </Btn>
-                </div>
-              </Card>
-            );
-          })}
-        </div>
-
-        <div className="mb-3.5 flex flex-wrap items-end justify-between gap-3">
-          <div>
-            <h3 className="font-display text-[17px] text-graphite">La finale en direct</h3>
-            <p className="text-graphite-muted">Pendant le Gala, les trois projets les plus soutenus pitchent sur scène. La salle revote et désigne le grand gagnant.</p>
-          </div>
-          {s.finale ? <Direct>En direct · simulation</Direct> : null}
-        </div>
-        {s.finale ? (
+        {SUIVI_OUVERT ? (
           <>
-            <div className={styles.finale}>
-              {top3.map((i, k) => {
-                const moi = s.voteFinal === k;
+            <div className="mb-3.5 flex flex-wrap items-end justify-between gap-3">
+              <div>
+                <h3 className="font-display text-[17px] text-graphite">
+                  Les demi-finalistes <Puce tone="grey">{s.demi.length} sur 10 affichés</Puce>
+                </h3>
+                <p className="text-graphite-muted">
+                  Regardez chaque pitch, puis votez pour un seul projet.{" "}
+                  {s.vote === null ? (
+                    "Vous n’avez pas encore voté."
+                  ) : (
+                    <>
+                      Vous avez voté pour <strong className="text-graphite">{s.demi[s.vote]?.porteur}</strong>.
+                    </>
+                  )}
+                </p>
+              </div>
+              <Direct>Vote du public ouvert · simulation</Direct>
+            </div>
+            <div className={`${styles.demis} mb-6 ${ui.stagger}`}>
+              {s.demi.map((d, i) => {
+                const moi = s.vote === i;
                 return (
-                  <Card key={k} className={`${styles.f} ${moi ? styles.choisi : ""}`}>
-                    <img src={IMG(VIGNETTES[i % VIGNETTES.length])} alt="" />
-                    <Puce tone="red">Finaliste {k + 1}</Puce>
-                    <h3 className="font-display text-[17px] text-graphite">{s.demi[i]?.porteur}</h3>
-                    <b>{incFinale[k] + (moi ? 1 : 0)}</b>
-                    <span className={styles.pct}>voix dans la salle</span>
-                    <Btn
-                      variant={moi || s.voteFinal === null ? "primary" : "light"}
-                      disabled={moi}
-                      onClick={() => {
-                        setTraversee({ voteFinal: k });
-                        toast("Vote final enregistré.");
-                      }}
-                    >
-                      {moi ? "✓ Votre vote final" : "Voter en direct"}
-                    </Btn>
+                  <Card key={`${d.ent}-${i}`} className={`${styles.demi} ${moi ? styles.choisi : ""}`} style={{ "--i": i } as React.CSSProperties}>
+                    <button type="button" className={styles.miniV} style={{ backgroundImage: `linear-gradient(rgba(15,29,44,.4), rgba(22,50,84,.55)), url(${IMG(VIGNETTES[i % VIGNETTES.length])})` }} onClick={() => setLecteur(i)} aria-label={`Voir le pitch de ${d.porteur}`}>
+                      <PlayIcon fill="currentColor" strokeWidth={0} />
+                    </button>
+                    <div className={styles.demiC}>
+                      <h3>{d.porteur}</h3>
+                      <p className="-mt-1 text-[13px] text-graphite-muted">{d.ent}</p>
+                      <div>
+                        <Puce>{d.sect}</Puce>
+                      </div>
+                      {s.vote !== null ? (
+                        <>
+                          <div className={styles.barre}>
+                            <i style={{ width: `${pct(i)}%` }} />
+                          </div>
+                          <span className={styles.pct}>{pct(i)} % des voix</span>
+                        </>
+                      ) : null}
+                      <Btn small variant={moi || s.vote === null ? "primary" : "light"} disabled={moi} onClick={() => voter(i)}>
+                        {moi ? "✓ Votre vote" : s.vote === null ? "Voter" : "Choisir ce projet"}
+                      </Btn>
+                    </div>
                   </Card>
                 );
               })}
             </div>
-            <Btn className="mt-3.5" onClick={() => setTraversee({ finale: false })}>
-              Fermer la simulation
-            </Btn>
+
+            <div className="mb-3.5 flex flex-wrap items-end justify-between gap-3">
+              <div>
+                <h3 className="font-display text-[17px] text-graphite">La finale en direct</h3>
+                <p className="text-graphite-muted">Pendant le Gala, les trois projets les plus soutenus pitchent sur scène. La salle revote et désigne le grand gagnant.</p>
+              </div>
+              {s.finale ? <Direct>En direct · simulation</Direct> : null}
+            </div>
+            {s.finale ? (
+              <>
+                <div className={styles.finale}>
+                  {top3.map((i, k) => {
+                    const moi = s.voteFinal === k;
+                    return (
+                      <Card key={k} className={`${styles.f} ${moi ? styles.choisi : ""}`}>
+                        <img src={IMG(VIGNETTES[i % VIGNETTES.length])} alt="" />
+                        <Puce tone="red">Finaliste {k + 1}</Puce>
+                        <h3 className="font-display text-[17px] text-graphite">{s.demi[i]?.porteur}</h3>
+                        <b>{incFinale[k] + (moi ? 1 : 0)}</b>
+                        <span className={styles.pct}>voix dans la salle</span>
+                        <Btn
+                          variant={moi || s.voteFinal === null ? "primary" : "light"}
+                          disabled={moi}
+                          onClick={() => {
+                            setTraversee({ voteFinal: k });
+                            toast("Vote final enregistré.");
+                          }}
+                        >
+                          {moi ? "✓ Votre vote final" : "Voter en direct"}
+                        </Btn>
+                      </Card>
+                    );
+                  })}
+                </div>
+                <Btn className="mt-3.5" onClick={() => setTraversee({ finale: false })}>
+                  Fermer la simulation
+                </Btn>
+              </>
+            ) : (
+              <Card pad bleed className="flex flex-wrap items-center justify-between gap-3.5">
+                <div>
+                  <strong className="text-graphite">La finale s’ouvre le 18 décembre, pendant le Gala.</strong>
+                  <p className="text-graphite-muted">Pour la maquette, vous pouvez la simuler dès maintenant.</p>
+                </div>
+                <Btn variant="navy" onClick={() => setTraversee({ finale: true, voteFinal: null })}>
+                  Simuler la finale
+                </Btn>
+              </Card>
+            )}
           </>
         ) : (
-          <Card pad bleed className="flex flex-wrap items-center justify-between gap-3.5">
-            <div>
-              <strong className="text-graphite">La finale s’ouvre le 18 décembre, pendant le Gala.</strong>
-              <p className="text-graphite-muted">Pour la maquette, vous pouvez la simuler dès maintenant.</p>
-            </div>
-            <Btn variant="navy" onClick={() => setTraversee({ finale: true, voteFinal: null })}>
-              Simuler la finale
-            </Btn>
+          <Card pad bleed className="grid gap-1.5">
+            <strong className="text-graphite">Les 10 demi-finalistes seront dévoilés le 13 décembre.</strong>
+            <p className="text-graphite-muted">Vous pourrez alors regarder leurs pitchs et voter pour votre projet préféré. La finale se joue en direct pendant le Gala, le 18 décembre.</p>
           </Card>
         )}
       </Partie>
 
-      {lecteur !== null ? (
+      {SUIVI_OUVERT && lecteur !== null ? (
         <Modal onClose={() => setLecteur(null)} label={`Pitch de ${s.demi[lecteur].porteur}`} size="large">
           <div className={styles.lecteur} style={{ backgroundImage: `linear-gradient(rgba(15,29,44,.5), rgba(22,50,84,.6)), url(${IMG(VIGNETTES[lecteur % VIGNETTES.length])})` }}>
             <PlayIcon fill="currentColor" strokeWidth={0} />
