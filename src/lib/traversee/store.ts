@@ -27,8 +27,6 @@ import {
 export type Rdv = { id: string; avec: string; ci: number; li: number; etat: "attente" | "confirme" | "decline" | "expire"; t: number; note?: string };
 export type Demande = { id: string; avec: string; ci: number; li: number };
 export type Achat = { quoi: string; ou: string; montant: number; etat: "Payé" | "À régler à table"; date: string };
-export type PostPerso = { id: string; texte: string; img?: string; video?: string; t: number };
-export type Pub = { id: string; texte: string; img?: string; date: string };
 export type Annonce = { id: string; titre: string; message: string; type: AnnonceType; cta: string; img?: string; t: number };
 export type MediaAjoute = { id: string; src: string; par?: "CanCham" | "vous"; t?: number };
 export type AConv = { id: string; nom: string; ent: string; m: { de: "eux" | "moi"; texte: string; h: string }[] };
@@ -42,8 +40,6 @@ export type TraverseeState = {
   prog: Record<string, boolean>;
   table: number | null;
   siege: number | null;
-  aime: Record<string, boolean>;
-  posts: PostPerso[];
   pitch: string | null;
   pitchEnvoye: boolean;
   lienPub: string;
@@ -66,7 +62,6 @@ export type TraverseeState = {
   demi: Demi[];
   voix: number[];
   classement: { nom: string; reactions: number }[];
-  pubs: Pub[];
   livre: Souvenir[];
   ress: Ressource[];
   dossiers: Dossier[];
@@ -90,8 +85,6 @@ export const DEFAULT_STATE: TraverseeState = {
   prog: {},
   table: null,
   siege: null,
-  aime: {},
-  posts: [],
   pitch: null,
   pitchEnvoye: false,
   lienPub: "",
@@ -117,7 +110,6 @@ export const DEFAULT_STATE: TraverseeState = {
   demi: DEMI,
   voix: VOIX_INIT,
   classement: CLASSEMENT_INIT,
-  pubs: [],
   livre: LIVRE,
   ress: RESSOURCES,
   dossiers: DOSSIERS,

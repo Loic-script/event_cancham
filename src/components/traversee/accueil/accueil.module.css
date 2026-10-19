@@ -976,3 +976,135 @@
 @media (prefers-reduced-motion: reduce) {
   .presentation, .halo, .tuile b { animation: none; }
 }
+
+/* Commentaires du fil (Fil.tsx) */
+.reactOuvert {
+  border-color: var(--graphite-muted);
+  color: var(--graphite);
+}
+
+.commentaires {
+  display: grid;
+  gap: 12px;
+  margin: 0 18px 4px;
+}
+
+.commentaires ul {
+  display: grid;
+  gap: 10px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.commentaires li {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+}
+
+.article .commentaires p {
+  padding: 0;
+}
+
+.bulle {
+  flex: 1;
+  min-width: 0;
+  padding: 8px 12px;
+  border-radius: 14px;
+  background: var(--paper);
+}
+
+.bulle div {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 2px 8px;
+}
+
+.bulle strong {
+  color: var(--graphite);
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.bulle small {
+  color: var(--graphite-faint);
+  font-size: 11.5px;
+}
+
+.article .bulle p {
+  margin-top: 2px;
+  color: var(--graphite);
+  font-size: 14px;
+  line-height: 1.45;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+.comSupprimer {
+  display: grid;
+  flex: none;
+  place-items: center;
+  width: 30px;
+  height: 30px;
+  margin-top: 4px;
+  border: 0;
+  border-radius: 8px;
+  background: none;
+  color: var(--graphite-faint);
+  cursor: pointer;
+}
+
+.comSupprimer:hover {
+  background: var(--paper);
+  color: #b42318;
+}
+
+.article .comInfo {
+  color: var(--graphite-muted);
+  font-size: 13.5px;
+}
+
+.ecrire {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.ecrire input {
+  flex: 1;
+  min-width: 0;
+  height: 40px;
+  padding: 0 14px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: var(--surface);
+  color: var(--graphite);
+  font-size: 14px;
+}
+
+.ecrire input:focus {
+  outline: none;
+  border-color: var(--leaf);
+  box-shadow: 0 0 0 3px var(--leaf-soft);
+}
+
+.ecrire button {
+  display: grid;
+  flex: none;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  border: 0;
+  border-radius: 50%;
+  background: var(--leaf);
+  color: #ffffff;
+  cursor: pointer;
+}
+
+.ecrire button:disabled {
+  background: var(--line);
+  color: var(--graphite-faint);
+  cursor: default;
+}

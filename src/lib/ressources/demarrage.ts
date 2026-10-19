@@ -2,7 +2,7 @@ import { promises as fs } from "node:fs";
 import path from "node:path";
 import { racineStockage } from "./stockage";
 
-const SOUS_DOSSIERS = ["tmp", "ressources", "dossiers", "photos", "videos"];
+const SOUS_DOSSIERS = ["tmp", "ressources", "dossiers", "photos", "videos", "fil"];
 
 export async function preparerStockage(): Promise<void> {
   const racine = racineStockage();

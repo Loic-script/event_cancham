@@ -34,26 +34,29 @@ enum StatutCompte {
 }
 
 model User {
-  id           Int          @id @default(autoincrement())
-  email        String       @unique
-  passwordHash String       @map("password_hash")
-  firstName    String       @map("first_name")
-  lastName     String       @map("last_name")
-  role         String?
-  acces        Acces        @default(MEMBRE)
-  statut       StatutCompte @default(EN_ATTENTE)
-  decisionLe   DateTime?    @map("decision_le")
-  company      String?
-  sector       String?
-  bio          String?      @db.VarChar(600)
-  phone        String?
-  website      String?
-  city         String?
-  country      String?
-  billetPaye   Boolean      @default(false) @map("billet_paye")
-  createdAt    DateTime     @default(now()) @map("created_at")
-  updatedAt    DateTime     @updatedAt @map("updated_at")
-  sessions     Session[]
+  id              Int              @id @default(autoincrement())
+  email           String           @unique
+  passwordHash    String           @map("password_hash")
+  firstName       String           @map("first_name")
+  lastName        String           @map("last_name")
+  role            String?
+  acces           Acces            @default(MEMBRE)
+  statut          StatutCompte     @default(EN_ATTENTE)
+  decisionLe      DateTime?        @map("decision_le")
+  company         String?
+  sector          String?
+  bio             String?          @db.VarChar(600)
+  phone           String?
+  website         String?
+  city            String?
+  country         String?
+  billetPaye      Boolean          @default(false) @map("billet_paye")
+  createdAt       DateTime         @default(now()) @map("created_at")
+  updatedAt       DateTime         @updatedAt @map("updated_at")
+  sessions        Session[]
+  publications    Publication[]
+  jaimesFil       JaimeFil[]
+  commentairesFil CommentaireFil[]
 
   @@map("users")
 }
@@ -152,4 +155,43 @@ model Journal {
   createdAt DateTime @default(now()) @map("created_at")
 
   @@map("journal")
+}
+
+/// Publication du fil d'actualité : par un participant, ou au nom de l'équipe (equipe, réservé aux administrateurs).
+model Publication {
+  id       String   @id @default(cuid())
+  auteurId Int      @map("auteur_id")
+  auteur   User     @relation(fields: [auteurId], references: [id], onDelete: Cascade)
+  equipe   Boolean  @default(false)
+  texte    String   @default("") @db.VarChar(1200)
+  image    String?
+  video    String?
+  creeLe   DateTime @default(now()) @map("cree_le")
+
+  @@index([creeLe])
+  @@map("publications")
+}
+
+/// J'aime du fil. cible : "pub:<id>" (publication) ou "actu:<id>" (article officiel, liste ACTUS).
+model JaimeFil {
+  cible  String
+  userId Int      @map("user_id")
+  user   User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  creeLe DateTime @default(now()) @map("cree_le")
+
+  @@id([cible, userId])
+  @@map("fil_jaimes")
+}
+
+/// Commentaire du fil, sur la même cible que les j'aime.
+model CommentaireFil {
+  id       String   @id @default(cuid())
+  cible    String
+  auteurId Int      @map("auteur_id")
+  auteur   User     @relation(fields: [auteurId], references: [id], onDelete: Cascade)
+  texte    String   @db.VarChar(1000)
+  creeLe   DateTime @default(now()) @map("cree_le")
+
+  @@index([cible, creeLe])
+  @@map("fil_commentaires")
 }

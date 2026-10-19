@@ -1,10 +1,11 @@
 "use client";
 
+import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState, type FormEvent } from "react";
+import { publier as publierSurLeFil } from "@/app/(app)/fil/actions";
 import { Avatar } from "@/components/app/Avatar";
 import { ImageIcon, SmileIcon, VideoIcon, XIcon } from "@/components/app/icons";
 import { useProfile } from "@/components/profile/useProfile";
-import { heureNow } from "@/lib/traversee/data";
 import { journaliser, lisImage, setTraversee, toast, uid } from "@/lib/traversee/store";
 import { fullName } from "@/lib/mock/data";
 import { Modal } from "../Modal";
@@ -19,7 +20,9 @@ const VIDEO_MAX = 100 * 1024 * 1024;
 
 export function Composer({ admin = false, modeInitial = null, onModeConsomme }: { admin?: boolean; modeInitial?: Mode | null; onModeConsomme?: () => void }) {
   const me = useProfile();
+  const router = useRouter();
   const [ouvert, setOuvert] = useState(false);
+  const [publication, setPublication] = useState(false);
   const [mode, setMode] = useState<Mode>("publication");
   const [texte, setTexte] = useState("");
   const [img, setImg] = useState<string | null>(null);
@@ -103,9 +106,18 @@ export function Composer({ admin = false, modeInitial = null, onModeConsomme }: 
     });
   }
 
+  /** Photo réduite dans le navigateur (data URL) envoyée au serveur ; renvoie son adresse. */
+  async function envoyerImage(dataUrl: string): Promise<string> {
+    const blob = await (await fetch(dataUrl)).blob();
+    const reponse = await fetch("/api/fil/images", { method: "POST", headers: { "Content-Type": blob.type || "image/jpeg" }, body: blob });
+    const corps = (await reponse.json().catch(() => ({}))) as { url?: string; message?: string };
+    if (!reponse.ok || !corps.url) throw new Error(corps.message ?? "La photo n’a pas pu être envoyée.");
+    return corps.url;
+  }
+
   async function publier(e: FormEvent) {
     e.preventDefault();
-    if (envoi !== null) return;
+    if (envoi !== null || publication) return;
     const tx = texte.trim();
     if (story) {
       if (!img) return toast("Choisissez la photo de la story.");
@@ -113,28 +125,35 @@ export function Composer({ admin = false, modeInitial = null, onModeConsomme }: 
       if (admin) journaliser({ pour: "participant", type: "story", titre: "CanCham Madagascar a ajouté une story", texte: "Ouvrez l’accueil pour la découvrir avant qu’elle ne disparaisse.", href: "/" });
       else journaliser({ pour: "admin", type: "story", titre: `${fullName(me)} a partagé une story`, texte: "Visible par tous les participants en haut de l’accueil.", href: "/admin", acteur: fullName(me) });
       toast("Story publiée : elle apparaît en haut de l’accueil des participants.");
-    } else if (admin) {
-      if (!tx && !img) return toast("Écrivez un texte ou ajoutez une photo.");
-      setTraversee((s) => ({ pubs: [{ id: uid("c"), texte: tx, img: img ?? undefined, date: `Publié aujourd’hui à ${heureNow().replace(":", " h ")}` }, ...s.pubs] }));
-      journaliser({ pour: "participant", type: "publication", titre: "CanCham Madagascar a publié une actualité", texte: tx || "Nouvelle photo dans le fil d’actualités.", href: "/" });
-      toast("Publication en ligne sur l’accueil des participants.");
     } else {
-      if (!tx && !img && !video) return toast("Écrivez un texte ou ajoutez une photo ou une vidéo.");
-      let url: string | undefined;
-      if (video) {
-        setEnvoi(0);
-        try {
-          url = await envoyerVideo(video.file);
-        } catch (err) {
+      const avecVideo = !admin && video;
+      if (!tx && !img && !avecVideo) return toast(admin ? "Écrivez un texte ou ajoutez une photo." : "Écrivez un texte ou ajoutez une photo ou une vidéo.");
+      setPublication(true);
+      let urlVideo: string | undefined;
+      try {
+        if (avecVideo) {
+          setEnvoi(0);
+          urlVideo = await envoyerVideo(avecVideo.file);
           setEnvoi(null);
-          return toast(err instanceof Error ? err.message : "La vidéo n’a pas pu être envoyée.");
         }
+        const urlImage = img ? await envoyerImage(img) : undefined;
+        const { error } = await publierSurLeFil({ texte: tx, image: urlImage, video: urlVideo, equipe: admin });
+        if (error) throw new Error(error);
+      } catch (err) {
         setEnvoi(null);
-        retirerVideo();
+        setPublication(false);
+        return toast(err instanceof Error ? err.message : "La publication n’a pas pu être enregistrée.");
       }
-      setTraversee((s) => ({ posts: [{ id: uid("p"), texte: tx, img: img ?? undefined, video: url, t: Date.now() }, ...s.posts] }));
-      journaliser({ pour: "admin", type: "publication", titre: `${fullName(me)} a publié dans le fil`, texte: tx || (url ? "Nouvelle vidéo partagée." : "Nouvelle photo partagée."), href: "/admin", acteur: fullName(me) });
-      toast("Publication partagée avec les participants.");
+      setPublication(false);
+      if (avecVideo) retirerVideo();
+      if (admin) {
+        journaliser({ pour: "participant", type: "publication", titre: "CanCham Madagascar a publié une actualité", texte: tx || "Nouvelle photo dans le fil d’actualités.", href: "/" });
+        toast("Publication en ligne sur l’accueil des participants.");
+      } else {
+        journaliser({ pour: "admin", type: "publication", titre: `${fullName(me)} a publié dans le fil`, texte: tx || (urlVideo ? "Nouvelle vidéo partagée." : "Nouvelle photo partagée."), href: "/admin", acteur: fullName(me) });
+        toast("Publication partagée avec les participants.");
+      }
+      router.refresh();
     }
     setTexte("");
     setImg(null);
@@ -268,8 +287,8 @@ export function Composer({ admin = false, modeInitial = null, onModeConsomme }: 
             </div>
             <input ref={fichier} type="file" accept="image/*" className="sr-only" tabIndex={-1} aria-hidden onChange={(e) => void choisir(e.target.files?.[0])} />
             <input ref={fichierVideo} type="file" accept="video/mp4,video/quicktime,video/webm" className="sr-only" tabIndex={-1} aria-hidden onChange={(e) => choisirVideo(e.target.files?.[0])} />
-            <Btn variant="primary" type="submit" disabled={story ? !img : (!texte.trim() && !img && !video) || envoi !== null} className="w-full">
-              {story ? "Publier la story" : envoi !== null ? `Envoi de la vidéo… ${envoi} %` : "Publier"}
+            <Btn variant="primary" type="submit" disabled={story ? !img : (!texte.trim() && !img && !video) || envoi !== null || publication} className="w-full">
+              {story ? "Publier la story" : envoi !== null ? `Envoi de la vidéo… ${envoi} %` : publication ? "Publication…" : "Publier"}
             </Btn>
           </form>
         </Modal>

@@ -1,12 +1,13 @@
 "use client";
 
+import type { DonneesFil } from "@/lib/fil";
 import { Composer } from "./Composer";
 import { Fil } from "./Fil";
 import { Promos } from "./Promos";
 import { Stories } from "./Stories";
 import styles from "./accueil.module.css";
 
-export function Accueil() {
+export function Accueil({ fil }: { fil: DonneesFil }) {
   return (
     <div className={styles.grille}>
       <div className={styles.colFil}>
@@ -17,7 +18,7 @@ export function Accueil() {
           <h2>Actualités</h2>
           <small>Fil de la communauté</small>
         </div>
-        <Fil />
+        <Fil {...fil} />
       </div>
       <Promos />
     </div>
