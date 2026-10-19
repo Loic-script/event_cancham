@@ -343,11 +343,6 @@
   color: var(--texte);
 }
 
-.optional {
-  font-weight: 400;
-  color: var(--doux);
-}
-
 .control {
   position: relative;
 }

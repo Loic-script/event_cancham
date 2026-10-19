@@ -7,16 +7,17 @@ import { EyeIcon, EyeOffIcon, SpinnerIcon } from "@/components/app/icons";
 import styles from "./auth.module.css";
 
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+const PHONE_PATTERN = /^\+?[\d\s().-]{7,20}$/;
 const MIN_PASSWORD_LENGTH = 8;
 
 const initialState: RegisterState = { error: null };
 
-const emptyFields = { firstName: "", lastName: "", email: "", company: "", password: "" };
+const emptyFields = { lastName: "", firstName: "", company: "", role: "", email: "", phone: "", password: "" };
 
 type FieldName = keyof typeof emptyFields;
 type FieldErrors = Partial<Record<FieldName, string>>;
 
-const ORDER: FieldName[] = ["firstName", "lastName", "email", "password"];
+const ORDER: FieldName[] = ["lastName", "firstName", "company", "role", "email", "phone", "password"];
 
 function validate(name: FieldName, value: string) {
   switch (name) {
@@ -24,9 +25,18 @@ function validate(name: FieldName, value: string) {
       return value.trim() ? undefined : "Renseignez votre prénom.";
     case "lastName":
       return value.trim() ? undefined : "Renseignez votre nom.";
+    case "company":
+      return value.trim() ? undefined : "Renseignez le nom de votre entreprise.";
+    case "role":
+      return value.trim() ? undefined : "Renseignez votre rôle dans l’entreprise.";
     case "email":
       if (!value.trim()) return "Renseignez votre adresse e-mail.";
       return EMAIL_PATTERN.test(value.trim()) ? undefined : "Cette adresse e-mail n’est pas valide (exemple : nom@entreprise.mg).";
+    case "phone":
+      if (!value.trim()) return "Renseignez votre numéro de téléphone.";
+      return PHONE_PATTERN.test(value.trim()) && value.replace(/\D/g, "").length >= 7
+        ? undefined
+        : "Ce numéro n’est pas valide (exemple : +261 34 00 000 00).";
     case "password":
       return value.length >= MIN_PASSWORD_LENGTH ? undefined : `Le mot de passe doit contenir au moins ${MIN_PASSWORD_LENGTH} caractères.`;
     default:
@@ -97,18 +107,35 @@ export function RegisterForm({ next }: { next: string }) {
 
         <div className={styles.row}>
           <div className={styles.field}>
-            <label htmlFor="register-firstName" className={styles.label}>
-              Prénom
-            </label>
-            <input type="text" autoComplete="given-name" {...inputProps("firstName")} />
-            {fieldError("firstName")}
-          </div>
-          <div className={styles.field}>
             <label htmlFor="register-lastName" className={styles.label}>
               Nom
             </label>
-            <input type="text" autoComplete="family-name" {...inputProps("lastName")} />
+            <input type="text" autoComplete="family-name" maxLength={60} {...inputProps("lastName")} />
             {fieldError("lastName")}
+          </div>
+          <div className={styles.field}>
+            <label htmlFor="register-firstName" className={styles.label}>
+              Prénom
+            </label>
+            <input type="text" autoComplete="given-name" maxLength={60} {...inputProps("firstName")} />
+            {fieldError("firstName")}
+          </div>
+        </div>
+
+        <div className={styles.row}>
+          <div className={styles.field}>
+            <label htmlFor="register-company" className={styles.label}>
+              Entreprise
+            </label>
+            <input type="text" autoComplete="organization" maxLength={80} {...inputProps("company")} />
+            {fieldError("company")}
+          </div>
+          <div className={styles.field}>
+            <label htmlFor="register-role" className={styles.label}>
+              Rôle
+            </label>
+            <input type="text" autoComplete="organization-title" maxLength={80} placeholder="Gérante" {...inputProps("role")} />
+            {fieldError("role")}
           </div>
         </div>
 
@@ -129,10 +156,11 @@ export function RegisterForm({ next }: { next: string }) {
         </div>
 
         <div className={styles.field}>
-          <label htmlFor="register-company" className={styles.label}>
-            Entreprise <span className={styles.optional}>(facultatif)</span>
+          <label htmlFor="register-phone" className={styles.label}>
+            Téléphone
           </label>
-          <input type="text" autoComplete="organization" {...inputProps("company")} />
+          <input type="tel" inputMode="tel" autoComplete="tel" maxLength={30} placeholder="+261 34 00 000 00" {...inputProps("phone")} />
+          {fieldError("phone")}
         </div>
 
         <div className={styles.field}>
