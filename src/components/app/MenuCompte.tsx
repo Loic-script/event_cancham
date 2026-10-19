@@ -42,6 +42,7 @@ export function MenuCompte({ admin }: { admin: boolean }) {
   const estAdmin = session?.acces === "ADMIN";
   const nom = session ? `${session.firstName} ${session.lastName}`.trim() : fullName(me);
   const sousTitre = admin ? "Administration" : me.company || session?.company || "Compléter mon profil";
+  const lienProfil = admin ? "/admin/compte" : "/profil";
 
   return (
     <div className={styles.zone} ref={zone}>
@@ -56,7 +57,7 @@ export function MenuCompte({ admin }: { admin: boolean }) {
 
       {ouvert ? (
         <div className={styles.panneau} role="menu" aria-label="Menu du compte">
-          <Link href="/profil" className={styles.carte} role="menuitem">
+          <Link href={lienProfil} className={styles.carte} role="menuitem">
             <Avatar person={me} size={52} />
             <span className="min-w-0 flex-1">
               <strong>{nom}</strong>
@@ -67,11 +68,11 @@ export function MenuCompte({ admin }: { admin: boolean }) {
           </Link>
           {estAdmin ? <span className={styles.badge}>Administrateur</span> : null}
           <div className={styles.separateur} />
-          <Link href="/profil" className={styles.option} role="menuitem">
+          <Link href={lienProfil} className={styles.option} role="menuitem">
             <span className={styles.icone}>
               <UserIcon width={18} height={18} />
             </span>
-            Mon profil
+            {admin ? "Mon compte" : "Mon profil"}
           </Link>
           {!admin ? (
             <Link href="/billet" className={styles.option} role="menuitem">

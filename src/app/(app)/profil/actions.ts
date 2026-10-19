@@ -1,9 +1,10 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-import type { Prisma } from "@/generated/prisma/client";
+import { Prisma } from "@/generated/prisma/client";
+import { hashPassword, verifyPassword } from "@/lib/password";
 import { prisma } from "@/lib/prisma";
-import { getCurrentUser } from "@/lib/session";
+import { fermerAutresSessions, getCurrentUser } from "@/lib/session";
 
 const LIMITES = { firstName: 60, lastName: 60, company: 80, role: 80, sector: 60, bio: 600, phone: 30, website: 200, city: 80 } as const;
 
@@ -30,4 +31,83 @@ export async function enregistrerProfil(champs: Partial<Record<Champ, string>>):
   revalidatePath("/annuaire");
   revalidatePath("/admin/participants");
   return { ok: true };
+}
+
+export type CompteState = { error: string | null; message: string | null };
+
+const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+const MIN_PASSWORD_LENGTH = 8;
+const MAX_PASSWORD_LENGTH = 200;
+const SESSION_EXPIREE: CompteState = { error: "Votre session a expiré : reconnectez-vous.", message: null };
+
+async function motDePasseCorrect(userId: number, motDePasse: string) {
+  const compte = await prisma.user.findUnique({ where: { id: userId }, select: { passwordHash: true } });
+  return !!compte && (await verifyPassword(motDePasse, compte.passwordHash));
+}
+
+/** Prénom, nom et adresse de connexion. Changer d'adresse demande le mot de passe actuel. */
+export async function modifierIdentifiants(_previous: CompteState, formData: FormData): Promise<CompteState> {
+  const user = await getCurrentUser();
+  if (!user) return SESSION_EXPIREE;
+
+  const firstName = String(formData.get("firstName") ?? "").trim();
+  const lastName = String(formData.get("lastName") ?? "").trim();
+  const email = String(formData.get("email") ?? "").trim().toLowerCase();
+  const motDePasse = String(formData.get("motDePasse") ?? "");
+
+  if (!firstName || !lastName) return { error: "Renseignez votre prénom et votre nom.", message: null };
+  if (firstName.length > LIMITES.firstName || lastName.length > LIMITES.lastName) {
+    return { error: "Le prénom et le nom ne doivent pas dépasser 60 caractères.", message: null };
+  }
+  if (!EMAIL_PATTERN.test(email)) return { error: "Indiquez une adresse e-mail valide (exemple : nom@entreprise.mg).", message: null };
+
+  const nouvelleAdresse = email !== user.email;
+  if (nouvelleAdresse) {
+    if (!motDePasse) return { error: "Saisissez votre mot de passe actuel pour changer d’adresse e-mail.", message: null };
+    if (!(await motDePasseCorrect(user.id, motDePasse))) return { error: "Le mot de passe actuel est incorrect.", message: null };
+  }
+
+  try {
+    await prisma.user.update({ where: { id: user.id }, data: { firstName, lastName, email } });
+  } catch (error) {
+    if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === "P2002") {
+      return { error: "Cette adresse e-mail est déjà utilisée par un autre compte.", message: null };
+    }
+    throw error;
+  }
+
+  revalidatePath("/", "layout");
+  return {
+    error: null,
+    message: nouvelleAdresse ? `Informations enregistrées. Connectez-vous désormais avec ${email}.` : "Informations enregistrées.",
+  };
+}
+
+/** Change le mot de passe après vérification de l'actuel, puis déconnecte les autres appareils. */
+export async function changerMotDePasse(_previous: CompteState, formData: FormData): Promise<CompteState> {
+  const user = await getCurrentUser();
+  if (!user) return SESSION_EXPIREE;
+
+  const actuel = String(formData.get("actuel") ?? "");
+  const nouveau = String(formData.get("nouveau") ?? "");
+  const confirmation = String(formData.get("confirmation") ?? "");
+
+  if (!actuel) return { error: "Saisissez votre mot de passe actuel.", message: null };
+  if (nouveau.length < MIN_PASSWORD_LENGTH) {
+    return { error: `Le nouveau mot de passe doit contenir au moins ${MIN_PASSWORD_LENGTH} caractères.`, message: null };
+  }
+  if (nouveau.length > MAX_PASSWORD_LENGTH) return { error: "Le nouveau mot de passe est trop long.", message: null };
+  if (nouveau !== confirmation) return { error: "Les deux nouveaux mots de passe ne correspondent pas.", message: null };
+  if (!(await motDePasseCorrect(user.id, actuel))) return { error: "Le mot de passe actuel est incorrect.", message: null };
+  if (nouveau === actuel) return { error: "Choisissez un mot de passe différent de l’actuel.", message: null };
+
+  await prisma.user.update({ where: { id: user.id }, data: { passwordHash: await hashPassword(nouveau) } });
+  const deconnectes = await fermerAutresSessions(user.id);
+
+  return {
+    error: null,
+    message: deconnectes
+      ? `Mot de passe modifié. ${deconnectes} autre${deconnectes > 1 ? "s" : ""} appareil${deconnectes > 1 ? "s ont" : " a"} été déconnecté${deconnectes > 1 ? "s" : ""}.`
+      : "Mot de passe modifié.",
+  };
 }

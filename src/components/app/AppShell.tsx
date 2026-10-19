@@ -91,6 +91,7 @@ const TITRES: Record<string, string> = {
   "/reseaux": "Réseaux sociaux",
   "/communaute": "Fil de communauté",
   "/defis": "Défis",
+  "/admin/compte": "Mon compte",
 };
 
 const BAS = ["/", "/defis/pitch", "/programme", "/annuaire"];

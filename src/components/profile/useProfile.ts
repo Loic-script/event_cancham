@@ -146,6 +146,15 @@ export function updateProfile(patch: ProfileOverrides) {
   if (Object.keys(champs).length) void enregistrerProfil(champs).catch(() => undefined);
 }
 
+/** Oublie les valeurs gardées dans le navigateur pour ces champs, pour revenir à celles du compte. */
+export function oublierChampsLocaux(champs: (keyof ProfileOverrides)[]) {
+  const actuel = read(activeKey);
+  if (!champs.some((c) => c in actuel)) return;
+  const suite = { ...actuel };
+  for (const c of champs) delete suite[c];
+  write(activeKey, suite);
+}
+
 export function resetProfile() {
   write(activeKey, {});
 }

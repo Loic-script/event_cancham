@@ -87,6 +87,15 @@ export async function requireAdmin(): Promise<SessionUser> {
   return user;
 }
 
+/** Déconnecte les autres appareils de ce compte, en gardant la session en cours. */
+export async function fermerAutresSessions(userId: number): Promise<number> {
+  const token = (await cookies()).get(SESSION_COOKIE)?.value;
+  const { count } = await prisma.session.deleteMany({
+    where: { userId, ...(token ? { NOT: { tokenHash: hashToken(token) } } : {}) },
+  });
+  return count;
+}
+
 export async function destroySession(): Promise<void> {
   const store = await cookies();
   const token = store.get(SESSION_COOKIE)?.value;
