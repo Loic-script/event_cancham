@@ -129,7 +129,7 @@ prisma/
   migrations/            # Migrations SQL générées
 prisma.config.ts         # Config Prisma (lit DATABASE_URL depuis .env)
 public/impact261/        # Logo IMPACT 261 : logo-blanc.svg (fonds foncés), logo-blanc.png (affiche des défis, dessinée en canvas), pictogramme.svg (avatars)
-src/app/icon.png, apple-icon.png # Icônes de l'application : pictogramme IMPACT 261 (onglet, écran d'accueil iOS)
+src/app/icon1.png, icon2.svg, apple-icon.png # Pictogramme IMPACT 261 : onglet sans fond (SVG bleu, blanc en thème sombre ; PNG transparent pour Safari), écran d'accueil iOS sur fond blanc
 src/
   proxy.ts               # Redirige vers /connexion sans cookie de session
   lib/prisma.ts          # Client Prisma unique (adapter pg)
