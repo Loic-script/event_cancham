@@ -1,8 +1,10 @@
 import { event } from "@/lib/mock/data";
 
 export const IMG = (name: string) => `/traversee/${name}.jpg`;
-export const LOGO_BLANC = "/traversee/logo-blanc.png";
-export const SIGLE = "/traversee/sigle.png";
+export const LOGO_BLANC = "/impact261/logo-blanc.svg";
+/** Version PNG du logo blanc, pour le dessin dans un canvas (affiche des défis). */
+export const LOGO_BLANC_PNG = "/impact261/logo-blanc.png";
+export const SIGLE = "/impact261/pictogramme.svg";
 export const DIX_ANS = "/traversee/10-ans.png";
 
 export const DATE_LABEL = "Vendredi 18 décembre 2026";

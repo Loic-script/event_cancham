@@ -1,6 +1,6 @@
 import Link from "next/link";
 import type { ButtonHTMLAttributes, CSSProperties, InputHTMLAttributes, ReactNode } from "react";
-import { IMG } from "@/lib/traversee/data";
+import { IMG, SIGLE } from "@/lib/traversee/data";
 import styles from "./traversee.module.css";
 
 export const ui = styles;
@@ -194,7 +194,7 @@ export function AvatarInitiales({ nom, photo, size = 38, className = "" }: { nom
 export function AvatarSigle({ size = 38 }: { size?: number }) {
   return (
     <span className={`${styles.av} ${styles.avSigle}`} style={{ width: size, height: size }} aria-hidden>
-      <img src="/traversee/sigle.png" alt="" />
+      <img src={SIGLE} alt="" />
     </span>
   );
 }

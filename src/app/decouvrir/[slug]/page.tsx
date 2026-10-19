@@ -40,7 +40,7 @@ export default async function DiscoverChallengePage(props: PageProps<"/decouvrir
       <header className={styles.topbar}>
         <div className="mx-auto flex h-16 max-w-5xl items-center gap-3 px-4 lg:px-8" style={{ paddingTop: "env(safe-area-inset-top)" }}>
           <Link href="/decouvrir" aria-label="Découvrir les défis" className="shrink-0 rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white">
-            <Image src="/cancham-logo.png" alt="" width={62} height={38} priority className="h-9 w-auto" />
+            <Image src="/impact261/logo-blanc.svg" alt="" width={89} height={36} priority className="h-9 w-auto" />
           </Link>
           <p className="min-w-0 flex-1 truncate font-mono text-[11px] uppercase tracking-[0.18em] text-white/70">
             Découvrir les défis · Défi {c.number}

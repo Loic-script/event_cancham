@@ -2,7 +2,7 @@
 
 import QRCode from "qrcode";
 import { useEffect, useRef } from "react";
-import { DIX_ANS, LIEN_INSCRIPTION, LIEU_LONG, LOGO_BLANC } from "@/lib/traversee/data";
+import { DIX_ANS, LIEN_INSCRIPTION, LIEU_LONG, LOGO_BLANC_PNG } from "@/lib/traversee/data";
 import styles from "./defis.module.css";
 
 type AfficheProps = { nom: string; ligne: string; photo?: string | null; onReady?: (canvas: HTMLCanvasElement) => void };
@@ -49,7 +49,7 @@ export async function dessineAffiche(cv: HTMLCanvasElement, nom: string, ligne: 
     } while (x.measureText(txt).width > max && taille > 16);
   };
   const polices = document.fonts?.load ? Promise.all([document.fonts.load(`800 110px ${F}`), document.fonts.load(`700 40px ${F}`)]).catch(() => undefined) : Promise.resolve(undefined);
-  const [logo, dix, portrait] = await Promise.all([charge(LOGO_BLANC), charge(DIX_ANS), photo ? charge(photo) : Promise.resolve(null), polices]);
+  const [logo, dix, portrait] = await Promise.all([charge(LOGO_BLANC_PNG), charge(DIX_ANS), photo ? charge(photo) : Promise.resolve(null), polices]);
 
   const g = x.createLinearGradient(0, 0, W, H);
   g.addColorStop(0, "#7a0a1c");

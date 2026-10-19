@@ -20,7 +20,7 @@ export function BilletCard() {
         <small>Billet · La Traversée</small>
         <strong>Gala des 10 ans de la CanCham</strong>
         <span>Vendredi 18 décembre 2026 · {LIEU_LONG}</span>
-        <img src={LOGO_BLANC} alt="CanCham" />
+        <img src={LOGO_BLANC} alt="IMPACT 261" />
       </div>
       <div className={styles.bc}>
         <QrCode value={currentUser.ticket.code} size={140} />

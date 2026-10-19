@@ -33,7 +33,7 @@ export function AuthScene({ headline, lead, cardTitle, children }: AuthSceneProp
       </div>
 
       <Link href="/" className={styles.brand} aria-label={`${event.name}, accueil`}>
-        <Image src="/connexion/logo-blanc.png" alt="" width={640} height={191} loading="eager" className={styles.brandLogo} />
+        <Image src="/impact261/logo-blanc.svg" alt="" width={1248} height={505} loading="eager" className={styles.brandLogo} />
       </Link>
 
       <div className={styles.intro}>

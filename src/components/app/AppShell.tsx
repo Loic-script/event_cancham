@@ -215,7 +215,7 @@ export function AppShell({ children }: { children: ReactNode }) {
     <div className={`${styles.app} theme-light`}>
       <aside className={`${styles.lat} ${admin ? styles.latAdm : ""} ${ouvert ? styles.latOuvert : ""}`} aria-label="Menu principal">
         <Link href={admin ? "/admin" : "/"} className={styles.logo}>
-          <img src={LOGO_BLANC} alt="CanCham" />
+          <img src={LOGO_BLANC} alt="IMPACT 261" />
           <small>{admin ? "Back-office · La Traversée" : "La Traversée · 18 déc. 2026"}</small>
         </Link>
         <nav className={`${styles.nav} scroll-nuit`}>
