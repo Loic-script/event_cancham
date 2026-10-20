@@ -7,28 +7,27 @@ import { TrashIcon } from "@/components/app/icons";
 import type { FicheInscrit } from "@/lib/annuaire";
 import { CRENEAUX, IMG, LIEUX } from "@/lib/traversee/data";
 import type { Fiche } from "@/lib/traversee/store";
-import { toast, useTraversee } from "@/lib/traversee/store";
+import type { RdvVue } from "@/lib/rendezvous";
+import { toast } from "@/lib/traversee/store";
 import { Confirmer } from "../Confirmer";
 import { AvatarProfil, Btn, Card, PageHead, Puce, Recherche, Sur, ui } from "../ui";
 import { ParticipantModal } from "./ParticipantModal";
 import { RdvModal } from "./RdvModal";
 import styles from "./annuaire.module.css";
 
-type Props = { participants: FicheInscrit[]; admin?: boolean };
+type Props = { participants: FicheInscrit[]; admin?: boolean; mesRdv?: RdvVue[] };
 
-function Liste({ participants, admin = false }: Props) {
+function Liste({ participants, admin = false, mesRdv = [] }: Props) {
   const router = useRouter();
   const params = useSearchParams();
   const [q, setQ] = useState(params.get("q") ?? "");
   const [secteur, setSecteur] = useState("");
-  const [rdv, setRdv] = useState<string | null>(null);
+  const [rdv, setRdv] = useState<{ id: number; nom: string; ent: string } | null>(null);
   const [profil, setProfil] = useState<string | null>(null);
   const [aSupprimer, setASupprimer] = useState<FicheInscrit | null>(null);
   const [suppression, setSuppression] = useState<{ enCours: boolean; erreur: string | null }>({ enCours: false, erreur: null });
-  const s = useTraversee();
   const secteurs = [...new Set(participants.map((p) => p.sect).filter(Boolean))].sort();
   const ouvert = profil ? participants.find((p) => p.id === profil) : undefined;
-  const actifs = s.rdv.filter((r) => r.etat === "confirme" || r.etat === "attente");
   const ql = q.toLowerCase().trim();
   const liste = participants.filter((p) => (!ql || `${p.nom} ${p.ent} ${p.role} ${p.sect}`.toLowerCase().includes(ql)) && (!secteur || p.sect === secteur));
 
@@ -59,15 +58,15 @@ function Liste({ participants, admin = false }: Props) {
 
   return (
     <>
-      {!admin && actifs.length ? (
+      {!admin && mesRdv.length ? (
         <Card pad bleed className="mb-4">
           <Sur>Mes rendez-vous du 18 décembre</Sur>
           <ul className={ui.liste}>
-            {actifs.map((r) => (
+            {mesRdv.map((r) => (
               <li key={r.id}>
                 <Puce>{CRENEAUX[r.ci]}</Puce>
                 <div className="min-w-0 flex-1">
-                  <strong>{r.avec}</strong>
+                  <strong>{r.avec.nom}</strong>
                   <small>{LIEUX[r.li].nom}</small>
                 </div>
                 <Puce tone={r.etat === "attente" ? "red" : "green"}>{r.etat === "attente" ? "En attente" : "Confirmé"}</Puce>
@@ -122,7 +121,7 @@ function Liste({ participants, admin = false }: Props) {
                       <Btn small variant="primary" href={`/messages/avec/${p.userId}`}>
                         Écrire
                       </Btn>
-                      <Btn small onClick={() => setRdv(p.ent ? `${p.nom} · ${p.ent}` : p.nom)}>
+                      <Btn small onClick={() => setRdv({ id: p.userId, nom: p.nom, ent: p.ent })}>
                         Rendez-vous
                       </Btn>
                     </>
@@ -135,7 +134,7 @@ function Liste({ participants, admin = false }: Props) {
       ) : (
         <p className={ui.vide}>{participants.length ? "Aucun participant ne correspond." : admin ? "Aucun participant inscrit pour le moment." : "Aucun autre participant inscrit pour le moment."}</p>
       )}
-      {rdv ? <RdvModal nom={rdv} onClose={() => setRdv(null)} /> : null}
+      {rdv ? <RdvModal avec={rdv} onClose={() => setRdv(null)} /> : null}
       {ouvert ? (
         <ParticipantModal
           key={`${ouvert.id}-${ouvert.nom}-${ouvert.email}`}
@@ -165,7 +164,7 @@ function Liste({ participants, admin = false }: Props) {
   );
 }
 
-export function Annuaire({ participants, admin = false }: Props) {
+export function Annuaire({ participants, admin = false, mesRdv = [] }: Props) {
   return (
     <>
       {admin ? (
@@ -178,7 +177,7 @@ export function Annuaire({ participants, admin = false }: Props) {
         <PageHead title="Annuaire des" accent="participants" text="Chaque participant avec son entreprise, son rôle et ce qu’il vient chercher à la Traversée." photo="reseau" />
       )}
       <Suspense fallback={null}>
-        <Liste participants={participants} admin={admin} />
+        <Liste participants={participants} admin={admin} mesRdv={mesRdv} />
       </Suspense>
     </>
   );

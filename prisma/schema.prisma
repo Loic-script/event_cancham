@@ -68,6 +68,8 @@ model User {
   messages              Message[]
   annonces              Annonce[]
   annoncesVues          AnnonceVue[]
+  rdvDemandes           RendezVousB2B[]              @relation("rdvDemandeur")
+  rdvRecus              RendezVousB2B[]              @relation("rdvDestinataire")
 
   @@map("users")
 }
@@ -328,4 +330,26 @@ model AnnonceVue {
   @@id([annonceId, userId])
   @@index([userId])
   @@map("annonces_vues")
+}
+
+/// Rendez-vous B2B du 18 décembre entre deux participants : creneau = indice dans CRENEAUX (20 minutes), lieu = indice dans LIEUX.
+/// statut : ATTENTE (emplacement réservé 48 h, puis expiré), CONFIRME, DECLINE ou ANNULE. Chaque côté a sa note privée.
+model RendezVousB2B {
+  id               String    @id @default(cuid())
+  demandeurId      Int       @map("demandeur_id")
+  demandeur        User      @relation("rdvDemandeur", fields: [demandeurId], references: [id], onDelete: Cascade)
+  destinataireId   Int       @map("destinataire_id")
+  destinataire     User      @relation("rdvDestinataire", fields: [destinataireId], references: [id], onDelete: Cascade)
+  creneau          Int
+  lieu             Int
+  statut           String    @default("ATTENTE") @db.VarChar(12)
+  noteDemandeur    String    @default("") @map("note_demandeur") @db.VarChar(1000)
+  noteDestinataire String    @default("") @map("note_destinataire") @db.VarChar(1000)
+  creeLe           DateTime  @default(now()) @map("cree_le")
+  decideLe         DateTime? @map("decide_le")
+
+  @@index([creneau, lieu, statut])
+  @@index([demandeurId])
+  @@index([destinataireId])
+  @@map("rendez_vous_b2b")
 }

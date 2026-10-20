@@ -6,6 +6,7 @@ import { useEffect, useMemo, useState, type FormEvent, type ReactNode } from "re
 import { marquerAnnoncesVues } from "@/app/(app)/annonces/actions";
 import { AnnonceCard } from "@/components/traversee/AnnonceCard";
 import type { AnnonceVue } from "@/lib/annonces";
+import type { NotifRdv } from "@/lib/rendezvous";
 import { Modal } from "@/components/traversee/Modal";
 import { Toaster } from "@/components/traversee/Toaster";
 import { LOGO_BLANC } from "@/lib/traversee/data";
@@ -119,6 +120,7 @@ export function AppShell({
   nonLus = 0,
   nonLusEquipe = 0,
   annonces = [],
+  rdv = [],
 }: {
   children: ReactNode;
   enAttente?: number;
@@ -126,6 +128,8 @@ export function AppShell({
   nonLusEquipe?: number;
   /** Annonces récentes de l'équipe (participants), avec l'état « vue » de ce compte. */
   annonces?: AnnonceVue[];
+  /** Demandes de rendez-vous reçues et réponses récentes (participants), pour la cloche. */
+  rdv?: NotifRdv[];
 }) {
   const pathname = usePathname();
   const router = useRouter();
@@ -307,7 +311,7 @@ export function AppShell({
               <Link href={accueilHref} className={`${styles.raccourci} ${styles.raccourciAccueil}`} aria-label="Accueil" aria-current={pathname === accueilHref ? "page" : undefined}>
                 <IconeNavigation icone={ICONES.accueil} active={pathname === accueilHref} />
               </Link>
-              <Notifications admin={admin} annonces={annonces.map((a) => (vues[a.id] ? { ...a, vue: true } : a))} />
+              <Notifications admin={admin} annonces={annonces.map((a) => (vues[a.id] ? { ...a, vue: true } : a))} rdv={rdv} />
               <Link
                 href={messagerieHref}
                 className={styles.raccourci}

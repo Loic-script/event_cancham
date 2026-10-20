@@ -98,9 +98,6 @@ export const LIEUX = [
   { nom: "Espace B2B B", desc: "Deuxième emplacement" },
   { nom: "Espace B2B C", desc: "Troisième emplacement" },
 ];
-export function creneauPrisParDefaut(ci: number, li: number) {
-  return (ci * 3 + li * 5) % 7 === 0;
-}
 
 export type Dossier = { nom: string; acces: string };
 export type Ressource = { nom: string; type: "PDF" | "Image" | "Vidéo" | "Lien"; dossier: string; date: number };

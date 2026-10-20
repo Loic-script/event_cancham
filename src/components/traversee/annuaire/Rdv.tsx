@@ -1,19 +1,18 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
+import { useState } from "react";
 import { PlusIcon } from "@/components/app/icons";
+import { annulerRdv, noterRdv, repondreRdv } from "@/app/(app)/rdv/actions";
+import type { RdvVue } from "@/lib/rendezvous";
 import { CRENEAUX, LIEUX } from "@/lib/traversee/data";
-import { setTraversee, toast, uid, useTraversee, type Rdv as RdvType } from "@/lib/traversee/store";
+import { toast } from "@/lib/traversee/store";
 import { Btn, Card, Note, PageHead, Puce, Stat, Vide, ui } from "../ui";
-import { RdvModal, occupeMoi } from "./RdvModal";
+import { RdvModal } from "./RdvModal";
 import styles from "./annuaire.module.css";
 
-const H48 = 48 * 3600 * 1000;
-
-function reste(r: RdvType) {
-  const m = Math.max(0, Math.floor((H48 - (Date.now() - r.t)) / 60000));
-  return `${Math.floor(m / 60)} h ${String(m % 60).padStart(2, "0")}`;
-}
+// Heure de Madagascar : le serveur et le navigateur affichent la même échéance.
+const ECHEANCE = new Intl.DateTimeFormat("fr-FR", { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit", timeZone: "Indian/Antananarivo" });
 
 function Quand({ ci }: { ci: number }) {
   return (
@@ -24,27 +23,26 @@ function Quand({ ci }: { ci: number }) {
   );
 }
 
-export function Rdv() {
-  const s = useTraversee();
-  const [modal, setModal] = useState<{ nom: string; confirmer?: boolean; demandeId?: string } | null>(null);
+const avecQui = (r: RdvVue) => (r.avec.ent ? `${r.avec.nom} · ${r.avec.ent}` : r.avec.nom);
 
-  useEffect(() => {
-    const expires = s.rdv.filter((r) => r.etat === "attente" && Date.now() - r.t > H48);
-    if (expires.length) setTraversee((st) => ({ rdv: st.rdv.map((r) => (r.etat === "attente" && Date.now() - r.t > H48 ? { ...r, etat: "expire" } : r)) }));
-  }, [s.rdv]);
+export function Rdv({ rdv }: { rdv: RdvVue[] }) {
+  const router = useRouter();
+  const [modal, setModal] = useState<{ avec: RdvVue["avec"]; remplace?: string } | null>(null);
+  const [occupe, setOccupe] = useState<string | null>(null);
 
-  const confirmes = s.rdv.filter((r) => r.etat === "confirme");
-  const envoyees = s.rdv.filter((r) => r.etat !== "confirme");
+  const confirmes = rdv.filter((r) => r.etat === "confirme");
+  const envoyees = rdv.filter((r) => r.sens === "envoye" && r.etat !== "confirme");
+  const recues = rdv.filter((r) => r.sens === "recu" && r.etat === "attente");
   const attente = envoyees.filter((r) => r.etat === "attente");
   const pro = confirmes[0];
 
-  function maj(id: string, patch: Partial<RdvType>) {
-    setTraversee((st) => ({ rdv: st.rdv.map((r) => (r.id === id ? { ...r, ...patch } : r)) }));
-  }
-
-  function retirer(id: string, msg: string) {
-    setTraversee((st) => ({ rdv: st.rdv.filter((r) => r.id !== id) }));
-    toast(msg);
+  async function agir(r: RdvVue, action: () => Promise<{ error: string | null }>, ok: string) {
+    setOccupe(r.id);
+    const { error } = await action();
+    setOccupe(null);
+    if (error) return toast(error);
+    toast(ok);
+    router.refresh();
   }
 
   return (
@@ -56,13 +54,13 @@ export function Rdv() {
         </Btn>
       </PageHead>
       <Note className="mb-4">
-        Quand vous envoyez une demande, l’heure et l’emplacement vous sont réservés pendant 48 heures. Le rendez-vous est confirmé dès que votre interlocuteur valide. Sans réponse sous 48 heures, l’emplacement est libéré. Pour une demande reçue, vous pouvez valider l’heure proposée, décliner, ou envoyer un message pour demander un changement.
+        Quand vous envoyez une demande, l’heure et l’emplacement vous sont réservés pendant 48 heures. Le rendez-vous est confirmé dès que votre interlocuteur valide. Sans réponse sous 48 heures, l’emplacement est libéré. Pour une demande reçue, vous pouvez valider, décliner, ou proposer un autre créneau.
       </Note>
       <div className={`${ui.g4} mb-5`}>
         <Stat label="Confirmés" value={confirmes.length} text="rendez-vous" />
         <Stat label="Envoyées" value={attente.length} text="en attente de validation" />
-        <Stat label="Reçues" value={s.demandes.length} text="à valider par vous" />
-        <Stat label="Prochain" value={pro ? CRENEAUX[pro.ci] : "—"} text={pro ? `${pro.avec} · ${LIEUX[pro.li].nom}` : "Aucun rendez-vous confirmé"} />
+        <Stat label="Reçues" value={recues.length} text="à valider par vous" />
+        <Stat label="Prochain" value={pro ? CRENEAUX[pro.ci] : "—"} text={pro ? `${pro.avec.nom} · ${LIEUX[pro.li].nom}` : "Aucun rendez-vous confirmé"} />
       </div>
 
       <h2 className="mb-3 font-display text-[18px] text-graphite">Rendez-vous confirmés</h2>
@@ -72,29 +70,29 @@ export function Rdv() {
             <Card key={r.id} bleed className={styles.rdvC}>
               <Quand ci={r.ci} />
               <div className="min-w-0">
-                <h3>{r.avec}</h3>
+                <h3>{avecQui(r)}</h3>
                 <p>{LIEUX[r.li].nom} · 20 minutes</p>
                 <div className="mt-1.5">
                   <Puce tone="green">Confirmé</Puce>
                 </div>
               </div>
               <div className={styles.rdvAct}>
-                <Btn small href="/messages">
+                <Btn small href={`/messages/avec/${r.avec.id}`}>
                   Envoyer un message
                 </Btn>
-                <Btn small onClick={() => retirer(r.id, "Rendez-vous annulé.")}>
+                <Btn small className="!text-[#b42318]" disabled={occupe === r.id} onClick={() => void agir(r, () => annulerRdv(r.id), `Rendez-vous avec ${r.avec.nom} annulé : l’emplacement est libéré.`)}>
                   Annuler
                 </Btn>
               </div>
               <textarea
-                defaultValue={r.note ?? ""}
-                placeholder="Vos notes après le rendez-vous : besoins, suite à donner…"
-                aria-label={`Notes sur le rendez-vous avec ${r.avec}`}
-                onBlur={(e) => {
-                  if (e.target.value !== (r.note ?? "")) {
-                    maj(r.id, { note: e.target.value });
-                    toast("Note enregistrée.");
-                  }
+                defaultValue={r.note}
+                maxLength={1000}
+                placeholder="Vos notes après le rendez-vous : besoins, suite à donner… (visibles par vous seul)"
+                aria-label={`Notes sur le rendez-vous avec ${r.avec.nom}`}
+                onBlur={async (e) => {
+                  if (e.target.value.trim() === r.note) return;
+                  const { error } = await noterRdv(r.id, e.target.value);
+                  toast(error ?? "Note enregistrée.");
                 }}
               />
             </Card>
@@ -111,13 +109,13 @@ export function Rdv() {
             <Card key={r.id} bleed className={styles.rdvC}>
               <Quand ci={r.ci} />
               <div className="min-w-0">
-                <h3>{r.avec}</h3>
+                <h3>{avecQui(r)}</h3>
                 <p>{LIEUX[r.li].nom} · 20 minutes</p>
                 <div className="mt-1.5 flex flex-wrap gap-1.5">
                   {r.etat === "attente" ? (
                     <>
                       <Puce tone="red">En attente de validation</Puce>
-                      <Puce tone="grey">Emplacement réservé encore {reste(r)}</Puce>
+                      <Puce tone="grey">Emplacement réservé jusqu’au {ECHEANCE.format(new Date(r.expireLe)).replace(":", " h ")}</Puce>
                     </>
                   ) : r.etat === "decline" ? (
                     <Puce tone="grey">Déclinée · emplacement libéré</Puce>
@@ -129,38 +127,19 @@ export function Rdv() {
               <div className={styles.rdvAct}>
                 {r.etat === "attente" ? (
                   <>
-                    <Btn small href="/messages">
+                    <Btn small href={`/messages/avec/${r.avec.id}`}>
                       Envoyer un message
                     </Btn>
-                    <Btn small onClick={() => retirer(r.id, "Demande retirée.")}>
+                    <Btn small className="!text-[#b42318]" disabled={occupe === r.id} onClick={() => void agir(r, () => annulerRdv(r.id), "Demande retirée : l’emplacement est libéré.")}>
                       Annuler la demande
-                    </Btn>
-                    <Btn
-                      small
-                      variant="navy"
-                      onClick={() => {
-                        maj(r.id, { etat: "confirme" });
-                        toast(`${r.avec} a validé : rendez-vous confirmé.`);
-                      }}
-                    >
-                      Simuler : validée
-                    </Btn>
-                    <Btn
-                      small
-                      onClick={() => {
-                        maj(r.id, { etat: "decline" });
-                        toast(`${r.avec} a décliné : emplacement libéré.`);
-                      }}
-                    >
-                      Simuler : déclinée
                     </Btn>
                   </>
                 ) : (
                   <>
-                    <Btn small variant="primary" onClick={() => setModal({ nom: r.avec })}>
+                    <Btn small variant="primary" onClick={() => setModal({ avec: r.avec, remplace: r.id })}>
                       Proposer un autre créneau
                     </Btn>
-                    <Btn small onClick={() => retirer(r.id, "Demande retirée.")}>
+                    <Btn small disabled={occupe === r.id} onClick={() => void agir(r, () => annulerRdv(r.id), "Demande retirée.")}>
                       Retirer
                     </Btn>
                   </>
@@ -169,55 +148,36 @@ export function Rdv() {
             </Card>
           ))
         ) : (
-          <Vide>Vous n’avez envoyé aucune demande. Réservez un créneau depuis l’annuaire ou depuis votre table.</Vide>
+          <Vide>Vous n’avez envoyé aucune demande. Réservez un créneau depuis l’annuaire.</Vide>
         )}
       </div>
 
-      <h2 className="mb-3 font-display text-[18px] text-graphite">
-        Demandes reçues <Puce tone="grey">exemple</Puce>
-      </h2>
+      <h2 className="mb-3 font-display text-[18px] text-graphite">Demandes reçues</h2>
       <div className="grid gap-4">
-        {s.demandes.length ? (
-          s.demandes.map((d) => (
-            <Card key={d.id} bleed className={styles.rdvC}>
-              <Quand ci={d.ci} />
+        {recues.length ? (
+          recues.map((r) => (
+            <Card key={r.id} bleed className={styles.rdvC}>
+              <Quand ci={r.ci} />
               <div className="min-w-0">
-                <h3>{d.avec}</h3>
+                <h3>{avecQui(r)}</h3>
                 <p>
-                  Vous propose {CRENEAUX[d.ci]}, {LIEUX[d.li].nom} · 20 minutes
+                  Vous propose {CRENEAUX[r.ci]}, {LIEUX[r.li].nom} · 20 minutes
                 </p>
                 <div className="mt-1.5">
                   <Puce tone="red">En attente de votre réponse</Puce>
                 </div>
               </div>
               <div className={styles.rdvAct}>
-                <Btn
-                  small
-                  variant="primary"
-                  onClick={() => {
-                    if (occupeMoi(s, d.ci)) return toast(`Vous avez déjà un rendez-vous à ${CRENEAUX[d.ci]}. Envoyez un message pour changer l’heure.`);
-                    setTraversee((st) => ({
-                      rdv: [...st.rdv, { id: uid("r"), avec: d.avec, ci: d.ci, li: d.li, etat: "confirme" as const, t: Date.now() }].sort((a, b) => a.ci - b.ci),
-                      demandes: st.demandes.filter((x) => x.id !== d.id),
-                    }));
-                    toast(`Rendez-vous confirmé à ${CRENEAUX[d.ci]}, ${LIEUX[d.li].nom}.`);
-                  }}
-                >
+                <Btn small variant="primary" disabled={occupe === r.id} onClick={() => void agir(r, () => repondreRdv(r.id, "valider"), `Rendez-vous confirmé à ${CRENEAUX[r.ci]}, ${LIEUX[r.li].nom}.`)}>
                   Valider
                 </Btn>
-                <Btn small href="/messages">
+                <Btn small href={`/messages/avec/${r.avec.id}`}>
                   Envoyer un message
                 </Btn>
-                <Btn small onClick={() => setModal({ nom: d.avec, confirmer: true, demandeId: d.id })}>
+                <Btn small onClick={() => setModal({ avec: r.avec, remplace: r.id })}>
                   Autre créneau
                 </Btn>
-                <Btn
-                  small
-                  onClick={() => {
-                    setTraversee((st) => ({ demandes: st.demandes.filter((x) => x.id !== d.id) }));
-                    toast("Demande déclinée.");
-                  }}
-                >
+                <Btn small className="!text-[#b42318]" disabled={occupe === r.id} onClick={() => void agir(r, () => repondreRdv(r.id, "decliner"), "Demande déclinée.")}>
                   Décliner
                 </Btn>
               </div>
@@ -227,7 +187,7 @@ export function Rdv() {
           <Vide>Aucune demande en attente.</Vide>
         )}
       </div>
-      {modal ? <RdvModal nom={modal.nom} confirmer={modal.confirmer} demandeId={modal.demandeId} onClose={() => setModal(null)} /> : null}
+      {modal ? <RdvModal avec={modal.avec} remplace={modal.remplace} onClose={() => setModal(null)} /> : null}
     </>
   );
 }

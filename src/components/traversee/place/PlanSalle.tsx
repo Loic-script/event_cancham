@@ -6,7 +6,6 @@ import { ANNUAIRE, ouEst } from "@/lib/traversee/data";
 import { aLaTable, occupation, libresTotal, siegesDe } from "@/lib/traversee/sieges";
 import { setTraversee, toast, useTraversee, type TraverseeState } from "@/lib/traversee/store";
 import { fullName } from "@/lib/mock/data";
-import { RdvModal } from "../annuaire/RdvModal";
 import { Btn, Card, PageHead, Puce, Sur, ui } from "../ui";
 import styles from "./place.module.css";
 
@@ -104,7 +103,6 @@ export function PlanSalle() {
   const me = useProfile();
   const [vue, setVue] = useState<number | null>(null);
   const [trouver, setTrouver] = useState("");
-  const [rdv, setRdv] = useState<string | null>(null);
   const libres = libresTotal(s);
   const occ = vue ? occupation(s, vue) : 0;
   const sieges = vue ? siegesDe(s)[vue] : [];
@@ -168,9 +166,6 @@ export function PlanSalle() {
                           <Btn small href="/messages">
                             Écrire
                           </Btn>
-                          <Btn small variant="primary" onClick={() => setRdv(`${c.nom} · ${c.ent}`)}>
-                            RDV
-                          </Btn>
                         </span>
                       </li>
                     );
@@ -214,7 +209,6 @@ export function PlanSalle() {
           )}
         </Card>
       </div>
-      {rdv ? <RdvModal nom={rdv} onClose={() => setRdv(null)} /> : null}
     </>
   );
 }

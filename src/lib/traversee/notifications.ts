@@ -1,6 +1,6 @@
 import type { MessageNonLu } from "@/app/api/messages/non-lus/route";
 import type { AnnonceVue } from "@/lib/annonces";
-import { CRENEAUX, LIEUX } from "./data";
+import type { NotifRdv } from "@/lib/rendezvous";
 import type { Annonce, TraverseeState, TypeNotif } from "./store";
 
 export type Notif = {
@@ -38,7 +38,7 @@ function duJournal(s: TraverseeState, pour: "admin" | "participant"): Notif[] {
     .map((e) => ({ id: e.id, type: e.type, titre: e.titre, texte: e.texte, href: e.href, t: e.t, acteur: e.acteur, lue: lue(s, e.id) }));
 }
 
-export function notificationsParticipant(s: TraverseeState, o: { maintenant: number; creeLe?: string | null; messages: MessageNonLu[]; annonces: AnnonceVue[] }): Notif[] {
+export function notificationsParticipant(s: TraverseeState, o: { maintenant: number; creeLe?: string | null; messages: MessageNonLu[]; annonces: AnnonceVue[]; rdv: NotifRdv[] }): Notif[] {
   const liste = duJournal(s, "participant");
 
   for (const a of o.annonces) {
@@ -48,11 +48,12 @@ export function notificationsParticipant(s: TraverseeState, o: { maintenant: num
 
   liste.push(...depuisMessages(s, o.messages));
 
-  for (const d of s.demandes) {
-    const id = `rdv-${d.id}`;
-    const [nom] = d.avec.split(" · ");
-    const quand = [CRENEAUX[d.ci], LIEUX[d.li]?.nom].filter(Boolean).join(", ");
-    liste.push({ id, type: "rdv", titre: `${d.avec} vous propose un rendez-vous`, texte: quand ? `${quand} · 20 minutes` : "Créneau de 20 minutes", href: "/rdv", quand: "À valider", acteur: nom, lue: lue(s, id) });
+  for (const r of o.rdv) {
+    const id = `rdv-${r.id}`;
+    const qui = r.ent ? `${r.nom} · ${r.ent}` : r.nom;
+    if (r.genre === "demande") liste.push({ id, type: "rdv", titre: `${qui} vous propose un rendez-vous`, texte: `${r.quand} · 20 minutes`, href: "/rdv", t: r.t, quand: "À valider", acteur: r.nom, lue: lue(s, id) });
+    else if (r.genre === "confirme") liste.push({ id, type: "rdv", titre: `${r.nom} a validé votre rendez-vous`, texte: `${r.quand} · 20 minutes`, href: "/rdv", t: r.t, acteur: r.nom, lue: lue(s, id) });
+    else liste.push({ id, type: "rdv", titre: `${r.nom} a décliné votre demande de rendez-vous`, texte: "L’emplacement est libéré : proposez un autre créneau.", href: "/rdv", t: r.t, acteur: r.nom, lue: lue(s, id) });
   }
 
   if (o.creeLe) {

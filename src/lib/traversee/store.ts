@@ -22,8 +22,6 @@ import {
   type Story,
 } from "./data";
 
-export type Rdv = { id: string; avec: string; ci: number; li: number; etat: "attente" | "confirme" | "decline" | "expire"; t: number; note?: string };
-export type Demande = { id: string; avec: string; ci: number; li: number };
 export type Achat = { quoi: string; ou: string; montant: number; etat: "Payé" | "À régler à table"; date: string };
 export type Annonce = { id: string; titre: string; message: string; type: AnnonceType; cta: string; img?: string; t: number };
 export type MediaAjoute = { id: string; src: string; par?: "CanCham" | "vous"; t?: number };
@@ -46,8 +44,6 @@ export type TraverseeState = {
   finale: boolean;
   ami: boolean;
   achats: Achat[];
-  rdv: Rdv[];
-  demandes: Demande[];
   visage: boolean;
   plan: boolean;
   retrouve: boolean;
@@ -86,11 +82,6 @@ export const DEFAULT_STATE: TraverseeState = {
   finale: false,
   ami: false,
   achats: [{ quoi: "Billet La Traversée", ou: "Billetterie en ligne", montant: 500000, etat: "Payé", date: "Avant l’événement" }],
-  rdv: [],
-  demandes: [
-    { id: "d1", avec: "Fara Rasoa · Zébu Finance", ci: 13, li: 1 },
-    { id: "d2", avec: "Lova Rasoa · Ravinala Tourisme", ci: 7, li: 2 },
-  ],
   visage: false,
   plan: true,
   retrouve: false,
