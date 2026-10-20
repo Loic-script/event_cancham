@@ -337,6 +337,12 @@
   margin-top: 22px;
 }
 
+.ligne {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
 .champ {
   display: grid;
   gap: 6px;
@@ -473,7 +479,7 @@ select.saisie {
 }
 
 .surCouverture {
-  margin-top: -90px;
+  margin-top: -62px;
 }
 
 .anneau {
@@ -830,6 +836,10 @@ select.saisie {
 @media (max-width: 419px) {
   .carteTitre {
     font-size: 22px;
+  }
+
+  .ligne {
+    grid-template-columns: minmax(0, 1fr);
   }
 
   .liste li {

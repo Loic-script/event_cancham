@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { LOGIN_PATH, safeNext } from "@/lib/auth";
+import { erreurCoordonnees } from "@/lib/coordonnees";
 import { estEtape, PAGE_PARCOURS } from "@/lib/parcours";
 import { prisma } from "@/lib/prisma";
 import { aAccesEspace, getCurrentUser, PAGE_ATTENTE } from "@/lib/session";
@@ -35,25 +36,26 @@ export async function passerEtape(id: unknown): Promise<Resultat> {
   return { error: null };
 }
 
-export type EntrepriseSaisie = { company: string; role: string; sector: string; bio: string };
+export type EntrepriseSaisie = { firstName: string; lastName: string; phone: string; company: string; role: string; sector: string; bio: string };
 
-/** Étape « Votre entreprise » : enregistrée sur le compte, comme depuis la page Profil. */
+/**
+ * Étape « Vous et votre entreprise » : les coordonnées de l'inscription (préremplies, mêmes règles qu'à l'inscription),
+ * plus le secteur et la présentation. Enregistrée sur le compte, comme depuis la page Profil.
+ */
 export async function enregistrerEntreprise(saisie: EntrepriseSaisie): Promise<Resultat> {
   const user = await participant();
   if (!user) return { error: SESSION_EXPIREE };
   const champ = (v: unknown) => String(v ?? "").trim();
-  const company = champ(saisie?.company);
-  const role = champ(saisie?.role);
+  const coordonnees = { firstName: champ(saisie?.firstName), lastName: champ(saisie?.lastName), company: champ(saisie?.company), role: champ(saisie?.role), phone: champ(saisie?.phone) };
+  const erreur = erreurCoordonnees(coordonnees);
+  if (erreur) return { error: erreur };
   const sector = champ(saisie?.sector);
   const bio = champ(saisie?.bio);
-  if (!company) return { error: "Indiquez le nom de votre entreprise." };
-  if (company.length > 80) return { error: "Le nom de l’entreprise fait 80 caractères au plus." };
-  if (!role) return { error: "Indiquez votre fonction dans l’entreprise." };
-  if (role.length > 80) return { error: "La fonction fait 80 caractères au plus." };
   if (!sector) return { error: "Choisissez votre secteur d’activité." };
   if (sector.length > 40) return { error: "Le secteur fait 40 caractères au plus." };
   if (bio.length > 600) return { error: "Votre présentation fait 600 caractères au plus." };
-  await prisma.user.update({ where: { id: user.id }, data: { company, role, sector, bio: bio || null } });
+  await prisma.user.update({ where: { id: user.id }, data: { ...coordonnees, sector, bio: bio || null } });
+  revalidatePath("/", "layout");
   revalidatePath("/annuaire");
   revalidatePath("/admin/participants");
   revalidatePath("/profil");

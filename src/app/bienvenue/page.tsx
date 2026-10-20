@@ -49,7 +49,7 @@ export default async function BienvenuePage(props: PageProps<"/bienvenue">) {
         etapes={etat.etapes}
         commence={etat.commence}
         sortie={acces ? next : PAGE_ATTENTE}
-        profil={{ company: user.company ?? "", role: user.role ?? "", sector: user.sector ?? "", bio: user.bio ?? "" }}
+        profil={{ firstName: user.firstName, lastName: user.lastName, phone: user.phone ?? "", company: user.company ?? "", role: user.role ?? "", sector: user.sector ?? "", bio: user.bio ?? "" }}
         pitch={pitch?.lien ?? null}
         tombola={tombola?.lien ?? null}
         next={next}

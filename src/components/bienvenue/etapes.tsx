@@ -143,13 +143,13 @@ export function EtapePhoto({ photo, couverture, initiales, nav, onFait }: { phot
 
 /* ---------- Entreprise ---------- */
 
-export type ProfilEntreprise = { company: string; role: string; sector: string; bio: string };
+export type ProfilEntreprise = { firstName: string; lastName: string; phone: string; company: string; role: string; sector: string; bio: string };
 
 export function EtapeEntreprise({ initial, nav, onFait }: { initial: ProfilEntreprise; nav: Navigation; onFait: () => void }) {
   const [f, setF] = useState(initial);
   const [envoi, setEnvoi] = useState(false);
   const [erreur, setErreur] = useState<string | null>(null);
-  const pret = Boolean(f.company.trim() && f.role.trim() && f.sector);
+  const pret = Boolean(f.firstName.trim() && f.lastName.trim() && f.company.trim() && f.role.trim() && f.phone.trim() && f.sector);
   const maj = (k: keyof ProfilEntreprise) => (e: { target: { value: string } }) => setF({ ...f, [k]: e.target.value });
 
   async function enregistrer(e: FormEvent) {
@@ -157,7 +157,7 @@ export function EtapeEntreprise({ initial, nav, onFait }: { initial: ProfilEntre
     if (!pret || envoi) return;
     setEnvoi(true);
     setErreur(null);
-    const { error } = await enregistrerEntreprise({ company: f.company, role: f.role, sector: f.sector, bio: f.bio });
+    const { error } = await enregistrerEntreprise({ firstName: f.firstName, lastName: f.lastName, phone: f.phone, company: f.company, role: f.role, sector: f.sector, bio: f.bio });
     setEnvoi(false);
     if (error) return setErreur(error);
     onFait();
@@ -169,12 +169,26 @@ export function EtapeEntreprise({ initial, nav, onFait }: { initial: ProfilEntre
   return (
     <>
       <form id="etape-entreprise" onSubmit={(e) => void enregistrer(e)} className={styles.corps} noValidate>
+        <p className={styles.aide}>Ces informations viennent de votre inscription : vérifiez-les, puis complétez le secteur et votre présentation.</p>
+        <div className={styles.ligne}>
+          <Champ label="Prénom" htmlFor="pa-prenom">
+            <input id="pa-prenom" className={styles.saisie} value={f.firstName} onChange={maj("firstName")} autoComplete="given-name" maxLength={60} required />
+          </Champ>
+          <Champ label="Nom" htmlFor="pa-nom">
+            <input id="pa-nom" className={styles.saisie} value={f.lastName} onChange={maj("lastName")} autoComplete="family-name" maxLength={60} required />
+          </Champ>
+        </div>
         <Champ label="Entreprise" htmlFor="pa-entreprise">
           <input id="pa-entreprise" className={styles.saisie} value={f.company} onChange={maj("company")} autoComplete="organization" maxLength={80} required />
         </Champ>
-        <Champ label="Votre fonction" htmlFor="pa-fonction">
-          <input id="pa-fonction" className={styles.saisie} value={f.role} onChange={maj("role")} autoComplete="organization-title" maxLength={80} placeholder="Par exemple : directrice générale" required />
-        </Champ>
+        <div className={styles.ligne}>
+          <Champ label="Votre fonction" htmlFor="pa-fonction">
+            <input id="pa-fonction" className={styles.saisie} value={f.role} onChange={maj("role")} autoComplete="organization-title" maxLength={80} placeholder="Directrice générale" required />
+          </Champ>
+          <Champ label="Téléphone" htmlFor="pa-telephone">
+            <input id="pa-telephone" className={styles.saisie} type="tel" inputMode="tel" value={f.phone} onChange={maj("phone")} autoComplete="tel" maxLength={20} placeholder="+261 34 00 000 00" required />
+          </Champ>
+        </div>
         <Champ label="Secteur d’activité" htmlFor="pa-secteur">
           <select id="pa-secteur" className={styles.saisie} value={f.sector} onChange={maj("sector")} required>
             <option value="">Choisir…</option>

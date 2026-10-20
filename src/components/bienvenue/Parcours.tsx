@@ -38,7 +38,7 @@ type Contenu = { photo: string; sur: string; titre: [string, string]; lead: stri
 
 const ETAPES: Record<EtapeId, { nom: string; court: string; duree: string; icone: (p: IconProps) => JSX.Element }> = {
   photo: { nom: "Votre photo de profil", court: "Photo", duree: "1 min", icone: CameraIcon },
-  entreprise: { nom: "Votre entreprise", court: "Entreprise", duree: "2 min", icone: BriefcaseIcon },
+  entreprise: { nom: "Vous et votre entreprise", court: "Profil", duree: "2 min", icone: BriefcaseIcon },
   pitch: { nom: "Défi 1 · Votre vidéo pitch", court: "Défi 1", duree: "1 min", icone: TrophyIcon },
   tombola: { nom: "Défi 2 · Votre publication « J’y serai »", court: "Défi 2", duree: "1 min", icone: GiftIcon },
 };
@@ -56,12 +56,12 @@ const CONTENU: Record<EtapeId, Contenu> = {
   },
   entreprise: {
     photo: "reseau",
-    sur: "Votre entreprise",
+    sur: "Vous et votre entreprise",
     titre: ["Présentez", "votre entreprise."],
-    lead: "Secteur, fonction et ce que vous venez chercher : c’est ce que les autres participants lisent avant de vous proposer un rendez-vous B2B.",
-    points: ["Visible dans l’annuaire des participants", "Le secteur sert aux filtres de recherche", "Quelques mots suffisent"],
-    carteSur: "Entreprise",
-    carteTitre: "Votre entreprise",
+    lead: "Vos nom, entreprise, fonction et téléphone viennent de votre inscription : vérifiez-les, puis ajoutez votre secteur et ce que vous venez chercher. C’est ce que les autres participants lisent avant de vous proposer un rendez-vous B2B.",
+    points: ["Visible dans l’annuaire des participants", "Le secteur sert aux filtres de recherche", "Quelques mots de présentation suffisent"],
+    carteSur: "Vous et votre entreprise",
+    carteTitre: "Vos informations",
   },
   pitch: {
     photo: "pitch",
