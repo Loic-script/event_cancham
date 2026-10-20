@@ -40,6 +40,8 @@ export type SessionIdentity = {
   acces: "MEMBRE" | "ADMIN";
   superAdmin: boolean;
   photo: string | null;
+  /** Photo de couverture du profil, depuis la base. */
+  couverture: string | null;
   /** Code du billet (QR) et règlement, depuis la base. */
   codeBillet: string;
   billetPaye: boolean;

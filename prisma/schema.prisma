@@ -55,6 +55,8 @@ model User {
   codeBillet            String                       @unique @default(dbgenerated("('TRV26-'::text || upper(substr(md5(((random())::text || (clock_timestamp())::text)), 1, 8)))")) @map("code_billet") @db.VarChar(20)
   /// Photo de profil : adresse /api/profil/photos/<id>, fichier dans stockage/profils.
   photo                 String?                      @db.VarChar(200)
+  /// Photo de couverture (bannière du profil et de la fiche annuaire), rangée comme la photo de profil.
+  couverture            String?                      @db.VarChar(200)
   /// Identifiants des comptes Google et Facebook reliés (connexion et inscription en un clic).
   googleId              String?                      @unique @map("google_id")
   facebookId            String?                      @unique @map("facebook_id")

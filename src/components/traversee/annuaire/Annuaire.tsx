@@ -5,7 +5,7 @@ import { Suspense, useState } from "react";
 import { modifierParticipant, supprimerParticipant } from "@/app/(app)/admin/participants/actions";
 import { TrashIcon } from "@/components/app/icons";
 import type { FicheInscrit } from "@/lib/annuaire";
-import { CRENEAUX, IMG, LIEUX } from "@/lib/traversee/data";
+import { CRENEAUX, LIEUX } from "@/lib/traversee/data";
 import type { Fiche } from "@/lib/traversee/store";
 import type { RdvVue } from "@/lib/rendezvous";
 import { toast } from "@/lib/traversee/store";
@@ -93,7 +93,7 @@ function Liste({ participants, admin = false, mesRdv = [] }: Props) {
         <div className={`${styles.fiches} ${ui.stagger}`}>
           {liste.map((p, i) => (
             <Card key={p.id} className={styles.fiche} style={{ "--i": Math.min(i, 8) } as React.CSSProperties}>
-              <div className={styles.bandeau} style={{ backgroundImage: `linear-gradient(120deg, rgba(15,29,44,.78), rgba(22,50,84,.45)), url(${IMG(p.img)})` }} />
+              <div className={styles.bandeau} style={{ backgroundImage: `linear-gradient(120deg, rgba(15,29,44,.78), rgba(22,50,84,.45)), url(${p.img})` }} />
               <div className={styles.corps}>
                 <AvatarProfil photo={p.photo} size={64} className={styles.lg} />
                 <h3>{p.nom}</h3>

@@ -463,6 +463,19 @@ select.saisie {
   text-align: center;
 }
 
+/* Couverture en bannière, la photo de profil à cheval sur son bord bas */
+.couverture {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 3 / 1;
+  border-radius: 12px;
+  background: linear-gradient(120deg, #0b1a30 0%, #12305a 60%, #1f5aa0 100%) center / cover no-repeat;
+}
+
+.surCouverture {
+  margin-top: -90px;
+}
+
 .anneau {
   display: grid;
   place-items: center;
@@ -530,6 +543,19 @@ select.saisie {
 .fichier[aria-disabled="true"] {
   opacity: 0.6;
   cursor: progress;
+}
+
+.fichier[aria-disabled="true"] input {
+  cursor: progress;
+}
+
+.couverture > .fichier {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  min-height: 40px;
+  padding: 0 14px;
+  font-size: 14px;
 }
 
 /* Liste des étapes (intro et fin) */

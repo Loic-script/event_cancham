@@ -4,13 +4,14 @@ import { useState, type FormEvent } from "react";
 import { reprendreParcours } from "@/app/bienvenue/actions";
 import { Avatar } from "@/components/app/Avatar";
 import { ArrowRightIcon, DownloadIcon } from "@/components/app/icons";
-import { updateProfile, useProfile } from "@/components/profile/useProfile";
+import { updateProfile, useProfile, useSessionIdentity } from "@/components/profile/useProfile";
 import { SECTEURS } from "@/lib/traversee/data";
 import { toast } from "@/lib/traversee/store";
 import { fullName } from "@/lib/mock/data";
 import { BilletModal } from "../achats/BilletModal";
 import { Presentation } from "../accueil/Presentation";
 import { Coordonnees, MotDePasse } from "./Compte";
+import { ChoixCouverture } from "./ChoixCouverture";
 import { ChoixPhotoProfil } from "./ChoixPhotoProfil";
 import { SupprimerCompte } from "./SupprimerCompte";
 import { Btn, Card, Champ, Jauge, Sur, ui } from "../ui";
@@ -20,6 +21,7 @@ type Parcours = { termine: boolean; aCompleter: number; total: number };
 
 export function Profil({ restant, parcours }: { restant: number; parcours: Parcours | null }) {
   const me = useProfile();
+  const couverture = useSessionIdentity()?.couverture ?? null;
   const [f, setF] = useState({ firstName: me.firstName, lastName: me.lastName, company: me.company, sector: me.sector, role: me.role, bio: me.bio ?? "" });
   const [billet, setBillet] = useState(false);
   const champs = [f.firstName, f.lastName, f.company, f.role, f.sector, f.bio, me.photo].filter(Boolean).length;
@@ -53,7 +55,12 @@ export function Profil({ restant, parcours }: { restant: number; parcours: Parco
       </div>
       <div className={styles.profil}>
         <Card bleed className={styles.id}>
-          <Avatar person={me} size={112} className="ring-4 ring-surface shadow-[0_12px_28px_-18px_rgba(15,29,44,0.4)]" />
+          <div className={styles.couverture} style={couverture ? { backgroundImage: `url(${couverture})` } : undefined} role="img" aria-label={couverture ? "Votre photo de couverture" : "Aucune photo de couverture"}>
+            <div className={styles.couvertureAction}>
+              <ChoixCouverture small compact />
+            </div>
+          </div>
+          <Avatar person={me} size={112} className={`${styles.surCouverture} ring-4 ring-surface shadow-[0_12px_28px_-18px_rgba(15,29,44,0.4)]`} />
           <div>
             <h3 className="font-display text-[18px] text-graphite">{fullName(me)}</h3>
             <p className="text-graphite-muted">{me.company || "Entreprise à renseigner"}</p>

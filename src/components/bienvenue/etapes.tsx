@@ -3,8 +3,9 @@
 import { useState, type FormEvent, type ReactNode } from "react";
 import { enregistrerPublication, envoyerPitch } from "@/app/(app)/defis/actions";
 import { enregistrerEntreprise } from "@/app/bienvenue/actions";
-import { ArrowLeftIcon, ArrowRightIcon, CameraIcon, CheckIcon, ExternalLinkIcon, SpinnerIcon } from "@/components/app/icons";
+import { ArrowLeftIcon, ArrowRightIcon, CameraIcon, CheckIcon, ExternalLinkIcon, ImageIcon, SpinnerIcon } from "@/components/app/icons";
 import { lienVideo } from "@/components/traversee/defis/DefiPitch";
+import { envoyerCouverture } from "@/components/traversee/profil/ChoixCouverture";
 import { envoyerPhoto } from "@/components/traversee/profil/ChoixPhotoProfil";
 import { parseSocialLink } from "@/lib/social/links";
 import { SECTEURS } from "@/lib/traversee/data";
@@ -67,49 +68,67 @@ export function Champ({ label, htmlFor, aide, compteur, children }: { label: str
 
 /* ---------- Photo ---------- */
 
-export function EtapePhoto({ photo, initiales, nav, onFait }: { photo: string | null; initiales: string; nav: Navigation; onFait: () => void }) {
+export function EtapePhoto({ photo, couverture, initiales, nav, onFait }: { photo: string | null; couverture: string | null; initiales: string; nav: Navigation; onFait: () => void }) {
   const [apercu, setApercu] = useState(photo);
-  const [envoi, setEnvoi] = useState(false);
+  const [couv, setCouv] = useState(couverture);
+  const [envoi, setEnvoi] = useState<"photo" | "couverture" | null>(null);
   const [erreur, setErreur] = useState<string | null>(null);
 
-  async function choisir(fichier: File | undefined) {
+  /** Photo (640 px) ou couverture (1 600 px), enregistrée dès qu'elle est choisie. */
+  async function choisir(quoi: "photo" | "couverture", fichier: File | undefined) {
     if (!fichier) return;
     setErreur(null);
-    const dataUrl = await lisImage(fichier, 640);
+    const dataUrl = await lisImage(fichier, quoi === "photo" ? 640 : 1600);
     if (!dataUrl) return setErreur("Cette image n’a pas pu être lue. Choisissez une photo JPEG, PNG ou WebP.");
-    setEnvoi(true);
+    setEnvoi(quoi);
     try {
-      await envoyerPhoto(dataUrl);
-      setApercu(dataUrl);
-      onFait();
+      if (quoi === "photo") {
+        await envoyerPhoto(dataUrl);
+        setApercu(dataUrl);
+        onFait();
+      } else {
+        await envoyerCouverture(dataUrl);
+        setCouv(dataUrl);
+      }
     } catch (e) {
-      setErreur(e instanceof Error ? e.message : "La photo n’a pas pu être enregistrée.");
+      setErreur(e instanceof Error ? e.message : "L’image n’a pas pu être enregistrée.");
     } finally {
-      setEnvoi(false);
+      setEnvoi(null);
     }
   }
+
+  const entree = (quoi: "photo" | "couverture", label: string) => (
+    <input
+      type="file"
+      accept="image/jpeg,image/png,image/webp"
+      aria-label={label}
+      disabled={envoi !== null}
+      onChange={(e) => {
+        const f = e.target.files?.[0];
+        e.target.value = "";
+        void choisir(quoi, f);
+      }}
+    />
+  );
 
   return (
     <>
       <div className={styles.corps}>
         <div className={styles.photoBloc}>
-          <div className={styles.anneau}>{apercu ? <img src={apercu} alt="Votre photo de profil" /> : <span className={`${styles.initiales}`}>{initiales}</span>}</div>
-          <label className={styles.fichier} aria-disabled={envoi}>
-            {envoi ? <SpinnerIcon width={16} height={16} className={styles.spin} /> : <CameraIcon width={17} height={17} />}
-            {envoi ? "Envoi…" : apercu ? "Changer la photo" : "Choisir une photo"}
-            <input
-              type="file"
-              accept="image/jpeg,image/png,image/webp"
-              aria-label="Choisir ma photo de profil"
-              disabled={envoi}
-              onChange={(e) => {
-                const f = e.target.files?.[0];
-                e.target.value = "";
-                void choisir(f);
-              }}
-            />
+          <div className={styles.couverture} style={couv ? { backgroundImage: `url(${couv})` } : undefined} role="img" aria-label={couv ? "Votre photo de couverture" : "Aucune photo de couverture"}>
+            <label className={`${styles.fichier} ${styles.fichierCouverture}`} aria-disabled={envoi !== null}>
+              {envoi === "couverture" ? <SpinnerIcon width={15} height={15} className={styles.spin} /> : <ImageIcon width={15} height={15} />}
+              {envoi === "couverture" ? "Envoi…" : couv ? "Changer la couverture" : "Ajouter une couverture"}
+              {entree("couverture", "Choisir ma photo de couverture")}
+            </label>
+          </div>
+          <div className={`${styles.anneau} ${styles.surCouverture}`}>{apercu ? <img src={apercu} alt="Votre photo de profil" /> : <span className={`${styles.initiales}`}>{initiales}</span>}</div>
+          <label className={styles.fichier} aria-disabled={envoi !== null}>
+            {envoi === "photo" ? <SpinnerIcon width={16} height={16} className={styles.spin} /> : <CameraIcon width={17} height={17} />}
+            {envoi === "photo" ? "Envoi…" : apercu ? "Changer la photo" : "Choisir une photo"}
+            {entree("photo", "Choisir ma photo de profil")}
           </label>
-          <p className={styles.aide}>JPEG, PNG ou WebP. La photo est enregistrée dès qu’elle est choisie.</p>
+          <p className={styles.aide}>JPEG, PNG ou WebP, enregistrés dès qu’ils sont choisis. La couverture est facultative : votre équipe, vos produits, vos locaux.</p>
         </div>
         {erreur ? (
           <p className={styles.erreur} role="alert">
@@ -117,7 +136,7 @@ export function EtapePhoto({ photo, initiales, nav, onFait }: { photo: string | 
           </p>
         ) : null}
       </div>
-      <Actions nav={{ ...nav, faite: Boolean(apercu) }} envoi={envoi} libelle="Continuer" pret={false} />
+      <Actions nav={{ ...nav, faite: Boolean(apercu) }} envoi={envoi !== null} libelle="Continuer" pret={false} />
     </>
   );
 }

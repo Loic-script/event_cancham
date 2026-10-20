@@ -12,8 +12,8 @@ export async function GET(req: NextRequest, ctx: RouteContext<"/api/profil/photo
   if (!user) return refus(401, "Connexion requise");
   const { id } = await ctx.params;
   if (!idPhotoProfilValide(id)) return refus(404, "Photo introuvable");
-  // Un compte en attente de validation ne voit que sa propre photo.
-  if (!aAccesEspace(user) && user.photo !== urlPhotoProfil(id)) return refus(403, "Inscription non validée");
+  // Un compte en attente de validation ne voit que sa propre photo et sa propre couverture.
+  if (!aAccesEspace(user) && user.photo !== urlPhotoProfil(id) && user.couverture !== urlPhotoProfil(id)) return refus(403, "Inscription non validée");
 
   for (const format of Object.keys(FORMATS_PHOTO) as FormatPhoto[]) {
     const chemin = cheminPhotoProfil(id, format);

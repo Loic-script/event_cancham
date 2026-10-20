@@ -19,6 +19,7 @@ type ParcoursProps = {
   prenom: string;
   nom: string;
   photo: string | null;
+  couverture: string | null;
   /** Inscription validée : l'espace participant s'ouvre à la fin du parcours. */
   acces: boolean;
   etapes: EtapeEtat[];
@@ -48,10 +49,10 @@ const CONTENU: Record<EtapeId, Contenu> = {
     photo: "groupe",
     sur: "Votre photo",
     titre: ["Montrez", "votre visage."],
-    lead: "Votre photo apparaît dans l’annuaire, sur votre billet et sur votre affiche « J’y serai ». Les autres participants vous reconnaîtront le 18 décembre.",
-    points: ["Un portrait net, de face, suffit", "JPEG, PNG ou WebP", "Modifiable à tout moment depuis votre profil"],
-    carteSur: "Photo de profil",
-    carteTitre: "Choisissez votre photo",
+    lead: "Votre photo apparaît dans l’annuaire, sur votre billet et sur votre affiche « J’y serai » ; votre couverture habille votre fiche. Les autres participants vous reconnaîtront le 18 décembre.",
+    points: ["Un portrait net, de face, suffit", "Couverture facultative, en format large : votre équipe, vos produits, vos locaux", "Modifiables à tout moment depuis votre profil"],
+    carteSur: "Photo et couverture",
+    carteTitre: "Choisissez vos photos",
   },
   entreprise: {
     photo: "reseau",
@@ -342,7 +343,7 @@ export function Parcours(props: ParcoursProps) {
                   {erreur}
                 </p>
               ) : null}
-              {ecran === "photo" ? <EtapePhoto photo={props.photo} initiales={initiales} nav={nav("photo")} onFait={() => marquerFaite("photo")} /> : null}
+              {ecran === "photo" ? <EtapePhoto photo={props.photo} couverture={props.couverture} initiales={initiales} nav={nav("photo")} onFait={() => marquerFaite("photo")} /> : null}
               {ecran === "entreprise" ? <EtapeEntreprise initial={props.profil} nav={nav("entreprise")} onFait={() => marquerFaite("entreprise")} /> : null}
               {ecran === "pitch" ? <EtapePitch lien={props.pitch} nav={nav("pitch")} onFait={() => marquerFaite("pitch")} /> : null}
               {ecran === "tombola" ? <EtapeTombola lien={props.tombola} nav={nav("tombola")} onFait={() => marquerFaite("tombola")} /> : null}

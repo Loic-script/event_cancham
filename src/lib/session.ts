@@ -24,6 +24,7 @@ const userSelect = {
   city: true,
   country: true,
   photo: true,
+  couverture: true,
   billetPaye: true,
   codeBillet: true,
   createdAt: true,

@@ -34,6 +34,7 @@ export default async function AppLayout({ children }: LayoutProps<"/">) {
     country: user.country,
     acces: user.acces,
     photo: user.photo,
+    couverture: user.couverture,
     codeBillet: user.codeBillet,
     billetPaye: user.billetPaye,
     superAdmin: estSuperAdmin(user),
