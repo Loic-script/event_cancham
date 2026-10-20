@@ -12,7 +12,19 @@ export default async function Page() {
     prisma.user.findMany({
       where: { acces: "ADMIN" },
       orderBy: [{ firstName: "asc" }, { lastName: "asc" }],
-      select: { id: true, email: true, firstName: true, lastName: true, createdAt: true },
+      select: {
+        id: true,
+        email: true,
+        firstName: true,
+        lastName: true,
+        role: true,
+        company: true,
+        phone: true,
+        createdAt: true,
+        decisionLe: true,
+        // Une session est ouverte à chaque connexion : la plus récente donne la dernière connexion.
+        sessions: { orderBy: { createdAt: "desc" }, take: 1, select: { createdAt: true } },
+      },
     }),
     prisma.user.findMany({
       where: { acces: "MEMBRE" },
@@ -21,12 +33,29 @@ export default async function Page() {
     }),
   ]);
 
+  const liste = admins
+    .map((a) => ({
+      id: a.id,
+      email: a.email,
+      firstName: a.firstName,
+      lastName: a.lastName,
+      nom: `${a.firstName} ${a.lastName}`.trim() || a.email,
+      role: a.role ?? "",
+      company: a.company ?? "",
+      phone: a.phone ?? "",
+      creeLe: a.createdAt.toISOString(),
+      adminDepuis: (a.decisionLe ?? a.createdAt).toISOString(),
+      derniereConnexion: a.sessions[0]?.createdAt.toISOString() ?? null,
+      superAdmin: estAdresseSuperAdmin(a.email),
+    }))
+    .sort((a, b) => Number(b.superAdmin) - Number(a.superAdmin));
+
   return (
     <AdminAdministrateurs
       moi={moi.id}
       superAdmin={estSuperAdmin(moi)}
       superAdmins={adressesSuperAdmins()}
-      admins={admins.map((a) => ({ id: a.id, email: a.email, nom: `${a.firstName} ${a.lastName}`, depuis: a.createdAt.toISOString(), superAdmin: estAdresseSuperAdmin(a.email) }))}
+      admins={liste}
       membres={membres.map((m) => ({ email: m.email, nom: `${m.firstName} ${m.lastName}` }))}
     />
   );

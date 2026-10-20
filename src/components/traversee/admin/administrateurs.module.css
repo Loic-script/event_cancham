@@ -1,0 +1,102 @@
+/* Liste des administrateurs (AdminAdministrateurs.tsx) */
+.entete {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 14px;
+}
+
+.liste {
+  display: grid;
+  gap: 10px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.ligne {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  width: 100%;
+  padding: 12px 14px;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  background: var(--surface);
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+  transition: border-color 0.2s ease, box-shadow 0.25s ease, transform 0.25s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+.ligne:hover {
+  border-color: rgba(18, 48, 90, 0.22);
+  box-shadow: 0 18px 32px -26px rgba(15, 29, 44, 0.55);
+  transform: translateY(-1px);
+}
+
+.ligne:focus-visible {
+  outline: 2px solid var(--leaf);
+  outline-offset: 2px;
+}
+
+.superAdmin {
+  border-color: rgba(242, 107, 29, 0.35);
+  background: linear-gradient(120deg, var(--leaf-soft), var(--surface) 55%);
+}
+
+.ident {
+  display: grid;
+  flex: 1;
+  gap: 2px;
+  min-width: 0;
+}
+
+.nom {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+  color: var(--graphite);
+  font-weight: 700;
+}
+
+.ident small {
+  overflow: hidden;
+  color: var(--graphite-muted);
+  font-size: 12.5px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.meta {
+  display: grid;
+  flex: none;
+  gap: 1px;
+  color: var(--graphite-faint);
+  font-size: 11.5px;
+  text-align: right;
+}
+
+.meta strong {
+  color: var(--graphite-muted);
+  font-size: 12.5px;
+  font-weight: 600;
+}
+
+.chevron {
+  flex: none;
+  color: var(--graphite-faint);
+  transition: transform 0.2s ease, color 0.2s ease;
+}
+
+.ligne:hover .chevron {
+  color: var(--leaf);
+  transform: translateX(2px);
+}
+
+@media (max-width: 600px) {
+  .meta { display: none; }
+}

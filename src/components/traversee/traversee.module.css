@@ -638,3 +638,16 @@ textarea.saisie { min-height: 90px; resize: vertical; }
     transition: none;
   }
 }
+
+/* Photo de profil dans l'anneau orange (AvatarProfil) */
+.anneau {
+  position: relative;
+  display: inline-grid;
+  flex: none;
+  place-items: center;
+  padding: 2px;
+  border-radius: 50%;
+  background: conic-gradient(from 180deg, var(--leaf), #ffb27a, var(--gold), var(--leaf));
+}
+
+.anneau > * { border: 2px solid var(--surface); border-radius: 50%; }

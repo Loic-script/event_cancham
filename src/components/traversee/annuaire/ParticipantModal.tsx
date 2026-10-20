@@ -3,16 +3,16 @@
 import { useState, type FormEvent } from "react";
 import { BriefcaseIcon, CheckIcon, ExternalLinkIcon, LinkIcon, MailIcon, MaximizeIcon, PencilIcon, PhoneIcon, XIcon } from "@/components/app/icons";
 import { QrCode } from "@/components/ticket/QrCode";
-import { IMG, ROLES, SECTEURS, initiales } from "@/lib/traversee/data";
+import { IMG, ROLES, SECTEURS } from "@/lib/traversee/data";
 import type { FicheComplete } from "@/lib/traversee/participants";
 import { setTraversee, toast, type Fiche } from "@/lib/traversee/store";
 import { Modal } from "../Modal";
-import { Btn, Champ, Puce, Sur, ui } from "../ui";
+import { AvatarProfil, Btn, Champ, Puce, Sur, ui } from "../ui";
 import styles from "./annuaire.module.css";
 
 type Props = { fiche: FicheComplete; modifiee: boolean; onClose: () => void; onSave?: (fiche: Fiche) => Promise<string | null>; inscritLe?: string };
 
-function Ligne({ icon, label, children, href }: { icon: React.ReactNode; label: string; children: React.ReactNode; href?: string }) {
+export function Ligne({ icon, label, children, href }: { icon: React.ReactNode; label: string; children: React.ReactNode; href?: string }) {
   const inner = (
     <>
       <span className={styles.pIco}>{icon}</span>
@@ -97,7 +97,7 @@ export function ParticipantModal({ fiche, modifiee, onClose, onSave, inscritLe }
         </button>
         <Sur className="!mb-0 !text-white/70">{edition ? "Modifier le participant" : "Participant"}</Sur>
         <div className={styles.pTete}>
-          <span className={styles.pLg}>{initiales(f.nom)}</span>
+          <AvatarProfil size={60} className={styles.pLg} />
           <div className="min-w-0">
             <h3>{f.nom}</h3>
             <p>{[f.role, f.ent].filter(Boolean).join(" · ") || "Profil à compléter"}</p>

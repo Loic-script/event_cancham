@@ -1,36 +1,24 @@
 "use client";
 
-import { useRouter } from "next/navigation";
 import { useActionState, useState } from "react";
-import { ajouterAdmin, retirerAdmin, supprimerAdmin, type AjoutState } from "@/app/(app)/admin/administrateurs/actions";
-import { UserPlusIcon } from "@/components/app/icons";
-import { toast } from "@/lib/traversee/store";
-import { AvatarInitiales, Btn, Card, Champ, Note, PageHead, Puce, Sur, ui } from "../ui";
+import { ajouterAdmin, type AjoutState } from "@/app/(app)/admin/administrateurs/actions";
+import { ChevronRightIcon, UserPlusIcon } from "@/components/app/icons";
+import { AvatarProfil, Btn, Card, Champ, Note, PageHead, Puce, Sur, ui } from "../ui";
+import { AdminFiche, dateLongue, type AdminVue } from "./AdminFiche";
+import styles from "./administrateurs.module.css";
 
-type Admin = { id: number; email: string; nom: string; depuis: string; superAdmin: boolean };
 type Membre = { email: string; nom: string };
 
 const initial: AjoutState = { error: null, message: null };
 
-export function AdminAdministrateurs({ moi, superAdmin, superAdmins, admins, membres }: { moi: number; superAdmin: boolean; superAdmins: string[]; admins: Admin[]; membres: Membre[] }) {
-  const router = useRouter();
+export function AdminAdministrateurs({ moi, superAdmin, superAdmins, admins, membres }: { moi: number; superAdmin: boolean; superAdmins: string[]; admins: AdminVue[]; membres: Membre[] }) {
   const [state, formAction, pending] = useActionState(ajouterAdmin, initial);
-  const [aConfirmer, setAConfirmer] = useState<{ id: number; quoi: "retirer" | "supprimer" } | null>(null);
-  const [enCours, setEnCours] = useState<number | null>(null);
-
-  async function confirmer(admin: Admin, quoi: "retirer" | "supprimer") {
-    setEnCours(admin.id);
-    const { error } = quoi === "retirer" ? await retirerAdmin(admin.id) : await supprimerAdmin(admin.id);
-    setEnCours(null);
-    setAConfirmer(null);
-    if (error) return toast(error);
-    toast(quoi === "retirer" ? `${admin.nom} n’est plus administrateur.` : `Le compte de ${admin.nom} a été supprimé.`);
-    router.refresh();
-  }
+  const [ouvert, setOuvert] = useState<number | null>(null);
+  const fiche = admins.find((a) => a.id === ouvert) ?? null;
 
   return (
     <>
-      <PageHead title="Équipe" accent="administrateurs" text={superAdmin ? "Les comptes qui ont accès au back-office. Ajoutez un collègue, retirez des droits ou supprimez un compte." : "Les comptes qui ont accès au back-office."} photo="equipe">
+      <PageHead title="Équipe" accent="administrateurs" text={superAdmin ? "Les comptes qui ont accès au back-office. Ouvrez une fiche pour modifier un administrateur, lui retirer ses droits ou supprimer son compte." : "Les comptes qui ont accès au back-office. Ouvrez une fiche pour voir les coordonnées d’un administrateur."} photo="equipe">
         <Puce tone="white">
           {admins.length} administrateur{admins.length > 1 ? "s" : ""}
         </Puce>
@@ -38,39 +26,29 @@ export function AdminAdministrateurs({ moi, superAdmin, superAdmins, admins, mem
 
       <div className={ui.gLarge}>
         <Card pad bleed>
-          <Sur>Administrateurs</Sur>
-          <ul className={ui.liste}>
+          <div className={styles.entete}>
+            <Sur className="!mb-0">Administrateurs</Sur>
+          </div>
+          <ul className={styles.liste}>
             {admins.map((a) => (
-              <li key={a.id} className="flex-wrap">
-                <AvatarInitiales nom={a.nom} size={40} />
-                <div className="min-w-0 flex-1">
-                  <strong>
-                    {a.nom} {a.superAdmin ? <Puce tone="red">Super admin</Puce> : null} {a.id === moi ? <Puce tone="grey">Vous</Puce> : null}
-                  </strong>
-                  <small>
-                    {a.email} · compte créé le {new Date(a.depuis).toLocaleDateString("fr-FR")}
-                  </small>
-                </div>
-                {!superAdmin || a.id === moi || a.superAdmin ? null : aConfirmer?.id === a.id ? (
-                  <div className="flex flex-wrap items-center gap-2">
-                    <small className="text-graphite-muted">{aConfirmer.quoi === "retirer" ? "Il redeviendra membre." : "Suppression définitive."}</small>
-                    <Btn small variant="primary" onClick={() => confirmer(a, aConfirmer.quoi)} disabled={enCours === a.id}>
-                      {enCours === a.id ? "En cours…" : aConfirmer.quoi === "retirer" ? "Confirmer le retrait" : "Supprimer le compte"}
-                    </Btn>
-                    <Btn small onClick={() => setAConfirmer(null)} disabled={enCours === a.id}>
-                      Annuler
-                    </Btn>
-                  </div>
-                ) : (
-                  <div className="flex flex-wrap gap-2">
-                    <Btn small variant="ghost" onClick={() => setAConfirmer({ id: a.id, quoi: "retirer" })}>
-                      Retirer les droits
-                    </Btn>
-                    <Btn small variant="ghost" onClick={() => setAConfirmer({ id: a.id, quoi: "supprimer" })}>
-                      Supprimer le compte
-                    </Btn>
-                  </div>
-                )}
+              <li key={a.id}>
+                <button type="button" className={`${styles.ligne} ${a.superAdmin ? styles.superAdmin : ""}`} onClick={() => setOuvert(a.id)} aria-label={`Voir la fiche de ${a.nom}`}>
+                  <AvatarProfil size={46} />
+                  <span className={styles.ident}>
+                    <span className={styles.nom}>
+                      {a.nom}
+                      {a.superAdmin ? <Puce tone="red">Super admin</Puce> : null}
+                      {a.id === moi ? <Puce tone="grey">Vous</Puce> : null}
+                    </span>
+                    <small>{a.email}</small>
+                    {a.role || a.company ? <small>{[a.role, a.company].filter(Boolean).join(" · ")}</small> : null}
+                  </span>
+                  <span className={styles.meta}>
+                    <strong>{a.derniereConnexion ? "Dernière connexion" : "Jamais connecté"}</strong>
+                    {a.derniereConnexion ? dateLongue(a.derniereConnexion) : `Admin depuis le ${dateLongue(a.adminDepuis)}`}
+                  </span>
+                  <ChevronRightIcon width={18} height={18} className={styles.chevron} />
+                </button>
               </li>
             ))}
           </ul>
@@ -115,6 +93,8 @@ export function AdminAdministrateurs({ moi, superAdmin, superAdmins, admins, mem
           </Card>
         )}
       </div>
+
+      {fiche ? <AdminFiche key={`${fiche.id}-${fiche.email}-${fiche.nom}`} admin={fiche} moi={fiche.id === moi} peutGerer={superAdmin && fiche.id !== moi && !fiche.superAdmin} onClose={() => setOuvert(null)} /> : null}
     </>
   );
 }

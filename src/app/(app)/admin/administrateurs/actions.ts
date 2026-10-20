@@ -111,6 +111,41 @@ export async function retirerAdmin(userId: number): Promise<{ error: string | nu
   return { error: null };
 }
 
+export type DonneesAdmin = { firstName?: unknown; lastName?: unknown; email?: unknown; phone?: unknown; company?: unknown; role?: unknown };
+
+const PHONE_PATTERN = /^\+?[\d\s().-]{7,20}$/;
+
+/** Le super admin modifie l'identité et les coordonnées d'un administrateur (pas d'un super admin). */
+export async function modifierAdmin(userId: number, d: DonneesAdmin): Promise<{ error: string | null }> {
+  const admin = await superAdmin();
+  if (!admin) return { error: RESERVE };
+  const { error } = await cibleModifiable(admin, userId);
+  if (error) return { error };
+
+  const champ = (v: unknown) => (typeof v === "string" ? v.trim() : "");
+  const firstName = champ(d.firstName);
+  const lastName = champ(d.lastName);
+  const email = champ(d.email).toLowerCase();
+  const phone = champ(d.phone);
+  const company = champ(d.company);
+  const role = champ(d.role);
+  if (!firstName || !lastName) return { error: "Indiquez le prénom et le nom." };
+  if (firstName.length > 60 || lastName.length > 60) return { error: "Le prénom ou le nom est trop long." };
+  if (!EMAIL_PATTERN.test(email)) return { error: "Indiquez une adresse e-mail valide." };
+  if (estAdresseSuperAdmin(email)) return { error: "Cette adresse est réservée au super admin." };
+  if (phone && (!PHONE_PATTERN.test(phone) || phone.replace(/\D/g, "").length < 7)) return { error: "Le numéro de téléphone n’est pas valide (exemple : +261 34 00 000 00)." };
+  if (company.length > 80 || role.length > 80) return { error: "L’entreprise ou le rôle est trop long." };
+
+  try {
+    await prisma.user.update({ where: { id: userId }, data: { firstName, lastName, email, phone: phone || null, company: company || null, role: role || null } });
+  } catch (e) {
+    if (e instanceof Prisma.PrismaClientKnownRequestError && e.code === "P2002") return { error: "Un autre compte utilise déjà cette adresse e-mail." };
+    throw e;
+  }
+  rafraichir();
+  return { error: null };
+}
+
 /** Supprime définitivement le compte d'un administrateur (pas d'un super admin). */
 export async function supprimerAdmin(userId: number): Promise<{ error: string | null }> {
   const admin = await superAdmin();

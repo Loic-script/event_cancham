@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { Avatar } from "@/components/app/Avatar";
 import type { ButtonHTMLAttributes, CSSProperties, InputHTMLAttributes, ReactNode } from "react";
 import { IMG, SIGLE } from "@/lib/traversee/data";
 import styles from "./traversee.module.css";
@@ -187,6 +188,15 @@ export function AvatarInitiales({ nom, photo, size = 38, className = "" }: { nom
   return (
     <span className={`${styles.av} ${className}`} style={{ width: size, height: size, fontSize: Math.round(size * 0.37), backgroundImage: photo ? `url(${photo})` : undefined }} aria-hidden>
       {photo ? "" : nom.split(/\s+/).filter(Boolean).slice(0, 2).map((m) => m[0]?.toUpperCase()).join("") || "?"}
+    </span>
+  );
+}
+
+/** Photo de profil (ou silhouette par défaut) dans l'anneau orange, comme sur l'accueil. */
+export function AvatarProfil({ photo, size = 40, className = "" }: { photo?: string | null; size?: number; className?: string }) {
+  return (
+    <span className={`${styles.anneau} ${className}`} aria-hidden>
+      <Avatar person={{ firstName: "", lastName: "", hue: 0, photo: photo ?? undefined }} size={size} />
     </span>
   );
 }
