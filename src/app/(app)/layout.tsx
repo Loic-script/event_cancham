@@ -1,12 +1,18 @@
 import { AppShell } from "@/components/app/AppShell";
 import { SessionIdentityProvider } from "@/components/profile/useProfile";
+import { nonLusEquipe, nonLusMembre } from "@/lib/messagerie";
 import { prisma } from "@/lib/prisma";
 import { requireMembreActif } from "@/lib/session";
 import { estSuperAdmin } from "@/lib/super-admin";
 
 export default async function AppLayout({ children }: LayoutProps<"/">) {
   const user = await requireMembreActif();
-  const enAttente = user.acces === "ADMIN" ? await prisma.user.count({ where: { acces: "MEMBRE", statut: "EN_ATTENTE" } }) : 0;
+  const admin = user.acces === "ADMIN";
+  const [enAttente, nonLus, nonLusDeLEquipe] = await Promise.all([
+    admin ? prisma.user.count({ where: { acces: "MEMBRE", statut: "EN_ATTENTE" } }) : 0,
+    nonLusMembre(user.id),
+    admin ? nonLusEquipe() : 0,
+  ]);
   const identity = {
     id: user.id,
     email: user.email,
@@ -28,7 +34,9 @@ export default async function AppLayout({ children }: LayoutProps<"/">) {
 
   return (
     <SessionIdentityProvider user={identity}>
-      <AppShell enAttente={enAttente}>{children}</AppShell>
+      <AppShell enAttente={enAttente} nonLus={nonLus} nonLusEquipe={nonLusDeLEquipe}>
+        {children}
+      </AppShell>
     </SessionIdentityProvider>
   );
 }

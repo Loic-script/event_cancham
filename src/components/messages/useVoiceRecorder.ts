@@ -4,6 +4,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 
 export type VoiceNote = {
   url: string;
+  blob: Blob;
   seconds: number;
 };
 
@@ -13,7 +14,7 @@ type Options = {
   maxSeconds?: number;
 };
 
-export function useVoiceRecorder({ onComplete, onError, maxSeconds = 60 }: Options) {
+export function useVoiceRecorder({ onComplete, onError, maxSeconds = 120 }: Options) {
   const [recording, setRecording] = useState(false);
   const [elapsed, setElapsed] = useState(0);
 
@@ -50,7 +51,7 @@ export function useVoiceRecorder({ onComplete, onError, maxSeconds = 60 }: Optio
         setElapsed(0);
         if (!cancelled.current && chunks.current.length > 0) {
           const blob = new Blob(chunks.current, { type: rec.mimeType || "audio/webm" });
-          onComplete({ url: URL.createObjectURL(blob), seconds });
+          onComplete({ url: URL.createObjectURL(blob), blob, seconds });
         }
       };
 

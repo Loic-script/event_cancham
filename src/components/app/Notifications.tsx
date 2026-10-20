@@ -9,6 +9,7 @@ import { AnnonceCard } from "@/components/traversee/AnnonceCard";
 import { Modal } from "@/components/traversee/Modal";
 import { AvatarInitiales } from "@/components/traversee/ui";
 import { SIGLE, TYPES_ANNONCE } from "@/lib/traversee/data";
+import type { MessageNonLu } from "@/app/api/messages/non-lus/route";
 import { notificationsAdmin, notificationsParticipant, type CompteRecent, type Notif } from "@/lib/traversee/notifications";
 import { setTraversee, useTraversee, type Annonce, type TypeNotif } from "@/lib/traversee/store";
 import { BellIcon, CalendarDaysIcon, CameraIcon, CheckIcon, GiftIcon, ImageIcon, MegaphoneIcon, MessageCircleIcon, TrophyIcon, UserPlusIcon, VideoIcon, type IconProps } from "./icons";
@@ -48,6 +49,7 @@ export function Notifications({ admin }: { admin: boolean }) {
   const [filtre, setFiltre] = useState<"toutes" | "nonlues">("toutes");
   const [maintenant, setMaintenant] = useState(0);
   const [comptes, setComptes] = useState<CompteRecent[]>([]);
+  const [messages, setMessages] = useState<MessageNonLu[]>([]);
   const [annonce, setAnnonce] = useState<Annonce | null>(null);
   const [chemin, setChemin] = useState(pathname);
   const zone = useRef<HTMLDivElement | null>(null);
@@ -56,6 +58,27 @@ export function Notifications({ admin }: { admin: boolean }) {
     setChemin(pathname);
     setOuvert(false);
   }
+
+  const chargerMessages = useCallback(() => {
+    fetch("/api/messages/non-lus", { cache: "no-store" })
+      .then((r) => (r.ok ? (r.json() as Promise<{ conversations?: MessageNonLu[] }>) : null))
+      .then((d) => {
+        if (d?.conversations) setMessages(d.conversations);
+      })
+      .catch(() => undefined);
+  }, []);
+
+  // Messages non lus : au chargement, à l'ouverture du panneau et toutes les 30 secondes.
+  useEffect(() => {
+    const premier = window.setTimeout(chargerMessages, 0);
+    const id = window.setInterval(() => {
+      if (!document.hidden) chargerMessages();
+    }, 30_000);
+    return () => {
+      window.clearTimeout(premier);
+      window.clearInterval(id);
+    };
+  }, [chargerMessages, pathname]);
 
   const charger = useCallback(() => {
     fetch("/api/admin/comptes-recents", { cache: "no-store" })
@@ -89,8 +112,8 @@ export function Notifications({ admin }: { admin: boolean }) {
   }, [ouvert]);
 
   const liste = useMemo(
-    () => (admin ? notificationsAdmin(s, { comptes, moi: session?.id }) : notificationsParticipant(s, { maintenant, creeLe: session?.createdAt })),
-    [admin, s, comptes, session, maintenant],
+    () => (admin ? notificationsAdmin(s, { comptes, moi: session?.id, messages }) : notificationsParticipant(s, { maintenant, creeLe: session?.createdAt, messages })),
+    [admin, s, comptes, session, maintenant, messages],
   );
   const nonLues = liste.filter((n) => !n.lue);
   const visibles = filtre === "nonlues" ? nonLues : liste;

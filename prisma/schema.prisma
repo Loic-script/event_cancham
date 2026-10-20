@@ -64,6 +64,8 @@ model User {
   commentairesFil       CommentaireFil[]
   inscriptionsProgramme InscriptionProgramme[]
   reinitialisations     ReinitialisationMotDePasse[]
+  conversations         ParticipantConversation[]
+  messages              Message[]
 
   @@map("users")
 }
@@ -247,4 +249,50 @@ model ReinitialisationMotDePasse {
 
   @@index([userId])
   @@map("reinitialisations_mot_de_passe")
+}
+
+/// Conversation de la messagerie : entre deux comptes (cle « u12-u34 »), ou entre un participant et l'équipe CanCham
+/// (equipe = true, cle « equipe-u12 ») ; les administrateurs y répondent au nom de l'équipe.
+model Conversation {
+  id             String                    @id @default(cuid())
+  cle            String                    @unique @db.VarChar(40)
+  equipe         Boolean                   @default(false)
+  /// Lecture côté équipe (conversation avec l'équipe) : messages du participant non lus après cette date.
+  equipeLuLe     DateTime?                 @map("equipe_lu_le")
+  dernierMessage DateTime                  @default(now()) @map("dernier_message")
+  creeLe         DateTime                  @default(now()) @map("cree_le")
+  participants   ParticipantConversation[]
+  messages       Message[]
+
+  @@index([equipe, dernierMessage])
+  @@map("conversations")
+}
+
+/// Compte qui participe à une conversation ; luLe : messages des autres non lus après cette date.
+model ParticipantConversation {
+  conversationId String       @map("conversation_id")
+  conversation   Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  userId         Int          @map("user_id")
+  user           User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  luLe           DateTime?    @map("lu_le")
+
+  @@id([conversationId, userId])
+  @@index([userId])
+  @@map("conversation_participants")
+}
+
+/// Message texte ou vocal (audio : /api/messages/audio/<id>, fichier dans stockage/messages).
+model Message {
+  id             String       @id @default(cuid())
+  conversationId String       @map("conversation_id")
+  conversation   Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  auteurId       Int          @map("auteur_id")
+  auteur         User         @relation(fields: [auteurId], references: [id], onDelete: Cascade)
+  texte          String       @default("") @db.VarChar(4000)
+  audio          String?      @db.VarChar(200)
+  audioSecondes  Int?         @map("audio_secondes")
+  creeLe         DateTime     @default(now()) @map("cree_le")
+
+  @@index([conversationId, creeLe])
+  @@map("messages")
 }

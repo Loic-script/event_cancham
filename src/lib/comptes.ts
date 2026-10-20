@@ -1,4 +1,5 @@
 import { ciblePublication, effacerFichiersPublication } from "@/lib/fil";
+import { supprimerConversationsDe } from "@/lib/messagerie";
 import { effacerPhotoProfil } from "@/lib/photo-profil";
 import { prisma } from "@/lib/prisma";
 
@@ -7,6 +8,8 @@ import { prisma } from "@/lib/prisma";
  * les j'aime et commentaires des autres sur ses publications (liés par la cible « pub:<id> »), les fichiers des publications et la photo de profil sont effacés ici.
  */
 export async function supprimerCompte(userId: number): Promise<void> {
+  // Avant le compte : ses conversations et leurs messages vocaux (les fichiers ne partent pas en cascade).
+  await supprimerConversationsDe(userId);
   const compte = await prisma.user.findUnique({ where: { id: userId }, select: { photo: true } });
   const publications = await prisma.publication.findMany({ where: { auteurId: userId }, select: { id: true, image: true, video: true } });
   const cibles = publications.map((p) => ciblePublication(p.id));

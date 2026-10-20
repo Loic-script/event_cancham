@@ -108,8 +108,11 @@ function groupeDe(pathname: string) {
   return NAV_ADMIN.find((s) => s.icon && s.items.some((n) => isActive(pathname, n.href)))?.titre ?? null;
 }
 
-/** `enAttente` : inscriptions à valider, affichées en pastille dans le back-office. */
-export function AppShell({ children, enAttente = 0 }: { children: ReactNode; enAttente?: number }) {
+/**
+ * `enAttente` : inscriptions à valider, affichées en pastille dans le back-office.
+ * `nonLus` : messages non lus du compte ; `nonLusEquipe` : messages des participants non lus par l'équipe (administrateurs).
+ */
+export function AppShell({ children, enAttente = 0, nonLus = 0, nonLusEquipe = 0 }: { children: ReactNode; enAttente?: number; nonLus?: number; nonLusEquipe?: number }) {
   const pathname = usePathname();
   const router = useRouter();
   const state = useTraversee();
@@ -117,6 +120,10 @@ export function AppShell({ children, enAttente = 0 }: { children: ReactNode; enA
   const [recherche, setRecherche] = useState("");
   const [groupe, setGroupe] = useState(() => groupeDe(pathname));
   const [cheminPrecedent, setCheminPrecedent] = useState(pathname);
+  const [messages, setMessages] = useState({ membre: nonLus, equipe: nonLusEquipe, source: { nonLus, nonLusEquipe } });
+  if (messages.source.nonLus !== nonLus || messages.source.nonLusEquipe !== nonLusEquipe) {
+    setMessages({ membre: nonLus, equipe: nonLusEquipe, source: { nonLus, nonLusEquipe } });
+  }
   if (cheminPrecedent !== pathname) {
     setCheminPrecedent(pathname);
     setOuvert(false);
@@ -131,6 +138,22 @@ export function AppShell({ children, enAttente = 0 }: { children: ReactNode; enA
   const titre = courant?.label ?? Object.entries(TITRES).find(([k]) => isActive(pathname, k))?.[1] ?? "Accueil";
   const nonVues = state.annonces.filter((a) => !state.annoncesVues[a.id]);
   const popup = !admin && nonVues[0];
+
+  // Pastilles de la messagerie à jour sans recharger la page.
+  useEffect(() => {
+    let actif = true;
+    async function actualiser() {
+      if (document.hidden) return;
+      const r = await fetch("/api/messages/non-lus", { cache: "no-store" }).catch(() => null);
+      const corps = r?.ok ? ((await r.json().catch(() => null)) as { membre?: number; equipe?: number } | null) : null;
+      if (actif && corps) setMessages((m) => ({ ...m, membre: corps.membre ?? 0, equipe: corps.equipe ?? 0 }));
+    }
+    const id = window.setInterval(() => void actualiser(), 30_000);
+    return () => {
+      actif = false;
+      window.clearInterval(id);
+    };
+  }, []);
 
   useEffect(() => {
     if (!ouvert) return;
@@ -155,7 +178,9 @@ export function AppShell({ children, enAttente = 0 }: { children: ReactNode; enA
 
   function badgeDe(href: string) {
     if (href === "/admin/acces") return enAttente;
-    return href === "/messages" ? 1 : href === "/admin/annonces" ? state.annonces.length : 0;
+    if (href === "/messages") return messages.membre;
+    if (href === "/admin/messagerie") return messages.equipe;
+    return href === "/admin/annonces" ? state.annonces.length : 0;
   }
 
   const accueilHref = admin ? "/admin" : "/";
@@ -304,7 +329,7 @@ export function AppShell({ children, enAttente = 0 }: { children: ReactNode; enA
       ) : null}
 
       {!admin && !pathname.startsWith("/messages") ? (
-        <Link href="/messages/c1" className={styles.aide} aria-label="Écrire à l’équipe CanCham">
+        <Link href="/messages/equipe" className={styles.aide} aria-label="Écrire à l’équipe CanCham">
           <HeadsetIcon />
         </Link>
       ) : null}

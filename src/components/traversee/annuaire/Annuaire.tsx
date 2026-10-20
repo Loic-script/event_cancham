@@ -119,7 +119,7 @@ function Liste({ participants, admin = false }: Props) {
                     </>
                   ) : (
                     <>
-                      <Btn small variant="primary" href="/messages">
+                      <Btn small variant="primary" href={`/messages/avec/${p.userId}`}>
                         Écrire
                       </Btn>
                       <Btn small onClick={() => setRdv(p.ent ? `${p.nom} · ${p.ent}` : p.nom)}>

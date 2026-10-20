@@ -1,4 +1,4 @@
-import { conversations, fullName, personById } from "@/lib/mock/data";
+import type { MessageNonLu } from "@/app/api/messages/non-lus/route";
 import { CRENEAUX, LIEUX } from "./data";
 import type { Annonce, TraverseeState, TypeNotif } from "./store";
 
@@ -17,12 +17,18 @@ export type Notif = {
 
 export type CompteRecent = { id: number; nom: string; entreprise: string | null; acces: "MEMBRE" | "ADMIN"; enAttente?: boolean; t: number };
 
-const MINUTE = 60_000;
-
 const lue = (s: TraverseeState, id: string) => !!s.notifsLues[id];
 
 function trier(liste: Notif[]): Notif[] {
   return liste.sort((a, b) => (b.t ?? 0) - (a.t ?? 0));
+}
+
+/** Conversations non lues (messagerie en base) : une notification par conversation, jusqu'au prochain message. */
+function depuisMessages(s: TraverseeState, messages: MessageNonLu[]): Notif[] {
+  return messages.map((m) => {
+    const id = `msg-${m.id}-${m.t}`;
+    return { id, type: "message", titre: m.nonLus > 1 ? `${m.nom} vous a envoyé ${m.nonLus} messages` : `${m.nom} vous a écrit`, texte: m.texte, href: m.href, t: m.t, acteur: m.nom, lue: lue(s, id) };
+  });
 }
 
 function duJournal(s: TraverseeState, pour: "admin" | "participant"): Notif[] {
@@ -31,7 +37,7 @@ function duJournal(s: TraverseeState, pour: "admin" | "participant"): Notif[] {
     .map((e) => ({ id: e.id, type: e.type, titre: e.titre, texte: e.texte, href: e.href, t: e.t, acteur: e.acteur, lue: lue(s, e.id) }));
 }
 
-export function notificationsParticipant(s: TraverseeState, o: { maintenant: number; creeLe?: string | null }): Notif[] {
+export function notificationsParticipant(s: TraverseeState, o: { maintenant: number; creeLe?: string | null; messages: MessageNonLu[] }): Notif[] {
   const liste = duJournal(s, "participant");
 
   for (const a of s.annonces) {
@@ -39,23 +45,7 @@ export function notificationsParticipant(s: TraverseeState, o: { maintenant: num
     liste.push({ id, type: "annonce", titre: a.titre, texte: a.message, href: "/", t: a.t, annonce: a, lue: !!s.annoncesVues[a.id] || lue(s, id) });
   }
 
-  for (const c of conversations) {
-    if (!c.unread) continue;
-    const p = personById(c.participantId);
-    const dernier = c.messages[c.messages.length - 1];
-    const id = `msg-${c.id}-${dernier.id}`;
-    const nom = fullName(p);
-    liste.push({
-      id,
-      type: "message",
-      titre: c.unread > 1 ? `${nom} vous a envoyé ${c.unread} messages` : `${nom} vous a écrit`,
-      texte: dernier.text,
-      href: `/messages/${c.id}`,
-      t: o.maintenant - dernier.minutesAgo * MINUTE,
-      acteur: nom,
-      lue: lue(s, id),
-    });
-  }
+  liste.push(...depuisMessages(s, o.messages));
 
   for (const d of s.demandes) {
     const id = `rdv-${d.id}`;
@@ -71,15 +61,10 @@ export function notificationsParticipant(s: TraverseeState, o: { maintenant: num
   return trier(liste);
 }
 
-export function notificationsAdmin(s: TraverseeState, o: { comptes: CompteRecent[]; moi?: number }): Notif[] {
+export function notificationsAdmin(s: TraverseeState, o: { comptes: CompteRecent[]; moi?: number; messages: MessageNonLu[] }): Notif[] {
   const liste = duJournal(s, "admin");
 
-  for (const c of s.aconv) {
-    const dernier = c.m[c.m.length - 1];
-    if (!dernier || dernier.de !== "eux") continue;
-    const id = `aconv-${c.id}-${c.m.length}`;
-    liste.push({ id, type: "message", titre: `${c.nom} · ${c.ent} vous a écrit`, texte: dernier.texte, href: `/admin/messagerie/${c.id}`, quand: dernier.h, acteur: c.nom, lue: lue(s, id) });
-  }
+  liste.push(...depuisMessages(s, o.messages));
 
   for (const c of o.comptes) {
     if (c.id === o.moi) continue;
