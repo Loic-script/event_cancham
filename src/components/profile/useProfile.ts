@@ -138,9 +138,11 @@ export function useProfileOverrides(): ProfileOverrides {
 
 export function useProfile(): Profile {
   const identity = useSessionIdentity();
-  // La photo vient du compte (serveur) : une ancienne photo gardée dans ce navigateur ne la remplace pas.
-  const { photo: _photoLocale, ...o } = useProfileOverrides();
+  // La photo et l'adresse e-mail viennent du compte (serveur) : d'anciennes valeurs gardées dans ce navigateur ne les remplacent pas.
+  const { photo: _photoLocale, email: _emailLocal, passwordChangedAt: _mdpLocal, ...o } = useProfileOverrides();
   void _photoLocale;
+  void _emailLocal;
+  void _mdpLocal;
   return { ...currentUser, ...identityFields(identity), blocked: [], ...o };
 }
 

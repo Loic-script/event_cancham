@@ -88,6 +88,41 @@ export async function modifierIdentifiants(_previous: CompteState, formData: For
   };
 }
 
+const PHONE_PATTERN = /^\+?[\d\s().-]{7,20}$/;
+
+/** Coordonnées du profil (participants) : adresse de connexion, téléphone et site web. Changer d'adresse demande le mot de passe actuel. */
+export async function modifierCoordonnees(_previous: CompteState, formData: FormData): Promise<CompteState> {
+  const user = await getCurrentUser();
+  if (!user) return SESSION_EXPIREE;
+
+  const email = String(formData.get("email") ?? "").trim().toLowerCase();
+  const phone = String(formData.get("phone") ?? "").trim();
+  let website = String(formData.get("website") ?? "").trim();
+  const motDePasse = String(formData.get("motDePasse") ?? "");
+
+  if (!EMAIL_PATTERN.test(email)) return { error: "Indiquez une adresse e-mail valide (exemple : nom@entreprise.mg).", message: null };
+  if (phone && (!PHONE_PATTERN.test(phone) || phone.replace(/\D/g, "").length < 7)) return { error: "Le numéro de téléphone n’est pas valide (exemple : +261 34 00 000 00).", message: null };
+  if (website && !/^https?:\/\//i.test(website)) website = `https://${website}`;
+  if (website && (!/^https?:\/\/[^\s/]+\.[^\s]+$/i.test(website) || website.length > LIMITES.website)) return { error: "L’adresse du site web n’est pas valide.", message: null };
+
+  const nouvelleAdresse = email !== user.email;
+  if (nouvelleAdresse) {
+    if (estSuperAdmin(user)) return { error: "L’adresse du super admin est fixée par la configuration du serveur (SUPER_ADMINS).", message: null };
+    if (estAdresseSuperAdmin(email)) return { error: "Cette adresse e-mail est déjà utilisée par un autre compte.", message: null };
+    if (!motDePasse) return { error: "Saisissez votre mot de passe actuel pour changer d’adresse e-mail.", message: null };
+    if (!(await motDePasseCorrect(user.id, motDePasse))) return { error: "Le mot de passe actuel est incorrect.", message: null };
+  }
+
+  try {
+    await prisma.user.update({ where: { id: user.id }, data: { email, phone: phone || null, website: website || null } });
+  } catch (error) {
+    if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === "P2002") return { error: "Cette adresse e-mail est déjà utilisée par un autre compte.", message: null };
+    throw error;
+  }
+  revalidatePath("/", "layout");
+  return { error: null, message: nouvelleAdresse ? `Coordonnées enregistrées. Connectez-vous désormais avec ${email}.` : "Coordonnées enregistrées." };
+}
+
 /** Change le mot de passe après vérification de l'actuel, puis déconnecte les autres appareils. */
 export async function changerMotDePasse(_previous: CompteState, formData: FormData): Promise<CompteState> {
   const user = await getCurrentUser();
