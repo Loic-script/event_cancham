@@ -1,13 +1,17 @@
 "use client";
 
-import { useMemo, useState, type CSSProperties } from "react";
+import { useRouter } from "next/navigation";
+import { useState, type CSSProperties } from "react";
+import { effacerNotePitch, noterPitch } from "@/app/(app)/defis/actions";
 import { CheckIcon, ExternalLinkIcon, PlayIcon, TrashIcon } from "@/components/app/icons";
-import { useProfile } from "@/components/profile/useProfile";
-import { fullName } from "@/lib/mock/data";
-import { NOTE_MAX, candidaturesPitch, type Candidature } from "@/lib/traversee/pitchs";
-import { setTraversee, toast, useTraversee, type NotePitch } from "@/lib/traversee/store";
+import type { Participant } from "@/lib/defis";
+import { NOTE_MAX } from "@/lib/traversee/pitchs";
+import { toast } from "@/lib/traversee/store";
 import { lienVideo } from "../defis/DefiPitch";
 import { AvatarInitiales, Btn, Onglets, Recherche, ui } from "../ui";
+
+type Candidature = Participant;
+type NotePitch = NonNullable<Participant["note"]>;
 import styles from "./candidatures.module.css";
 
 type Filtre = "toutes" | "anoter" | "notees";
@@ -47,6 +51,8 @@ function Jauge({ note }: { note: number | null }) {
 }
 
 function CarteCandidature({ c, note, rang, i }: { c: Candidature; note: NotePitch | undefined; rang: number | null; i: number }) {
+  const router = useRouter();
+  const [envoi, setEnvoi] = useState(false);
   const [brouillon, setBrouillon] = useState<number>(note?.note ?? 10);
   const [avis, setAvis] = useState(note?.avis ?? "");
   const [touche, setTouche] = useState(false);
@@ -55,39 +61,40 @@ function CarteCandidature({ c, note, rang, i }: { c: Candidature; note: NotePitc
   const affichee = touche ? brouillon : (note?.note ?? null);
   const modifie = touche && (brouillon !== note?.note || avis.trim() !== (note?.avis ?? ""));
 
-  function enregistrer() {
-    setTraversee((s) => ({ notesPitch: { ...s.notesPitch, [c.id]: { note: brouillon, avis: avis.trim(), t: Date.now() } } }));
+  async function enregistrer() {
+    setEnvoi(true);
+    const { error } = await noterPitch(c.id, brouillon, avis);
+    setEnvoi(false);
+    if (error) return toast(error);
     setTouche(false);
     toast(`Note enregistrée : ${formatNote(brouillon)}/${NOTE_MAX} pour ${c.porteur}.`);
+    router.refresh();
   }
 
-  function effacer() {
-    setTraversee((s) => {
-      const notes = { ...s.notesPitch };
-      delete notes[c.id];
-      return { notesPitch: notes };
-    });
+  async function effacer() {
+    setEnvoi(true);
+    const { error } = await effacerNotePitch(c.id);
+    setEnvoi(false);
+    if (error) return toast(error);
     setBrouillon(10);
     setAvis("");
     setTouche(false);
     toast("Note effacée.");
+    router.refresh();
   }
 
   return (
-    <article className={`${styles.carte} ${c.moi ? styles.moi : ""}`} style={{ "--i": Math.min(i, 10) } as CSSProperties}>
+    <article className={styles.carte} style={{ "--i": Math.min(i, 10) } as CSSProperties}>
       <div className={styles.identite}>
         {rang ? <span className={styles.rang}>{rang}</span> : null}
-        <AvatarInitiales nom={c.porteur} size={48} />
+        <AvatarInitiales nom={c.porteur} photo={c.photo} size={48} />
         <div className="min-w-0">
           <strong>
             {c.porteur}
-            {c.moi ? <span className={styles.vous}>Vous</span> : null}
           </strong>
-          <p>
-            {c.role} · {c.ent}
-          </p>
+          <p>{[c.role, c.ent].filter(Boolean).join(" · ")}</p>
           <div className={styles.meta}>
-            <span className={styles.secteur}>{c.sect}</span>
+            {c.sect ? <span className={styles.secteur}>{c.sect}</span> : null}
             <span>Envoyé le {dateEnvoi(c.envoi)}</span>
           </div>
         </div>
@@ -111,7 +118,7 @@ function CarteCandidature({ c, note, rang, i }: { c: Candidature; note: NotePitc
         <Jauge note={affichee} />
         <div className={styles.reglage}>
           <label htmlFor={`note-${c.id}`} className={styles.etiquette}>
-            {note && !touche ? `Noté le ${new Intl.DateTimeFormat("fr-FR", { day: "numeric", month: "short" }).format(new Date(note.t))}` : touche ? "Note du jury" : "À noter"}
+            {note && !touche ? `Noté le ${new Intl.DateTimeFormat("fr-FR", { day: "numeric", month: "short", timeZone: "Indian/Antananarivo" }).format(new Date(note.t))}` : touche ? "Note du jury" : "À noter"}
           </label>
           <input
             id={`note-${c.id}`}
@@ -147,12 +154,12 @@ function CarteCandidature({ c, note, rang, i }: { c: Candidature; note: NotePitc
             aria-label={`Appréciation pour ${c.porteur}`}
           />
           <div className={styles.actions}>
-            <Btn small variant="primary" onClick={enregistrer} disabled={!modifie && Boolean(note)}>
+            <Btn small variant="primary" onClick={() => void enregistrer()} disabled={envoi || (!modifie && Boolean(note))}>
               <CheckIcon width={15} height={15} />
               {note ? "Mettre à jour" : "Enregistrer la note"}
             </Btn>
             {note ? (
-              <button type="button" className={styles.effacer} onClick={effacer} aria-label={`Effacer la note de ${c.porteur}`}>
+              <button type="button" className={styles.effacer} onClick={() => void effacer()} disabled={envoi} aria-label={`Effacer la note de ${c.porteur}`}>
                 <TrashIcon width={15} height={15} />
               </button>
             ) : null}
@@ -163,15 +170,13 @@ function CarteCandidature({ c, note, rang, i }: { c: Candidature; note: NotePitc
   );
 }
 
-export function AdminCandidatures() {
-  const s = useTraversee();
-  const me = useProfile();
+export function AdminCandidatures({ candidatures }: { candidatures: Participant[] }) {
   const [q, setQ] = useState("");
   const [filtre, setFiltre] = useState<Filtre>("toutes");
   const [tri, setTri] = useState<Tri>("note");
 
-  const notes = s.notesPitch;
-  const toutes = useMemo(() => candidaturesPitch(s, { nom: fullName(me), ent: me.company, role: me.role, sect: me.sector }), [s, me]);
+  const toutes = candidatures;
+  const notes: Record<string, NotePitch> = Object.fromEntries(candidatures.flatMap((c) => (c.note ? [[c.id, c.note]] : [])));
   const notees = toutes.filter((c) => notes[c.id]);
   const moyenne = notees.length ? notees.reduce((a, c) => a + notes[c.id].note, 0) / notees.length : null;
   const classement = [...notees].sort((a, b) => notes[b.id].note - notes[a.id].note).map((c) => c.id);
@@ -241,11 +246,11 @@ export function AdminCandidatures() {
         <div className={styles.liste}>
           {liste.map((c, i) => {
             const r = classement.indexOf(c.id);
-            return <CarteCandidature key={c.id} c={c} note={notes[c.id]} rang={tri === "note" && r >= 0 ? r + 1 : null} i={i} />;
+            return <CarteCandidature key={`${c.id}-${c.note?.t ?? 0}`} c={c} note={notes[c.id]} rang={tri === "note" && r >= 0 ? r + 1 : null} i={i} />;
           })}
         </div>
       ) : (
-        <p className={styles.aucune}>{filtre === "anoter" && !ql ? "Toutes les candidatures sont notées." : "Aucune candidature ne correspond."}</p>
+        <p className={styles.aucune}>{!toutes.length ? "Aucune vidéo pitch envoyée pour l’instant." : filtre === "anoter" && !ql ? "Toutes les candidatures sont notées." : "Aucune candidature ne correspond."}</p>
       )}
     </>
   );

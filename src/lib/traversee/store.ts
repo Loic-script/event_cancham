@@ -2,7 +2,6 @@
 
 import { useSyncExternalStore } from "react";
 import {
-  CLASSEMENT_INIT,
   COMMANDES,
   DEMI,
   DOSSIERS,
@@ -25,7 +24,6 @@ import {
 export type Achat = { quoi: string; ou: string; montant: number; etat: "Payé" | "À régler à table"; date: string };
 export type Annonce = { id: string; titre: string; message: string; type: AnnonceType; cta: string; img?: string; t: number };
 export type MediaAjoute = { id: string; src: string; par?: "CanCham" | "vous"; t?: number };
-export type NotePitch = { note: number; avis: string; t: number };
 export type Scan = { code: string; nom: string; t: number };
 export type Fiche = { nom: string; role: string; ent: string; sect: string; act: string; email: string; phone: string; website: string; billet: "paye" | "attente" };
 export type TypeNotif = "annonce" | "message" | "compte" | "publication" | "story" | "defi1" | "defi2" | "rdv" | "livre";
@@ -34,11 +32,6 @@ export type Evenement = { id: string; pour: "admin" | "participant"; type: TypeN
 export type TraverseeState = {
   table: number | null;
   siege: number | null;
-  pitch: string | null;
-  pitchEnvoye: boolean;
-  lienPub: string;
-  lienReactions: { reactions: number; comments: number; shares: number; at: number } | null;
-  lienReleve: string | null;
   vote: number | null;
   voteFinal: number | null;
   finale: boolean;
@@ -50,7 +43,6 @@ export type TraverseeState = {
   storiesVues: Record<string, 1>;
   demi: Demi[];
   voix: number[];
-  classement: { nom: string; reactions: number }[];
   livre: Souvenir[];
   ress: Ressource[];
   dossiers: Dossier[];
@@ -63,8 +55,6 @@ export type TraverseeState = {
   gagnant: string | null;
   fiches: Record<string, Partial<Fiche>>;
   scans: Scan[];
-  notesPitch: Record<string, NotePitch>;
-  retraitsTombola: string[];
   journal: Evenement[];
   notifsLues: Record<string, 1>;
 };
@@ -72,11 +62,6 @@ export type TraverseeState = {
 export const DEFAULT_STATE: TraverseeState = {
   table: null,
   siege: null,
-  pitch: null,
-  pitchEnvoye: false,
-  lienPub: "",
-  lienReactions: null,
-  lienReleve: null,
   vote: null,
   voteFinal: null,
   finale: false,
@@ -88,7 +73,6 @@ export const DEFAULT_STATE: TraverseeState = {
   storiesVues: {},
   demi: DEMI,
   voix: VOIX_INIT,
-  classement: CLASSEMENT_INIT,
   livre: LIVRE,
   ress: RESSOURCES,
   dossiers: DOSSIERS,
@@ -101,8 +85,6 @@ export const DEFAULT_STATE: TraverseeState = {
   gagnant: null,
   fiches: {},
   scans: [],
-  notesPitch: {},
-  retraitsTombola: [],
   journal: [],
   notifsLues: {},
 };

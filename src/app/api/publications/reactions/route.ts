@@ -1,3 +1,5 @@
+import { enregistrerReleve } from "@/lib/defis";
+import { getCurrentUser } from "@/lib/session";
 import { readReactions, userToken } from "@/lib/social/facebook";
 import { LINK_MESSAGES, parseSocialLink } from "@/lib/social/links";
 import { metaConfigured } from "@/lib/social/meta";
@@ -21,5 +23,8 @@ export async function GET(request: Request) {
   if (!token) return Response.json({ ok: false, reason: "not_connected", message: MESSAGES.not_connected });
   const result = await readReactions(link, token);
   if (!result.ok) return Response.json({ ok: false, reason: result.reason, message: MESSAGES[result.reason], detail: result.detail ?? null }, { status: result.reason === "error" ? 502 : 200 });
+  // Le relevé est gardé sur la publication du Défi 2 enregistrée par ce compte (même lien), pour le classement.
+  const user = await getCurrentUser();
+  if (user) await enregistrerReleve(user.id, link.url, result);
   return Response.json({ ok: true, reactions: result.reactions, comments: result.comments, shares: result.shares, at: result.at });
 }

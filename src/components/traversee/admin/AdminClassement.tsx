@@ -1,62 +1,56 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useRouter } from "next/navigation";
+import { useState } from "react";
+import { retirerDuClassement } from "@/app/(app)/defis/actions";
 import { TrashIcon } from "@/components/app/icons";
-import { useProfile } from "@/components/profile/useProfile";
-import { fullName } from "@/lib/mock/data";
+import type { Participant } from "@/lib/defis";
 import { parseSocialLink } from "@/lib/social/links";
-import { candidaturesTombola } from "@/lib/traversee/pitchs";
-import { journaliser, setTraversee, toast, useTraversee } from "@/lib/traversee/store";
+import { toast } from "@/lib/traversee/store";
 import { Confirmer } from "../Confirmer";
 import { Classement, LienPublication, type EntreeClassement } from "../defis/Classement";
 import cl from "../defis/classement.module.css";
-import { useLive } from "../defis/live";
-import { AvatarInitiales, Btn, Card, Direct, Recherche, Sur, ui } from "../ui";
+import { AvatarInitiales, Btn, Card, Recherche, Sur, ui } from "../ui";
 import styles from "./candidatures.module.css";
 
-export function AdminClassement() {
-  const s = useTraversee();
-  const me = useProfile();
-  const inc = useLive(s.classement.length, 4);
+const RELEVE = new Intl.DateTimeFormat("fr-FR", { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit", timeZone: "Indian/Antananarivo" });
+
+/** Classement du Défi 2 à partir des publications enregistrées et de leur dernier relevé de réactions. */
+export function AdminClassement({ publications }: { publications: Participant[] }) {
+  const router = useRouter();
   const [q, setQ] = useState("");
   const [aRetirer, setARetirer] = useState<EntreeClassement | null>(null);
 
-  const toutes = useMemo(() => candidaturesTombola(s, { nom: fullName(me), ent: me.company, role: me.role, sect: me.sector }), [s, me]);
-  const retraits = new Set(s.retraitsTombola);
-  const entrees: EntreeClassement[] = toutes
-    .map((c, i) => {
+  const entrees: (EntreeClassement & { retire: boolean })[] = publications
+    .map((c) => {
       const p = parseSocialLink(c.lien);
       return {
         id: c.id,
         nom: c.porteur,
-        sous: c.ent,
-        r: (c.reactions ?? 0) + (c.moi ? 0 : (inc[i] ?? 0)),
+        sous: [c.ent, c.releveLe ? `relevé le ${RELEVE.format(new Date(c.releveLe)).replace(":", " h ")}` : "réactions pas encore relevées"].filter(Boolean).join(" · "),
+        r: c.reactions ?? 0,
         moi: false,
-        photo: c.moi ? me.photo || undefined : undefined,
+        photo: c.photo ?? undefined,
         lien: p.ok ? p.url : c.lien,
-        reseau: p.ok ? p.network : null,
+        reseau: p.ok && (p.network === "facebook" || p.network === "instagram") ? p.network : null,
+        retire: c.retire,
       };
     })
     .sort((a, b) => b.r - a.r);
-  const actives = entrees.filter((e) => !retraits.has(e.id!));
-  const retirees = entrees.filter((e) => retraits.has(e.id!));
+  const actives = entrees.filter((e) => !e.retire);
+  const retirees = entrees.filter((e) => e.retire);
 
   const total = actives.reduce((a, e) => a + e.r, 0);
   const tete = actives[0];
   const ql = q.trim().toLowerCase();
   const recherche = ql ? actives.map((e, i) => ({ e, rang: i + 1 })).filter(({ e }) => `${e.nom} ${e.sous ?? ""}`.toLowerCase().includes(ql)) : [];
 
-  function retirer(e: EntreeClassement) {
-    setTraversee((st) => ({ retraitsTombola: [...st.retraitsTombola.filter((id) => id !== e.id), e.id!] }));
+  async function changer(e: EntreeClassement, retire: boolean) {
+    const { error } = await retirerDuClassement(e.id, retire);
     setARetirer(null);
-    if (e.id === "moi") journaliser({ pour: "participant", type: "defi2", titre: "Votre publication a été retirée du classement", texte: "L’équipe CanCham a retiré votre publication « J’y serai » du Défi 2.", href: "/defis/tombola" });
-    toast(`Publication de ${e.nom} retirée du classement.`);
-  }
-
-  function retablir(e: EntreeClassement) {
-    setTraversee((st) => ({ retraitsTombola: st.retraitsTombola.filter((id) => id !== e.id) }));
-    if (e.id === "moi") journaliser({ pour: "participant", type: "defi2", titre: "Votre publication est de retour dans le classement", texte: "Votre publication « J’y serai » compte à nouveau pour le Défi 2.", href: "/defis/tombola" });
-    toast(`Publication de ${e.nom} rétablie dans le classement.`);
+    if (error) return toast(error);
+    toast(retire ? `Publication de ${e.nom} retirée du classement.` : `Publication de ${e.nom} rétablie dans le classement.`);
+    router.refresh();
   }
 
   return (
@@ -108,7 +102,6 @@ export function AdminClassement() {
       <Card bleed>
         <div className={`${ui.pad} flex flex-wrap items-center justify-between gap-2.5 !pb-2`}>
           <Sur className="!mb-0">Classement des publications</Sur>
-          <Direct>En temps réel · simulation</Direct>
         </div>
         {actives.length ? (
           <Classement
@@ -125,7 +118,7 @@ export function AdminClassement() {
             )}
           />
         ) : (
-          <p className={`${styles.aucune} mx-5 mb-5`}>Aucune publication dans le classement.</p>
+          <p className={`${styles.aucune} mx-5 mb-5`}>Aucune publication enregistrée pour l’instant.</p>
         )}
       </Card>
 
@@ -146,7 +139,7 @@ export function AdminClassement() {
                 </span>
                 <span className={cl.actions}>
                   <LienPublication e={e} compact />
-                  <Btn small onClick={() => retablir(e)}>
+                  <Btn small onClick={() => void changer(e, false)}>
                     Rétablir
                   </Btn>
                 </span>
@@ -157,7 +150,7 @@ export function AdminClassement() {
       ) : null}
 
       {aRetirer ? (
-        <Confirmer titre={`Retirer la publication de ${aRetirer.nom} ?`} action="Retirer du classement" onConfirmer={() => retirer(aRetirer)} onClose={() => setARetirer(null)}>
+        <Confirmer titre={`Retirer la publication de ${aRetirer.nom} ?`} action="Retirer du classement" onConfirmer={() => void changer(aRetirer, true)} onClose={() => setARetirer(null)}>
           <p>Elle disparaît du classement du Défi 2, ici comme dans l’espace participant. Vous pourrez la rétablir à tout moment.</p>
         </Confirmer>
       ) : null}

@@ -1,11 +1,13 @@
 "use client";
 
+import { useRouter } from "next/navigation";
 import { useState, type FormEvent } from "react";
+import { envoyerPitch } from "@/app/(app)/defis/actions";
 import { CheckIcon, ExternalLinkIcon, LinkIcon, PlayIcon } from "@/components/app/icons";
 import { useProfile } from "@/components/profile/useProfile";
-import { fullName } from "@/lib/mock/data";
+import type { MaParticipation } from "@/lib/defis";
 import { IMG, VIGNETTES } from "@/lib/traversee/data";
-import { journaliser, setTraversee, toast, useTraversee } from "@/lib/traversee/store";
+import { setTraversee, toast, useTraversee } from "@/lib/traversee/store";
 import { Modal } from "../Modal";
 import { Btn, Card, Champ, Direct, Etapes, Note, Partie, Puce, Sur, ui } from "../ui";
 import { GainPitch } from "./Tuiles";
@@ -47,28 +49,33 @@ export function lienVideo(brut: string | null | undefined) {
 /** Demi-finalistes, vote du public et finale : à ouvrir une fois la sélection du jury dévoilée (13 décembre). */
 const SUIVI_OUVERT = false;
 
-export function DefiPitch() {
+export function DefiPitch({ monPitch, aPublie }: { monPitch: MaParticipation | null; aPublie: boolean }) {
   const me = useProfile();
+  const router = useRouter();
   const s = useTraversee();
+  const [envoi, setEnvoi] = useState(false);
   const inc = useLive(s.demi.length, 3);
   const incFinale = useLive(3, 5);
   const [lecteur, setLecteur] = useState<number | null>(null);
   const [saisie, setSaisie] = useState<string | null>(null);
-  const envoyeInfo = s.pitchEnvoye ? lienVideo(s.pitch) : null;
+  const envoyeInfo = monPitch ? lienVideo(monPitch.lien) : null;
   const lien = saisie ?? (envoyeInfo ? envoyeInfo.url : "");
   const info = lienVideo(lien);
   const envoye = Boolean(envoyeInfo && info && info.url === envoyeInfo.url);
 
-  function envoyer(e: FormEvent) {
+  async function envoyer(e: FormEvent) {
     e.preventDefault();
     if (!info) {
       toast("Collez un lien valide vers votre vidéo pitch.");
       return;
     }
-    setTraversee({ pitch: info.url, pitchEnvoye: true });
-    journaliser({ pour: "admin", type: "defi1", titre: `${fullName(me)} a déposé son pitch`, texte: `Défi 1 · Gagnez un voyage au Canada · vidéo ${info.service} à évaluer.`, href: "/admin/defis/pitch", acteur: fullName(me) });
+    setEnvoi(true);
+    const { error } = await envoyerPitch(info.url);
+    setEnvoi(false);
+    if (error) return toast(error);
     setSaisie(null);
     toast(`Pitch envoyé : le lien ${info.service} est transmis au jury.`);
+    router.refresh();
   }
 
   const voix = s.demi.map((_, i) => (s.voix[i] ?? 0) + inc[i] + (s.vote === i ? 1 : 0));
@@ -96,8 +103,8 @@ export function DefiPitch() {
               items={[
                 { titre: "Inscrivez-vous à la Traversée", fait: true, detail: "Votre billet est enregistré." },
                 { titre: "Remplissez votre profil sur la plateforme", fait: profilComplet(me), detail: "Nom, entreprise, fonction, secteur et photo.", href: "/profil" },
-                { titre: "Participez au défi « Gagnez 3 millions d’ariary »", fait: Boolean(s.lienPub), detail: "Publiez votre photo « J’y serai » et enregistrez le lien.", href: "/defis/tombola", action: "Participer" },
-                { titre: "Envoyez la vidéo pitch de votre entreprise", fait: s.pitchEnvoye, detail: "Avant le 11 décembre." },
+                { titre: "Participez au défi « Gagnez 3 millions d’ariary »", fait: aPublie, detail: "Publiez votre photo « J’y serai » et enregistrez le lien.", href: "/defis/tombola", action: "Participer" },
+                { titre: "Envoyez la vidéo pitch de votre entreprise", fait: Boolean(monPitch), detail: "Avant le 11 décembre." },
               ]}
             />
             {envoye && envoyeInfo ? (
@@ -110,7 +117,7 @@ export function DefiPitch() {
             ) : (
               <Note>Collez le lien de votre vidéo pitch : Google Drive, YouTube, Vimeo, Dropbox ou OneDrive.</Note>
             )}
-            <form onSubmit={envoyer} noValidate className="grid min-w-0 grid-cols-[minmax(0,1fr)] gap-3">
+            <form onSubmit={(e) => void envoyer(e)} noValidate className="grid min-w-0 grid-cols-[minmax(0,1fr)] gap-3">
               <Champ
                 label="Lien de votre vidéo pitch"
                 htmlFor="pitch-lien"
@@ -148,13 +155,13 @@ export function DefiPitch() {
                 <p className="text-[13px] font-semibold text-leaf-ink">Ce lien n’est pas valide. Copiez l’adresse complète, qui commence par https://.</p>
               ) : null}
               <div className="flex flex-wrap gap-2.5">
-                <Btn variant="primary" type="submit" disabled={!info || envoye}>
+                <Btn variant="primary" type="submit" disabled={!info || envoye || envoi}>
                   {envoye ? (
                     <>
                       <CheckIcon width={16} height={16} />
                       Pitch envoyé
                     </>
-                  ) : s.pitchEnvoye ? (
+                  ) : monPitch ? (
                     "Envoyer le nouveau lien"
                   ) : (
                     "Envoyer mon pitch"

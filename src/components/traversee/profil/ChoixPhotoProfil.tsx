@@ -21,7 +21,7 @@ let repriseEnCours = false;
  * Boutons « Ajouter / Changer la photo » et « Retirer » : la photo est enregistrée sur le compte, visible partout
  * (annuaire, back-office, autres appareils). Une ancienne photo gardée seulement dans ce navigateur est reprise une fois.
  */
-export function ChoixPhotoProfil({ small = false }: { small?: boolean }) {
+export function ChoixPhotoProfil({ small = false, retrait = true }: { small?: boolean; retrait?: boolean }) {
   const identite = useSessionIdentity();
   const { photo: photoLocale } = useProfileOverrides();
   const router = useRouter();
@@ -72,25 +72,30 @@ export function ChoixPhotoProfil({ small = false }: { small?: boolean }) {
     toast("Photo de profil retirée.");
   }
 
+  const choix = (
+    <FileBtn
+      small={small}
+      label={
+        <>
+          <CameraIcon width={16} height={16} />
+          {envoi ? "Envoi…" : photo ? "Changer la photo" : "Ajouter une photo"}
+        </>
+      }
+      accept="image/jpeg,image/png,image/webp"
+      aria-label="Choisir ma photo de profil"
+      disabled={envoi}
+      onChange={(e) => {
+        const f = e.target.files?.[0];
+        e.target.value = "";
+        void choisir(f);
+      }}
+    />
+  );
+  if (!retrait) return choix;
+
   return (
     <div className="flex flex-wrap justify-center gap-2">
-      <FileBtn
-        small={small}
-        label={
-          <>
-            <CameraIcon width={16} height={16} />
-            {envoi ? "Envoi…" : photo ? "Changer la photo" : "Ajouter une photo"}
-          </>
-        }
-        accept="image/jpeg,image/png,image/webp"
-        aria-label="Choisir ma photo de profil"
-        disabled={envoi}
-        onChange={(e) => {
-          const f = e.target.files?.[0];
-          e.target.value = "";
-          void choisir(f);
-        }}
-      />
+      {choix}
       {photo ? (
         <Btn small={small} className="!text-[#b42318]" onClick={retirer} disabled={envoi} aria-label="Retirer ma photo de profil">
           <TrashIcon width={15} height={15} />

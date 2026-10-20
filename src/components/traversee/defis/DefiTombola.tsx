@@ -1,30 +1,43 @@
 "use client";
 
+import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useRef, useState, type FormEvent } from "react";
-import { CameraIcon, DownloadIcon, EyeIcon, FacebookIcon, SpinnerIcon } from "@/components/app/icons";
-import { updateProfile, useProfile } from "@/components/profile/useProfile";
+import { DownloadIcon, EyeIcon, FacebookIcon, SpinnerIcon } from "@/components/app/icons";
+import { useProfile } from "@/components/profile/useProfile";
 import { PostEmbed } from "@/components/social/PostEmbed";
-import { LEGENDE_JY_SERAI, PAGE_FACEBOOK } from "@/lib/traversee/data";
-import { idPublication } from "@/lib/traversee/pitchs";
-import { journaliser, lisImage, setTraversee, toast, useTraversee } from "@/lib/traversee/store";
+import { enregistrerPublication } from "@/app/(app)/defis/actions";
+import type { MaParticipation, Participant } from "@/lib/defis";
 import { fullName } from "@/lib/mock/data";
 import { parseSocialLink } from "@/lib/social/links";
+import { LEGENDE_JY_SERAI, PAGE_FACEBOOK } from "@/lib/traversee/data";
+import { CLASSEMENT_VISIBLE } from "@/lib/traversee/pitchs";
+import { toast } from "@/lib/traversee/store";
 import { Modal } from "../Modal";
-import { Btn, Card, Champ, Direct, FileBtn, Note, Partie, Stat, Sur, ui } from "../ui";
+import { ChoixPhotoProfil } from "../profil/ChoixPhotoProfil";
+import { Btn, Card, Champ, Direct, Note, Partie, Stat, Sur, ui } from "../ui";
 import { Affiche, telechargeCanvas } from "./Affiche";
-import { Classement } from "./Classement";
+import { Classement, type EntreeClassement } from "./Classement";
 import { GainTombola } from "./Tuiles";
-import { useLive } from "./live";
 import styles from "./defis.module.css";
 
-/** Classement des publications (simulé pour l'instant) : affiché quand l'équipe le décide. */
-const CLASSEMENT_VISIBLE = false;
+// Heure de Madagascar : le serveur et le navigateur affichent la même heure de relevé.
+const HEURE = new Intl.DateTimeFormat("fr-FR", { hour: "2-digit", minute: "2-digit", timeZone: "Indian/Antananarivo" });
 
-export function DefiTombola() {
+type DefiTombolaProps = {
+  /** Publication enregistrée par ce compte, avec son dernier relevé de réactions. */
+  maPublication: MaParticipation | null;
+  /** Publications du défi, transmises seulement quand le classement est ouvert aux participants. */
+  classement: Participant[];
+  monId: number;
+};
+
+export function DefiTombola({ maPublication, classement, monId }: DefiTombolaProps) {
   const me = useProfile();
-  const s = useTraversee();
-  const inc = useLive(s.classement.length, 4);
+  const router = useRouter();
   const [releve, setReleve] = useState(false);
+  const [erreurReleve, setErreurReleve] = useState<string | null>(null);
+  const [changer, setChanger] = useState(false);
+  const [envoi, setEnvoi] = useState(false);
   const [fb, setFb] = useState<{ configured: boolean; connected: boolean; name?: string | null } | null>(null);
 
   const chargerFb = useCallback(async () => {
@@ -48,7 +61,7 @@ export function DefiTombola() {
 
   async function deconnecterFb() {
     await fetch("/api/facebook/logout", { method: "POST" });
-    setTraversee({ lienReactions: null, lienReleve: null });
+    setErreurReleve(null);
     await chargerFb();
     toast("Compte Facebook déconnecté.");
   }
@@ -63,43 +76,64 @@ export function DefiTombola() {
     canvas.current = cv;
   }, []);
 
-  const moiR = s.lienReactions?.reactions ?? null;
-  const retraits = new Set(s.retraitsTombola);
-  const moiRetire = retraits.has("moi");
-  const classement: { nom: string; r: number; moi: boolean; photo?: string }[] = [
-    ...s.classement.map((c, i) => ({ nom: c.nom, r: c.reactions + inc[i], moi: false })).filter((c) => !retraits.has(idPublication(c.nom))),
-    ...(s.lienPub && !moiRetire ? [{ nom: `${nom} (vous)`, r: moiR ?? 0, moi: true, photo: me.photo || undefined }] : []),
-  ].sort((a, b) => b.r - a.r);
-  const parsed = s.lienPub ? parseSocialLink(s.lienPub) : null;
+  const lienPub = maPublication?.lien ?? "";
+  const moiR = maPublication?.reactions ?? null;
+  const moiRetire = Boolean(maPublication?.retire);
+  const entrees: EntreeClassement[] = classement
+    .filter((c) => !c.retire)
+    .map((c) => {
+      const p = parseSocialLink(c.lien);
+      const moi = c.userId === monId;
+      return {
+        id: c.id,
+        nom: moi ? `${c.porteur} (vous)` : c.porteur,
+        r: c.reactions ?? 0,
+        moi,
+        photo: c.photo ?? undefined,
+        initiales: c.porteur,
+        lien: p.ok ? p.url : c.lien,
+        reseau: p.ok && (p.network === "facebook" || p.network === "instagram") ? p.network : null,
+      };
+    })
+    .sort((a, b) => b.r - a.r);
+  const parsed = lienPub ? parseSocialLink(lienPub) : null;
 
+  /** Le serveur lit les réactions sur Facebook et les enregistre sur la publication de ce compte. */
   async function relever(url: string, silencieux = false) {
     setReleve(true);
     try {
       const r = await fetch(`/api/publications/reactions?url=${encodeURIComponent(url)}`, { cache: "no-store" });
-      const d = (await r.json()) as { ok: boolean; reactions?: number; comments?: number; shares?: number; at?: number; message?: string; detail?: string | null };
+      const d = (await r.json()) as { ok: boolean; reactions?: number; message?: string; detail?: string | null };
       if (d.ok) {
-        setTraversee({ lienReactions: { reactions: d.reactions ?? 0, comments: d.comments ?? 0, shares: d.shares ?? 0, at: d.at ?? Date.now() }, lienReleve: null });
+        setErreurReleve(null);
         if (!silencieux) toast(`${d.reactions ?? 0} réaction${(d.reactions ?? 0) > 1 ? "s" : ""} relevée${(d.reactions ?? 0) > 1 ? "s" : ""} sur Facebook.`);
+        router.refresh();
       } else {
-        setTraversee({ lienReactions: null, lienReleve: `${d.message ?? "Réactions indisponibles."}${d.detail ? ` (${d.detail})` : ""}` });
+        setErreurReleve(`${d.message ?? "Réactions indisponibles."}${d.detail ? ` (${d.detail})` : ""}`);
         if (!silencieux) toast(d.message ?? "Réactions indisponibles.");
       }
     } catch {
-      setTraversee({ lienReleve: "Facebook n’a pas répondu. Réessayez dans un instant." });
+      setErreurReleve("Facebook n’a pas répondu. Réessayez dans un instant.");
     } finally {
       setReleve(false);
     }
   }
 
-  function enregistrerLien(e: FormEvent) {
+  async function enregistrerLien(e: FormEvent) {
     e.preventDefault();
     const u = lien.trim();
     if (!/^https?:\/\/\S+\.\S+/.test(u)) return toast("Collez le lien complet de votre publication.");
-    setTraversee({ lienPub: u, lienReactions: null, lienReleve: null });
-    journaliser({ pour: "admin", type: "defi2", titre: `${nom} s’est inscrit au Défi 2`, texte: "Publication « J’y serai » ajoutée au classement · Gagnez 3 000 000 Ar.", href: "/admin/defis/tombola", acteur: nom });
+    setEnvoi(true);
+    const { error } = await enregistrerPublication(u);
+    setEnvoi(false);
+    if (error) return toast(error);
     setLien("");
+    setChanger(false);
+    setErreurReleve(null);
     toast(CLASSEMENT_VISIBLE ? "Publication suivie : vous entrez dans le classement." : "Publication enregistrée pour le défi.");
-    void relever(u, true);
+    router.refresh();
+    const p = parseSocialLink(u);
+    void relever(p.ok ? p.url : u, true);
   }
 
   async function copier() {
@@ -143,24 +177,7 @@ export function DefiTombola() {
             <div className={styles.pasC}>
               <h3>Téléchargez votre photo « J’y serai »</h3>
               <Affiche nom={nom} ligne={ligne} photo={me.photo} onReady={onReady} />
-              <FileBtn
-                label={
-                  <>
-                    <CameraIcon width={16} height={16} />
-                    {me.photo ? "Changer ma photo" : "Ajouter ma photo"}
-                  </>
-                }
-                small
-                accept="image/*"
-                aria-label="Choisir ma photo de profil"
-                onChange={async (e) => {
-                  const u = await lisImage(e.target.files?.[0], 640);
-                  if (u) {
-                    updateProfile({ photo: u });
-                    toast("Photo de profil mise à jour.");
-                  }
-                }}
-              />
+              <ChoixPhotoProfil small retrait={false} />
               <Btn
                 small
                 onClick={() => {
@@ -217,10 +234,10 @@ export function DefiTombola() {
             <span className={styles.pasN}>4</span>
             <div className={styles.pasC}>
               <h3>Copiez le lien de votre publication ici</h3>
-              {s.lienPub ? (
+              {lienPub && !changer ? (
                 <>
                   <Note>
-                    Publication suivie : <b style={{ overflowWrap: "anywhere" }}>{s.lienPub}</b>
+                    Publication suivie : <b style={{ overflowWrap: "anywhere" }}>{lienPub}</b>
                   </Note>
                   {parsed?.ok ? <PostEmbed link={parsed} height={320} /> : null}
                   <div className={styles.consigne}>
@@ -243,28 +260,40 @@ export function DefiTombola() {
                         Connecter mon Facebook
                       </Btn>
                     ) : null}
-                    <Btn small variant="primary" disabled={releve} onClick={() => void relever(s.lienPub)}>
+                    <Btn small variant="primary" disabled={releve} onClick={() => void relever(lienPub)}>
                       {releve ? <SpinnerIcon width={15} height={15} className="animate-spin" /> : null}
                       Actualiser les réactions
                     </Btn>
-                    <Btn small onClick={() => setTraversee({ lienPub: "", lienReactions: null, lienReleve: null })}>
+                    <Btn small onClick={() => setChanger(true)}>
                       Changer de lien
                     </Btn>
                     {process.env.NODE_ENV !== "production" && fb?.connected ? (
-                      <a href={`/api/facebook/diag?url=${encodeURIComponent(s.lienPub)}`} target="_blank" rel="noreferrer" className="self-center text-[12px] font-semibold text-graphite-faint underline-offset-4 hover:underline">
+                      <a href={`/api/facebook/diag?url=${encodeURIComponent(lienPub)}`} target="_blank" rel="noreferrer" className="self-center text-[12px] font-semibold text-graphite-faint underline-offset-4 hover:underline">
                         Détails techniques
                       </a>
                     ) : null}
                   </div>
                 </>
               ) : (
-                <form onSubmit={enregistrerLien} className={styles.formLien}>
+                <form onSubmit={(e) => void enregistrerLien(e)} className={styles.formLien}>
                   <Champ label="Lien Facebook, Instagram ou LinkedIn" htmlFor="l-pub">
                     <input id="l-pub" type="url" inputMode="url" required value={lien} onChange={(e) => setLien(e.target.value)} placeholder="https://…" className={ui.saisie} />
                   </Champ>
-                  <Btn variant="primary" type="submit">
-                    Enregistrer
-                  </Btn>
+                  <div className="flex flex-wrap gap-2">
+                    <Btn variant="primary" type="submit" disabled={envoi}>
+                      {envoi ? "Enregistrement…" : "Enregistrer"}
+                    </Btn>
+                    {changer ? (
+                      <Btn
+                        onClick={() => {
+                          setChanger(false);
+                          setLien("");
+                        }}
+                      >
+                        Annuler
+                      </Btn>
+                    ) : null}
+                  </div>
                 </form>
               )}
             </div>
@@ -275,7 +304,7 @@ export function DefiTombola() {
               <h3>Suivez l’évolution en temps réel</h3>
               {CLASSEMENT_VISIBLE ? (
                 <p className={styles.court}>
-                  {!s.lienPub ? "Votre publication entre dans le classement dès que le lien est enregistré. " : moiRetire ? "Votre publication a été retirée du classement par l’équipe CanCham. " : "Votre publication est dans le classement. "}
+                  {!lienPub ? "Votre publication entre dans le classement dès que le lien est enregistré. " : moiRetire ? "Votre publication a été retirée du classement par l’équipe CanCham. " : "Votre publication est dans le classement. "}
                   <a
                     href="#suivi-tombola"
                     onClick={(e) => {
@@ -287,7 +316,7 @@ export function DefiTombola() {
                   </a>
                 </p>
               ) : (
-                <p className={styles.court}>{s.lienPub ? "Votre publication est enregistrée : actualisez ses réactions quand vous voulez." : "Enregistrez le lien de votre publication pour suivre ses réactions."} Le classement des publications sera affiché ici prochainement.</p>
+                <p className={styles.court}>{lienPub ? "Votre publication est enregistrée : actualisez ses réactions quand vous voulez." : "Enregistrez le lien de votre publication pour suivre ses réactions."} Le classement des publications sera affiché ici prochainement.</p>
               )}
             </div>
           </li>
@@ -301,9 +330,9 @@ export function DefiTombola() {
             <Card bleed>
               <div className={`${ui.pad} flex flex-wrap items-center justify-between gap-2.5 !pb-2`}>
                 <Sur className="!mb-0">Classement des publications</Sur>
-                <Direct>En temps réel · simulation</Direct>
+                <Direct>Réactions relevées sur Facebook</Direct>
               </div>
-              <Classement entrees={classement.map((x) => (x.moi ? { ...x, initiales: nom } : x))} />
+              <Classement entrees={entrees} />
             </Card>
           ) : (
             <Card pad bleed className="grid content-start gap-1.5">
@@ -314,17 +343,21 @@ export function DefiTombola() {
           )}
           <Stat
             label="Ma publication"
-            value={s.lienPub && moiR !== null ? moiR : "—"}
+            value={lienPub && moiR !== null ? moiR : "—"}
             text={
-              !s.lienPub
+              !lienPub
                 ? CLASSEMENT_VISIBLE ? "Enregistrez votre lien pour entrer dans le classement" : "Enregistrez votre lien pour suivre ses réactions"
-                : moiR !== null && s.lienReactions
-                  ? `réactions Facebook · ${s.lienReactions.comments} commentaires · ${s.lienReactions.shares} partages · relevé à ${new Date(s.lienReactions.at).toLocaleTimeString("fr-FR", { hour: "2-digit", minute: "2-digit" })}`
-                  : s.lienReleve ?? "Relevé en cours…"
+                : erreurReleve
+                  ? erreurReleve
+                  : releve
+                    ? "Relevé en cours…"
+                    : moiR !== null && maPublication?.releveLe
+                      ? `réactions Facebook · ${maPublication.commentaires ?? 0} commentaires · ${maPublication.partages ?? 0} partages · relevé à ${HEURE.format(new Date(maPublication.releveLe)).replace(":", " h ")}`
+                      : "Réactions pas encore relevées : actualisez quand votre Facebook est connecté."
             }
           >
-            {s.lienPub ? (
-              <Btn small className="mt-3" disabled={releve} onClick={() => void relever(s.lienPub)}>
+            {lienPub ? (
+              <Btn small className="mt-3" disabled={releve} onClick={() => void relever(lienPub)}>
                 {releve ? <SpinnerIcon width={15} height={15} className="animate-spin" /> : null}
                 Actualiser
               </Btn>

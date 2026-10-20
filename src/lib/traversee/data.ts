@@ -138,15 +138,6 @@ export const DEMI: Demi[] = [
 ];
 export const VOIX_INIT = [212, 187, 164, 151, 139];
 export const VIGNETTES = ["salle", "ecran", "diner", "accueil", "assistance", "public", "hero", "rdv", "formation", "pitch"];
-export const CLASSEMENT_INIT: { nom: string; reactions: number }[] = [
-  { nom: "Baobab Conseil", reactions: 412 },
-  { nom: "Lagon Numérique", reactions: 388 },
-  { nom: "Mada Cacao Fin", reactions: 351 },
-  { nom: "Tsara Logistique", reactions: 296 },
-  { nom: "Ravinala Tourisme", reactions: 254 },
-  { nom: "Zébu Finance", reactions: 201 },
-  { nom: "Hauts Plateaux Textile", reactions: 173 },
-];
 export const LEGENDE_JY_SERAI = `J’y serai ! La Traversée, pour les 10 ans de la Chambre de Commerce et de Coopération Canada Madagascar, vendredi 18 décembre à ${LIEU_LONG}. Inscrivez-vous sur ce lien : ${LIEN_INSCRIPTION} #JySerai @canchammadagascar`;
 
 export type Media = { id: string; src: string; video: boolean; par: "CanCham" | "vous"; moi: boolean };

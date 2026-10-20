@@ -70,6 +70,7 @@ model User {
   annoncesVues          AnnonceVue[]
   rdvDemandes           RendezVousB2B[]              @relation("rdvDemandeur")
   rdvRecus              RendezVousB2B[]              @relation("rdvDestinataire")
+  participationsDefis   ParticipationDefi[]
 
   @@map("users")
 }
@@ -352,4 +353,29 @@ model RendezVousB2B {
   @@index([demandeurId])
   @@index([destinataireId])
   @@map("rendez_vous_b2b")
+}
+
+/// Participation à un défi, une par compte et par défi.
+/// « pitch » : lien de la vidéo pitch et note du jury (sur 20) ; « tombola » : lien de la publication « J'y serai »,
+/// dernier relevé des réactions Facebook (lu par le serveur), et retrait éventuel du classement par l'équipe.
+model ParticipationDefi {
+  id           String    @id @default(cuid())
+  defi         String    @db.VarChar(12)
+  userId       Int       @map("user_id")
+  user         User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  lien         String    @db.VarChar(500)
+  reactions    Int?
+  commentaires Int?
+  partages     Int?
+  releveLe     DateTime? @map("releve_le")
+  note         Float?
+  avis         String    @default("") @db.VarChar(1000)
+  noteLe       DateTime? @map("note_le")
+  retire       Boolean   @default(false)
+  creeLe       DateTime  @default(now()) @map("cree_le")
+  majLe        DateTime  @updatedAt @map("maj_le")
+
+  @@unique([defi, userId])
+  @@index([defi])
+  @@map("participations_defis")
 }
