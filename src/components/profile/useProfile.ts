@@ -42,6 +42,7 @@ export type SessionIdentity = {
   photo: string | null;
   /** Photo de couverture du profil, depuis la base. */
   couverture: string | null;
+  couverturePosition: number;
   /** Code du billet (QR) et règlement, depuis la base. */
   codeBillet: string;
   billetPaye: boolean;

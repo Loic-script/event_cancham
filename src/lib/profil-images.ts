@@ -37,7 +37,7 @@ export async function remplacerImageProfil(req: Request, champ: ImageProfil): Pr
     await deplacer(recu.chemin, cheminPhotoProfil(id, format));
     const url = urlPhotoProfil(id);
     const avant = await prisma.user.findUnique({ where: { id: user.id }, select: { photo: true, couverture: true } });
-    await prisma.user.update({ where: { id: user.id }, data: { [champ]: url } });
+    await prisma.user.update({ where: { id: user.id }, data: champ === "couverture" ? { couverture: url, couverturePosition: 50 } : { photo: url } });
     await effacerPhotoProfil(avant?.[champ]);
     rafraichir();
     return json(200, { ok: true, url });
@@ -58,7 +58,7 @@ export async function retirerImageProfil(champ: ImageProfil): Promise<Response> 
   const user = await getCurrentUser();
   if (!user) return json(401, { ok: false, message: "Connexion requise." });
   const avant = await prisma.user.findUnique({ where: { id: user.id }, select: { photo: true, couverture: true } });
-  await prisma.user.update({ where: { id: user.id }, data: { [champ]: null } });
+  await prisma.user.update({ where: { id: user.id }, data: champ === "couverture" ? { couverture: null, couverturePosition: 50 } : { photo: null } });
   await effacerPhotoProfil(avant?.[champ]);
   rafraichir();
   return json(200, { ok: true });

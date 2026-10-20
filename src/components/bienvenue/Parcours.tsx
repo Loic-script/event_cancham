@@ -20,6 +20,7 @@ type ParcoursProps = {
   nom: string;
   photo: string | null;
   couverture: string | null;
+  couverturePosition: number;
   /** Inscription validée : l'espace participant s'ouvre à la fin du parcours. */
   acces: boolean;
   etapes: EtapeEtat[];
@@ -343,7 +344,7 @@ export function Parcours(props: ParcoursProps) {
                   {erreur}
                 </p>
               ) : null}
-              {ecran === "photo" ? <EtapePhoto photo={props.photo} couverture={props.couverture} initiales={initiales} nav={nav("photo")} onFait={() => marquerFaite("photo")} /> : null}
+              {ecran === "photo" ? <EtapePhoto photo={props.photo} couverture={props.couverture} couverturePosition={props.couverturePosition} initiales={initiales} nav={nav("photo")} onFait={() => marquerFaite("photo")} /> : null}
               {ecran === "entreprise" ? <EtapeEntreprise initial={props.profil} nav={nav("entreprise")} onFait={() => marquerFaite("entreprise")} /> : null}
               {ecran === "pitch" ? <EtapePitch lien={props.pitch} nav={nav("pitch")} onFait={() => marquerFaite("pitch")} /> : null}
               {ecran === "tombola" ? <EtapeTombola lien={props.tombola} nav={nav("tombola")} onFait={() => marquerFaite("tombola")} /> : null}

@@ -93,7 +93,7 @@ function Liste({ participants, admin = false, mesRdv = [] }: Props) {
         <div className={`${styles.fiches} ${ui.stagger}`}>
           {liste.map((p, i) => (
             <Card key={p.id} className={styles.fiche} style={{ "--i": Math.min(i, 8) } as React.CSSProperties}>
-              <div className={styles.bandeau} style={{ backgroundImage: `linear-gradient(120deg, rgba(15,29,44,.78), rgba(22,50,84,.45)), url(${p.img})` }} />
+              <div className={styles.bandeau} style={{ backgroundImage: `linear-gradient(120deg, rgba(15,29,44,.78), rgba(22,50,84,.45)), url(${p.img})`, backgroundPosition: `center ${p.imgPosition}%` }} />
               <div className={styles.corps}>
                 <AvatarProfil photo={p.photo} size={64} className={styles.lg} />
                 <h3>{p.nom}</h3>

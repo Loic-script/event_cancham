@@ -11,13 +11,14 @@ export async function fichesInscrits(): Promise<FicheInscrit[]> {
   const users = await prisma.user.findMany({
     where: { acces: "MEMBRE", statut: "ACTIF" },
     orderBy: [{ firstName: "asc" }, { lastName: "asc" }],
-    select: { id: true, email: true, firstName: true, lastName: true, role: true, company: true, sector: true, bio: true, phone: true, website: true, billetPaye: true, codeBillet: true, photo: true, couverture: true, createdAt: true },
+    select: { id: true, email: true, firstName: true, lastName: true, role: true, company: true, sector: true, bio: true, phone: true, website: true, billetPaye: true, codeBillet: true, photo: true, couverture: true, couverturePosition: true, createdAt: true },
   });
 
   return users.map((u) => ({
     id: `u${u.id}`,
     userId: u.id,
     img: u.couverture ?? IMG(BANDEAUX[u.id % BANDEAUX.length]),
+    imgPosition: u.couverture ? u.couverturePosition : 50,
     code: u.codeBillet,
     nom: `${u.firstName} ${u.lastName}`.trim(),
     role: u.role ?? "",

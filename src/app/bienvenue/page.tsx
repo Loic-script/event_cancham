@@ -45,6 +45,7 @@ export default async function BienvenuePage(props: PageProps<"/bienvenue">) {
         nom={user.lastName}
         photo={user.photo}
         couverture={user.couverture}
+        couverturePosition={user.couverturePosition}
         acces={acces}
         etapes={etat.etapes}
         commence={etat.commence}

@@ -174,3 +174,14 @@ export async function supprimerMonCompte(_previous: SuppressionState, formData: 
   revalidatePath("/admin/participants");
   redirect("/connexion?compte=supprime");
 }
+
+/** Cadrage vertical de la couverture (0 : haut de l'image, 100 : bas), réglé en la faisant glisser. */
+export async function positionnerCouverture(position: unknown): Promise<{ error: string | null }> {
+  const user = await getCurrentUser();
+  if (!user) return { error: "Votre session a expiré : reconnectez-vous." };
+  const p = Number(position);
+  if (!Number.isFinite(p)) return { error: "Position invalide." };
+  await prisma.user.update({ where: { id: user.id }, data: { couverturePosition: Math.round(Math.min(100, Math.max(0, p))) } });
+  revalidatePath("/", "layout");
+  return { error: null };
+}

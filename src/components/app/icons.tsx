@@ -104,6 +104,7 @@ export const ListIcon = make("ListIcon", <><path d="M9 6h11M9 12h11M9 18h11" /><
 export const FolderLockIcon = make("FolderLockIcon", <><path d="M11 19H3V6h7l2 2h9v4" /><rect x="14" y="15" width="7" height="5" rx="1.2" /><path d="M15.5 15v-1.5a2 2 0 0 1 4 0V15" /></>);
 export const FolderPlusIcon = make("FolderPlusIcon", <><path d="M3 6h7l2 2h9v11H3z" /><path d="M12 11v5M9.5 13.5h5" /></>);
 export const FileTextIcon = make("FileTextIcon", <><path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z" /><path d="M14 3v6h6" /><path d="M8 13h8M8 17h5" /></>);
+export const MoveVerticalIcon = make("MoveVerticalIcon", <><path d="M12 2v20" /><path d="m8 18 4 4 4-4" /><path d="m8 6 4-4 4 4" /></>);
 export const GripIcon = make("GripIcon", <><circle cx="9" cy="6" r="1.2" fill="currentColor" stroke="none" /><circle cx="15" cy="6" r="1.2" fill="currentColor" stroke="none" /><circle cx="9" cy="12" r="1.2" fill="currentColor" stroke="none" /><circle cx="15" cy="12" r="1.2" fill="currentColor" stroke="none" /><circle cx="9" cy="18" r="1.2" fill="currentColor" stroke="none" /><circle cx="15" cy="18" r="1.2" fill="currentColor" stroke="none" /></>);
 export const CopyIcon = make("CopyIcon", <><rect x="9" y="9" width="12" height="12" rx="2" /><path d="M5 15H4a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h10a1 1 0 0 1 1 1v1" /></>);
 export const ScissorsIcon = make("ScissorsIcon", <><circle cx="6" cy="6" r="3" /><circle cx="6" cy="18" r="3" /><path d="M20 4 8.1 15.9M14.5 14.5 20 20M8.1 8.1 12 12" /></>);

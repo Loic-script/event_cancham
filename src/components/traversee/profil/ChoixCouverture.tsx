@@ -2,7 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { useState } from "react";
-import { ImageIcon, TrashIcon } from "@/components/app/icons";
+import { ImageIcon, MoveVerticalIcon, TrashIcon } from "@/components/app/icons";
 import { useSessionIdentity } from "@/components/profile/useProfile";
 import { lisImage, toast } from "@/lib/traversee/store";
 import { Btn, FileBtn } from "../ui";
@@ -19,7 +19,7 @@ export async function envoyerCouverture(dataUrl: string) {
  * Boutons « Ajouter / Changer la couverture » et « Retirer » : la bannière du profil et de la fiche annuaire.
  * `compact` (posé sur la bannière) : « Retirer » devient un bouton icône, pour tenir sur une ligne.
  */
-export function ChoixCouverture({ small = false, retrait = true, compact = false }: { small?: boolean; retrait?: boolean; compact?: boolean }) {
+export function ChoixCouverture({ small = false, retrait = true, compact = false, onRepositionner }: { small?: boolean; retrait?: boolean; compact?: boolean; onRepositionner?: () => void }) {
   const identite = useSessionIdentity();
   const router = useRouter();
   const [envoi, setEnvoi] = useState(false);
@@ -69,6 +69,12 @@ export function ChoixCouverture({ small = false, retrait = true, compact = false
           void choisir(f);
         }}
       />
+      {onRepositionner && couverture ? (
+        <Btn small={small} className={compact ? "!px-2.5" : ""} onClick={onRepositionner} disabled={envoi} aria-label="Repositionner la couverture" title={compact ? "Repositionner la couverture" : undefined}>
+          <MoveVerticalIcon width={15} height={15} />
+          {compact ? null : "Repositionner"}
+        </Btn>
+      ) : null}
       {retrait && couverture ? (
         <Btn small={small} className={`!text-[#b42318] ${compact ? "!px-2.5" : ""}`} onClick={retirer} disabled={envoi} aria-label="Retirer ma photo de couverture" title={compact ? "Retirer la couverture" : undefined}>
           <TrashIcon width={15} height={15} />

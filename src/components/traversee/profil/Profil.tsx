@@ -2,6 +2,7 @@
 
 import { useState, type FormEvent } from "react";
 import { reprendreParcours } from "@/app/bienvenue/actions";
+import { positionnerCouverture } from "@/app/(app)/profil/actions";
 import { Avatar } from "@/components/app/Avatar";
 import { ArrowRightIcon, DownloadIcon } from "@/components/app/icons";
 import { updateProfile, useProfile, useSessionIdentity } from "@/components/profile/useProfile";
@@ -12,6 +13,7 @@ import { BilletModal } from "../achats/BilletModal";
 import { Presentation } from "../accueil/Presentation";
 import { Coordonnees, MotDePasse } from "./Compte";
 import { ChoixCouverture } from "./ChoixCouverture";
+import { CouvertureReglable } from "./CouvertureReglable";
 import { ChoixPhotoProfil } from "./ChoixPhotoProfil";
 import { SupprimerCompte } from "./SupprimerCompte";
 import { Btn, Card, Champ, Jauge, Sur, ui } from "../ui";
@@ -21,7 +23,24 @@ type Parcours = { termine: boolean; aCompleter: number; total: number };
 
 export function Profil({ restant, parcours }: { restant: number; parcours: Parcours | null }) {
   const me = useProfile();
-  const couverture = useSessionIdentity()?.couverture ?? null;
+  const identite = useSessionIdentity();
+  const couverture = identite?.couverture ?? null;
+  const positionCompte = identite?.couverturePosition ?? 50;
+  const [reglage, setReglage] = useState(false);
+  const [position, setPosition] = useState(positionCompte);
+  // Nouvelle couverture (ou position enregistrée) : le réglage local repart de la valeur du compte.
+  const [reference, setReference] = useState(`${couverture}|${positionCompte}`);
+  if (reference !== `${couverture}|${positionCompte}`) {
+    setReference(`${couverture}|${positionCompte}`);
+    setPosition(positionCompte);
+  }
+
+  async function enregistrerPosition() {
+    const { error } = await positionnerCouverture(position);
+    setReglage(false);
+    if (error) return toast(error);
+    toast("Cadrage de la couverture enregistré.");
+  }
   const [f, setF] = useState({ firstName: me.firstName, lastName: me.lastName, company: me.company, sector: me.sector, role: me.role, bio: me.bio ?? "" });
   const [billet, setBillet] = useState(false);
   const champs = [f.firstName, f.lastName, f.company, f.role, f.sector, f.bio, me.photo].filter(Boolean).length;
@@ -55,12 +74,30 @@ export function Profil({ restant, parcours }: { restant: number; parcours: Parco
       </div>
       <div className={styles.profil}>
         <Card bleed className={styles.id}>
-          <div className={styles.couverture} style={couverture ? { backgroundImage: `url(${couverture})` } : undefined} role="img" aria-label={couverture ? "Votre photo de couverture" : "Aucune photo de couverture"}>
+          <CouvertureReglable src={couverture} position={position} reglage={reglage} onChange={setPosition} className={`${styles.couverture} ${reglage ? styles.couvertureReglage : ""}`} label={couverture ? "Votre photo de couverture" : "Aucune photo de couverture"}>
             <div className={styles.couvertureAction}>
-              <ChoixCouverture small compact />
+              {reglage ? (
+                <>
+                  <Btn small variant="primary" onClick={() => void enregistrerPosition()}>
+                    Enregistrer
+                  </Btn>
+                  <Btn
+                    small
+                    onClick={() => {
+                      setPosition(positionCompte);
+                      setReglage(false);
+                    }}
+                  >
+                    Annuler
+                  </Btn>
+                </>
+              ) : (
+                <ChoixCouverture small compact onRepositionner={() => setReglage(true)} />
+              )}
             </div>
-          </div>
-          <Avatar person={me} size={112} className={`${styles.surCouverture} ring-4 ring-surface shadow-[0_12px_28px_-18px_rgba(15,29,44,0.4)]`} />
+            {reglage ? <span className={styles.couvertureAide}>Glissez l’image pour la placer</span> : null}
+          </CouvertureReglable>
+          <Avatar person={me} size={112} className={`${styles.surCouverture} shadow-[0_12px_28px_-18px_rgba(15,29,44,0.5)]`} />
           <div>
             <h3 className="font-display text-[18px] text-graphite">{fullName(me)}</h3>
             <p className="text-graphite-muted">{me.company || "Entreprise à renseigner"}</p>

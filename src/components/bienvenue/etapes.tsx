@@ -2,10 +2,12 @@
 
 import { useState, type FormEvent, type ReactNode } from "react";
 import { enregistrerPublication, envoyerPitch } from "@/app/(app)/defis/actions";
+import { positionnerCouverture } from "@/app/(app)/profil/actions";
 import { enregistrerEntreprise } from "@/app/bienvenue/actions";
-import { ArrowLeftIcon, ArrowRightIcon, CameraIcon, CheckIcon, ExternalLinkIcon, ImageIcon, SpinnerIcon } from "@/components/app/icons";
+import { ArrowLeftIcon, ArrowRightIcon, CameraIcon, CheckIcon, ExternalLinkIcon, ImageIcon, MoveVerticalIcon, SpinnerIcon } from "@/components/app/icons";
 import { lienVideo } from "@/components/traversee/defis/DefiPitch";
 import { envoyerCouverture } from "@/components/traversee/profil/ChoixCouverture";
+import { CouvertureReglable } from "@/components/traversee/profil/CouvertureReglable";
 import { envoyerPhoto } from "@/components/traversee/profil/ChoixPhotoProfil";
 import { parseSocialLink } from "@/lib/social/links";
 import { SECTEURS } from "@/lib/traversee/data";
@@ -68,11 +70,23 @@ export function Champ({ label, htmlFor, aide, compteur, children }: { label: str
 
 /* ---------- Photo ---------- */
 
-export function EtapePhoto({ photo, couverture, initiales, nav, onFait }: { photo: string | null; couverture: string | null; initiales: string; nav: Navigation; onFait: () => void }) {
+export function EtapePhoto({ photo, couverture, couverturePosition, initiales, nav, onFait }: { photo: string | null; couverture: string | null; couverturePosition: number; initiales: string; nav: Navigation; onFait: () => void }) {
   const [apercu, setApercu] = useState(photo);
   const [couv, setCouv] = useState(couverture);
   const [envoi, setEnvoi] = useState<"photo" | "couverture" | null>(null);
   const [erreur, setErreur] = useState<string | null>(null);
+  // Cadrage vertical de la couverture : enregistré sur le compte, réglé en faisant glisser l'image.
+  const [position, setPosition] = useState(couverturePosition);
+  const [positionEnregistree, setPositionEnregistree] = useState(couverturePosition);
+  const [reglage, setReglage] = useState(false);
+
+  async function enregistrerPosition() {
+    setErreur(null);
+    const { error } = await positionnerCouverture(position);
+    setReglage(false);
+    if (error) return setErreur(error);
+    setPositionEnregistree(position);
+  }
 
   /** Photo (640 px) ou couverture (1 600 px), enregistrée dès qu'elle est choisie. */
   async function choisir(quoi: "photo" | "couverture", fichier: File | undefined) {
@@ -89,6 +103,8 @@ export function EtapePhoto({ photo, couverture, initiales, nav, onFait }: { phot
       } else {
         await envoyerCouverture(dataUrl);
         setCouv(dataUrl);
+        setPosition(50);
+        setPositionEnregistree(50);
       }
     } catch (e) {
       setErreur(e instanceof Error ? e.message : "L’image n’a pas pu être enregistrée.");
@@ -115,13 +131,41 @@ export function EtapePhoto({ photo, couverture, initiales, nav, onFait }: { phot
     <>
       <div className={styles.corps}>
         <div className={styles.photoBloc}>
-          <div className={styles.couverture} style={couv ? { backgroundImage: `url(${couv})` } : undefined} role="img" aria-label={couv ? "Votre photo de couverture" : "Aucune photo de couverture"}>
-            <label className={`${styles.fichier} ${styles.fichierCouverture}`} aria-disabled={envoi !== null}>
-              {envoi === "couverture" ? <SpinnerIcon width={15} height={15} className={styles.spin} /> : <ImageIcon width={15} height={15} />}
-              {envoi === "couverture" ? "Envoi…" : couv ? "Changer la couverture" : "Ajouter une couverture"}
-              {entree("couverture", "Choisir ma photo de couverture")}
-            </label>
-          </div>
+          <CouvertureReglable src={couv} position={position} reglage={reglage} onChange={setPosition} className={`${styles.couverture} ${reglage ? styles.couvertureReglage : ""}`} label={couv ? "Votre photo de couverture" : "Aucune photo de couverture"}>
+            <div className={styles.couvertureActions}>
+              {reglage ? (
+                <>
+                  <button type="button" className={`${styles.fichier} ${styles.fichierPetit} ${styles.fichierPrimaire}`} onClick={() => void enregistrerPosition()}>
+                    Enregistrer
+                  </button>
+                  <button
+                    type="button"
+                    className={`${styles.fichier} ${styles.fichierPetit}`}
+                    onClick={() => {
+                      setPosition(positionEnregistree);
+                      setReglage(false);
+                    }}
+                  >
+                    Annuler
+                  </button>
+                </>
+              ) : (
+                <>
+                  {couv ? (
+                    <button type="button" className={`${styles.fichier} ${styles.fichierPetit}`} onClick={() => setReglage(true)} disabled={envoi !== null} aria-label="Repositionner la couverture" title="Repositionner la couverture">
+                      <MoveVerticalIcon width={15} height={15} />
+                    </button>
+                  ) : null}
+                  <label className={`${styles.fichier} ${styles.fichierPetit}`} aria-disabled={envoi !== null}>
+                    {envoi === "couverture" ? <SpinnerIcon width={15} height={15} className={styles.spin} /> : <ImageIcon width={15} height={15} />}
+                    {envoi === "couverture" ? "Envoi…" : couv ? "Changer la couverture" : "Ajouter une couverture"}
+                    {entree("couverture", "Choisir ma photo de couverture")}
+                  </label>
+                </>
+              )}
+            </div>
+            {reglage ? <span className={styles.couvertureAide}>Glissez l’image pour la placer</span> : null}
+          </CouvertureReglable>
           <div className={`${styles.anneau} ${styles.surCouverture}`}>{apercu ? <img src={apercu} alt="Votre photo de profil" /> : <span className={`${styles.initiales}`}>{initiales}</span>}</div>
           <label className={styles.fichier} aria-disabled={envoi !== null}>
             {envoi === "photo" ? <SpinnerIcon width={16} height={16} className={styles.spin} /> : <CameraIcon width={17} height={17} />}

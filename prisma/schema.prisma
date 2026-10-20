@@ -57,6 +57,8 @@ model User {
   photo                 String?                      @db.VarChar(200)
   /// Photo de couverture (bannière du profil et de la fiche annuaire), rangée comme la photo de profil.
   couverture            String?                      @db.VarChar(200)
+  /// Cadrage vertical de la couverture, en pourcentage (0 : haut de l'image, 100 : bas), réglé par le participant.
+  couverturePosition    Int                          @default(50) @map("couverture_position")
   /// Identifiants des comptes Google et Facebook reliés (connexion et inscription en un clic).
   googleId              String?                      @unique @map("google_id")
   facebookId            String?                      @unique @map("facebook_id")
