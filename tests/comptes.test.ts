@@ -132,3 +132,18 @@ describe("mot de passe collé depuis un e-mail", () => {
     assert.equal(await verifierMotDePasseSaisi(" espace devant", hash), true);
   });
 });
+
+describe("logo des e-mails", () => {
+  it("affiche le logo Impact 261 en image intégrée dans chaque e-mail", () => {
+    const base = "https://latraversee.example";
+    for (const c of [
+      courrielReinitialisation("a@b.mg", "A", `${base}/mot-de-passe-oublie/x`),
+      courrielNouvelAdmin({ email: "a@b.mg", prenom: "A", createur: "B", motDePasse: "x", base }),
+      courrielPromotionAdmin({ email: "a@b.mg", prenom: "A", createur: "B", motDePasse: "x", base }),
+      courrielNouvelleInscription({ firstName: "A", lastName: "B", email: "a@b.mg", company: null, role: null, phone: null, via: "par le formulaire" }, ["x@y.mg"], base),
+    ]) {
+      assert.ok(c.html.includes('src="cid:logo-impact"'), c.sujet);
+      assert.ok(c.html.includes('alt="Impact 261"'), c.sujet);
+    }
+  });
+});

@@ -1,4 +1,4 @@
-import type { Courriel } from "@/lib/courriel";
+import { LOGO_CID, type Courriel } from "@/lib/courriel";
 import { DUREE_LIEN_MINUTES } from "@/lib/reinitialisation";
 
 /** Modèles des e-mails envoyés par la plateforme (texte brut et HTML, mêmes informations). */
@@ -11,7 +11,12 @@ function bouton(lien: string, libelle: string) {
   return `<p style="margin:24px 0"><a href="${echapper(lien)}" style="display:inline-block;padding:12px 22px;border-radius:8px;background:#c94d0c;color:#ffffff;font-weight:bold;text-decoration:none">${echapper(libelle)}</a></p>`;
 }
 
-const page = (contenu: string) => `<div style="font-family:Arial,Helvetica,sans-serif;font-size:15px;line-height:1.55;color:#0f1d2c;max-width:560px">${contenu}</div>`;
+/** Mise en page commune : bande bleu nuit avec le logo Impact 261 (image intégrée), puis le message. */
+const page = (contenu: string) =>
+  `<div style="max-width:560px;font-family:Arial,Helvetica,sans-serif;font-size:15px;line-height:1.55;color:#0f1d2c">` +
+  `<div style="padding:20px 28px;border-radius:12px 12px 0 0;background:#0b1a30"><img src="cid:${LOGO_CID}" alt="Impact 261" width="148" height="60" style="display:block;width:148px;height:60px;border:0"></div>` +
+  `<div style="padding:8px 28px 20px;border:1px solid #e1e7ee;border-top:0;border-radius:0 0 12px 12px;background:#ffffff">${contenu}</div>` +
+  `</div>`;
 
 const p = (texte: string, style = "") => `<p${style ? ` style="${style}"` : ""}>${echapper(texte)}</p>`;
 
