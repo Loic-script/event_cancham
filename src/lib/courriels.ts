@@ -20,6 +20,11 @@ function tableau(lignes: [string, string][]) {
   return `<table style="border-collapse:collapse;margin:12px 0">${cellules}</table>`;
 }
 
+/** Mot de passe seul sur sa ligne, en police à chasse fixe : un triple clic le sélectionne sans rien autour. */
+function blocMotDePasse(libelle: string, motDePasse: string) {
+  return `<p style="margin:16px 0 4px;color:#5b6b7a">${echapper(libelle)}</p><p style="display:inline-block;margin:0 0 8px;padding:10px 16px;border:1px solid #e1e7ee;border-radius:8px;background:#f4f6f9;font-family:Consolas,Menlo,monospace;font-size:20px;font-weight:bold;letter-spacing:0.06em">${echapper(motDePasse)}</p>`;
+}
+
 const bonjour = (prenom: string) => (prenom.trim() ? `Bonjour ${prenom.trim()},` : "Bonjour,");
 
 export function courrielReinitialisation(email: string, prenom: string, lien: string): Courriel {
@@ -77,10 +82,8 @@ export function courrielNouvelAdmin(d: { email: string; prenom: string; createur
     html: page(
       p(bonjour(d.prenom)) +
         p(`${d.createur} vous a créé un compte administrateur sur La Traversée, la plateforme du gala des 10 ans de CanCham Madagascar.`) +
-        tableau([
-          ["Adresse e-mail", d.email],
-          ["Mot de passe provisoire", d.motDePasse],
-        ]) +
+        tableau([["Adresse e-mail", d.email]]) +
+        blocMotDePasse("Mot de passe provisoire", d.motDePasse) +
         bouton(lien, "Se connecter") +
         p("Après votre première connexion, choisissez votre propre mot de passe dans « Mon compte » (back-office), puis supprimez cet e-mail.", DISCRET) +
         p("L’équipe CanCham Madagascar"),
@@ -98,10 +101,8 @@ export function courrielPromotionAdmin(d: { email: string; prenom: string; creat
     html: page(
       p(bonjour(d.prenom)) +
         p(`${d.createur} vous a donné les droits d’administrateur sur La Traversée. Voici vos identifiants pour vous connecter ; ce mot de passe remplace l’ancien.`) +
-        tableau([
-          ["Adresse e-mail", d.email],
-          ["Mot de passe", d.motDePasse],
-        ]) +
+        tableau([["Adresse e-mail", d.email]]) +
+        blocMotDePasse("Mot de passe", d.motDePasse) +
         bouton(lien, "Se connecter") +
         p("Vous pourrez le changer dans « Mon compte » (back-office), puis supprimer cet e-mail.", DISCRET) +
         p("L’équipe CanCham Madagascar"),

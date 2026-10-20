@@ -4,7 +4,7 @@ import { erreurCoordonnees, profilIncomplet } from "../src/lib/coordonnees";
 import { messageErreurSociale, nouvelEtat, urlAutorisation, urlRetour } from "../src/lib/oauth";
 import { courrielNouvelAdmin, courrielNouvelleInscription, courrielPromotionAdmin, courrielReinitialisation } from "../src/lib/courriels";
 import { adressesSuperAdmins, estSuperAdmin } from "../src/lib/super-admin";
-import { genererMotDePasse } from "../src/lib/password";
+import { genererMotDePasse, hashPassword, verifierMotDePasseSaisi } from "../src/lib/password";
 
 const valides = { firstName: "Hanta", lastName: "Rakoto", company: "Baobab Conseil", role: "Gérante", phone: "+261 34 00 000 00" };
 
@@ -114,5 +114,21 @@ describe("super admin", () => {
     const c = courrielPromotionAdmin({ email: "membre@cancham.mg", prenom: "Marco", createur: "Équipe CanCham", motDePasse: "wWP7-MErq-DTZr", base: "https://latraversee.example" });
     assert.ok(c.texte.includes("Mot de passe : wWP7-MErq-DTZr") && c.texte.includes("remplace l’ancien"));
     assert.ok(c.html.includes('href="https://latraversee.example/connexion"'));
+  });
+});
+
+describe("mot de passe collé depuis un e-mail", () => {
+  it("accepte des espaces ou une tabulation autour, et refuse toujours un mauvais mot de passe", async () => {
+    const hash = await hashPassword("ccNP-XXmR-KGYU");
+    assert.equal(await verifierMotDePasseSaisi("ccNP-XXmR-KGYU", hash), true);
+    assert.equal(await verifierMotDePasseSaisi("  ccNP-XXmR-KGYU ", hash), true);
+    assert.equal(await verifierMotDePasseSaisi("\tccNP-XXmR-KGYU\n", hash), true);
+    assert.equal(await verifierMotDePasseSaisi("ccNP-XXmR-KGYX", hash), false);
+    assert.equal(await verifierMotDePasseSaisi("   ", hash), false);
+  });
+
+  it("garde un mot de passe choisi avec des espaces autour", async () => {
+    const hash = await hashPassword(" espace devant");
+    assert.equal(await verifierMotDePasseSaisi(" espace devant", hash), true);
   });
 });

@@ -2,7 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { Prisma } from "@/generated/prisma/client";
-import { hashPassword, verifyPassword } from "@/lib/password";
+import { hashPassword, verifierMotDePasseSaisi } from "@/lib/password";
 import { prisma } from "@/lib/prisma";
 import { redirect } from "next/navigation";
 import { supprimerCompte } from "@/lib/comptes";
@@ -45,7 +45,7 @@ const SESSION_EXPIREE: CompteState = { error: "Votre session a expiré : reconne
 
 async function motDePasseCorrect(userId: number, motDePasse: string) {
   const compte = await prisma.user.findUnique({ where: { id: userId }, select: { passwordHash: true } });
-  return !!compte && (await verifyPassword(motDePasse, compte.passwordHash));
+  return !!compte && (await verifierMotDePasseSaisi(motDePasse, compte.passwordHash));
 }
 
 /** Prénom, nom et adresse de connexion. Changer d'adresse demande le mot de passe actuel. */

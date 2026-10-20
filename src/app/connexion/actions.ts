@@ -2,7 +2,7 @@
 
 import { redirect } from "next/navigation";
 import { LOGIN_PATH, safeNext } from "@/lib/auth";
-import { hashPassword, verifyPassword } from "@/lib/password";
+import { hashPassword, verifierMotDePasseSaisi, verifyPassword } from "@/lib/password";
 import { prisma } from "@/lib/prisma";
 import { createSession, destroySession } from "@/lib/session";
 
@@ -24,7 +24,7 @@ export async function login(_previous: LoginState, formData: FormData): Promise<
   let destination = next;
   try {
     const user = await prisma.user.findUnique({ where: { email } });
-    authenticated = user ? await verifyPassword(password, user.passwordHash) : !(await verifyPassword(password, await decoyHash));
+    authenticated = user ? await verifierMotDePasseSaisi(password, user.passwordHash) : !(await verifyPassword(password, await decoyHash));
     if (authenticated && user) {
       await createSession(user.id);
       if (next === "/" && user.acces === "ADMIN") destination = "/admin";

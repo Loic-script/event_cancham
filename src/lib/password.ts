@@ -31,6 +31,16 @@ export async function verifyPassword(password: string, stored: string): Promise<
   return key.length === expected.length && timingSafeEqual(key, expected);
 }
 
+/**
+ * Vérifie un mot de passe saisi ou collé. Un copier-coller depuis un e-mail ajoute souvent des espaces ou une tabulation
+ * autour : si la saisie exacte échoue, on essaie aussi la saisie sans ces blancs.
+ */
+export async function verifierMotDePasseSaisi(saisie: string, stored: string): Promise<boolean> {
+  if (await verifyPassword(saisie, stored)) return true;
+  const sansBlancs = saisie.trim();
+  return sansBlancs !== saisie && sansBlancs.length > 0 && (await verifyPassword(sansBlancs, stored));
+}
+
 /** Mot de passe provisoire lisible (sans 0/O ni 1/l/I), par exemple « Kx7m-P2qr-Hn9d » : environ 69 bits d'aléa. */
 export function genererMotDePasse(): string {
   const alphabet = "abcdefghjkmnpqrstuvwxyzABCDEFGHJKMNPQRSTUVWXYZ23456789";
