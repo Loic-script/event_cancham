@@ -140,25 +140,6 @@ export const VOIX_INIT = [212, 187, 164, 151, 139];
 export const VIGNETTES = ["salle", "ecran", "diner", "accueil", "assistance", "public", "hero", "rdv", "formation", "pitch"];
 export const LEGENDE_JY_SERAI = `J’y serai ! La Traversée, pour les 10 ans de la Chambre de Commerce et de Coopération Canada Madagascar, vendredi 18 décembre à ${LIEU_LONG}. Inscrivez-vous sur ce lien : ${LIEN_INSCRIPTION} #JySerai @canchammadagascar`;
 
-export type Media = { id: string; src: string; video: boolean; par: "CanCham" | "vous"; moi: boolean };
-const PHOTOS = ["hero", "accueil", "public", "reseau", "pitch", "musique", "groupe", "oratrice", "rdv", "equipe", "assistance", "diner", "formation", "salle", "ecran"];
-export const GALERIE: Media[] = PHOTOS.map((p, i) => ({ id: `g${i}`, src: IMG(p), video: i === 5 || i === 12, par: "CanCham", moi: [0, 3, 8, 10].includes(i) }));
-
-export type Story = { id: string; img: string; texte: string };
-export const STORIES: Story[] = [
-  { id: "s1", img: IMG("musique"), texte: "Rendez-vous le 18 décembre pour le Gala des 10 ans." },
-  { id: "s2", img: IMG("pitch"), texte: "Gagnez un voyage au Canada : envoyez votre pitch avant le 11 décembre." },
-  { id: "s3", img: IMG("reseau"), texte: "Réservez vos rendez-vous B2B depuis l’annuaire." },
-];
-
-export type Promo = { ann: string; titre: string; texte: string; img: string; lien: string };
-export const PROMOS: Promo[] = [
-  { ann: "Atelier Vanille Rouge", titre: "Retrouvez-nous sur notre stand", texte: "Épices et vanille préparées pour l’export.", img: IMG("diner"), lien: "/annuaire" },
-  { ann: "Baobab Conseil", titre: "Un diagnostic export offert", texte: "Prenez rendez-vous pendant le 5 à 7.", img: IMG("rdv"), lien: "/rdv" },
-  { ann: "Tsara Logistique", titre: "Votre fret vers le Canada", texte: "Transit, fret aérien et maritime.", img: IMG("accueil"), lien: "/annuaire" },
-  { ann: "Zébu Finance", titre: "Financez votre premier conteneur", texte: "Solutions de financement pour les PME.", img: IMG("ecran"), lien: "/programme" },
-];
-
 export type AnnonceType = "info" | "programme" | "urgent";
 export const TYPES_ANNONCE: Record<AnnonceType, string> = { info: "Information", programme: "Programme", urgent: "Important" };
 export const DESTINATIONS: { href: string; label: string; nom: string }[] = [

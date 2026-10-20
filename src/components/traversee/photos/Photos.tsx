@@ -1,18 +1,16 @@
 "use client";
 
+import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { supprimerPhotoGalerie } from "@/app/(app)/galerie/actions";
 import { DownloadIcon, PlayIcon, PlusIcon } from "@/components/app/icons";
-import { useProfile } from "@/components/profile/useProfile";
-import { type Media } from "@/lib/traversee/data";
-import { galerie } from "@/lib/traversee/galerie";
-import { lisImage, setTraversee, toast, uid, useTraversee } from "@/lib/traversee/store";
+import type { PhotoVue } from "@/lib/traversee/galerie";
+import { lisImage, toast } from "@/lib/traversee/store";
 import { Modal } from "../Modal";
-import { Btn, Card, FileBtn, Note, Onglets, PageHead, Puce, Vide, ui } from "../ui";
+import { Btn, FileBtn, Onglets, PageHead, Puce, Vide, ui } from "../ui";
 import styles from "./photos.module.css";
 
-export { galerie };
-
-export function Vignette({ m, tag, onOpen, i, children }: { m: Media; tag?: { texte: string; rouge?: boolean }; onOpen?: () => void; i: number; children?: React.ReactNode }) {
+export function Vignette({ m, tag, onOpen, i, children }: { m: { src: string; video?: boolean }; tag?: { texte: string; rouge?: boolean }; onOpen?: () => void; i: number; children?: React.ReactNode }) {
   const Tag = onOpen ? "button" : "div";
   return (
     <Tag type={onOpen ? "button" : undefined} className={`${styles.vignette} ${onOpen ? "" : styles.adm}`} style={{ "--i": Math.min(i, 12) } as React.CSSProperties} onClick={onOpen} aria-label={onOpen ? "Agrandir la photo" : undefined}>
@@ -40,35 +38,51 @@ function telecharger(src: string, nom: string) {
   a.click();
 }
 
-export function Photos() {
-  const s = useTraversee();
-  const me = useProfile();
-  const [vue, setVue] = useState<"toutes" | "moi">("toutes");
-  const [scan, setScan] = useState(false);
-  const [grand, setGrand] = useState<Media | null>(null);
-  const gal = galerie(s);
-  const miennes = gal.filter((m) => m.moi || m.par === "vous");
-  const liste = vue === "toutes" ? gal : miennes;
-  const aDesPhotos = s.retrouve || gal.some((m) => m.par === "vous");
+/** Photo réduite dans le navigateur puis inscrite dans la galerie par le serveur. */
+async function envoyerPhoto(dataUrl: string) {
+  const blob = await (await fetch(dataUrl)).blob();
+  const r = await fetch("/api/photos", { method: "POST", headers: { "Content-Type": blob.type || "image/jpeg" }, body: blob });
+  const d = (await r.json().catch(() => ({}))) as { ok?: boolean; message?: string };
+  if (!r.ok || !d.ok) throw new Error(d.message ?? "La photo n’a pas pu être enregistrée.");
+}
 
-  function retrouver() {
-    if (!me.photo) return toast("Ajoutez d’abord une photo de profil.");
-    setScan(true);
-    window.setTimeout(() => {
-      setScan(false);
-      setTraversee({ retrouve: true });
-      setVue("moi");
-      toast(`${gal.filter((m) => m.moi).length} photos et vidéos retrouvées.`);
-    }, 2200);
-  }
+/** Galerie de l'événement (en base) : photos de l'équipe et photos partagées par les participants. */
+export function Photos({ photos }: { photos: PhotoVue[] }) {
+  const router = useRouter();
+  const [vue, setVue] = useState<"toutes" | "moi">("toutes");
+  const [grand, setGrand] = useState<PhotoVue | null>(null);
+  const [envoi, setEnvoi] = useState(false);
+  const miennes = photos.filter((m) => m.aMoi);
+  const liste = vue === "toutes" ? photos : miennes;
 
   async function ajouter(files: FileList | null) {
-    const liste = Array.from(files ?? []);
-    if (!liste.length) return;
-    const urls = (await Promise.all(liste.map((f) => lisImage(f, 1280)))).filter((u): u is string => Boolean(u));
-    if (!urls.length) return;
-    setTraversee((st) => ({ galAjoutees: [...urls.map((src) => ({ id: uid("u"), src })), ...st.galAjoutees] }));
-    toast(`${urls.length} photo${urls.length > 1 ? "s ajoutées" : " ajoutée"} à la galerie.`);
+    const fichiers = Array.from(files ?? []);
+    if (!fichiers.length) return;
+    setEnvoi(true);
+    let ok = 0;
+    for (const f of fichiers) {
+      const u = await lisImage(f, 1280);
+      if (!u) continue;
+      try {
+        await envoyerPhoto(u);
+        ok++;
+      } catch (e) {
+        toast(e instanceof Error ? e.message : "La photo n’a pas pu être enregistrée.");
+      }
+    }
+    setEnvoi(false);
+    if (ok) {
+      toast(`${ok} photo${ok > 1 ? "s ajoutées" : " ajoutée"} à la galerie.`);
+      router.refresh();
+    }
+  }
+
+  async function retirer(m: PhotoVue) {
+    const { error } = await supprimerPhotoGalerie(m.id);
+    if (error) return toast(error);
+    setGrand(null);
+    toast("Photo retirée de la galerie.");
+    router.refresh();
   }
 
   return (
@@ -79,54 +93,37 @@ export function Photos() {
           label={
             <>
               <PlusIcon width={16} height={16} />
-              Ajouter mes photos
+              {envoi ? "Envoi…" : "Ajouter mes photos"}
             </>
           }
-          accept="image/*"
+          accept="image/jpeg,image/png,image/webp"
           multiple
+          disabled={envoi}
           aria-label="Ajouter mes photos à la galerie"
-          onChange={(e) => void ajouter(e.target.files)}
+          onChange={(e) => {
+            const f = e.target.files;
+            void ajouter(f).finally(() => (e.target.value = ""));
+          }}
         />
       </PageHead>
       <div className={ui.outils}>
         <Onglets
           items={[
             { v: "toutes", label: "Toutes" },
-            { v: "moi", label: "Mes photos", disabled: !aDesPhotos },
+            { v: "moi", label: "Mes photos", disabled: !miennes.length },
           ]}
           value={vue}
           onChange={setVue}
           label="Affichage"
         />
-        <Puce tone="grey">{gal.length} photos et vidéos</Puce>
+        <Puce tone="grey">
+          {photos.length} photo{photos.length > 1 ? "s" : ""}
+        </Puce>
       </div>
-      {!s.visage ? (
-        <Note className="mb-4">
-          Pour retrouver automatiquement vos photos et vidéos, activez la reconnaissance faciale dans votre{" "}
-          <a href="/profil" className="font-bold underline underline-offset-4">
-            profil
-          </a>
-          . Elle est facultative et vous pouvez la couper à tout moment.
-        </Note>
-      ) : !s.retrouve ? (
-        <Card pad bleed className="mb-4 flex flex-wrap items-center justify-between gap-3.5">
-          <div>
-            <strong className="text-graphite">Retrouvez-vous dans la galerie</strong>
-            <p className="text-graphite-muted">La plateforme compare votre photo de profil aux photos et vidéos de l’événement.</p>
-          </div>
-          <Btn variant="primary" onClick={retrouver} disabled={scan}>
-            {scan ? "Recherche en cours…" : "Me retrouver"}
-          </Btn>
-        </Card>
-      ) : (
-        <Note tone="green" className="mb-4">
-          {gal.filter((m) => m.moi).length} photos et vidéos où vous apparaissez (résultat simulé dans cette maquette).
-        </Note>
-      )}
       {liste.length ? (
-        <div className={`${styles.mur} ${scan ? styles.scan : ""}`}>
+        <div className={styles.mur}>
           {liste.map((m, i) => (
-            <Vignette key={m.id} m={m} i={i} onOpen={() => setGrand(m)} tag={m.par === "vous" ? { texte: "Votre photo", rouge: true } : s.retrouve && m.moi ? { texte: "Vous", rouge: true } : undefined} />
+            <Vignette key={m.id} m={m} i={i} onOpen={() => setGrand(m)} tag={m.aMoi ? { texte: "Votre photo", rouge: true } : undefined} />
           ))}
         </div>
       ) : (
@@ -140,6 +137,11 @@ export function Photos() {
               <DownloadIcon width={16} height={16} />
               Télécharger
             </Btn>
+            {grand.aMoi ? (
+              <Btn className="!text-[#b42318]" onClick={() => void retirer(grand)}>
+                Retirer ma photo
+              </Btn>
+            ) : null}
             <Btn onClick={() => setGrand(null)}>Fermer</Btn>
           </div>
         </Modal>

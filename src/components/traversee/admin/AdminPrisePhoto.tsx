@@ -1,8 +1,9 @@
 "use client";
 
+import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { CameraIcon, CheckIcon, ImageIcon, RefreshIcon, SpinnerIcon, XIcon } from "@/components/app/icons";
-import { setTraversee, toast, uid } from "@/lib/traversee/store";
+import { toast, uid } from "@/lib/traversee/store";
 import styles from "./prisePhoto.module.css";
 
 type Envoi = { id: string; apercu: string; blob: Blob; etat: "envoi" | "ok" | "echec" };
@@ -39,6 +40,7 @@ function fichierVersBlob(fichier: File): Promise<Blob | null> {
 }
 
 export function AdminPrisePhoto({ total }: { total: number }) {
+  const router = useRouter();
   const video = useRef<HTMLVideoElement | null>(null);
   const appareil = useRef<HTMLInputElement | null>(null);
   const apercus = useRef(new Set<string>());
@@ -106,9 +108,8 @@ export function AdminPrisePhoto({ total }: { total: number }) {
           (r.status === 401 ? "Session expirée : reconnectez-vous." : r.status === 413 ? "Le serveur en ligne refuse un fichier de cette taille (limite du proxy)." : `Le serveur a répondu ${r.status}.`);
         throw new Error(`Photo non enregistrée. ${raison}`);
       }
-      const url = d.url;
-      const idPhoto = d.id;
-      setTraversee((st) => ({ galAjoutees: [{ id: `ph-${idPhoto}`, src: url, par: "CanCham" as const, t: Date.now() }, ...st.galAjoutees] }));
+      // La photo est inscrite dans la galerie par le serveur : la liste de la page se recharge.
+      router.refresh();
       setEnvois((e) => e.map((x) => (x.id === id ? { ...x, etat: "ok" } : x)));
     } catch (err) {
       setEnvois((e) => e.map((x) => (x.id === id ? { ...x, etat: "echec" } : x)));

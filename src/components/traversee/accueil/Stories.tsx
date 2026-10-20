@@ -1,18 +1,20 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useRouter } from "next/navigation";
+import { useCallback, useEffect, useRef, useState } from "react";
+import { supprimerPhotoGalerie, supprimerStory } from "@/app/(app)/galerie/actions";
 import { ChevronLeftIcon, ChevronRightIcon, PlusIcon } from "@/components/app/icons";
 import { IMG, SIGLE } from "@/lib/traversee/data";
-import { toutesStories } from "@/lib/traversee/galerie";
+import type { StoryVue } from "@/lib/traversee/galerie";
 import { setTraversee, toast, useTraversee } from "@/lib/traversee/store";
 import styles from "./accueil.module.css";
 
-type StoriesProps = { admin?: boolean; onCreer?: () => void };
+type StoriesProps = { stories: StoryVue[]; admin?: boolean; onCreer?: () => void };
 
-export function Stories({ admin = false, onCreer }: StoriesProps) {
-  const etat = useTraversee();
-  const { storiesVues } = etat;
-  const stories = useMemo(() => toutesStories(etat), [etat]);
+export function Stories({ stories, admin = false, onCreer }: StoriesProps) {
+  const router = useRouter();
+  // Stories déjà vues : propre à chaque navigateur, comme sur un réseau social.
+  const { storiesVues } = useTraversee();
   const [ouverte, setOuverte] = useState<number | null>(null);
   const rail = useRef<HTMLDivElement | null>(null);
   const plein = useRef(false);
@@ -99,6 +101,7 @@ export function Stories({ admin = false, onCreer }: StoriesProps) {
   }, [ouverte, montrer, fermer]);
 
   const s = ouverte !== null ? stories[ouverte] : null;
+  if (!admin && !stories.length) return null;
 
   return (
     <>
@@ -167,11 +170,13 @@ export function Stories({ admin = false, onCreer }: StoriesProps) {
             {admin ? (
               <button
                 type="button"
-                onClick={() => {
-                  const media = s.media;
-                  setTraversee((st) => (media ? { galSupprimees: [...st.galSupprimees, media], galAjoutees: st.galAjoutees.filter((x) => x.id !== media) } : { stories: st.stories.filter((x) => x.id !== s.id) }));
+                onClick={async () => {
+                  const photo = s.photo;
                   fermer();
-                  toast(media ? "Photo retirée des stories et de la galerie." : "Story supprimée.");
+                  const { error } = photo ? await supprimerPhotoGalerie(photo) : await supprimerStory(s.story);
+                  if (error) return toast(error);
+                  toast(photo ? "Photo retirée des stories et de la galerie." : "Story supprimée.");
+                  router.refresh();
                 }}
                 className="relative z-[2] mt-3 h-10 w-fit cursor-pointer rounded-xl border border-white/30 bg-white/15 px-4 text-[13px] font-bold text-white backdrop-blur hover:bg-white/25"
               >

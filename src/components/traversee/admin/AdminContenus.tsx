@@ -1,22 +1,35 @@
 "use client";
 
+import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { supprimerPhotoGalerie } from "@/app/(app)/galerie/actions";
 import { IMG, ajusteSousTitres } from "@/lib/traversee/data";
+import type { PhotoVue } from "@/lib/traversee/galerie";
 import { setTraversee, toast, useTraversee } from "@/lib/traversee/store";
 import livreStyles from "../livre/livre.module.css";
-import { Vignette, galerie } from "../photos/Photos";
+import { Vignette } from "../photos/Photos";
 import photosStyles from "../photos/photos.module.css";
 import { Btn, Card, Champ, Onglets, PageHead, Puce, Vide, ui } from "../ui";
 import { AdminPrisePhoto } from "./AdminPrisePhoto";
 
-export function AdminPhotos() {
-  const s = useTraversee();
+export function AdminPhotos({ photos }: { photos: PhotoVue[] }) {
+  const router = useRouter();
   const [f, setF] = useState<"toutes" | "officielles" | "participants">("toutes");
-  const gal = galerie(s);
-  const liste = gal.filter((x) => f === "toutes" || (f === "participants" ? x.par === "vous" : x.par === "CanCham"));
+  const [occupe, setOccupe] = useState<string | null>(null);
+  const liste = photos.filter((x) => f === "toutes" || (f === "participants" ? !x.officielle : x.officielle));
+
+  async function retirer(m: PhotoVue) {
+    setOccupe(m.id);
+    const { error } = await supprimerPhotoGalerie(m.id);
+    setOccupe(null);
+    if (error) return toast(error);
+    toast("Photo supprimée de la galerie et des stories.");
+    router.refresh();
+  }
+
   return (
     <>
-      <AdminPrisePhoto total={gal.length} />
+      <AdminPrisePhoto total={photos.length} />
       <div className={ui.outils}>
         <Onglets
           items={[
@@ -32,23 +45,15 @@ export function AdminPhotos() {
       {liste.length ? (
         <div className={photosStyles.mur}>
           {liste.map((m, i) => (
-            <Vignette key={m.id} m={m} i={i} tag={{ texte: m.par === "vous" ? "Participant" : "Officielle", rouge: m.par === "vous" }}>
-              <Btn
-                small
-                className={photosStyles.suppr}
-                onClick={() => {
-                  setTraversee((st) => ({ galSupprimees: [...st.galSupprimees, m.id], galAjoutees: st.galAjoutees.filter((x) => x.id !== m.id) }));
-                  if (m.src.startsWith("/api/photos/")) void fetch(m.src, { method: "DELETE" }).catch(() => undefined);
-                  toast("Élément supprimé de la galerie.");
-                }}
-              >
+            <Vignette key={m.id} m={m} i={i} tag={{ texte: m.officielle ? "Officielle" : m.auteur, rouge: !m.officielle }}>
+              <Btn small className={photosStyles.suppr} disabled={occupe === m.id} onClick={() => void retirer(m)}>
                 Supprimer
               </Btn>
             </Vignette>
           ))}
         </div>
       ) : (
-        <Vide>Aucun élément dans cette catégorie.</Vide>
+        <Vide>{photos.length ? "Aucune photo dans cette catégorie." : "Aucune photo dans la galerie pour l’instant. Prenez ou importez les premières ci-dessus."}</Vide>
       )}
     </>
   );

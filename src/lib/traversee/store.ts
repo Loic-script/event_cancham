@@ -6,24 +6,19 @@ import {
   DEMI,
   DOSSIERS,
   LIVRE,
-  PROMOS,
   RESSOURCES,
-  STORIES,
   VOIX_INIT,
   type AnnonceType,
   type Commande,
   type Demi,
   type Dossier,
-  type Promo,
   type Ressource,
   type Sieges,
   type Souvenir,
-  type Story,
 } from "./data";
 
 export type Achat = { quoi: string; ou: string; montant: number; etat: "Payé" | "À régler à table"; date: string };
 export type Annonce = { id: string; titre: string; message: string; type: AnnonceType; cta: string; img?: string; t: number };
-export type MediaAjoute = { id: string; src: string; par?: "CanCham" | "vous"; t?: number };
 export type Scan = { code: string; nom: string; t: number };
 export type Fiche = { nom: string; role: string; ent: string; sect: string; act: string; email: string; phone: string; website: string; billet: "paye" | "attente" };
 export type TypeNotif = "annonce" | "message" | "compte" | "publication" | "story" | "defi1" | "defi2" | "rdv" | "livre";
@@ -39,7 +34,6 @@ export type TraverseeState = {
   achats: Achat[];
   visage: boolean;
   plan: boolean;
-  retrouve: boolean;
   storiesVues: Record<string, 1>;
   demi: Demi[];
   voix: number[];
@@ -48,10 +42,6 @@ export type TraverseeState = {
   dossiers: Dossier[];
   cmd: Commande[];
   sieges: Sieges | null;
-  promos: Promo[];
-  stories: Story[];
-  galSupprimees: string[];
-  galAjoutees: MediaAjoute[];
   gagnant: string | null;
   fiches: Record<string, Partial<Fiche>>;
   scans: Scan[];
@@ -69,7 +59,6 @@ export const DEFAULT_STATE: TraverseeState = {
   achats: [{ quoi: "Billet La Traversée", ou: "Billetterie en ligne", montant: 500000, etat: "Payé", date: "Avant l’événement" }],
   visage: false,
   plan: true,
-  retrouve: false,
   storiesVues: {},
   demi: DEMI,
   voix: VOIX_INIT,
@@ -78,10 +67,6 @@ export const DEFAULT_STATE: TraverseeState = {
   dossiers: DOSSIERS,
   cmd: COMMANDES,
   sieges: null,
-  promos: PROMOS,
-  stories: STORIES,
-  galSupprimees: [],
-  galAjoutees: [],
   gagnant: null,
   fiches: {},
   scans: [],

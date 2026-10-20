@@ -28,7 +28,7 @@ export function Profil({ restant }: { restant: number }) {
   function enregistrer(e: FormEvent) {
     e.preventDefault();
     updateProfile({ firstName: f.firstName.trim(), lastName: f.lastName.trim(), company: f.company.trim(), sector: f.sector, role: f.role.trim(), bio: f.bio.trim() });
-    setTraversee({ visage, plan, retrouve: visage ? s.retrouve : false });
+    setTraversee({ visage, plan });
     toast("Profil enregistré.");
   }
 

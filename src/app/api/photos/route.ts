@@ -3,14 +3,17 @@ import { TAILLE_MAX_PHOTO, cheminPhoto, detecterPhoto } from "@/lib/photos";
 import { erreurStockage, recevoirFlux } from "@/lib/ressources/reception";
 import { json } from "@/lib/ressources/servir";
 import { deplacer, supprimer } from "@/lib/ressources/stockage";
-import { refusSiNonAdmin } from "@/lib/session";
+import { prisma } from "@/lib/prisma";
+import { aAccesEspace, getCurrentUser } from "@/lib/session";
 
 export const dynamic = "force-dynamic";
 export const maxDuration = 120;
 
+/** Photo ajoutée à la galerie : officielle quand elle vient de l'équipe, sinon partagée par un participant. */
 export async function POST(req: Request) {
-  const refus = await refusSiNonAdmin();
-  if (refus) return refus;
+  const user = await getCurrentUser();
+  if (!user) return json(401, { ok: false, message: "Session expirée : reconnectez-vous." });
+  if (!aAccesEspace(user)) return json(403, { ok: false, message: "Votre inscription n’est pas encore validée." });
 
   let temporaire: string | null = null;
   try {
@@ -23,6 +26,9 @@ export async function POST(req: Request) {
     }
     const id = randomUUID().replace(/-/g, "");
     await deplacer(recu.chemin, cheminPhoto(id, format));
+    // Le fichier n'est gardé que s'il est inscrit dans la galerie.
+    temporaire = cheminPhoto(id, format);
+    await prisma.photoGalerie.create({ data: { id, auteurId: user.id, officielle: user.acces === "ADMIN" } });
     return json(201, { ok: true, id, url: `/api/photos/${id}` });
   } catch (e) {
     if (temporaire) await supprimer(temporaire).catch(() => undefined);

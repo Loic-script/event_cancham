@@ -1,23 +1,11 @@
-import { GALERIE, type Media, type Story } from "./data";
-import type { TraverseeState } from "./store";
+/** Galerie, stories et promotions telles que les composants les reçoivent (données en base, voir src/lib/galerie.ts). */
 
-export type StoryVue = Story & { auteur: string; media?: string };
+export type PhotoVue = { id: string; src: string; officielle: boolean; auteur: string; aMoi: boolean; t: number };
 
-export function galerie(s: TraverseeState): Media[] {
-  const ajoutees: Media[] = s.galAjoutees.map((m) => ({ id: m.id, src: m.src, video: false, par: m.par ?? "vous", moi: (m.par ?? "vous") === "vous" }));
-  return [...ajoutees, ...GALERIE].filter((m) => !s.galSupprimees.includes(m.id));
-}
+/** Story de l'accueil : story créée par la CanCham (`story`) ou photo de la galerie (`photo`). */
+export type StoryVue = { id: string; img: string; texte: string; auteur: "CanCham" | "Participant"; story?: string; photo?: string };
 
-export function toutesStories(s: TraverseeState): StoryVue[] {
-  const creees: StoryVue[] = s.stories.map((st) => ({ ...st, auteur: "CanCham" }));
-  const photos: StoryVue[] = galerie(s)
-    .filter((m) => !m.video)
-    .map((m) => ({
-      id: `gal-${m.id}`,
-      img: m.src,
-      texte: m.par === "vous" ? "Partagée par un participant" : "La Traversée en images",
-      auteur: m.par === "vous" ? "Participant" : "CanCham",
-      media: m.id,
-    }));
-  return [...creees, ...photos];
-}
+export type Promo = { ann: string; titre: string; texte: string; img: string; lien: string };
+
+/** Emplacements promotion de l'accueil (null : emplacement libre). */
+export const NB_PROMOTIONS = 4;

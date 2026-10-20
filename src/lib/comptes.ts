@@ -1,4 +1,5 @@
 import { ciblePublication, effacerFichiersPublication } from "@/lib/fil";
+import { effacerFichierPhoto } from "@/lib/galerie";
 import { supprimerConversationsDe } from "@/lib/messagerie";
 import { effacerPhotoProfil } from "@/lib/photo-profil";
 import { prisma } from "@/lib/prisma";
@@ -12,11 +13,14 @@ export async function supprimerCompte(userId: number): Promise<void> {
   await supprimerConversationsDe(userId);
   const compte = await prisma.user.findUnique({ where: { id: userId }, select: { photo: true } });
   const publications = await prisma.publication.findMany({ where: { auteurId: userId }, select: { id: true, image: true, video: true } });
+  // Les photos partagées dans la galerie partent avec le compte ; celles de l'équipe restent (officielles).
+  const photos = await prisma.photoGalerie.findMany({ where: { auteurId: userId, officielle: false }, select: { id: true } });
   const cibles = publications.map((p) => ciblePublication(p.id));
   await prisma.$transaction([
     prisma.jaimeFil.deleteMany({ where: { cible: { in: cibles } } }),
     prisma.commentaireFil.deleteMany({ where: { cible: { in: cibles } } }),
+    prisma.photoGalerie.deleteMany({ where: { id: { in: photos.map((p) => p.id) } } }),
     prisma.user.delete({ where: { id: userId } }),
   ]);
-  await Promise.all([...publications.map((p) => effacerFichiersPublication(p.image, p.video)), effacerPhotoProfil(compte?.photo)]);
+  await Promise.all([...publications.map((p) => effacerFichiersPublication(p.image, p.video)), ...photos.map((p) => effacerFichierPhoto(p.id)), effacerPhotoProfil(compte?.photo)]);
 }

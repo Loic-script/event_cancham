@@ -3,10 +3,12 @@
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState, type FormEvent } from "react";
 import { publier as publierSurLeFil } from "@/app/(app)/fil/actions";
+import { publierStory } from "@/app/(app)/galerie/actions";
 import { Avatar } from "@/components/app/Avatar";
 import { ImageIcon, SmileIcon, VideoIcon, XIcon } from "@/components/app/icons";
 import { useProfile } from "@/components/profile/useProfile";
-import { journaliser, lisImage, setTraversee, toast, uid } from "@/lib/traversee/store";
+import { envoyerImage } from "@/lib/traversee/envoi";
+import { journaliser, lisImage, toast } from "@/lib/traversee/store";
 import { fullName } from "@/lib/mock/data";
 import { Modal } from "../Modal";
 import { AvatarSigle, Btn, Card, Onglets } from "../ui";
@@ -106,25 +108,23 @@ export function Composer({ admin = false, modeInitial = null, onModeConsomme }: 
     });
   }
 
-  /** Photo réduite dans le navigateur (data URL) envoyée au serveur ; renvoie son adresse. */
-  async function envoyerImage(dataUrl: string): Promise<string> {
-    const blob = await (await fetch(dataUrl)).blob();
-    const reponse = await fetch("/api/fil/images", { method: "POST", headers: { "Content-Type": blob.type || "image/jpeg" }, body: blob });
-    const corps = (await reponse.json().catch(() => ({}))) as { url?: string; message?: string };
-    if (!reponse.ok || !corps.url) throw new Error(corps.message ?? "La photo n’a pas pu être envoyée.");
-    return corps.url;
-  }
-
   async function publier(e: FormEvent) {
     e.preventDefault();
     if (envoi !== null || publication) return;
     const tx = texte.trim();
     if (story) {
       if (!img) return toast("Choisissez la photo de la story.");
-      setTraversee((s) => ({ stories: [{ id: uid("s"), img, texte: "" }, ...s.stories] }));
-      if (admin) journaliser({ pour: "participant", type: "story", titre: "CanCham Madagascar a ajouté une story", texte: "Ouvrez l’accueil pour la découvrir avant qu’elle ne disparaisse.", href: "/" });
-      else journaliser({ pour: "admin", type: "story", titre: `${fullName(me)} a partagé une story`, texte: "Visible par tous les participants en haut de l’accueil.", href: "/admin", acteur: fullName(me) });
+      setPublication(true);
+      try {
+        const { error } = await publierStory(await envoyerImage(img));
+        if (error) throw new Error(error);
+      } catch (err) {
+        setPublication(false);
+        return toast(err instanceof Error ? err.message : "La story n’a pas pu être publiée.");
+      }
+      setPublication(false);
       toast("Story publiée : elle apparaît en haut de l’accueil des participants.");
+      router.refresh();
     } else {
       const avecVideo = !admin && video;
       if (!tx && !img && !avecVideo) return toast(admin ? "Écrivez un texte ou ajoutez une photo." : "Écrivez un texte ou ajoutez une photo ou une vidéo.");
@@ -287,8 +287,8 @@ export function Composer({ admin = false, modeInitial = null, onModeConsomme }: 
             </div>
             <input ref={fichier} type="file" accept="image/*" className="sr-only" tabIndex={-1} aria-hidden onChange={(e) => void choisir(e.target.files?.[0])} />
             <input ref={fichierVideo} type="file" accept="video/mp4,video/quicktime,video/webm" className="sr-only" tabIndex={-1} aria-hidden onChange={(e) => choisirVideo(e.target.files?.[0])} />
-            <Btn variant="primary" type="submit" disabled={story ? !img : (!texte.trim() && !img && !video) || envoi !== null || publication} className="w-full">
-              {story ? "Publier la story" : envoi !== null ? `Envoi de la vidéo… ${envoi} %` : publication ? "Publication…" : "Publier"}
+            <Btn variant="primary" type="submit" disabled={story ? !img || publication : (!texte.trim() && !img && !video) || envoi !== null || publication} className="w-full">
+              {story ? (publication ? "Publication…" : "Publier la story") : envoi !== null ? `Envoi de la vidéo… ${envoi} %` : publication ? "Publication…" : "Publier"}
             </Btn>
           </form>
         </Modal>

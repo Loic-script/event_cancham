@@ -71,6 +71,8 @@ model User {
   rdvDemandes           RendezVousB2B[]              @relation("rdvDemandeur")
   rdvRecus              RendezVousB2B[]              @relation("rdvDestinataire")
   participationsDefis   ParticipationDefi[]
+  photosGalerie         PhotoGalerie[]
+  stories               Story[]
 
   @@map("users")
 }
@@ -378,4 +380,44 @@ model ParticipationDefi {
   @@unique([defi, userId])
   @@index([defi])
   @@map("participations_defis")
+}
+
+/// Photo de la galerie de l'événement : le fichier est dans stockage/photos/<id>.<format>.
+model PhotoGalerie {
+  id         String   @id @db.VarChar(32)
+  auteurId   Int?     @map("auteur_id")
+  auteur     User?    @relation(fields: [auteurId], references: [id], onDelete: SetNull)
+  /// Prise par l'équipe CanCham (sinon partagée par un participant).
+  officielle Boolean  @default(true)
+  creeLe     DateTime @default(now()) @map("cree_le")
+
+  @@index([creeLe])
+  @@map("photos_galerie")
+}
+
+/// Story de la CanCham en haut de l'accueil.
+model Story {
+  id       String   @id @default(cuid())
+  /// /api/fil/images/<id> (photo envoyée) ou photo du site (/traversee/…).
+  image    String   @db.VarChar(300)
+  texte    String   @default("") @db.VarChar(300)
+  auteurId Int?     @map("auteur_id")
+  auteur   User?    @relation(fields: [auteurId], references: [id], onDelete: SetNull)
+  creeLe   DateTime @default(now()) @map("cree_le")
+
+  @@index([creeLe])
+  @@map("stories")
+}
+
+/// Emplacement promotion de l'accueil (0 à 3), rempli par l'équipe.
+model Promotion {
+  emplacement Int      @id
+  annonceur   String   @db.VarChar(80)
+  titre       String   @db.VarChar(60)
+  texte       String   @default("") @db.VarChar(90)
+  image       String   @db.VarChar(300)
+  lien        String   @db.VarChar(200)
+  majLe       DateTime @updatedAt @map("maj_le")
+
+  @@map("promotions")
 }
