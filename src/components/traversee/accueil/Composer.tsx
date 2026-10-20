@@ -8,7 +8,7 @@ import { Avatar } from "@/components/app/Avatar";
 import { ImageIcon, SmileIcon, VideoIcon, XIcon } from "@/components/app/icons";
 import { useProfile } from "@/components/profile/useProfile";
 import { envoyerImage, envoyerVideo } from "@/lib/traversee/envoi";
-import { journaliser, lisImage, toast } from "@/lib/traversee/store";
+import { lisImage, toast } from "@/lib/traversee/store";
 import { fullName } from "@/lib/mock/data";
 import { Modal } from "../Modal";
 import { AvatarSigle, Btn, Card, Onglets } from "../ui";
@@ -123,13 +123,7 @@ export function Composer({ admin = false, modeInitial = null, onModeConsomme }: 
       }
       setPublication(false);
       if (avecVideo) retirerVideo();
-      if (admin) {
-        journaliser({ pour: "participant", type: "publication", titre: "CanCham Madagascar a publié une actualité", texte: tx || "Nouvelle photo dans le fil d’actualités.", href: "/" });
-        toast("Publication en ligne sur l’accueil des participants.");
-      } else {
-        journaliser({ pour: "admin", type: "publication", titre: `${fullName(me)} a publié dans le fil`, texte: tx || (urlVideo ? "Nouvelle vidéo partagée." : "Nouvelle photo partagée."), href: "/admin", acteur: fullName(me) });
-        toast("Publication partagée avec les participants.");
-      }
+      toast(admin ? "Publication en ligne sur l’accueil des participants." : "Publication partagée avec les participants.");
       router.refresh();
     }
     setTexte("");

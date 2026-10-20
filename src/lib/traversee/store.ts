@@ -19,7 +19,6 @@ export type Achat = { quoi: string; ou: string; montant: number; etat: "Payé" |
 export type Annonce = { id: string; titre: string; message: string; type: AnnonceType; cta: string; img?: string; t: number };
 export type Fiche = { nom: string; role: string; ent: string; sect: string; act: string; email: string; phone: string; website: string; billet: "paye" | "attente" };
 export type TypeNotif = "annonce" | "message" | "compte" | "publication" | "story" | "defi1" | "defi2" | "rdv" | "livre";
-export type Evenement = { id: string; pour: "admin" | "participant"; type: TypeNotif; titre: string; texte: string; href: string; t: number; acteur?: string };
 
 export type TraverseeState = {
   table: number | null;
@@ -39,7 +38,6 @@ export type TraverseeState = {
   cmd: Commande[];
   sieges: Sieges | null;
   gagnant: string | null;
-  journal: Evenement[];
   notifsLues: Record<string, 1>;
 };
 
@@ -61,7 +59,6 @@ export const DEFAULT_STATE: TraverseeState = {
   cmd: COMMANDES,
   sieges: null,
   gagnant: null,
-  journal: [],
   notifsLues: {},
 };
 
@@ -129,10 +126,6 @@ export function resetTraversee() {
 
 export function uid(prefix = "x") {
   return `${prefix}${Date.now().toString(36)}${Math.random().toString(36).slice(2, 6)}`;
-}
-
-export function journaliser(e: Omit<Evenement, "id" | "t">) {
-  setTraversee((s) => ({ journal: [{ ...e, id: uid("n"), t: Date.now() }, ...s.journal].slice(0, 80) }));
 }
 
 export function toast(message: string) {

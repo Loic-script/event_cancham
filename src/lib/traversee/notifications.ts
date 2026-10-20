@@ -1,4 +1,5 @@
 import type { MessageNonLu } from "@/app/api/messages/non-lus/route";
+import type { Activite } from "@/lib/activite";
 import type { AnnonceVue } from "@/lib/annonces";
 import type { NotifRdv } from "@/lib/rendezvous";
 import type { Annonce, TraverseeState, TypeNotif } from "./store";
@@ -32,14 +33,13 @@ function depuisMessages(s: TraverseeState, messages: MessageNonLu[]): Notif[] {
   });
 }
 
-function duJournal(s: TraverseeState, pour: "admin" | "participant"): Notif[] {
-  return s.journal
-    .filter((e) => e.pour === pour)
-    .map((e) => ({ id: e.id, type: e.type, titre: e.titre, texte: e.texte, href: e.href, t: e.t, acteur: e.acteur, lue: lue(s, e.id) }));
+/** Activité tirée de la base (publications, défis, livre d'or, photos, stories). */
+function depuisActivite(s: TraverseeState, activite: Activite[]): Notif[] {
+  return activite.map((e) => ({ id: e.id, type: e.type, titre: e.titre, texte: e.texte, href: e.href, t: e.t, acteur: e.acteur, lue: lue(s, e.id) }));
 }
 
-export function notificationsParticipant(s: TraverseeState, o: { maintenant: number; creeLe?: string | null; messages: MessageNonLu[]; annonces: AnnonceVue[]; rdv: NotifRdv[] }): Notif[] {
-  const liste = duJournal(s, "participant");
+export function notificationsParticipant(s: TraverseeState, o: { maintenant: number; creeLe?: string | null; messages: MessageNonLu[]; annonces: AnnonceVue[]; rdv: NotifRdv[]; activite: Activite[] }): Notif[] {
+  const liste = depuisActivite(s, o.activite);
 
   for (const a of o.annonces) {
     const id = `ann-${a.id}`;
@@ -63,8 +63,8 @@ export function notificationsParticipant(s: TraverseeState, o: { maintenant: num
   return trier(liste);
 }
 
-export function notificationsAdmin(s: TraverseeState, o: { comptes: CompteRecent[]; moi?: number; messages: MessageNonLu[] }): Notif[] {
-  const liste = duJournal(s, "admin");
+export function notificationsAdmin(s: TraverseeState, o: { comptes: CompteRecent[]; moi?: number; messages: MessageNonLu[]; activite: Activite[] }): Notif[] {
+  const liste = depuisActivite(s, o.activite);
 
   liste.push(...depuisMessages(s, o.messages));
 

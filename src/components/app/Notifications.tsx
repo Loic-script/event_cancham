@@ -11,6 +11,7 @@ import { AvatarInitiales } from "@/components/traversee/ui";
 import { SIGLE, TYPES_ANNONCE } from "@/lib/traversee/data";
 import { marquerAnnoncesVues } from "@/app/(app)/annonces/actions";
 import type { MessageNonLu } from "@/app/api/messages/non-lus/route";
+import type { Activite } from "@/lib/activite";
 import type { AnnonceVue } from "@/lib/annonces";
 import type { NotifRdv } from "@/lib/rendezvous";
 import { notificationsAdmin, notificationsParticipant, type CompteRecent, type Notif } from "@/lib/traversee/notifications";
@@ -44,7 +45,7 @@ function depuis(n: Notif, maintenant: number) {
   return new Date(n.t).toLocaleDateString("fr-FR", { day: "numeric", month: "short" });
 }
 
-export function Notifications({ admin, annonces = [], rdv = [] }: { admin: boolean; annonces?: AnnonceVue[]; rdv?: NotifRdv[] }) {
+export function Notifications({ admin, annonces = [], rdv = [], activite = [] }: { admin: boolean; annonces?: AnnonceVue[]; rdv?: NotifRdv[]; activite?: Activite[] }) {
   const pathname = usePathname();
   const s = useTraversee();
   const session = useSessionIdentity();
@@ -52,6 +53,7 @@ export function Notifications({ admin, annonces = [], rdv = [] }: { admin: boole
   const [filtre, setFiltre] = useState<"toutes" | "nonlues">("toutes");
   const [maintenant, setMaintenant] = useState(0);
   const [comptes, setComptes] = useState<CompteRecent[]>([]);
+  const [activiteEquipe, setActiviteEquipe] = useState<Activite[]>([]);
   const [messages, setMessages] = useState<MessageNonLu[]>([]);
   const [annonce, setAnnonce] = useState<Annonce | null>(null);
   const [chemin, setChemin] = useState(pathname);
@@ -85,9 +87,10 @@ export function Notifications({ admin, annonces = [], rdv = [] }: { admin: boole
 
   const charger = useCallback(() => {
     fetch("/api/admin/comptes-recents", { cache: "no-store" })
-      .then((r) => (r.ok ? (r.json() as Promise<{ comptes?: CompteRecent[] }>) : null))
+      .then((r) => (r.ok ? (r.json() as Promise<{ comptes?: CompteRecent[]; activite?: Activite[] }>) : null))
       .then((d) => {
         if (d?.comptes) setComptes(d.comptes);
+        if (d?.activite) setActiviteEquipe(d.activite);
       })
       .catch(() => undefined);
   }, []);
@@ -115,8 +118,8 @@ export function Notifications({ admin, annonces = [], rdv = [] }: { admin: boole
   }, [ouvert]);
 
   const liste = useMemo(
-    () => (admin ? notificationsAdmin(s, { comptes, moi: session?.id, messages }) : notificationsParticipant(s, { maintenant, creeLe: session?.createdAt, messages, annonces, rdv })),
-    [admin, s, comptes, session, maintenant, messages, annonces, rdv],
+    () => (admin ? notificationsAdmin(s, { comptes, moi: session?.id, messages, activite: activiteEquipe }) : notificationsParticipant(s, { maintenant, creeLe: session?.createdAt, messages, annonces, rdv, activite })),
+    [admin, s, comptes, session, maintenant, messages, annonces, rdv, activite, activiteEquipe],
   );
   const nonLues = liste.filter((n) => !n.lue);
   const visibles = filtre === "nonlues" ? nonLues : liste;
