@@ -1,8 +1,9 @@
 "use client";
 
 import { useState, type FormEvent } from "react";
+import { reprendreParcours } from "@/app/bienvenue/actions";
 import { Avatar } from "@/components/app/Avatar";
-import { DownloadIcon } from "@/components/app/icons";
+import { ArrowRightIcon, DownloadIcon } from "@/components/app/icons";
 import { updateProfile, useProfile } from "@/components/profile/useProfile";
 import { SECTEURS } from "@/lib/traversee/data";
 import { toast } from "@/lib/traversee/store";
@@ -15,7 +16,9 @@ import { SupprimerCompte } from "./SupprimerCompte";
 import { Btn, Card, Champ, Jauge, Sur, ui } from "../ui";
 import styles from "./profil.module.css";
 
-export function Profil({ restant }: { restant: number }) {
+type Parcours = { termine: boolean; aCompleter: number; total: number };
+
+export function Profil({ restant, parcours }: { restant: number; parcours: Parcours | null }) {
   const me = useProfile();
   const [f, setF] = useState({ firstName: me.firstName, lastName: me.lastName, company: me.company, sector: me.sector, role: me.role, bio: me.bio ?? "" });
   const [billet, setBillet] = useState(false);
@@ -28,8 +31,23 @@ export function Profil({ restant }: { restant: number }) {
     toast("Profil enregistré.");
   }
 
+  const reprise = parcours && (!parcours.termine || parcours.aCompleter > 0);
+
   return (
     <>
+      {reprise ? (
+        <form action={reprendreParcours} className={styles.reprise}>
+          <div className="min-w-0">
+            <Sur className="!mb-1 !text-white/70">Parcours d’accueil</Sur>
+            <strong>{parcours.aCompleter ? `${parcours.aCompleter} étape${parcours.aCompleter > 1 ? "s" : ""} sur ${parcours.total} à compléter` : "Parcours à terminer"}</strong>
+            <p>Photo, entreprise, défis : reprenez là où vous vous étiez arrêté, chaque étape est enregistrée au fur et à mesure.</p>
+          </div>
+          <Btn variant="primary" type="submit">
+            Reprendre
+            <ArrowRightIcon width={16} height={16} />
+          </Btn>
+        </form>
+      ) : null}
       <div className="mb-4">
         <Presentation initial={restant} />
       </div>

@@ -25,5 +25,8 @@ export function erreurCoordonnees(c: Coordonnees): string | null {
   return null;
 }
 
+/** Page « Compléter votre profil » : comptes créés avec Google ou Facebook, avant la validation. */
+export const PAGE_COMPLETER = "/inscription/completer";
+
 /** Profil à compléter avant la validation : comptes créés avec Google ou Facebook. */
 export const profilIncomplet = (u: { company: string | null; role: string | null; phone: string | null }) => !u.company || !u.role || !u.phone;

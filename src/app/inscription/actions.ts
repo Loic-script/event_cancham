@@ -7,7 +7,8 @@ import { alerterNouvelleInscription, baseCourriel } from "@/lib/alertes-admin";
 import { EMAIL_PATTERN, MIN_PASSWORD_LENGTH, erreurCoordonnees, lireCoordonnees } from "@/lib/coordonnees";
 import { hashPassword } from "@/lib/password";
 import { prisma } from "@/lib/prisma";
-import { createSession, PAGE_ATTENTE } from "@/lib/session";
+import { pageApresConnexion } from "@/lib/parcours";
+import { createSession } from "@/lib/session";
 
 export type RegisterState = { error: string | null };
 
@@ -42,6 +43,6 @@ export async function register(_previous: RegisterState, formData: FormData): Pr
   const base = await baseCourriel();
   after(() => alerterNouvelleInscription(userId, base));
 
-  // L'espace s'ouvre une fois l'inscription validée par l'équipe (plus tard : après le paiement).
-  redirect(PAGE_ATTENTE);
+  // Le parcours d'accueil commence tout de suite ; l'espace s'ouvre une fois l'inscription validée par l'équipe.
+  redirect(await pageApresConnexion(userId));
 }

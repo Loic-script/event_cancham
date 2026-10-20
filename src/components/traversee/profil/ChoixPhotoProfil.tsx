@@ -7,7 +7,8 @@ import { oublierChampsLocaux, useProfileOverrides, useSessionIdentity } from "@/
 import { lisImage, toast } from "@/lib/traversee/store";
 import { Btn, FileBtn } from "../ui";
 
-async function envoyerPhoto(dataUrl: string) {
+/** Photo réduite dans le navigateur (data URL) enregistrée sur le compte via /api/profil/photo. */
+export async function envoyerPhoto(dataUrl: string) {
   const blob = await (await fetch(dataUrl)).blob();
   const reponse = await fetch("/api/profil/photo", { method: "POST", headers: { "Content-Type": blob.type || "image/jpeg" }, body: blob });
   const corps = (await reponse.json().catch(() => ({}))) as { message?: string };

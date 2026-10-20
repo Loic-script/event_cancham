@@ -1,12 +1,13 @@
 import { randomBytes } from "node:crypto";
 import { Prisma } from "@/generated/prisma/client";
-import { profilIncomplet } from "@/lib/coordonnees";
+import { PAGE_COMPLETER } from "@/lib/coordonnees";
+import { pageApresConnexion } from "@/lib/parcours";
 import type { CodeErreurSociale, Fournisseur, ProfilSocial } from "@/lib/oauth";
 import { hashPassword } from "@/lib/password";
 import { prisma } from "@/lib/prisma";
 import { createSession } from "@/lib/session";
 
-export const PAGE_COMPLETER = "/inscription/completer";
+export { PAGE_COMPLETER };
 
 const selection = { id: true, acces: true, statut: true, company: true, role: true, phone: true } as const;
 
@@ -48,8 +49,8 @@ export async function connecterAvecProfil(f: Fournisseur, p: ProfilSocial, next:
   }
 
   await createSession(user.id);
-  if (user.acces !== "ADMIN" && user.statut === "EN_ATTENTE" && profilIncomplet(user)) return { destination: PAGE_COMPLETER };
-  return { destination: next === "/" && user.acces === "ADMIN" ? "/admin" : next };
+  // Profil à compléter, parcours d'accueil ou page demandée : même règle qu'après une connexion classique.
+  return { destination: await pageApresConnexion(user.id, next) };
 }
 
 /** Page de connexion ou d'inscription, avec le message d'erreur à afficher. */

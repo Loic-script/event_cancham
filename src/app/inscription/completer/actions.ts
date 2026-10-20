@@ -6,7 +6,8 @@ import { alerterNouvelleInscription, baseCourriel } from "@/lib/alertes-admin";
 import { LOGIN_PATH } from "@/lib/auth";
 import { erreurCoordonnees, lireCoordonnees, profilIncomplet } from "@/lib/coordonnees";
 import { prisma } from "@/lib/prisma";
-import { aAccesEspace, getCurrentUser, PAGE_ATTENTE } from "@/lib/session";
+import { pageApresConnexion } from "@/lib/parcours";
+import { getCurrentUser } from "@/lib/session";
 
 export type CompleterState = { error: string | null };
 
@@ -29,5 +30,5 @@ export async function completerProfil(_previous: CompleterState, formData: FormD
     const base = await baseCourriel();
     after(() => alerterNouvelleInscription(user.id, base));
   }
-  redirect(aAccesEspace(user) ? "/" : PAGE_ATTENTE);
+  redirect(await pageApresConnexion(user.id));
 }

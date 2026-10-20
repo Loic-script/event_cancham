@@ -76,6 +76,7 @@ model User {
   photosGalerie         PhotoGalerie[]
   stories               Story[]
   souvenirsLivre        SouvenirLivre[]
+  parcoursAccueil       ParcoursAccueil?
   entreeGala            EntreeGala?                  @relation("entreeParticipant")
   entreesScannees       EntreeGala[]                 @relation("entreeScanneur")
 
@@ -458,4 +459,17 @@ model EntreeGala {
 
   @@index([scanneLe])
   @@map("entrees_gala")
+}
+
+/// Parcours d'accueil après l'inscription : étapes passées (photo, entreprise, pitch, tombola) et fin du parcours.
+/// Une étape faite se lit dans les données du compte ; seules les étapes passées sont gardées ici.
+model ParcoursAccueil {
+  userId     Int       @id @map("user_id")
+  user       User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  passees    String[]  @default([])
+  commenceLe DateTime  @default(now()) @map("commence_le")
+  termineLe  DateTime? @map("termine_le")
+  majLe      DateTime  @updatedAt @map("maj_le")
+
+  @@map("parcours_accueil")
 }

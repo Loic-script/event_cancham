@@ -19,7 +19,8 @@ function rafraichir() {
 export async function POST(req: Request) {
   const user = await getCurrentUser();
   if (!user) return json(401, { ok: false, message: "Connexion requise." });
-  if (!aAccesEspace(user)) return json(403, { ok: false, message: "Votre inscription n’est pas encore validée." });
+  // Un compte en attente de validation prépare déjà son profil (parcours d'accueil) ; seul un compte refusé est bloqué.
+  if (!aAccesEspace(user) && user.statut === "REFUSE") return json(403, { ok: false, message: "Votre inscription n’a pas été acceptée." });
 
   let temporaire: string | null = null;
   try {

@@ -1,4 +1,3 @@
-import { IBM_Plex_Sans } from "next/font/google";
 import Image from "next/image";
 import Link from "next/link";
 import { ViewTransition, type ReactNode } from "react";
@@ -6,13 +5,8 @@ import { CalendarIcon, MapPinIcon } from "@/components/app/icons";
 import { event } from "@/lib/mock/data";
 import { AuthCountdown } from "./AuthCountdown";
 import { PanelSlideshow } from "./PanelSlideshow";
+import { plex } from "./polices";
 import styles from "./auth.module.css";
-
-const plex = IBM_Plex_Sans({
-  variable: "--font-plex",
-  subsets: ["latin"],
-  weight: ["400", "500", "600", "700"],
-});
 
 type Headline = { first: string; prefix?: string; accent: string };
 

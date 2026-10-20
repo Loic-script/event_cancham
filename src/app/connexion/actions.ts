@@ -2,6 +2,7 @@
 
 import { redirect } from "next/navigation";
 import { LOGIN_PATH, safeNext } from "@/lib/auth";
+import { pageApresConnexion } from "@/lib/parcours";
 import { hashPassword, verifierMotDePasseSaisi, verifyPassword } from "@/lib/password";
 import { prisma } from "@/lib/prisma";
 import { createSession, destroySession } from "@/lib/session";
@@ -27,7 +28,8 @@ export async function login(_previous: LoginState, formData: FormData): Promise<
     authenticated = user ? await verifierMotDePasseSaisi(password, user.passwordHash) : !(await verifyPassword(password, await decoyHash));
     if (authenticated && user) {
       await createSession(user.id);
-      if (next === "/" && user.acces === "ADMIN") destination = "/admin";
+      // Back-office pour les administrateurs ; parcours d'accueil pour un participant qui ne l'a pas terminé.
+      destination = await pageApresConnexion(user.id, next);
     }
   } catch (error) {
     console.error("Connexion impossible :", error);
