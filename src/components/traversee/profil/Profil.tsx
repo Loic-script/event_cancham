@@ -95,12 +95,16 @@ export function Profil({ restant, parcours }: { restant: number; parcours: Parco
                 <ChoixCouverture small compact onRepositionner={() => setReglage(true)} />
               )}
             </div>
-            {reglage ? <span className={styles.couvertureAide}>Glissez l’image pour la placer</span> : null}
           </CouvertureReglable>
           <Avatar person={me} size={112} className={`${styles.surCouverture} ${reglage ? styles.sansClics : ""} shadow-[0_12px_28px_-18px_rgba(15,29,44,0.5)]`} />
           <div>
             <h3 className="font-display text-[18px] text-graphite">{fullName(me)}</h3>
             <p className="text-graphite-muted">{me.company || "Entreprise à renseigner"}</p>
+            {reglage ? (
+              <p className="mt-1.5 text-[13px] text-graphite-muted" aria-live="polite">
+                Glissez la couverture vers le haut ou le bas, puis enregistrez.
+              </p>
+            ) : null}
           </div>
           <ChoixPhotoProfil />
           <div className="w-full">

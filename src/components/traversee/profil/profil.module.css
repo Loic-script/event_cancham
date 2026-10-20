@@ -43,21 +43,6 @@
   pointer-events: none;
 }
 
-.couvertureAide {
-  position: absolute;
-  left: 50%;
-  bottom: 8px;
-  transform: translateX(-50%);
-  padding: 4px 10px;
-  border-radius: 999px;
-  background: rgba(11, 26, 48, 0.75);
-  color: #ffffff;
-  font-size: 12px;
-  font-weight: 600;
-  white-space: nowrap;
-  pointer-events: none;
-}
-
 /* La photo de profil passe devant la couverture */
 .surCouverture {
   position: relative;

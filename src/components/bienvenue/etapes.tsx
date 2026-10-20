@@ -164,7 +164,6 @@ export function EtapePhoto({ photo, couverture, couverturePosition, initiales, n
                 </>
               )}
             </div>
-            {reglage ? <span className={styles.couvertureAide}>Glissez l’image pour la placer</span> : null}
           </CouvertureReglable>
           <div className={`${styles.anneau} ${styles.surCouverture} ${reglage ? styles.sansClics : ""}`}>{apercu ? <img src={apercu} alt="Votre photo de profil" /> : <span className={`${styles.initiales}`}>{initiales}</span>}</div>
           <label className={styles.fichier} aria-disabled={envoi !== null}>
@@ -172,7 +171,9 @@ export function EtapePhoto({ photo, couverture, couverturePosition, initiales, n
             {envoi === "photo" ? "Envoi…" : apercu ? "Changer la photo" : "Choisir une photo"}
             {entree("photo", "Choisir ma photo de profil")}
           </label>
-          <p className={styles.aide}>JPEG, PNG ou WebP, enregistrés dès qu’ils sont choisis. La couverture est facultative : votre équipe, vos produits, vos locaux.</p>
+          <p className={styles.aide} aria-live="polite">
+            {reglage ? "Glissez la couverture vers le haut ou le bas pour la placer, puis enregistrez." : "JPEG, PNG ou WebP, enregistrés dès qu’ils sont choisis. La couverture est facultative : votre équipe, vos produits, vos locaux."}
+          </p>
         </div>
         {erreur ? (
           <p className={styles.erreur} role="alert">
