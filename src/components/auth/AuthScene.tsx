@@ -95,13 +95,16 @@ export function AuthScene({ headline, lead, cardTitle, inverse = false, children
 
       <Glisse name="formulaire">
         <main className={styles.formSide}>
-          <Glisse name="carte" mode="relais">
-            <section className={styles.card} aria-labelledby="auth-card-title">
-              <p className={styles.cardEyebrow}>Espace participant</p>
-              <h2 id="auth-card-title" className={styles.cardTitle}>{cardTitle}</h2>
-              {children}
-            </section>
-          </Glisse>
+          {/* Sur ordinateur, seule cette colonne défile : la photo et ses textes restent fixes. */}
+          <div className={styles.defile}>
+            <Glisse name="carte" mode="relais">
+              <section className={styles.card} aria-labelledby="auth-card-title">
+                <p className={styles.cardEyebrow}>Espace participant</p>
+                <h2 id="auth-card-title" className={styles.cardTitle}>{cardTitle}</h2>
+                {children}
+              </section>
+            </Glisse>
+          </div>
         </main>
       </Glisse>
     </div>

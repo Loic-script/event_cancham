@@ -644,6 +644,36 @@
   }
 }
 
+/* Colonne du formulaire : neutre par défaut (mobile, écran bas), la carte reste centrée comme avant. */
+.defile {
+  display: contents;
+}
+
+/*
+ * Ordinateur : seule la colonne du formulaire défile (inscription plus haute que l'écran), la photo et ses textes restent fixes.
+ * La zone qui défile est posée en absolu dans .formSide : elle ne pèse plus sur la hauteur de la grille, qui suit l'écran
+ * (ou le côté photo s'il est plus haut). La vague reste dessinée par .formSide, hors de cette zone, donc entière.
+ */
+@media (min-width: 1024px) {
+  .defile {
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 48px 40px;
+    overflow-y: auto;
+    scrollbar-width: thin;
+    scrollbar-color: var(--champ) transparent;
+  }
+
+  /* Centrée quand elle tient dans l'écran, alignée en haut quand elle dépasse (rien n'est coupé). */
+  .defile > .card {
+    margin-block: auto;
+  }
+}
+
 /* Inscription : formulaire à gauche, photo à droite ; la vague s'avance vers la droite. */
 @media (min-width: 1024px) {
   .inverse {
