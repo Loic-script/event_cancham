@@ -66,6 +66,8 @@ model User {
   reinitialisations     ReinitialisationMotDePasse[]
   conversations         ParticipantConversation[]
   messages              Message[]
+  annonces              Annonce[]
+  annoncesVues          AnnonceVue[]
 
   @@map("users")
 }
@@ -295,4 +297,35 @@ model Message {
 
   @@index([conversationId, creeLe])
   @@map("messages")
+}
+
+/// Annonce de l'équipe aux participants : fenêtre à la prochaine page ouverte, puis dans la cloche.
+/// type : info, programme ou urgent ; cta : page interne du bouton (DESTINATIONS) ; image : /api/fil/images/<id>.
+model Annonce {
+  id       String       @id @default(cuid())
+  titre    String       @db.VarChar(120)
+  message  String       @db.VarChar(1200)
+  type     String       @default("info") @db.VarChar(20)
+  cta      String       @default("") @db.VarChar(200)
+  image    String?      @db.VarChar(200)
+  auteurId Int?         @map("auteur_id")
+  auteur   User?        @relation(fields: [auteurId], references: [id], onDelete: SetNull)
+  creeLe   DateTime     @default(now()) @map("cree_le")
+  vues     AnnonceVue[]
+
+  @@index([creeLe])
+  @@map("annonces")
+}
+
+/// Annonce vue par un participant (la fenêtre ne s'ouvre qu'une fois).
+model AnnonceVue {
+  annonceId String   @map("annonce_id")
+  annonce   Annonce  @relation(fields: [annonceId], references: [id], onDelete: Cascade)
+  userId    Int      @map("user_id")
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  vueLe     DateTime @default(now()) @map("vue_le")
+
+  @@id([annonceId, userId])
+  @@index([userId])
+  @@map("annonces_vues")
 }

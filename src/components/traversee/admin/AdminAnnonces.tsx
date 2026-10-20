@@ -1,9 +1,12 @@
 "use client";
 
+import { useRouter } from "next/navigation";
 import { useState, type FormEvent } from "react";
+import { publierAnnonce, supprimerAnnonce } from "@/app/(app)/annonces/actions";
 import { CameraIcon, MegaphoneIcon } from "@/components/app/icons";
 import { DESTINATIONS, IMG, MODELES_ANNONCE, TYPES_ANNONCE, heureAnn, type AnnonceType } from "@/lib/traversee/data";
-import { lisImage, setTraversee, toast, uid, useTraversee, type Annonce } from "@/lib/traversee/store";
+import type { AnnonceAdmin } from "@/lib/annonces";
+import { lisImage, toast } from "@/lib/traversee/store";
 import { AnnonceCard } from "../AnnonceCard";
 import { Btn, Card, Champ, FileBtn, PageHead, Puce, Sur, ui } from "../ui";
 import styles from "./admin.module.css";
@@ -11,12 +14,37 @@ import styles from "./admin.module.css";
 type Brouillon = { titre: string; message: string; type: AnnonceType; cta: string; img: string };
 const VIDE: Brouillon = { titre: "", message: "", type: "info", cta: "", img: "" };
 
-export function publierAnnonce(a: Omit<Annonce, "id" | "t">) {
-  setTraversee((st) => ({ annonces: [{ ...a, id: uid("a"), t: Date.now() }, ...st.annonces] }));
+/** Photo réduite dans le navigateur (data URL) envoyée au serveur ; renvoie son adresse. */
+async function envoyerPhoto(dataUrl: string): Promise<string> {
+  const blob = await (await fetch(dataUrl)).blob();
+  const r = await fetch("/api/fil/images", { method: "POST", headers: { "Content-Type": blob.type || "image/jpeg" }, body: blob });
+  const corps = (await r.json().catch(() => ({}))) as { url?: string; message?: string };
+  if (!r.ok || !corps.url) throw new Error(corps.message ?? "La photo n’a pas pu être envoyée.");
+  return corps.url;
 }
 
-export function HistoriqueAnnonces() {
-  const { annonces } = useTraversee();
+export function HistoriqueAnnonces({ annonces }: { annonces: AnnonceAdmin[] }) {
+  const router = useRouter();
+  const [occupe, setOccupe] = useState<string | null>(null);
+
+  async function renvoyer(a: AnnonceAdmin) {
+    setOccupe(a.id);
+    const { error } = await publierAnnonce({ titre: a.titre, message: a.message, type: a.type, cta: a.cta, image: a.img });
+    setOccupe(null);
+    if (error) return toast(error);
+    toast("Annonce renvoyée à tous les participants.");
+    router.refresh();
+  }
+
+  async function retirer(a: AnnonceAdmin) {
+    setOccupe(a.id);
+    const { error } = await supprimerAnnonce(a.id);
+    setOccupe(null);
+    if (error) return toast(error);
+    toast("Annonce supprimée.");
+    router.refresh();
+  }
+
   return (
     <ul className={styles.listeAnn}>
       {annonces.length ? (
@@ -25,26 +53,17 @@ export function HistoriqueAnnonces() {
             <div className="flex flex-wrap items-center gap-2">
               <Puce tone={a.type === "urgent" ? "red" : "blue"}>{TYPES_ANNONCE[a.type]}</Puce>
               <time>{heureAnn(a.t)}</time>
+              <span className="text-[12.5px] text-graphite-muted">
+                Vue par {a.vues} participant{a.vues > 1 ? "s" : ""}
+              </span>
             </div>
             <strong>{a.titre}</strong>
             <p>{a.message}</p>
             <div className="mt-1.5 flex flex-wrap gap-2">
-              <Btn
-                small
-                onClick={() => {
-                  publierAnnonce({ titre: a.titre, message: a.message, type: a.type, cta: a.cta, img: a.img });
-                  toast("Annonce renvoyée à tous les participants.");
-                }}
-              >
+              <Btn small onClick={() => void renvoyer(a)} disabled={occupe === a.id}>
                 Renvoyer
               </Btn>
-              <Btn
-                small
-                onClick={() => {
-                  setTraversee((st) => ({ annonces: st.annonces.filter((x) => x.id !== a.id) }));
-                  toast("Annonce supprimée.");
-                }}
-              >
+              <Btn small className="!text-[#b42318]" onClick={() => void retirer(a)} disabled={occupe === a.id}>
                 Supprimer
               </Btn>
             </div>
@@ -59,20 +78,33 @@ export function HistoriqueAnnonces() {
   );
 }
 
-export function AdminAnnonces() {
+export function AdminAnnonces({ annonces }: { annonces: AnnonceAdmin[] }) {
+  const router = useRouter();
   const [b, setB] = useState<Brouillon>(VIDE);
+  const [envoi, setEnvoi] = useState(false);
 
-  function envoyer(e: FormEvent) {
+  async function envoyer(e: FormEvent) {
     e.preventDefault();
+    if (envoi) return;
     if (!b.titre.trim() || !b.message.trim()) return toast("Renseignez un titre et un message.");
-    publierAnnonce({ titre: b.titre.trim(), message: b.message.trim(), type: b.type, cta: b.cta, img: b.img || undefined });
+    setEnvoi(true);
+    try {
+      const image = b.img ? await envoyerPhoto(b.img) : undefined;
+      const { error } = await publierAnnonce({ titre: b.titre.trim(), message: b.message.trim(), type: b.type, cta: b.cta, image });
+      if (error) throw new Error(error);
+    } catch (err) {
+      setEnvoi(false);
+      return toast(err instanceof Error ? err.message : "L’annonce n’a pas pu être envoyée.");
+    }
+    setEnvoi(false);
     setB(VIDE);
-    toast("Annonce envoyée : elle s’affiche en popup chez les participants.");
+    toast("Annonce envoyée : elle s’ouvre chez chaque participant à sa prochaine page.");
+    router.refresh();
   }
 
   return (
     <>
-      <PageHead title="Annonces aux" accent="participants" text="Chaque annonce s’affiche en popup dans l’appli de tous les participants connectés, et reste consultable depuis la cloche." photo="public" />
+      <PageHead title="Annonces aux" accent="participants" text="Chaque annonce s’ouvre chez chaque participant à sa prochaine page, une seule fois, puis reste consultable depuis la cloche." photo="public" />
       <div className={ui.gLarge}>
         <form onSubmit={envoyer} className={`${ui.card} ${ui.pad} m-bleed grid gap-3.5`}>
           <Sur className="!mb-0">Nouvelle annonce</Sur>
@@ -127,11 +159,10 @@ export function AdminAnnonces() {
             />
             {b.img ? <Btn onClick={() => setB({ ...b, img: "" })}>Retirer la photo</Btn> : null}
           </div>
-          <Btn variant="primary" type="submit">
+          <Btn variant="primary" type="submit" disabled={envoi}>
             <MegaphoneIcon width={16} height={16} />
-            Envoyer à tous les participants
+            {envoi ? "Envoi…" : "Envoyer à tous les participants"}
           </Btn>
-          <p className="text-[13px] text-graphite-muted">Dans la vraie plateforme, cet espace est réservé à l’équipe CanCham.</p>
         </form>
         <Card pad bleed>
           <Sur>Aperçu sur téléphone</Sur>
@@ -144,7 +175,7 @@ export function AdminAnnonces() {
       </div>
       <h2 className="mb-3 mt-6 font-display text-[18px] text-graphite">Annonces envoyées</h2>
       <Card pad bleed>
-        <HistoriqueAnnonces />
+        <HistoriqueAnnonces annonces={annonces} />
       </Card>
     </>
   );

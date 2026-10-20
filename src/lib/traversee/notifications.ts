@@ -1,4 +1,5 @@
 import type { MessageNonLu } from "@/app/api/messages/non-lus/route";
+import type { AnnonceVue } from "@/lib/annonces";
 import { CRENEAUX, LIEUX } from "./data";
 import type { Annonce, TraverseeState, TypeNotif } from "./store";
 
@@ -37,12 +38,12 @@ function duJournal(s: TraverseeState, pour: "admin" | "participant"): Notif[] {
     .map((e) => ({ id: e.id, type: e.type, titre: e.titre, texte: e.texte, href: e.href, t: e.t, acteur: e.acteur, lue: lue(s, e.id) }));
 }
 
-export function notificationsParticipant(s: TraverseeState, o: { maintenant: number; creeLe?: string | null; messages: MessageNonLu[] }): Notif[] {
+export function notificationsParticipant(s: TraverseeState, o: { maintenant: number; creeLe?: string | null; messages: MessageNonLu[]; annonces: AnnonceVue[] }): Notif[] {
   const liste = duJournal(s, "participant");
 
-  for (const a of s.annonces) {
+  for (const a of o.annonces) {
     const id = `ann-${a.id}`;
-    liste.push({ id, type: "annonce", titre: a.titre, texte: a.message, href: "/", t: a.t, annonce: a, lue: !!s.annoncesVues[a.id] || lue(s, id) });
+    liste.push({ id, type: "annonce", titre: a.titre, texte: a.message, href: "/", t: a.t, annonce: a, lue: a.vue || lue(s, id) });
   }
 
   liste.push(...depuisMessages(s, o.messages));

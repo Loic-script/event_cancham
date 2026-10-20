@@ -3,11 +3,12 @@
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useMemo, useState, type FormEvent, type ReactNode } from "react";
+import { marquerAnnoncesVues } from "@/app/(app)/annonces/actions";
 import { AnnonceCard } from "@/components/traversee/AnnonceCard";
+import type { AnnonceVue } from "@/lib/annonces";
 import { Modal } from "@/components/traversee/Modal";
 import { Toaster } from "@/components/traversee/Toaster";
 import { LOGO_BLANC } from "@/lib/traversee/data";
-import { setTraversee, useTraversee } from "@/lib/traversee/store";
 import { MenuCompte } from "./MenuCompte";
 import { Notifications } from "./Notifications";
 import { ChevronRightIcon, HeadsetIcon, MenuIcon } from "./icons";
@@ -112,15 +113,28 @@ function groupeDe(pathname: string) {
  * `enAttente` : inscriptions à valider, affichées en pastille dans le back-office.
  * `nonLus` : messages non lus du compte ; `nonLusEquipe` : messages des participants non lus par l'équipe (administrateurs).
  */
-export function AppShell({ children, enAttente = 0, nonLus = 0, nonLusEquipe = 0 }: { children: ReactNode; enAttente?: number; nonLus?: number; nonLusEquipe?: number }) {
+export function AppShell({
+  children,
+  enAttente = 0,
+  nonLus = 0,
+  nonLusEquipe = 0,
+  annonces = [],
+}: {
+  children: ReactNode;
+  enAttente?: number;
+  nonLus?: number;
+  nonLusEquipe?: number;
+  /** Annonces récentes de l'équipe (participants), avec l'état « vue » de ce compte. */
+  annonces?: AnnonceVue[];
+}) {
   const pathname = usePathname();
   const router = useRouter();
-  const state = useTraversee();
   const [ouvert, setOuvert] = useState(false);
   const [recherche, setRecherche] = useState("");
   const [groupe, setGroupe] = useState(() => groupeDe(pathname));
   const [cheminPrecedent, setCheminPrecedent] = useState(pathname);
   const [messages, setMessages] = useState({ membre: nonLus, equipe: nonLusEquipe, source: { nonLus, nonLusEquipe } });
+  const [vues, setVues] = useState<Record<string, true>>({});
   if (messages.source.nonLus !== nonLus || messages.source.nonLusEquipe !== nonLusEquipe) {
     setMessages({ membre: nonLus, equipe: nonLusEquipe, source: { nonLus, nonLusEquipe } });
   }
@@ -136,7 +150,7 @@ export function AppShell({ children, enAttente = 0, nonLus = 0, nonLusEquipe = 0
   const items = useMemo(() => sections.flatMap((s) => s.items), [sections]);
   const courant = items.filter((n) => isActive(pathname, n.href)).sort((a, b) => b.href.length - a.href.length)[0];
   const titre = courant?.label ?? Object.entries(TITRES).find(([k]) => isActive(pathname, k))?.[1] ?? "Accueil";
-  const nonVues = state.annonces.filter((a) => !state.annoncesVues[a.id]);
+  const nonVues = annonces.filter((a) => !a.vue && !vues[a.id]);
   const popup = !admin && nonVues[0];
 
   // Pastilles de la messagerie à jour sans recharger la page.
@@ -165,7 +179,10 @@ export function AppShell({ children, enAttente = 0, nonLus = 0, nonLusEquipe = 0
   }, [ouvert]);
 
   function toutVu() {
-    setTraversee((s) => ({ annoncesVues: { ...s.annoncesVues, ...Object.fromEntries(s.annonces.map((a) => [a.id, 1 as const])) } }));
+    // Toutes les annonces affichées sont vues : la fenêtre ne s'ouvrira plus, ici ni sur un autre appareil.
+    const ids = nonVues.map((a) => a.id);
+    setVues((v) => ({ ...v, ...Object.fromEntries(ids.map((id) => [id, true as const])) }));
+    void marquerAnnoncesVues(ids);
   }
 
   function chercher(e: FormEvent) {
@@ -180,7 +197,7 @@ export function AppShell({ children, enAttente = 0, nonLus = 0, nonLusEquipe = 0
     if (href === "/admin/acces") return enAttente;
     if (href === "/messages") return messages.membre;
     if (href === "/admin/messagerie") return messages.equipe;
-    return href === "/admin/annonces" ? state.annonces.length : 0;
+    return 0;
   }
 
   const accueilHref = admin ? "/admin" : "/";
@@ -290,7 +307,7 @@ export function AppShell({ children, enAttente = 0, nonLus = 0, nonLusEquipe = 0
               <Link href={accueilHref} className={`${styles.raccourci} ${styles.raccourciAccueil}`} aria-label="Accueil" aria-current={pathname === accueilHref ? "page" : undefined}>
                 <IconeNavigation icone={ICONES.accueil} active={pathname === accueilHref} />
               </Link>
-              <Notifications admin={admin} />
+              <Notifications admin={admin} annonces={annonces.map((a) => (vues[a.id] ? { ...a, vue: true } : a))} />
               <Link
                 href={messagerieHref}
                 className={styles.raccourci}

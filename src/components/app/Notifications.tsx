@@ -9,7 +9,9 @@ import { AnnonceCard } from "@/components/traversee/AnnonceCard";
 import { Modal } from "@/components/traversee/Modal";
 import { AvatarInitiales } from "@/components/traversee/ui";
 import { SIGLE, TYPES_ANNONCE } from "@/lib/traversee/data";
+import { marquerAnnoncesVues } from "@/app/(app)/annonces/actions";
 import type { MessageNonLu } from "@/app/api/messages/non-lus/route";
+import type { AnnonceVue } from "@/lib/annonces";
 import { notificationsAdmin, notificationsParticipant, type CompteRecent, type Notif } from "@/lib/traversee/notifications";
 import { setTraversee, useTraversee, type Annonce, type TypeNotif } from "@/lib/traversee/store";
 import { BellIcon, CalendarDaysIcon, CameraIcon, CheckIcon, GiftIcon, ImageIcon, MegaphoneIcon, MessageCircleIcon, TrophyIcon, UserPlusIcon, VideoIcon, type IconProps } from "./icons";
@@ -41,7 +43,7 @@ function depuis(n: Notif, maintenant: number) {
   return new Date(n.t).toLocaleDateString("fr-FR", { day: "numeric", month: "short" });
 }
 
-export function Notifications({ admin }: { admin: boolean }) {
+export function Notifications({ admin, annonces = [] }: { admin: boolean; annonces?: AnnonceVue[] }) {
   const pathname = usePathname();
   const s = useTraversee();
   const session = useSessionIdentity();
@@ -112,8 +114,8 @@ export function Notifications({ admin }: { admin: boolean }) {
   }, [ouvert]);
 
   const liste = useMemo(
-    () => (admin ? notificationsAdmin(s, { comptes, moi: session?.id, messages }) : notificationsParticipant(s, { maintenant, creeLe: session?.createdAt, messages })),
-    [admin, s, comptes, session, maintenant, messages],
+    () => (admin ? notificationsAdmin(s, { comptes, moi: session?.id, messages }) : notificationsParticipant(s, { maintenant, creeLe: session?.createdAt, messages, annonces })),
+    [admin, s, comptes, session, maintenant, messages, annonces],
   );
   const nonLues = liste.filter((n) => !n.lue);
   const visibles = filtre === "nonlues" ? nonLues : liste;
@@ -134,8 +136,9 @@ export function Notifications({ admin }: { admin: boolean }) {
     if (!ns.length) return;
     setTraversee((st) => ({
       notifsLues: { ...st.notifsLues, ...Object.fromEntries(ns.map((n) => [n.id, 1 as const])) },
-      annoncesVues: { ...st.annoncesVues, ...Object.fromEntries(ns.flatMap((n) => (n.annonce ? [[n.annonce.id, 1 as const]] : []))) },
     }));
+    const vues = ns.flatMap((n) => (n.annonce ? [n.annonce.id] : []));
+    if (vues.length) void marquerAnnoncesVues(vues);
   }
 
   function ouvrir(n: Notif) {

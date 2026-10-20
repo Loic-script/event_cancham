@@ -51,8 +51,6 @@ export type TraverseeState = {
   visage: boolean;
   plan: boolean;
   retrouve: boolean;
-  annonces: Annonce[];
-  annoncesVues: Record<string, 1>;
   storiesVues: Record<string, 1>;
   demi: Demi[];
   voix: number[];
@@ -96,8 +94,6 @@ export const DEFAULT_STATE: TraverseeState = {
   visage: false,
   plan: true,
   retrouve: false,
-  annonces: [],
-  annoncesVues: {},
   storiesVues: {},
   demi: DEMI,
   voix: VOIX_INIT,
