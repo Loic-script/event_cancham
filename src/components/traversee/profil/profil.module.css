@@ -15,16 +15,3 @@
   text-align: center;
 }
 
-.inter {
-  display: flex;
-  gap: 12px;
-  align-items: flex-start;
-  cursor: pointer;
-}
-
-.inter input {
-  width: 18px;
-  height: 18px;
-  margin-top: 2px;
-  accent-color: var(--leaf);
-}

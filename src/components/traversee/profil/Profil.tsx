@@ -5,7 +5,7 @@ import { Avatar } from "@/components/app/Avatar";
 import { DownloadIcon } from "@/components/app/icons";
 import { updateProfile, useProfile } from "@/components/profile/useProfile";
 import { SECTEURS } from "@/lib/traversee/data";
-import { setTraversee, toast, useTraversee } from "@/lib/traversee/store";
+import { toast } from "@/lib/traversee/store";
 import { fullName } from "@/lib/mock/data";
 import { BilletModal } from "../achats/BilletModal";
 import { Presentation } from "../accueil/Presentation";
@@ -17,10 +17,7 @@ import styles from "./profil.module.css";
 
 export function Profil({ restant }: { restant: number }) {
   const me = useProfile();
-  const s = useTraversee();
   const [f, setF] = useState({ firstName: me.firstName, lastName: me.lastName, company: me.company, sector: me.sector, role: me.role, bio: me.bio ?? "" });
-  const [visage, setVisage] = useState(s.visage);
-  const [plan, setPlan] = useState(s.plan);
   const [billet, setBillet] = useState(false);
   const champs = [f.firstName, f.lastName, f.company, f.role, f.sector, f.bio, me.photo].filter(Boolean).length;
   const pct = Math.round((champs / 7) * 100);
@@ -28,7 +25,6 @@ export function Profil({ restant }: { restant: number }) {
   function enregistrer(e: FormEvent) {
     e.preventDefault();
     updateProfile({ firstName: f.firstName.trim(), lastName: f.lastName.trim(), company: f.company.trim(), sector: f.sector, role: f.role.trim(), bio: f.bio.trim() });
-    setTraversee({ visage, plan });
     toast("Profil enregistré.");
   }
 
@@ -78,22 +74,6 @@ export function Profil({ restant }: { restant: number }) {
           <Champ label="Ce que vous venez chercher à la Traversée" htmlFor="p-bio">
             <textarea id="p-bio" className={ui.saisie} value={f.bio} onChange={(e) => setF({ ...f, bio: e.target.value })} />
           </Champ>
-          <label className={styles.inter}>
-            <input type="checkbox" checked={visage} onChange={(e) => setVisage(e.target.checked)} />
-            <span>
-              <strong className="text-graphite">Reconnaissance faciale (facultatif)</strong>
-              <br />
-              <span className="text-graphite-muted">J’autorise la plateforme à comparer ma photo de profil aux photos et vidéos de l’événement pour retrouver celles où j’apparais.</span>
-            </span>
-          </label>
-          <label className={styles.inter}>
-            <input type="checkbox" checked={plan} onChange={(e) => setPlan(e.target.checked)} />
-            <span>
-              <strong className="text-graphite">Apparaître sur le plan de table</strong>
-              <br />
-              <span className="text-graphite-muted">Les autres participants voient mon nom, mon entreprise et ma fonction à ma table.</span>
-            </span>
-          </label>
           <div>
             <Btn variant="primary" type="submit">
               Enregistrer

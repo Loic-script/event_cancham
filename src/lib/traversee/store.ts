@@ -28,8 +28,6 @@ export type TraverseeState = {
   finale: boolean;
   ami: boolean;
   achats: Achat[];
-  visage: boolean;
-  plan: boolean;
   storiesVues: Record<string, 1>;
   demi: Demi[];
   voix: number[];
@@ -49,8 +47,6 @@ export const DEFAULT_STATE: TraverseeState = {
   finale: false,
   ami: false,
   achats: [{ quoi: "Billet La Traversée", ou: "Billetterie en ligne", montant: 500000, etat: "Payé", date: "Avant l’événement" }],
-  visage: false,
-  plan: true,
   storiesVues: {},
   demi: DEMI,
   voix: VOIX_INIT,
