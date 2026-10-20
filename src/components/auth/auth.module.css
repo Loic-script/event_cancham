@@ -664,8 +664,12 @@
     align-items: center;
     padding: 48px 40px;
     overflow-y: auto;
-    scrollbar-width: thin;
-    scrollbar-color: var(--champ) transparent;
+    /* Barre de défilement masquée : la molette, le pavé tactile et le clavier font toujours défiler. */
+    scrollbar-width: none;
+  }
+
+  .defile::-webkit-scrollbar {
+    display: none;
   }
 
   /* Centrée quand elle tient dans l'écran, alignée en haut quand elle dépasse (rien n'est coupé). */
