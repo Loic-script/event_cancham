@@ -13,7 +13,7 @@ import { Modal } from "../Modal";
 import { Btn, Card, Champ, Direct, FileBtn, Note, Partie, Stat, Sur, ui } from "../ui";
 import { Affiche, telechargeCanvas } from "./Affiche";
 import { Classement } from "./Classement";
-import { GainTombola, Tuiles } from "./Tuiles";
+import { GainTombola } from "./Tuiles";
 import { useLive } from "./live";
 import styles from "./defis.module.css";
 
@@ -132,8 +132,6 @@ export function DefiTombola() {
           </div>
         </Modal>
       ) : null}
-      <Tuiles actif="tombola" />
-
       <Partie n={1} titre="Ce qu’on gagne">
         <GainTombola />
       </Partie>

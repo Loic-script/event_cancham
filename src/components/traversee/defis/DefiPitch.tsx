@@ -8,7 +8,7 @@ import { IMG, VIGNETTES } from "@/lib/traversee/data";
 import { journaliser, setTraversee, toast, useTraversee } from "@/lib/traversee/store";
 import { Modal } from "../Modal";
 import { Btn, Card, Champ, Direct, Etapes, Note, Partie, Puce, Sur, ui } from "../ui";
-import { GainPitch, Tuiles } from "./Tuiles";
+import { GainPitch } from "./Tuiles";
 import { useLive } from "./live";
 import styles from "./defis.module.css";
 
@@ -85,8 +85,6 @@ export function DefiPitch() {
 
   return (
     <>
-      <Tuiles actif="pitch" />
-
       <Partie n={1} titre="Ce qu’on gagne">
         <GainPitch />
       </Partie>
