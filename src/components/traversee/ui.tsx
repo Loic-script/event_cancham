@@ -192,7 +192,7 @@ export function AvatarInitiales({ nom, photo, size = 38, className = "" }: { nom
   );
 }
 
-/** Photo de profil (ou silhouette par défaut) dans l'anneau orange, comme sur l'accueil. */
+/** Photo de profil ronde (ou silhouette par défaut), sans anneau. */
 export function AvatarProfil({ photo, size = 40, className = "" }: { photo?: string | null; size?: number; className?: string }) {
   return (
     <span className={`${styles.anneau} ${className}`} aria-hidden>

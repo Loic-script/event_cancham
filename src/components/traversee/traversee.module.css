@@ -639,15 +639,14 @@ textarea.saisie { min-height: 90px; resize: vertical; }
   }
 }
 
-/* Photo de profil dans l'anneau orange (AvatarProfil) */
+/* Photo de profil ronde (AvatarProfil), sans anneau : une ombre douce la détache du fond */
 .anneau {
   position: relative;
   display: inline-grid;
   flex: none;
   place-items: center;
-  padding: 2px;
   border-radius: 50%;
-  background: conic-gradient(from 180deg, var(--leaf), #ffb27a, var(--gold), var(--leaf));
+  box-shadow: 0 10px 24px -12px rgba(15, 29, 44, 0.55);
 }
 
-.anneau > * { border: 2px solid var(--surface); border-radius: 50%; }
+.anneau > * { border-radius: 50%; }
