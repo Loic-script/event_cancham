@@ -97,7 +97,7 @@ export function Profil({ restant, parcours }: { restant: number; parcours: Parco
             </div>
             {reglage ? <span className={styles.couvertureAide}>Glissez l’image pour la placer</span> : null}
           </CouvertureReglable>
-          <Avatar person={me} size={112} className={`${styles.surCouverture} shadow-[0_12px_28px_-18px_rgba(15,29,44,0.5)]`} />
+          <Avatar person={me} size={112} className={`${styles.surCouverture} ${reglage ? styles.sansClics : ""} shadow-[0_12px_28px_-18px_rgba(15,29,44,0.5)]`} />
           <div>
             <h3 className="font-display text-[18px] text-graphite">{fullName(me)}</h3>
             <p className="text-graphite-muted">{me.company || "Entreprise à renseigner"}</p>

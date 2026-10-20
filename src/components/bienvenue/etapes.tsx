@@ -166,7 +166,7 @@ export function EtapePhoto({ photo, couverture, couverturePosition, initiales, n
             </div>
             {reglage ? <span className={styles.couvertureAide}>Glissez l’image pour la placer</span> : null}
           </CouvertureReglable>
-          <div className={`${styles.anneau} ${styles.surCouverture}`}>{apercu ? <img src={apercu} alt="Votre photo de profil" /> : <span className={`${styles.initiales}`}>{initiales}</span>}</div>
+          <div className={`${styles.anneau} ${styles.surCouverture} ${reglage ? styles.sansClics : ""}`}>{apercu ? <img src={apercu} alt="Votre photo de profil" /> : <span className={`${styles.initiales}`}>{initiales}</span>}</div>
           <label className={styles.fichier} aria-disabled={envoi !== null}>
             {envoi === "photo" ? <SpinnerIcon width={16} height={16} className={styles.spin} /> : <CameraIcon width={17} height={17} />}
             {envoi === "photo" ? "Envoi…" : apercu ? "Changer la photo" : "Choisir une photo"}

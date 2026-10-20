@@ -33,11 +33,14 @@
   gap: 8px;
 }
 
-/* Réglage du cadrage : la bannière passe devant la photo, le temps de glisser l'image */
+/* Réglage du cadrage : la photo reste devant, mais laisse passer le glissement */
 .couvertureReglage {
-  z-index: 2;
   outline: 2px dashed rgba(255, 255, 255, 0.7);
   outline-offset: -4px;
+}
+
+.sansClics {
+  pointer-events: none;
 }
 
 .couvertureAide {

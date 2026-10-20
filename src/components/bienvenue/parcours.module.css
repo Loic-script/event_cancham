@@ -478,11 +478,14 @@ select.saisie {
   background: linear-gradient(120deg, #0b1a30 0%, #12305a 60%, #1f5aa0 100%) center / cover no-repeat;
 }
 
-/* Réglage du cadrage : la bannière passe devant la photo, le temps de glisser l'image */
+/* Réglage du cadrage : la photo reste devant, mais laisse passer le glissement */
 .couvertureReglage {
-  z-index: 2;
   outline: 2px dashed rgba(255, 255, 255, 0.8);
   outline-offset: -4px;
+}
+
+.sansClics {
+  pointer-events: none;
 }
 
 .couvertureActions {
