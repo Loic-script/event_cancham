@@ -1,11 +1,11 @@
 "use client";
 
 import { DownloadIcon } from "@/components/app/icons";
-import { useProfile } from "@/components/profile/useProfile";
+import { useProfile, useSessionIdentity } from "@/components/profile/useProfile";
 import { QrCode } from "@/components/ticket/QrCode";
 import { LIEU_LONG, LOGO_BLANC } from "@/lib/traversee/data";
 import { useTraversee } from "@/lib/traversee/store";
-import { currentUser, fullName } from "@/lib/mock/data";
+import { fullName } from "@/lib/mock/data";
 import { Modal } from "../Modal";
 import { Btn, Puce, Sur } from "../ui";
 import { profilComplet } from "../defis/DefiPitch";
@@ -13,6 +13,7 @@ import styles from "./achats.module.css";
 
 export function BilletCard() {
   const me = useProfile();
+  const identite = useSessionIdentity();
   const { table, siege } = useTraversee();
   return (
     <div className={styles.billet}>
@@ -23,12 +24,18 @@ export function BilletCard() {
         <img src={LOGO_BLANC} alt="IMPACT 261" />
       </div>
       <div className={styles.bc}>
-        <QrCode value={currentUser.ticket.code} size={140} />
+        {identite ? <QrCode value={identite.codeBillet} size={140} /> : null}
         <div className={styles.bInfos}>
           <Sur className="!mb-1.5">Participant</Sur>
           <h3 className="font-display text-[22px] text-graphite">{fullName(me)}</h3>
           <p className="font-semibold text-graphite">{me.company || "Entreprise à renseigner"}</p>
           <p className="text-graphite-muted">{me.role || "Rôle à renseigner"}</p>
+          {identite ? <p className="mt-1.5 font-mono text-[12px] tracking-[0.12em] text-graphite-muted">{identite.codeBillet}</p> : null}
+          {identite && !identite.billetPaye ? (
+            <p className="mt-2.5">
+              <Puce tone="red">Paiement en attente</Puce>
+            </p>
+          ) : null}
           {table ? (
             <p className="mt-2.5">
               <Puce>

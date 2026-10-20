@@ -5,22 +5,18 @@ export type FicheInscrit = FicheComplete & { userId: number; inscritLe: string }
 
 const BANDEAUX = ["salle", "ecran", "diner", "accueil", "assistance", "public", "hero", "rdv"];
 
-export function codeBilletInscrit(id: number) {
-  return `TRV26-U${String(id).padStart(4, "0")}`;
-}
-
 export async function fichesInscrits(): Promise<FicheInscrit[]> {
   const users = await prisma.user.findMany({
     where: { acces: "MEMBRE", statut: "ACTIF" },
     orderBy: [{ firstName: "asc" }, { lastName: "asc" }],
-    select: { id: true, email: true, firstName: true, lastName: true, role: true, company: true, sector: true, bio: true, phone: true, website: true, billetPaye: true, photo: true, createdAt: true },
+    select: { id: true, email: true, firstName: true, lastName: true, role: true, company: true, sector: true, bio: true, phone: true, website: true, billetPaye: true, codeBillet: true, photo: true, createdAt: true },
   });
 
   return users.map((u) => ({
     id: `u${u.id}`,
     userId: u.id,
     img: BANDEAUX[u.id % BANDEAUX.length],
-    code: codeBilletInscrit(u.id),
+    code: u.codeBillet,
     nom: `${u.firstName} ${u.lastName}`.trim(),
     role: u.role ?? "",
     ent: u.company ?? "",

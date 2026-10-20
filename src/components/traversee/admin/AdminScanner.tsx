@@ -1,6 +1,7 @@
 "use client";
 
 import jsQR from "jsqr";
+import { useRouter } from "next/navigation";
 import {
   useCallback,
   useEffect,
@@ -9,21 +10,20 @@ import {
   type FormEvent,
 } from "react";
 import {
+  effacerEntrees,
+  encaisserEtValider,
+  scannerBillet,
+} from "@/app/(app)/admin/scanner/actions";
+import {
   CameraIcon,
   CheckIcon,
   QrIcon,
   TicketIcon,
   XIcon,
 } from "@/components/app/icons";
-import { useProfile } from "@/components/profile/useProfile";
-import { currentUser, fullName } from "@/lib/mock/data";
-import { fichesParticipants } from "@/lib/traversee/participants";
-import {
-  setTraversee,
-  toast,
-  useTraversee,
-  type TraverseeState,
-} from "@/lib/traversee/store";
+import type { EntreeVue, EtatScan, VerdictScan } from "@/lib/billets";
+import { toast } from "@/lib/traversee/store";
+import { Confirmer } from "../Confirmer";
 import {
   AvatarInitiales,
   Btn,
@@ -36,17 +36,9 @@ import {
 } from "../ui";
 import styles from "./scanner.module.css";
 
-type Etat = "ok" | "attente" | "deja" | "inconnu";
-type Verdict = {
-  etat: Etat;
-  code: string;
-  nom?: string;
-  ent?: string;
-  role?: string;
-  table?: string;
-  quand?: string;
-  t: number;
-};
+type Etat = EtatScan;
+/** Verdict renvoyé par le serveur, daté de la lecture (t) pour l'affichage. */
+type Verdict = VerdictScan & { t: number };
 
 type Detecteur = {
   detect: (source: HTMLVideoElement) => Promise<{ rawValue: string }[]>;
@@ -62,18 +54,20 @@ const TITRES: Record<Etat, string> = {
   inconnu: "Billet inconnu",
 };
 const CONSEILS: Record<Etat, string> = {
-  ok: "Bonne soirée ! Orientez le participant vers sa table.",
+  ok: "Bonne soirée ! Le participant peut entrer.",
   attente:
-    "Le billet n’est pas réglé. Dirigez le participant vers la caisse avant l’entrée.",
+    "Le billet n’est pas réglé. Encaissez le paiement avant l’entrée, puis validez.",
   deja: "Ce billet est déjà entré. Vérifiez l’identité avant de laisser passer.",
   inconnu:
-    "Aucun billet ne correspond. Vérifiez l’identifiant ou la billetterie.",
+    "Aucun billet ne correspond, ou le compte n’est pas encore validé. Vérifiez l’identifiant.",
 };
 
+// Heure de Madagascar, quel que soit le fuseau de l'appareil qui scanne.
 function heure(t: number) {
   return new Intl.DateTimeFormat("fr-FR", {
     hour: "2-digit",
     minute: "2-digit",
+    timeZone: "Indian/Antananarivo",
   }).format(new Date(t));
 }
 
@@ -81,68 +75,14 @@ function normalise(code: string) {
   return code.trim().toUpperCase().replace(/\s+/g, "");
 }
 
-function chercher(code: string, s: TraverseeState) {
-  if (code === normalise(currentUser.ticket.code)) {
-    return {
-      nom: fullName(currentUser),
-      ent: currentUser.company,
-      role: currentUser.role,
-      table: currentUser.ticket.table,
-      billet: "paye" as const,
-    };
-  }
-  const f = fichesParticipants(s).find((x) => normalise(x.code) === code);
-  return f
-    ? {
-        nom: f.nom,
-        ent: f.ent,
-        role: f.role,
-        table: undefined,
-        billet: f.billet,
-      }
-    : null;
-}
-
-export function verifier(brut: string, s: TraverseeState): Verdict {
-  const code = normalise(brut);
-  const t = Date.now();
-  const fiche = chercher(code, s);
-  if (!fiche) return { etat: "inconnu", code, t };
-  const deja = s.scans.find((x) => x.code === code);
-  if (deja)
-    return {
-      etat: "deja",
-      code,
-      nom: fiche.nom,
-      ent: fiche.ent,
-      role: fiche.role,
-      table: fiche.table,
-      quand: heure(deja.t),
-      t,
-    };
-  if (fiche.billet !== "paye")
-    return {
-      etat: "attente",
-      code,
-      nom: fiche.nom,
-      ent: fiche.ent,
-      role: fiche.role,
-      table: fiche.table,
-      t,
-    };
-  return {
-    etat: "ok",
-    code,
-    nom: fiche.nom,
-    ent: fiche.ent,
-    role: fiche.role,
-    table: fiche.table,
-    t,
-  };
-}
-
-export function AdminScanner() {
-  const s = useTraversee();
+export function AdminScanner({
+  entrees,
+  inscrits,
+}: {
+  entrees: EntreeVue[];
+  inscrits: number;
+}) {
+  const router = useRouter();
   const [actif, setActif] = useState(false);
   const [erreur, setErreur] = useState<string | null>(null);
   const [verdict, setVerdict] = useState<Verdict | null>(null);
@@ -150,54 +90,54 @@ export function AdminScanner() {
   const [moteur, setMoteur] = useState<"natif" | "jsqr" | null>(null);
   const [filtre, setFiltre] = useState("");
   const [masque, setMasque] = useState<number | null>(null);
-  const me = useProfile();
+  const [effacer, setEffacer] = useState(false);
+  const [encaissement, setEncaissement] = useState(false);
   const video = useRef<HTMLVideoElement | null>(null);
   const canvas = useRef<HTMLCanvasElement | null>(null);
   const flux = useRef<MediaStream | null>(null);
   const boucle = useRef<number | null>(null);
   const dernier = useRef<{ code: string; t: number }>({ code: "", t: 0 });
-  const etatRef = useRef(s);
-  useEffect(() => {
-    etatRef.current = s;
-  }, [s]);
+  const enCours = useRef(false);
 
-  const inscrits = fichesParticipants(s).length + 1;
-  const entres = s.scans.length;
+  const entres = entrees.length;
+  const total = Math.max(inscrits, entres, 1);
   const fl = filtre.trim().toLowerCase();
-  const scannes = s.scans
-    .map((x) => {
-      const f = chercher(x.code, s);
-      const moi = x.code === normalise(currentUser.ticket.code);
-      return {
-        ...x,
-        nom: f?.nom ?? x.nom,
-        detail: f ? [f.role, f.ent].filter(Boolean).join(" · ") : "",
-        table: f?.table,
-        photo: moi ? me.photo : undefined,
-      };
-    })
-    .filter(
-      (x) => !fl || `${x.nom} ${x.detail} ${x.code}`.toLowerCase().includes(fl),
-    );
+  const scannes = entrees.filter(
+    (x) => !fl || `${x.nom} ${x.detail} ${x.code}`.toLowerCase().includes(fl),
+  );
 
-  const traiter = useCallback((brut: string) => {
-    const code = normalise(brut);
-    if (!code) return;
-    const now = Date.now();
-    if (code === dernier.current.code && now - dernier.current.t < 4000) return;
-    dernier.current = { code, t: now };
-    const v = verifier(code, etatRef.current);
-    setVerdict(v);
-    if (v.etat === "ok") {
-      setTraversee((st) => ({
-        scans: [{ code, nom: v.nom ?? code, t: now }, ...st.scans],
-      }));
+  const signaler = useCallback(
+    (v: Verdict) => {
+      setVerdict(v);
+      if (v.etat === "ok") router.refresh();
       if (typeof navigator !== "undefined" && "vibrate" in navigator)
-        navigator.vibrate?.(80);
-    } else if (typeof navigator !== "undefined" && "vibrate" in navigator) {
-      navigator.vibrate?.([60, 60, 60]);
-    }
-  }, []);
+        navigator.vibrate?.(v.etat === "ok" ? 80 : [60, 60, 60]);
+    },
+    [router],
+  );
+
+  /** Vérification par le serveur, une lecture à la fois ; le même code est ignoré 4 secondes. */
+  const traiter = useCallback(
+    async (brut: string) => {
+      const code = normalise(brut);
+      if (!code || enCours.current) return;
+      const now = Date.now();
+      if (code === dernier.current.code && now - dernier.current.t < 4000)
+        return;
+      dernier.current = { code, t: now };
+      enCours.current = true;
+      try {
+        const { error, verdict: v } = await scannerBillet(code);
+        if (error || !v) return toast(error ?? "Vérification impossible.");
+        signaler({ ...v, t: Date.now() });
+      } catch {
+        toast("Connexion au serveur impossible : réessayez.");
+      } finally {
+        enCours.current = false;
+      }
+    },
+    [signaler],
+  );
 
   const arreter = useCallback(() => {
     if (boucle.current) window.clearTimeout(boucle.current);
@@ -244,7 +184,7 @@ export function AdminScanner() {
         try {
           if (detecteur) {
             const codes = await detecteur.detect(video.current);
-            if (codes[0]?.rawValue) traiter(codes[0].rawValue);
+            if (codes[0]?.rawValue) void traiter(codes[0].rawValue);
           } else {
             const c = canvas.current;
             if (c) {
@@ -270,7 +210,7 @@ export function AdminScanner() {
                 const r = jsQR(img.data, img.width, img.height, {
                   inversionAttempts: "dontInvert",
                 });
-                if (r?.data) traiter(r.data);
+                if (r?.data) void traiter(r.data);
               }
             }
           }
@@ -319,14 +259,27 @@ export function AdminScanner() {
     e.preventDefault();
     if (!saisie.trim()) return;
     dernier.current = { code: "", t: 0 };
-    traiter(saisie);
+    void traiter(saisie);
     setSaisie("");
   }
 
-  function reinitialiser() {
-    setTraversee({ scans: [] });
+  async function encaisser(v: Verdict) {
+    if (!v.userId) return;
+    setEncaissement(true);
+    const { error, verdict: nv } = await encaisserEtValider(v.userId);
+    setEncaissement(false);
+    if (error || !nv) return toast(error ?? "Validation impossible.");
+    signaler({ ...nv, t: Date.now() });
+    toast(`Billet de ${nv.nom} réglé : entrée validée.`);
+  }
+
+  async function reinitialiser() {
+    const { error } = await effacerEntrees();
+    setEffacer(false);
+    if (error) return toast(error);
     setVerdict(null);
-    toast("Historique des scans effacé.");
+    toast("Toutes les entrées ont été effacées.");
+    router.refresh();
   }
 
   return (
@@ -423,11 +376,9 @@ export function AdminScanner() {
                           <strong>{TITRES[verdictVisible.etat]}</strong>
                           <p>
                             {verdictVisible.nom ?? verdictVisible.code}
-                            {verdictVisible.table
-                              ? ` · Table ${verdictVisible.table}`
-                              : ""}
-                            {verdictVisible.quand
-                              ? ` · entré à ${verdictVisible.quand}`
+                            {verdictVisible.etat === "deja" &&
+                            verdictVisible.quand
+                              ? ` · entré à ${heure(verdictVisible.quand)}`
                               : ""}
                           </p>
                         </div>
@@ -479,7 +430,7 @@ export function AdminScanner() {
                 <input
                   id="sc-code"
                   className={`${ui.saisie} !pl-10 uppercase`}
-                  placeholder="TRV26-GALA-0000"
+                  placeholder="TRV26-XXXXXXXX"
                   autoComplete="off"
                   autoCapitalize="characters"
                   value={saisie}
@@ -526,10 +477,25 @@ export function AdminScanner() {
                 ) : null}
                 <p className={styles.verdictCode}>
                   {verdict.code}
-                  {verdict.table ? ` · Table ${verdict.table}` : ""}
-                  {verdict.quand ? ` · entré à ${verdict.quand}` : ""}
+                  {verdict.etat === "deja" && verdict.quand
+                    ? ` · entré à ${heure(verdict.quand)}`
+                    : ""}
                 </p>
                 <p>{CONSEILS[verdict.etat]}</p>
+                {verdict.etat === "attente" && verdict.userId ? (
+                  <div className="mt-2">
+                    <Btn
+                      small
+                      variant="primary"
+                      disabled={encaissement}
+                      onClick={() => void encaisser(verdict)}
+                    >
+                      {encaissement
+                        ? "Validation…"
+                        : "Paiement reçu : valider l’entrée"}
+                    </Btn>
+                  </div>
+                ) : null}
               </div>
             </div>
           ) : null}
@@ -541,8 +507,12 @@ export function AdminScanner() {
                   <b>{entres}</b> / {inscrits} entrés
                 </p>
               </div>
-              {s.scans.length ? (
-                <Btn small className="!text-[#b42318]" onClick={reinitialiser}>
+              {entres ? (
+                <Btn
+                  small
+                  className="!text-[#b42318]"
+                  onClick={() => setEffacer(true)}
+                >
                   Effacer
                 </Btn>
               ) : null}
@@ -550,11 +520,11 @@ export function AdminScanner() {
             <div className={styles.jauge} aria-hidden>
               <i
                 style={{
-                  width: `${Math.min(100, Math.round((entres / inscrits) * 100))}%`,
+                  width: `${Math.min(100, Math.round((entres / total) * 100))}%`,
                 }}
               />
             </div>
-            {s.scans.length > 3 ? (
+            {entres > 3 ? (
               <div className={styles.filtre}>
                 <Recherche
                   value={filtre}
@@ -568,7 +538,7 @@ export function AdminScanner() {
               <ul className={styles.liste}>
                 {scannes.map((x, i) => (
                   <li
-                    key={`${x.code}-${x.t}`}
+                    key={x.userId}
                     className={
                       verdict?.etat === "ok" && verdict.code === x.code
                         ? styles.nouveau
@@ -577,7 +547,11 @@ export function AdminScanner() {
                     style={{ "--i": Math.min(i, 8) } as React.CSSProperties}
                   >
                     <span className={styles.av}>
-                      <AvatarInitiales nom={x.nom} photo={x.photo} size={42} />
+                      <AvatarInitiales
+                        nom={x.nom}
+                        photo={x.photo ?? undefined}
+                        size={42}
+                      />
                       <i>
                         <CheckIcon width={11} height={11} strokeWidth={3.5} />
                       </i>
@@ -585,10 +559,7 @@ export function AdminScanner() {
                     <div className="min-w-0 flex-1">
                       <strong>{x.nom}</strong>
                       {x.detail ? <small>{x.detail}</small> : null}
-                      <em>
-                        {x.code}
-                        {x.table ? ` · Table ${x.table}` : ""}
-                      </em>
+                      <em>{x.code}</em>
                     </div>
                     <time>{heure(x.t)}</time>
                   </li>
@@ -598,7 +569,7 @@ export function AdminScanner() {
               <div className={styles.vide}>
                 <QrIcon width={22} height={22} />
                 <p>
-                  {s.scans.length
+                  {entres
                     ? "Aucun participant scanné ne correspond."
                     : "Aucun participant scanné pour l’instant. Chaque billet validé s’ajoute ici."}
                 </p>
@@ -607,6 +578,18 @@ export function AdminScanner() {
           </Card>
         </div>
       </div>
+      {effacer ? (
+        <Confirmer
+          titre="Effacer toutes les entrées ?"
+          action="Effacer les entrées"
+          onConfirmer={() => void reinitialiser()}
+          onClose={() => setEffacer(false)}
+        >
+          Les {entres} entrées enregistrées seront supprimées et les billets
+          pourront être scannés de nouveau. À utiliser après une répétition,
+          pas pendant le gala.
+        </Confirmer>
+      ) : null}
     </>
   );
 }

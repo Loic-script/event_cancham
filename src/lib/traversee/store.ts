@@ -17,7 +17,6 @@ import {
 
 export type Achat = { quoi: string; ou: string; montant: number; etat: "Payé" | "À régler à table"; date: string };
 export type Annonce = { id: string; titre: string; message: string; type: AnnonceType; cta: string; img?: string; t: number };
-export type Scan = { code: string; nom: string; t: number };
 export type Fiche = { nom: string; role: string; ent: string; sect: string; act: string; email: string; phone: string; website: string; billet: "paye" | "attente" };
 export type TypeNotif = "annonce" | "message" | "compte" | "publication" | "story" | "defi1" | "defi2" | "rdv" | "livre";
 export type Evenement = { id: string; pour: "admin" | "participant"; type: TypeNotif; titre: string; texte: string; href: string; t: number; acteur?: string };
@@ -40,8 +39,6 @@ export type TraverseeState = {
   cmd: Commande[];
   sieges: Sieges | null;
   gagnant: string | null;
-  fiches: Record<string, Partial<Fiche>>;
-  scans: Scan[];
   journal: Evenement[];
   notifsLues: Record<string, 1>;
 };
@@ -64,8 +61,6 @@ export const DEFAULT_STATE: TraverseeState = {
   cmd: COMMANDES,
   sieges: null,
   gagnant: null,
-  fiches: {},
-  scans: [],
   journal: [],
   notifsLues: {},
 };

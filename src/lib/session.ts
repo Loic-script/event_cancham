@@ -24,6 +24,8 @@ const userSelect = {
   city: true,
   country: true,
   photo: true,
+  billetPaye: true,
+  codeBillet: true,
   createdAt: true,
 } satisfies Prisma.UserSelect;
 

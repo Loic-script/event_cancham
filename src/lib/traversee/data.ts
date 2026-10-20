@@ -34,24 +34,6 @@ export const ROLES = ["Directrice générale", "Directeur commercial", "Responsa
 export const PRENOMS = ["Hery", "Lova", "Miora", "Tiana", "Fara", "Rado", "Vola", "Tojo", "Haja", "Soa", "Mamy", "Nirina"];
 export const NOMS_FAMILLE = ["Rakoto", "Rabe", "Randria", "Rasoa", "Andria", "Razafy", "Ravelo", "Ratsimba", "Rajao"];
 
-export type Personne = { nom: string; role: string; ent: string; sect: string; act: string; img: string };
-export function personnes(): Personne[] {
-  const bandeaux = ["salle", "ecran", "diner", "accueil", "assistance", "public", "hero", "rdv"];
-  const l: Personne[] = [];
-  for (let i = 0; i < 16; i++) {
-    const e = ANNUAIRE[i % ANNUAIRE.length];
-    l.push({
-      nom: `${PRENOMS[(i * 5 + 3) % PRENOMS.length]} ${NOMS_FAMILLE[(i * 4 + 1) % NOMS_FAMILLE.length]}`,
-      role: ROLES[(i * 3 + (i > 7 ? 1 : 0)) % ROLES.length],
-      ent: e.nom,
-      sect: e.secteur,
-      act: e.activite,
-      img: bandeaux[i % bandeaux.length],
-    });
-  }
-  return l.sort((x, y) => (x.nom < y.nom ? -1 : 1));
-}
-
 export type Siege = { nom: string; ent: string; role: string; sect: string } | null;
 export type Sieges = Record<number, Siege[]>;
 export function siegesInitiaux(): Sieges {

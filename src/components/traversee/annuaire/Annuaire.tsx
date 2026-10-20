@@ -139,7 +139,6 @@ function Liste({ participants, admin = false, mesRdv = [] }: Props) {
         <ParticipantModal
           key={`${ouvert.id}-${ouvert.nom}-${ouvert.email}`}
           fiche={ouvert}
-          modifiee={false}
           inscritLe={ouvert.inscritLe}
           onSave={(fiche) => enregistrer(ouvert.userId, fiche)}
           onClose={() => setProfil(null)}

@@ -51,6 +51,8 @@ model User {
   city                  String?
   country               String?
   billetPaye            Boolean                      @default(false) @map("billet_paye")
+  /// Code du billet (QR), tiré au hasard par la base à la création du compte : impossible à deviner.
+  codeBillet            String                       @unique @default(dbgenerated("('TRV26-'::text || upper(substr(md5(((random())::text || (clock_timestamp())::text)), 1, 8)))")) @map("code_billet") @db.VarChar(20)
   /// Photo de profil : adresse /api/profil/photos/<id>, fichier dans stockage/profils.
   photo                 String?                      @db.VarChar(200)
   /// Identifiants des comptes Google et Facebook reliés (connexion et inscription en un clic).
@@ -74,6 +76,8 @@ model User {
   photosGalerie         PhotoGalerie[]
   stories               Story[]
   souvenirsLivre        SouvenirLivre[]
+  entreeGala            EntreeGala?                  @relation("entreeParticipant")
+  entreesScannees       EntreeGala[]                 @relation("entreeScanneur")
 
   @@map("users")
 }
@@ -442,4 +446,16 @@ model SouvenirLivre {
   @@index([statut, creeLe])
   @@index([auteurId])
   @@map("livre_or")
+}
+
+/// Entrée au gala : une par participant, enregistrée par le scanner du back-office.
+model EntreeGala {
+  userId      Int      @id @map("user_id")
+  user        User     @relation("entreeParticipant", fields: [userId], references: [id], onDelete: Cascade)
+  scanneLe    DateTime @default(now()) @map("scanne_le")
+  scanneParId Int?     @map("scanne_par_id")
+  scannePar   User?    @relation("entreeScanneur", fields: [scanneParId], references: [id], onDelete: SetNull)
+
+  @@index([scanneLe])
+  @@map("entrees_gala")
 }

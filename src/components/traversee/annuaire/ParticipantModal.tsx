@@ -5,12 +5,12 @@ import { BriefcaseIcon, CheckIcon, ExternalLinkIcon, LinkIcon, MailIcon, Maximiz
 import { QrCode } from "@/components/ticket/QrCode";
 import { IMG, ROLES, SECTEURS } from "@/lib/traversee/data";
 import type { FicheComplete } from "@/lib/traversee/participants";
-import { setTraversee, toast, type Fiche } from "@/lib/traversee/store";
+import { toast, type Fiche } from "@/lib/traversee/store";
 import { Modal } from "../Modal";
 import { AvatarProfil, Btn, Champ, Puce, Sur, ui } from "../ui";
 import styles from "./annuaire.module.css";
 
-type Props = { fiche: FicheComplete; modifiee: boolean; onClose: () => void; onSave?: (fiche: Fiche) => Promise<string | null>; inscritLe?: string };
+type Props = { fiche: FicheComplete; onClose: () => void; onSave: (fiche: Fiche) => Promise<string | null>; inscritLe?: string };
 
 export function Ligne({ icon, label, children, href }: { icon: React.ReactNode; label: string; children: React.ReactNode; href?: string }) {
   const inner = (
@@ -32,7 +32,7 @@ export function Ligne({ icon, label, children, href }: { icon: React.ReactNode; 
   );
 }
 
-export function ParticipantModal({ fiche, modifiee, onClose, onSave, inscritLe }: Props) {
+export function ParticipantModal({ fiche, onClose, onSave, inscritLe }: Props) {
   const [edition, setEdition] = useState(false);
   const [grand, setGrand] = useState(false);
   const [copie, setCopie] = useState(false);
@@ -44,7 +44,7 @@ export function ParticipantModal({ fiche, modifiee, onClose, onSave, inscritLe }
     e.preventDefault();
     const nom = f.nom.trim();
     const ent = f.ent.trim();
-    if (!nom || (!onSave && !ent)) return toast(onSave ? "Le nom est obligatoire." : "Le nom et l’entreprise sont obligatoires.");
+    if (!nom) return toast("Le nom est obligatoire.");
     const email = f.email.trim();
     if (email && !/^[^\s@]+@[^\s@]+$/.test(email)) return toast("Adresse e-mail invalide.");
     const phone = f.phone.trim();
@@ -53,27 +53,13 @@ export function ParticipantModal({ fiche, modifiee, onClose, onSave, inscritLe }
     if (website && !/^https?:\/\//i.test(website)) website = `https://${website}`;
     if (website && !/^https?:\/\/[^\s/]+\.[^\s]+$/i.test(website)) return toast("Adresse de site web invalide.");
     const propre: Fiche = { ...f, nom, ent, role: f.role.trim(), act: f.act.trim(), email, phone, website };
-    if (onSave) {
-      setEnvoi(true);
-      const erreur = await onSave(propre);
-      setEnvoi(false);
-      if (erreur) return toast(erreur);
-    } else {
-      setTraversee((s) => ({ fiches: { ...s.fiches, [fiche.id]: propre } }));
-    }
+    setEnvoi(true);
+    const erreur = await onSave(propre);
+    setEnvoi(false);
+    if (erreur) return toast(erreur);
     setF(propre);
     setEdition(false);
     toast("Profil du participant enregistré.");
-  }
-
-  function retablir() {
-    setTraversee((s) => {
-      const fiches = { ...s.fiches };
-      delete fiches[fiche.id];
-      return { fiches };
-    });
-    toast("Profil rétabli.");
-    onClose();
   }
 
   async function copier() {
@@ -107,7 +93,6 @@ export function ParticipantModal({ fiche, modifiee, onClose, onSave, inscritLe }
           {f.sect ? <Puce tone="white">{f.sect}</Puce> : null}
           <Puce tone={billet ? "green" : "red"}>{billet ? "Billet payé" : "Paiement en attente"}</Puce>
           {inscritLe ? <Puce tone="grey">Inscrit le {new Date(inscritLe).toLocaleDateString("fr-FR")}</Puce> : null}
-          {modifiee ? <Puce tone="grey">Modifié par CanCham</Puce> : null}
         </div>
       </header>
 
@@ -133,7 +118,7 @@ export function ParticipantModal({ fiche, modifiee, onClose, onSave, inscritLe }
             <Sur>Entreprise</Sur>
             <div className={ui.g2}>
               <Champ label="Nom de l’entreprise" htmlFor="p-ent">
-                <input id="p-ent" className={ui.saisie} required={!onSave} value={f.ent} onChange={maj("ent")} />
+                <input id="p-ent" className={ui.saisie} value={f.ent} onChange={maj("ent")} />
               </Champ>
               <Champ label="Secteur" htmlFor="p-sect">
                 <select id="p-sect" className={ui.saisie} value={f.sect} onChange={maj("sect")}>
@@ -273,11 +258,6 @@ export function ParticipantModal({ fiche, modifiee, onClose, onSave, inscritLe }
               <PencilIcon width={16} height={16} />
               Modifier le profil
             </Btn>
-            {modifiee ? (
-              <Btn type="button" onClick={retablir}>
-                Rétablir
-              </Btn>
-            ) : null}
             <Btn key="fermer" type="button" onClick={onClose} className="sm:ml-auto">
               Fermer
             </Btn>
