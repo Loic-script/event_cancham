@@ -2,7 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/prisma";
-import { aAccesEspace, getCurrentUser } from "@/lib/session";
+import { getCurrentUser } from "@/lib/session";
 import { parseSocialLink } from "@/lib/social/links";
 import { NOTE_MAX } from "@/lib/traversee/pitchs";
 
@@ -10,9 +10,10 @@ type Resultat = { error: string | null };
 
 const SANS_ACCES = "Votre session a expiré ou votre accès n’est pas encore validé.";
 
+/** Participants, y compris en attente de validation (parcours d'accueil) ; seul un compte refusé est bloqué. */
 async function membre() {
   const user = await getCurrentUser();
-  return user && aAccesEspace(user) ? user : null;
+  return user && user.statut !== "REFUSE" ? user : null;
 }
 
 async function admin() {

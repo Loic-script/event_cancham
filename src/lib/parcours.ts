@@ -1,11 +1,11 @@
 import { PAGE_COMPLETER, profilIncomplet } from "@/lib/coordonnees";
 import { prisma } from "@/lib/prisma";
-import { aAccesEspace, PAGE_ATTENTE } from "@/lib/session";
+import { PAGE_ATTENTE } from "@/lib/session";
 
 /**
  * Parcours d'accueil (/bienvenue) : après l'inscription, puis à chaque connexion tant qu'il n'est pas terminé.
  * Une étape est « faite » d'après les données du compte, « passée » quand le participant l'a sautée.
- * Les étapes des défis n'apparaissent qu'une fois l'inscription validée : un compte en attente prépare sa photo et son entreprise.
+ * Un compte en attente de validation fait aussi les étapes des défis : ses participations sont montrées à l'équipe une fois validé.
  */
 export const PAGE_PARCOURS = "/bienvenue";
 
@@ -43,7 +43,6 @@ const selection = {
 type Compte = { acces: string; statut: string; company: string | null; role: string | null; sector: string | null; photo: string | null; participationsDefis: { defi: string }[]; parcoursAccueil: { passees: string[]; termineLe: Date | null } | null };
 
 function etatDe(u: Compte): EtatParcours {
-  const acces = aAccesEspace(u as Parameters<typeof aAccesEspace>[0]);
   const defis = new Set(u.participationsDefis.map((p) => p.defi));
   const passees = new Set(u.parcoursAccueil?.passees ?? []);
   const faits: Record<EtapeId, boolean> = {
@@ -52,7 +51,7 @@ function etatDe(u: Compte): EtatParcours {
     pitch: defis.has("pitch"),
     tombola: defis.has("tombola"),
   };
-  const etapes = ETAPES.filter((id) => acces || (id !== "pitch" && id !== "tombola")).map((id) => ({ id, fait: faits[id], passee: passees.has(id) }));
+  const etapes = ETAPES.map((id) => ({ id, fait: faits[id], passee: passees.has(id) }));
   return {
     etapes,
     commence: Boolean(u.parcoursAccueil),
@@ -79,6 +78,6 @@ export async function pageApresConnexion(userId: number, next = "/"): Promise<st
   if (u.statut === "EN_ATTENTE" && profilIncomplet(u)) return PAGE_COMPLETER;
   const etat = etatDe(u);
   const parcours = next === "/" ? PAGE_PARCOURS : `${PAGE_PARCOURS}?next=${encodeURIComponent(next)}`;
-  if (u.statut === "EN_ATTENTE") return etat.restantes ? parcours : PAGE_ATTENTE;
-  return etat.termine ? next : parcours;
+  if (etat.termine) return u.statut === "EN_ATTENTE" ? PAGE_ATTENTE : next;
+  return u.statut === "EN_ATTENTE" && !etat.restantes ? PAGE_ATTENTE : parcours;
 }

@@ -34,7 +34,7 @@ export default async function BienvenuePage(props: PageProps<"/bienvenue">) {
   const sp = await props.searchParams;
   const next = safeNext(premier(sp.next));
   const acces = aAccesEspace(user);
-  const [etat, pitch, tombola] = await Promise.all([etatParcours(user.id), acces ? maParticipation(user.id, "pitch") : null, acces ? maParticipation(user.id, "tombola") : null]);
+  const [etat, pitch, tombola] = await Promise.all([etatParcours(user.id), maParticipation(user.id, "pitch"), maParticipation(user.id, "tombola")]);
   const maintenant = new Date();
   const restant = Math.max(0, Math.floor((new Date(event.date).getTime() - maintenant.getTime()) / 1000));
 

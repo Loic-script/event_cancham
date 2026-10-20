@@ -60,18 +60,14 @@ export async function enregistrerEntreprise(saisie: EntrepriseSaisie): Promise<R
   return { error: null };
 }
 
-/**
- * Dernier écran. Inscription validée : le parcours est terminé, il ne s'ouvrira plus à la connexion.
- * Inscription en attente : les étapes des défis restent à faire, le parcours reprendra une fois l'accès ouvert.
- */
+/** Dernier écran : le parcours est terminé, il ne s'ouvrira plus à la connexion. */
 export async function terminerParcours(formData: FormData): Promise<void> {
   const user = await participant();
   if (!user) redirect(LOGIN_PATH);
-  if (!aAccesEspace(user)) redirect(PAGE_ATTENTE);
   const termineLe = new Date();
   await prisma.parcoursAccueil.upsert({ where: { userId: user.id }, create: { userId: user.id, termineLe }, update: { termineLe } });
   revalidatePath("/profil");
-  redirect(safeNext(formData.get("next")));
+  redirect(aAccesEspace(user) ? safeNext(formData.get("next")) : PAGE_ATTENTE);
 }
 
 /** Bandeau « Reprendre » du profil : les étapes passées sont proposées de nouveau. */

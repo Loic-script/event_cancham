@@ -543,17 +543,12 @@ select.saisie {
 
 .liste li {
   display: grid;
-  grid-template-columns: 40px minmax(0, 1fr) auto;
+  grid-template-columns: 40px minmax(0, 1fr);
   align-items: center;
   gap: 12px;
   padding: 10px 12px;
   border-radius: 12px;
   border: 1px solid var(--trait);
-}
-
-.liste li.faite {
-  border-color: #cfe9da;
-  background: #f1faf5;
 }
 
 .icone {
@@ -566,9 +561,11 @@ select.saisie {
   color: var(--bleu-fonce);
 }
 
+/* Étape faite : coche blanche sur un rond bleu */
 .liste li.faite .icone {
-  background: #d8f0e3;
-  color: var(--vert);
+  border-radius: 50%;
+  background: var(--bleu);
+  color: #ffffff;
 }
 
 .liste strong {
@@ -582,19 +579,6 @@ select.saisie {
   display: block;
   font-size: 13px;
   color: var(--doux);
-}
-
-.etat {
-  font-size: 12px;
-  font-weight: 700;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  color: var(--doux);
-  white-space: nowrap;
-}
-
-.liste li.faite .etat {
-  color: var(--vert);
 }
 
 /* Boutons de bas de carte */
@@ -824,10 +808,6 @@ select.saisie {
 
   .liste li {
     grid-template-columns: 36px minmax(0, 1fr);
-  }
-
-  .etat {
-    display: none;
   }
 }
 

@@ -19,7 +19,7 @@ type ParcoursProps = {
   prenom: string;
   nom: string;
   photo: string | null;
-  /** Inscription validée : les étapes des défis sont proposées et le parcours peut être terminé. */
+  /** Inscription validée : l'espace participant s'ouvre à la fin du parcours. */
   acces: boolean;
   etapes: EtapeEtat[];
   commence: boolean;
@@ -206,9 +206,9 @@ export function Parcours(props: ParcoursProps) {
                 Préparons <em>votre Traversée.</em>
               </h1>
               <p className={styles.lead}>
-                {total} étapes rapides : votre photo, votre entreprise{props.acces ? ", puis vos participations aux deux défis" : ""}. Chaque étape est enregistrée dès que vous passez à la suivante ; vous pouvez en sauter une, revenir en arrière ou terminer plus tard depuis votre profil.
+                {total} étapes rapides : votre photo, votre entreprise, puis vos participations aux deux défis. Chaque étape est enregistrée dès que vous passez à la suivante ; vous pouvez en sauter une, revenir en arrière ou terminer plus tard depuis votre profil.
               </p>
-              {props.acces ? null : <p className={styles.lead}>Pendant ce temps, l’équipe CanCham vérifie votre inscription. Les deux défis vous attendront dès que votre accès sera ouvert.</p>}
+              {props.acces ? null : <p className={styles.lead}>Pendant ce temps, l’équipe CanCham vérifie votre inscription.</p>}
             </>
           ) : ecran === "fin" ? (
             <>
@@ -217,7 +217,7 @@ export function Parcours(props: ParcoursProps) {
               <p className={styles.lead}>
                 {props.acces
                   ? "Tout est en place pour le 18 décembre. L’annuaire, les rendez-vous B2B, la messagerie et le programme vous attendent dans l’espace participant."
-                  : "Merci ! L’équipe CanCham vérifie votre inscription : vous recevrez un e-mail dès que votre accès sera ouvert. Les deux défis, un voyage au Canada et 3 000 000 Ar, vous attendront à votre première connexion."}
+                  : "Merci ! Votre profil et vos participations sont enregistrés. L’équipe CanCham vérifie votre inscription : vous recevrez un e-mail dès que votre accès sera ouvert."}
               </p>
               <AuthCountdown target={event.date} initialRemaining={props.restant} />
               <ul className={styles.faits} aria-label="Le gala">
@@ -271,7 +271,6 @@ export function Parcours(props: ParcoursProps) {
                           <strong>{ETAPES[e.id].nom}</strong>
                           <small>{e.fait ? "Déjà renseigné" : ETAPES[e.id].duree}</small>
                         </div>
-                        <span className={styles.etat}>{e.fait ? "Fait" : "À faire"}</span>
                       </li>
                     );
                   })}
@@ -312,12 +311,11 @@ export function Parcours(props: ParcoursProps) {
                           <strong>{ETAPES[e.id].nom}</strong>
                           <small>{e.fait ? "Enregistré" : "Passée · à compléter depuis votre profil"}</small>
                         </div>
-                        <span className={styles.etat}>{e.fait ? "Fait" : "Plus tard"}</span>
                       </li>
                     );
                   })}
                 </ol>
-                {props.acces ? <p className={styles.carteTexte}>Ce parcours ne s’ouvrira plus à la connexion. Vous retrouverez chaque élément dans votre profil et sur les pages des défis.</p> : null}
+                <p className={styles.carteTexte}>Ce parcours ne s’ouvrira plus à la connexion. Vous retrouverez chaque élément dans votre profil et sur les pages des défis.</p>
               </div>
               <form action={terminerParcours} className={styles.actions}>
                 <input type="hidden" name="next" value={props.next} />

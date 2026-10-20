@@ -27,10 +27,10 @@ export async function maParticipation(userId: number, defi: Defi): Promise<MaPar
   return { lien: p.lien, envoi: p.creeLe.getTime(), reactions: p.reactions, commentaires: p.commentaires, partages: p.partages, releveLe: p.releveLe?.getTime() ?? null, retire: p.retire };
 }
 
-/** Participants d'un défi (back-office et classement), les plus récents d'abord. */
+/** Participants d'un défi (back-office et classement), les plus récents d'abord ; les comptes pas encore validés n'y figurent pas. */
 export async function participants(defi: Defi): Promise<Participant[]> {
   const lignes = await prisma.participationDefi.findMany({
-    where: { defi },
+    where: { defi, user: { statut: "ACTIF" } },
     orderBy: { creeLe: "desc" },
     select: {
       id: true,
