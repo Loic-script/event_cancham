@@ -73,6 +73,7 @@ model User {
   participationsDefis   ParticipationDefi[]
   photosGalerie         PhotoGalerie[]
   stories               Story[]
+  souvenirsLivre        SouvenirLivre[]
 
   @@map("users")
 }
@@ -420,4 +421,25 @@ model Promotion {
   majLe       DateTime @updatedAt @map("maj_le")
 
   @@map("promotions")
+}
+
+/// Page du livre d'or vidéo : publiée après validation par l'équipe.
+model SouvenirLivre {
+  id       String    @id @default(cuid())
+  auteurId Int       @map("auteur_id")
+  auteur   User      @relation(fields: [auteurId], references: [id], onDelete: Cascade)
+  /// /api/videos/<id>
+  video    String    @db.VarChar(300)
+  /// Durée relevée par le navigateur, en secondes.
+  duree    Int?
+  /// Message du participant, retouchable par l'équipe.
+  texte    String    @default("") @db.VarChar(1000)
+  /// ATTENTE, VALIDE ou REFUSE
+  statut   String    @default("ATTENTE") @db.VarChar(10)
+  creeLe   DateTime  @default(now()) @map("cree_le")
+  decideLe DateTime? @map("decide_le")
+
+  @@index([statut, creeLe])
+  @@index([auteurId])
+  @@map("livre_or")
 }

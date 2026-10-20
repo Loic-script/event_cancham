@@ -15,6 +15,7 @@ export async function supprimerCompte(userId: number): Promise<void> {
   const publications = await prisma.publication.findMany({ where: { auteurId: userId }, select: { id: true, image: true, video: true } });
   // Les photos partagées dans la galerie partent avec le compte ; celles de l'équipe restent (officielles).
   const photos = await prisma.photoGalerie.findMany({ where: { auteurId: userId, officielle: false }, select: { id: true } });
+  const souvenirs = await prisma.souvenirLivre.findMany({ where: { auteurId: userId }, select: { video: true } });
   const cibles = publications.map((p) => ciblePublication(p.id));
   await prisma.$transaction([
     prisma.jaimeFil.deleteMany({ where: { cible: { in: cibles } } }),
@@ -22,5 +23,5 @@ export async function supprimerCompte(userId: number): Promise<void> {
     prisma.photoGalerie.deleteMany({ where: { id: { in: photos.map((p) => p.id) } } }),
     prisma.user.delete({ where: { id: userId } }),
   ]);
-  await Promise.all([...publications.map((p) => effacerFichiersPublication(p.image, p.video)), ...photos.map((p) => effacerFichierPhoto(p.id)), effacerPhotoProfil(compte?.photo)]);
+  await Promise.all([...publications.map((p) => effacerFichiersPublication(p.image, p.video)), ...photos.map((p) => effacerFichierPhoto(p.id)), ...souvenirs.map((l) => effacerFichiersPublication(null, l.video)), effacerPhotoProfil(compte?.photo)]);
 }

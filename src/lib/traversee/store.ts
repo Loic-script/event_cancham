@@ -5,7 +5,6 @@ import {
   COMMANDES,
   DEMI,
   DOSSIERS,
-  LIVRE,
   RESSOURCES,
   VOIX_INIT,
   type AnnonceType,
@@ -14,7 +13,6 @@ import {
   type Dossier,
   type Ressource,
   type Sieges,
-  type Souvenir,
 } from "./data";
 
 export type Achat = { quoi: string; ou: string; montant: number; etat: "Payé" | "À régler à table"; date: string };
@@ -37,7 +35,6 @@ export type TraverseeState = {
   storiesVues: Record<string, 1>;
   demi: Demi[];
   voix: number[];
-  livre: Souvenir[];
   ress: Ressource[];
   dossiers: Dossier[];
   cmd: Commande[];
@@ -62,7 +59,6 @@ export const DEFAULT_STATE: TraverseeState = {
   storiesVues: {},
   demi: DEMI,
   voix: VOIX_INIT,
-  livre: LIVRE,
   ress: RESSOURCES,
   dossiers: DOSSIERS,
   cmd: COMMANDES,

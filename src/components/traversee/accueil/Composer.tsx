@@ -7,7 +7,7 @@ import { publierStory } from "@/app/(app)/galerie/actions";
 import { Avatar } from "@/components/app/Avatar";
 import { ImageIcon, SmileIcon, VideoIcon, XIcon } from "@/components/app/icons";
 import { useProfile } from "@/components/profile/useProfile";
-import { envoyerImage } from "@/lib/traversee/envoi";
+import { envoyerImage, envoyerVideo } from "@/lib/traversee/envoi";
 import { journaliser, lisImage, toast } from "@/lib/traversee/store";
 import { fullName } from "@/lib/mock/data";
 import { Modal } from "../Modal";
@@ -85,29 +85,6 @@ export function Composer({ admin = false, modeInitial = null, onModeConsomme }: 
     setVideo({ file: f, apercu: URL.createObjectURL(f) });
   }
 
-  function envoyerVideo(f: File): Promise<string> {
-    return new Promise((resolve, reject) => {
-      const xhr = new XMLHttpRequest();
-      xhr.open("POST", "/api/videos");
-      xhr.setRequestHeader("Content-Type", f.type || "application/octet-stream");
-      xhr.upload.onprogress = (ev) => {
-        if (ev.lengthComputable) setEnvoi(Math.round((ev.loaded / ev.total) * 100));
-      };
-      xhr.onload = () => {
-        let corps: { ok?: boolean; url?: string; message?: string } = {};
-        try {
-          corps = JSON.parse(xhr.responseText);
-        } catch {
-          corps = {};
-        }
-        if (xhr.status >= 200 && xhr.status < 300 && corps.url) resolve(corps.url);
-        else reject(new Error(corps.message ?? "La vidéo n’a pas pu être envoyée."));
-      };
-      xhr.onerror = () => reject(new Error("Connexion interrompue pendant l’envoi de la vidéo."));
-      xhr.send(f);
-    });
-  }
-
   async function publier(e: FormEvent) {
     e.preventDefault();
     if (envoi !== null || publication) return;
@@ -133,7 +110,7 @@ export function Composer({ admin = false, modeInitial = null, onModeConsomme }: 
       try {
         if (avecVideo) {
           setEnvoi(0);
-          urlVideo = await envoyerVideo(avecVideo.file);
+          urlVideo = await envoyerVideo(avecVideo.file, setEnvoi);
           setEnvoi(null);
         }
         const urlImage = img ? await envoyerImage(img) : undefined;

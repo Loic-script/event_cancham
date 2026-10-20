@@ -113,13 +113,6 @@ export const RESSOURCES: Ressource[] = [
   { nom: "Template photo CanCham 10 ans", type: "Image", dossier: "Défis", date: 16 },
 ];
 
-export type Souvenir = { id: string; img: string; duree: string; nom: string; texte: string; etat: "valide" | "attente" | "refuse"; moi?: boolean; vid?: string };
-export const LIVRE: Souvenir[] = [
-  { id: "l0", img: "diner", duree: "0:42", nom: "Participante · exemple", texte: "Dix ans de rencontres qui ont changé la trajectoire de notre entreprise. Merci à toute l’équipe.", etat: "valide" },
-  { id: "l1", img: "ecran", duree: "1:05", nom: "Intervenante · exemple", texte: "Ce que je retiens de cette journée, c’est l’envie de construire ensemble, des deux côtés de l’océan.", etat: "valide" },
-  { id: "l2", img: "salle", duree: "0:31", nom: "Équipe · exemple", texte: "Bravo à tous les exposants, et rendez-vous pour les dix prochaines années.", etat: "valide" },
-  { id: "l9", img: "accueil", duree: "0:38", nom: "Participant · exemple", texte: "merci a la cancham pour cette soiree   c etait une tres belle rencontre ,on reviendra", etat: "attente" },
-];
 export function ajusteSousTitres(src: string) {
   let t = String(src || "").replace(/\s+/g, " ").replace(/\s+([,.])/g, "$1").replace(/([,;:!?])(?=\S)/g, "$1 ").trim();
   t = t.replace(/\bcancham\b/gi, "CanCham").replace(/\bc etait\b/gi, "c’était").replace(/\bsoiree\b/gi, "soirée").replace(/\btres\b/gi, "très").replace(/\bmerci a\b/gi, "merci à");

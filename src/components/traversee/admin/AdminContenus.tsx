@@ -3,9 +3,12 @@
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { supprimerPhotoGalerie } from "@/app/(app)/galerie/actions";
-import { IMG, ajusteSousTitres } from "@/lib/traversee/data";
+import { deciderSouvenir, modifierTexteSouvenir, supprimerSouvenir } from "@/app/(app)/livre/actions";
+import { ajusteSousTitres } from "@/lib/traversee/data";
 import type { PhotoVue } from "@/lib/traversee/galerie";
-import { setTraversee, toast, useTraversee } from "@/lib/traversee/store";
+import { MAX_TEXTE_SOUVENIR, type SouvenirVue } from "@/lib/traversee/livre";
+import { toast } from "@/lib/traversee/store";
+import { Confirmer } from "../Confirmer";
 import livreStyles from "../livre/livre.module.css";
 import { Vignette } from "../photos/Photos";
 import photosStyles from "../photos/photos.module.css";
@@ -59,82 +62,90 @@ export function AdminPhotos({ photos }: { photos: PhotoVue[] }) {
   );
 }
 
-export function AdminLivre() {
-  const s = useTraversee();
-  const ordre = [...s.livre].sort((a, b) => (a.etat === "attente" ? 0 : 1) - (b.etat === "attente" ? 0 : 1));
-  const attente = s.livre.filter((l) => l.etat === "attente").length;
-  function maj(id: string, patch: Partial<(typeof s.livre)[number]>) {
-    setTraversee((st) => ({ livre: st.livre.map((l) => (l.id === id ? { ...l, ...patch } : l)) }));
+export function AdminLivre({ souvenirs }: { souvenirs: SouvenirVue[] }) {
+  const router = useRouter();
+  const [occupe, setOccupe] = useState<string | null>(null);
+  const [aSupprimer, setASupprimer] = useState<SouvenirVue | null>(null);
+  const attente = souvenirs.filter((l) => l.etat === "attente").length;
+
+  async function agir(l: SouvenirVue, action: () => Promise<{ error: string | null }>, ok: string) {
+    setOccupe(l.id);
+    const { error } = await action();
+    setOccupe(null);
+    if (error) return toast(error);
+    toast(ok);
+    router.refresh();
   }
+
   return (
     <>
-      <PageHead title="Livre d’or" accent="vidéo" text="Validez les souvenirs avant leur publication et ajustez les sous-titres générés automatiquement." photo="musique">
+      <PageHead title="Livre d’or" accent="vidéo" text="Validez les souvenirs des participants avant leur publication et retouchez leur message si besoin." photo="musique">
         <Puce tone="white">{attente} en attente</Puce>
       </PageHead>
       <div className="grid gap-4">
-        {ordre.map((l) => (
-          <Card key={l.id} bleed className={livreStyles.souvenir}>
-            <div className={livreStyles.v}>
-              {l.vid ? <video src={l.vid} muted /> : <img src={IMG(l.img)} alt="" loading="lazy" />}
-              <span>{l.duree}</span>
-            </div>
-            <div className="grid gap-2.5">
-              <div className="flex flex-wrap items-center gap-2">
-                <strong className="text-graphite">{l.nom}</strong>
-                <Puce tone={l.etat === "valide" ? "green" : l.etat === "attente" ? "red" : "grey"}>{l.etat === "valide" ? "Publié" : l.etat === "attente" ? "En attente" : "Refusé"}</Puce>
+        {souvenirs.length ? (
+          souvenirs.map((l) => (
+            <Card key={l.id} bleed className={livreStyles.souvenir}>
+              <div className={livreStyles.v}>
+                <video src={l.video} controls preload="metadata" />
+                {l.duree ? <span>{l.duree}</span> : null}
               </div>
-              <Champ label="Sous-titres" htmlFor={`st-${l.id}`}>
-                <textarea
-                  id={`st-${l.id}`}
-                  className={ui.saisie}
-                  style={{ minHeight: 70 }}
-                  defaultValue={l.texte}
-                  onBlur={(e) => {
-                    if (e.target.value !== l.texte) {
-                      maj(l.id, { texte: e.target.value });
-                      toast("Sous-titres enregistrés.");
-                    }
-                  }}
-                />
-              </Champ>
-              <div className="flex flex-wrap gap-2">
-                <Btn
-                  small
-                  onClick={() => {
-                    maj(l.id, { texte: ajusteSousTitres(l.texte) });
-                    toast("Sous-titres ajustés automatiquement.");
-                  }}
-                >
-                  Ajuster les sous-titres
-                </Btn>
-                {l.etat !== "valide" ? (
-                  <Btn
-                    small
-                    variant="primary"
-                    onClick={() => {
-                      maj(l.id, { etat: "valide" });
-                      toast("Souvenir publié dans le livre d’or.");
+              <div className="grid gap-2.5">
+                <div className="flex flex-wrap items-center gap-2">
+                  <strong className="text-graphite">{l.nom}</strong>
+                  {l.ent ? <small className="text-graphite-muted">{l.ent}</small> : null}
+                  <Puce tone={l.etat === "valide" ? "green" : l.etat === "attente" ? "red" : "grey"}>{l.etat === "valide" ? "Publié" : l.etat === "attente" ? "En attente" : "Refusé"}</Puce>
+                </div>
+                <Champ label="Message affiché" htmlFor={`st-${l.id}`}>
+                  <textarea
+                    key={l.texte}
+                    id={`st-${l.id}`}
+                    className={ui.saisie}
+                    style={{ minHeight: 70 }}
+                    maxLength={MAX_TEXTE_SOUVENIR}
+                    defaultValue={l.texte}
+                    onBlur={(e) => {
+                      if (e.target.value.trim() !== l.texte) void agir(l, () => modifierTexteSouvenir(l.id, e.target.value), "Message enregistré.");
                     }}
-                  >
-                    Valider
+                  />
+                </Champ>
+                <div className="flex flex-wrap gap-2">
+                  <Btn small disabled={occupe === l.id || !l.texte} onClick={() => void agir(l, () => modifierTexteSouvenir(l.id, ajusteSousTitres(l.texte)), "Ponctuation et majuscules corrigées.")}>
+                    Corriger la ponctuation
                   </Btn>
-                ) : null}
-                {l.etat !== "refuse" ? (
-                  <Btn
-                    small
-                    onClick={() => {
-                      maj(l.id, { etat: "refuse" });
-                      toast("Souvenir retiré du livre d’or.");
-                    }}
-                  >
-                    {l.etat === "valide" ? "Retirer du livre" : "Refuser"}
-                  </Btn>
-                ) : null}
+                  {l.etat !== "valide" ? (
+                    <Btn small variant="primary" disabled={occupe === l.id} onClick={() => void agir(l, () => deciderSouvenir(l.id, "valide"), "Souvenir publié dans le livre d’or.")}>
+                      Valider
+                    </Btn>
+                  ) : null}
+                  {l.etat !== "refuse" ? (
+                    <Btn small disabled={occupe === l.id} onClick={() => void agir(l, () => deciderSouvenir(l.id, "refuse"), l.etat === "valide" ? "Souvenir retiré du livre d’or." : "Souvenir refusé.")}>
+                      {l.etat === "valide" ? "Retirer du livre" : "Refuser"}
+                    </Btn>
+                  ) : (
+                    <Btn small className="!text-[#b42318]" disabled={occupe === l.id} onClick={() => setASupprimer(l)}>
+                      Supprimer
+                    </Btn>
+                  )}
+                </div>
               </div>
-            </div>
-          </Card>
-        ))}
+            </Card>
+          ))
+        ) : (
+          <Vide>Aucun souvenir déposé pour l’instant.</Vide>
+        )}
       </div>
+      {aSupprimer ? (
+        <Confirmer
+          titre="Supprimer ce souvenir ?"
+          action="Supprimer"
+          enCours={occupe === aSupprimer.id}
+          onConfirmer={() => void agir(aSupprimer, () => supprimerSouvenir(aSupprimer.id), "Souvenir supprimé, vidéo comprise.").then(() => setASupprimer(null))}
+          onClose={() => setASupprimer(null)}
+        >
+          La vidéo de {aSupprimer.nom} sera effacée définitivement.
+        </Confirmer>
+      ) : null}
     </>
   );
 }
