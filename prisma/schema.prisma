@@ -51,6 +51,8 @@ model User {
   city                  String?
   country               String?
   billetPaye            Boolean                      @default(false) @map("billet_paye")
+  /// Photo de profil : adresse /api/profil/photos/<id>, fichier dans stockage/profils.
+  photo                 String?                      @db.VarChar(200)
   /// Identifiants des comptes Google et Facebook reliés (connexion et inscription en un clic).
   googleId              String?                      @unique @map("google_id")
   facebookId            String?                      @unique @map("facebook_id")

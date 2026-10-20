@@ -64,7 +64,7 @@ export function AdminAcces({ comptes }: { comptes: CompteAcces[] }) {
       return (
         <>
           {donner}
-          <Btn small variant="ghost" onClick={() => decider(c, "REFUSE", `La demande de ${c.nom} est refusée.`)} disabled={occupe}>
+          <Btn small className="!text-[#b42318]" onClick={() => decider(c, "REFUSE", `La demande de ${c.nom} est refusée.`)} disabled={occupe}>
             Refuser
           </Btn>
         </>
@@ -84,7 +84,7 @@ export function AdminAcces({ comptes }: { comptes: CompteAcces[] }) {
       );
     }
     return (
-      <Btn small variant="ghost" onClick={() => setAConfirmer(c.id)}>
+      <Btn small className="!text-[#b42318]" onClick={() => setAConfirmer(c.id)}>
         Retirer l’accès
       </Btn>
     );

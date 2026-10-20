@@ -20,6 +20,7 @@ export type AdminVue = {
   role: string;
   company: string;
   phone: string;
+  photo: string | null;
   creeLe: string;
   adminDepuis: string;
   derniereConnexion: string | null;
@@ -74,7 +75,7 @@ export function AdminFiche({ admin, moi, peutGerer, onClose }: { admin: AdminVue
         </button>
         <Sur className="!mb-0 !text-white/70">{mode === "edition" ? "Modifier l’administrateur" : "Administrateur"}</Sur>
         <div className={styles.pTete}>
-          <AvatarProfil size={60} className={styles.pLg} />
+          <AvatarProfil photo={admin.photo} size={60} className={styles.pLg} />
           <div className="min-w-0">
             <h3>{admin.nom}</h3>
             <p>{sousTitre}</p>
@@ -189,7 +190,7 @@ export function AdminFiche({ admin, moi, peutGerer, onClose }: { admin: AdminVue
             <Btn key="retirer" onClick={() => setMode("retirer")}>
               Retirer les droits
             </Btn>
-            <Btn key="supprimer" variant="ghost" className="!text-[#b42318]" onClick={() => setMode("supprimer")}>
+            <Btn key="supprimer" className="!text-[#b42318]" onClick={() => setMode("supprimer")}>
               <TrashIcon width={16} height={16} />
               Supprimer le compte
             </Btn>

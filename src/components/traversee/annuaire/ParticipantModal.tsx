@@ -97,7 +97,7 @@ export function ParticipantModal({ fiche, modifiee, onClose, onSave, inscritLe }
         </button>
         <Sur className="!mb-0 !text-white/70">{edition ? "Modifier le participant" : "Participant"}</Sur>
         <div className={styles.pTete}>
-          <AvatarProfil size={60} className={styles.pLg} />
+          <AvatarProfil photo={fiche.photo} size={60} className={styles.pLg} />
           <div className="min-w-0">
             <h3>{f.nom}</h3>
             <p>{[f.role, f.ent].filter(Boolean).join(" · ") || "Profil à compléter"}</p>
@@ -274,7 +274,7 @@ export function ParticipantModal({ fiche, modifiee, onClose, onSave, inscritLe }
               Modifier le profil
             </Btn>
             {modifiee ? (
-              <Btn type="button" variant="ghost" onClick={retablir}>
+              <Btn type="button" onClick={retablir}>
                 Rétablir
               </Btn>
             ) : null}

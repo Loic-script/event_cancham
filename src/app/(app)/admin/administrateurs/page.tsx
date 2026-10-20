@@ -20,6 +20,7 @@ export default async function Page() {
         role: true,
         company: true,
         phone: true,
+        photo: true,
         createdAt: true,
         decisionLe: true,
         // Une session est ouverte à chaque connexion : la plus récente donne la dernière connexion.
@@ -43,6 +44,7 @@ export default async function Page() {
       role: a.role ?? "",
       company: a.company ?? "",
       phone: a.phone ?? "",
+      photo: a.photo,
       creeLe: a.createdAt.toISOString(),
       adminDepuis: (a.decisionLe ?? a.createdAt).toISOString(),
       derniereConnexion: a.sessions[0]?.createdAt.toISOString() ?? null,

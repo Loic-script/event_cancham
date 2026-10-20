@@ -3,8 +3,9 @@
 import { useActionState, useState } from "react";
 import { changerMotDePasse, modifierIdentifiants, type CompteState } from "@/app/(app)/profil/actions";
 import { CheckIcon, LockIcon } from "@/components/app/icons";
-import { oublierChampsLocaux } from "@/components/profile/useProfile";
-import { Btn, Card, Champ, Note, PageHead, Puce, Sur, ui } from "../ui";
+import { oublierChampsLocaux, useSessionIdentity } from "@/components/profile/useProfile";
+import { ChoixPhotoProfil } from "../profil/ChoixPhotoProfil";
+import { AvatarProfil, Btn, Card, Champ, Note, PageHead, Puce, Sur, ui } from "../ui";
 
 type Compte = { firstName: string; lastName: string; email: string; depuis: string };
 
@@ -21,15 +22,25 @@ export function AdminCompte({ compte }: { compte: Compte }) {
   const [mdp, actionMdp, changement] = useActionState(changerMotDePasse, initial);
   const [f, setF] = useState({ firstName: compte.firstName, lastName: compte.lastName, email: compte.email });
   const [voir, setVoir] = useState(false);
+  const photo = useSessionIdentity()?.photo ?? null;
 
   const nouvelleAdresse = f.email.trim().toLowerCase() !== compte.email;
   const modifie = f.firstName.trim() !== compte.firstName || f.lastName.trim() !== compte.lastName || nouvelleAdresse;
 
   return (
     <>
-      <PageHead title="Mon" accent="compte" text="Vos informations de connexion au back-office : nom, adresse e-mail et mot de passe." photo="assistance">
+      <PageHead title="Mon" accent="compte" text="Votre photo et vos informations de connexion au back-office : nom, adresse e-mail et mot de passe." photo="assistance">
         <Puce tone="white">Administrateur depuis le {new Date(compte.depuis).toLocaleDateString("fr-FR")}</Puce>
       </PageHead>
+
+      <Card pad bleed className="mb-4 flex flex-wrap items-center gap-4">
+        <AvatarProfil photo={photo} size={72} />
+        <div className="min-w-0 flex-1">
+          <Sur className="!mb-1">Photo de profil</Sur>
+          <p className="text-graphite-muted">Visible par l’équipe dans la liste des administrateurs et sur votre fiche.</p>
+        </div>
+        <ChoixPhotoProfil small />
+      </Card>
 
       <div className={ui.gLarge}>
         <Card pad bleed>

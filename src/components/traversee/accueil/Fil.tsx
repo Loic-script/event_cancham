@@ -113,7 +113,7 @@ function Interactions({ cible, compteur, admin, children }: { cible: string; com
             <ul>
               {liste.map((c) => (
                 <li key={c.id}>
-                  <AvatarInitiales nom={c.auteur.nom} size={32} />
+                  <AvatarInitiales nom={c.auteur.nom} photo={c.auteur.photo} size={32} />
                   <div className={styles.bulle}>
                     <div>
                       <strong>{c.auteur.nom}</strong>
@@ -163,7 +163,7 @@ function CartePublication({ p, compteur, admin, i }: { p: PublicationFil; compte
   return (
     <Card bleed className={styles.article} style={ordre(i)}>
       <header>
-        {p.equipe ? <AvatarSigle size={44} /> : p.aMoi ? <Avatar person={me} size={44} /> : <AvatarInitiales nom={p.auteur.nom} size={44} />}
+        {p.equipe ? <AvatarSigle size={44} /> : p.aMoi ? <Avatar person={me} size={44} /> : <AvatarInitiales nom={p.auteur.nom} photo={p.auteur.photo} size={44} />}
         <div className="min-w-0">
           <strong className="text-graphite">{p.equipe ? "CanCham Madagascar" : p.auteur.nom}</strong>{" "}
           {p.equipe ? <Puce tone="red">Équipe CanCham</Puce> : <Puce>Participant</Puce>}

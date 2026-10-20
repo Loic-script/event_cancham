@@ -39,6 +39,7 @@ export type SessionIdentity = {
   country: string | null;
   acces: "MEMBRE" | "ADMIN";
   superAdmin: boolean;
+  photo: string | null;
   createdAt: string;
 };
 
@@ -108,6 +109,7 @@ function identityFields(identity: SessionIdentity | null): Partial<Profile> {
     city: identity.city ?? "",
     country: identity.country === "CA" ? "CA" : "MG",
     memberSince: identity.createdAt.slice(0, 10),
+    photo: identity.photo ?? undefined,
   };
 }
 
@@ -136,7 +138,9 @@ export function useProfileOverrides(): ProfileOverrides {
 
 export function useProfile(): Profile {
   const identity = useSessionIdentity();
-  const o = useProfileOverrides();
+  // La photo vient du compte (serveur) : une ancienne photo gardée dans ce navigateur ne la remplace pas.
+  const { photo: _photoLocale, ...o } = useProfileOverrides();
+  void _photoLocale;
   return { ...currentUser, ...identityFields(identity), blocked: [], ...o };
 }
 

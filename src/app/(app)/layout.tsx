@@ -21,6 +21,7 @@ export default async function AppLayout({ children }: LayoutProps<"/">) {
     city: user.city,
     country: user.country,
     acces: user.acces,
+    photo: user.photo,
     superAdmin: estSuperAdmin(user),
     createdAt: user.createdAt.toISOString(),
   };

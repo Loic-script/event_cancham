@@ -1,7 +1,7 @@
 import { personnes, type Personne } from "./data";
 import type { Fiche, TraverseeState } from "./store";
 
-export type FicheComplete = Fiche & { id: string; img: string; code: string };
+export type FicheComplete = Fiche & { id: string; img: string; code: string; photo?: string | null };
 
 const PERSONNES = personnes();
 

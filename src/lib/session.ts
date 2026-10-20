@@ -23,6 +23,7 @@ const userSelect = {
   website: true,
   city: true,
   country: true,
+  photo: true,
   createdAt: true,
 } satisfies Prisma.UserSelect;
 

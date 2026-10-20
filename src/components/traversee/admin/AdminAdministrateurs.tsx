@@ -33,7 +33,7 @@ export function AdminAdministrateurs({ moi, superAdmin, superAdmins, admins, mem
             {admins.map((a) => (
               <li key={a.id}>
                 <button type="button" className={`${styles.ligne} ${a.superAdmin ? styles.superAdmin : ""}`} onClick={() => setOuvert(a.id)} aria-label={`Voir la fiche de ${a.nom}`}>
-                  <AvatarProfil size={46} />
+                  <AvatarProfil photo={a.photo} size={46} />
                   <span className={styles.ident}>
                     <span className={styles.nom}>
                       {a.nom}

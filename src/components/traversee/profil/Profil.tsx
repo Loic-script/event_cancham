@@ -2,16 +2,17 @@
 
 import { useState, type FormEvent } from "react";
 import { Avatar } from "@/components/app/Avatar";
-import { CameraIcon, DownloadIcon } from "@/components/app/icons";
+import { DownloadIcon } from "@/components/app/icons";
 import { updateProfile, useProfile } from "@/components/profile/useProfile";
 import { SECTEURS } from "@/lib/traversee/data";
-import { lisImage, setTraversee, toast, useTraversee } from "@/lib/traversee/store";
+import { setTraversee, toast, useTraversee } from "@/lib/traversee/store";
 import { fullName } from "@/lib/mock/data";
 import { BilletModal } from "../achats/BilletModal";
 import { Presentation } from "../accueil/Presentation";
 import { Coordonnees, MotDePasse } from "./Compte";
+import { ChoixPhotoProfil } from "./ChoixPhotoProfil";
 import { SupprimerCompte } from "./SupprimerCompte";
-import { Btn, Card, Champ, FileBtn, Jauge, Sur, ui } from "../ui";
+import { Btn, Card, Champ, Jauge, Sur, ui } from "../ui";
 import styles from "./profil.module.css";
 
 export function Profil({ restant }: { restant: number }) {
@@ -43,23 +44,7 @@ export function Profil({ restant }: { restant: number }) {
             <h3 className="font-display text-[18px] text-graphite">{fullName(me)}</h3>
             <p className="text-graphite-muted">{me.company || "Entreprise à renseigner"}</p>
           </div>
-          <FileBtn
-            label={
-              <>
-                <CameraIcon width={16} height={16} />
-                {me.photo ? "Changer la photo" : "Ajouter une photo"}
-              </>
-            }
-            accept="image/*"
-            aria-label="Choisir ma photo de profil"
-            onChange={async (e) => {
-              const u = await lisImage(e.target.files?.[0], 640);
-              if (u) {
-                updateProfile({ photo: u });
-                toast("Photo de profil mise à jour.");
-              }
-            }}
-          />
+          <ChoixPhotoProfil />
           <div className="w-full">
             <Jauge pct={pct} />
             <small className="text-graphite-muted">Profil complété à {pct} %</small>

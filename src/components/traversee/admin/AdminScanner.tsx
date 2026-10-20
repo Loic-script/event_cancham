@@ -542,7 +542,7 @@ export function AdminScanner() {
                 </p>
               </div>
               {s.scans.length ? (
-                <Btn small variant="ghost" onClick={reinitialiser}>
+                <Btn small className="!text-[#b42318]" onClick={reinitialiser}>
                   Effacer
                 </Btn>
               ) : null}

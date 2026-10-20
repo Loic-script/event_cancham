@@ -60,7 +60,7 @@ export function quand(d: Date): string {
   return `${DATE.format(d)} à ${heure}`;
 }
 
-export type AuteurFil = { id: number; nom: string; detail: string };
+export type AuteurFil = { id: number; nom: string; detail: string; photo: string | null };
 
 export type PublicationFil = {
   id: string;
@@ -77,7 +77,7 @@ export type PublicationFil = {
 export type CompteurFil = { jaimes: number; commentaires: number; aime: boolean };
 export type DonneesFil = { publications: PublicationFil[]; compteurs: Record<string, CompteurFil> };
 
-export type CommentaireVue = { id: string; texte: string; quand: string; auteur: { id: number; nom: string }; aMoi: boolean };
+export type CommentaireVue = { id: string; texte: string; quand: string; auteur: { id: number; nom: string; photo: string | null }; aMoi: boolean };
 
 const nom = (u: { firstName: string; lastName: string }) => `${u.firstName} ${u.lastName}`.trim();
 
@@ -92,7 +92,7 @@ export async function chargerFil(userId: number): Promise<DonneesFil> {
       image: true,
       video: true,
       creeLe: true,
-      auteur: { select: { id: true, firstName: true, lastName: true, role: true, company: true } },
+      auteur: { select: { id: true, firstName: true, lastName: true, role: true, company: true, photo: true } },
     },
   });
 
@@ -118,22 +118,22 @@ export async function chargerFil(userId: number): Promise<DonneesFil> {
       image: p.image,
       video: p.video,
       quand: quand(p.creeLe),
-      auteur: { id: p.auteur.id, nom: nom(p.auteur), detail: [p.auteur.role, p.auteur.company].filter(Boolean).join(" · ") },
+      auteur: { id: p.auteur.id, nom: nom(p.auteur), detail: [p.auteur.role, p.auteur.company].filter(Boolean).join(" · "), photo: p.auteur.photo },
       aMoi: p.auteur.id === userId,
     })),
   };
 }
 
 export function vueCommentaire(
-  c: { id: string; texte: string; creeLe: Date; auteur: { id: number; firstName: string; lastName: string } },
+  c: { id: string; texte: string; creeLe: Date; auteur: { id: number; firstName: string; lastName: string; photo: string | null } },
   userId: number,
 ): CommentaireVue {
-  return { id: c.id, texte: c.texte, quand: quand(c.creeLe), auteur: { id: c.auteur.id, nom: nom(c.auteur) }, aMoi: c.auteur.id === userId };
+  return { id: c.id, texte: c.texte, quand: quand(c.creeLe), auteur: { id: c.auteur.id, nom: nom(c.auteur), photo: c.auteur.photo }, aMoi: c.auteur.id === userId };
 }
 
 export const selectionCommentaire = {
   id: true,
   texte: true,
   creeLe: true,
-  auteur: { select: { id: true, firstName: true, lastName: true } },
+  auteur: { select: { id: true, firstName: true, lastName: true, photo: true } },
 } as const;
