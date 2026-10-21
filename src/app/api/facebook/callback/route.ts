@@ -1,4 +1,5 @@
 import { exchangeCode, storeToken } from "@/lib/social/facebook";
+import { urlPublique } from "@/lib/url";
 
 export async function GET(request: Request) {
   const url = new URL(request.url);
@@ -10,12 +11,14 @@ export async function GET(request: Request) {
     next = "/defis/tombola";
   }
   const code = url.searchParams.get("code");
-  if (!code) return Response.redirect(`${url.origin}${next}?facebook=refus`, 302);
+  // Même adresse publique qu'au départ : Facebook vérifie que redirect_uri est identique à l'échange du code.
+  const base = await urlPublique();
+  if (!code) return Response.redirect(`${base}${next}?facebook=refus`, 302);
   try {
-    const token = await exchangeCode(url.origin, code);
+    const token = await exchangeCode(base, code);
     await storeToken(token);
-    return Response.redirect(`${url.origin}${next}?facebook=ok`, 302);
+    return Response.redirect(`${base}${next}?facebook=ok`, 302);
   } catch {
-    return Response.redirect(`${url.origin}${next}?facebook=erreur`, 302);
+    return Response.redirect(`${base}${next}?facebook=erreur`, 302);
   }
 }
