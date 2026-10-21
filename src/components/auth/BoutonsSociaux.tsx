@@ -1,19 +1,17 @@
 "use client";
 
 import { useState } from "react";
-import { FacebookLogo, GoogleLogo } from "@/components/app/BrandLogos";
+import { GoogleLogo } from "@/components/app/BrandLogos";
 import styles from "./auth.module.css";
 
 type Fournisseur = "google" | "facebook";
 
-const FOURNISSEURS: { key: Fournisseur; label: string; logo: React.ReactNode }[] = [
-  { key: "google", label: "Google", logo: <GoogleLogo size={20} /> },
-  { key: "facebook", label: "Facebook", logo: <FacebookLogo size={22} /> },
-];
+// Facebook est retiré des boutons (app Meta pas en mode Live) : voir FACEBOOK_ACTIF dans src/lib/oauth.ts pour le remettre.
+const FOURNISSEURS: { key: Fournisseur; label: string; logo: React.ReactNode }[] = [{ key: "google", label: "Google", logo: <GoogleLogo size={20} /> }];
 
 /**
- * Connexion ou inscription avec Google et Facebook. Un fournisseur sans identifiants configurés
- * (GOOGLE_CLIENT_ID…, FACEBOOK_APP_ID…) affiche un message au lieu de partir vers une erreur.
+ * Connexion ou inscription avec Google. Un fournisseur sans identifiants configurés
+ * (GOOGLE_CLIENT_ID…) affiche un message au lieu de partir vers une erreur.
  */
 export function BoutonsSociaux({ actifs, depuis, next }: { actifs: Record<Fournisseur, boolean>; depuis: "connexion" | "inscription"; next: string }) {
   const [notice, setNotice] = useState<string | null>(null);

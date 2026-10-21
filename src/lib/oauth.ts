@@ -17,7 +17,10 @@ function identifiants(f: Fournisseur) {
     : { id: process.env.FACEBOOK_APP_ID || process.env.META_APP_ID || "", secret: process.env.FACEBOOK_APP_SECRET || process.env.META_APP_SECRET || "" };
 }
 
-export const fournisseurConfigure = (f: Fournisseur) => Boolean(identifiants(f).id && identifiants(f).secret);
+/** Facebook désactivé (l'app Meta n'est pas en mode Live) : remettre à true, et le bouton dans BoutonsSociaux.tsx, pour le réactiver. */
+const FACEBOOK_ACTIF = false;
+
+export const fournisseurConfigure = (f: Fournisseur) => (f === "facebook" && !FACEBOOK_ACTIF ? false : Boolean(identifiants(f).id && identifiants(f).secret));
 
 export function fournisseursActifs(): Record<Fournisseur, boolean> {
   return { google: fournisseurConfigure("google"), facebook: fournisseurConfigure("facebook") };
