@@ -58,6 +58,8 @@ Application [Next.js 16](https://nextjs.org) (App Router, TypeScript, Tailwind C
 | `npm run db:seed`     | Exécute `prisma/seed.ts`                                   |
 | `npm run db:studio`   | Interface web Prisma Studio pour parcourir les données     |
 | `npm test`            | Tests automatisés (`tests/*.test.ts`, exécutés avec `node --test` et `tsx`) |
+| `npm run typecheck`   | Vérification des types TypeScript (`tsc --noEmit`)         |
+| `npm run verifier`    | Tout vérifier d'un coup avant un push : lint, types, tests, build (ce que lancera l'intégration continue) |
 
 ## Espace participant
 

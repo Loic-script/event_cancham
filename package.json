@@ -13,7 +13,9 @@
     "db:deploy": "prisma migrate deploy",
     "db:seed": "prisma db seed",
     "db:studio": "prisma studio",
-    "test": "node --import tsx --test tests/*.test.ts"
+    "test": "node --import tsx --test tests/*.test.ts",
+    "typecheck": "tsc --noEmit -p .",
+    "verifier": "npm run lint && npm run typecheck && npm test && npm run build"
   },
   "dependencies": {
     "@napi-rs/canvas": "1.0.11",
