@@ -1,0 +1,58 @@
+# Intégration continue : à chaque push ou pull request sur dev, la même vérification que `npm run verifier`,
+# précédée des migrations sur une base PostgreSQL vide (ce qui valide aussi la chaîne de migrations).
+name: Vérification
+
+on:
+  push:
+    branches: [dev, main]
+  pull_request:
+    branches: [dev, main]
+
+# Un nouveau push sur la même branche annule la vérification en cours.
+concurrency:
+  group: verification-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  verifier:
+    name: Migrations, lint, types, tests et build
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    services:
+      postgres:
+        image: postgres:17
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: event_ci
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+
+    env:
+      # Base de test jetable, propre à cette exécution : jamais la base de développement ni de production.
+      DATABASE_URL: postgresql://postgres:postgres@localhost:5432/event_ci?schema=public
+      APP_URL: http://localhost:3000
+      NEXT_TELEMETRY_DISABLED: "1"
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+
+      - name: Installation (génère aussi le client Prisma)
+        run: npm ci
+
+      - name: Migrations sur une base vide
+        run: npx prisma migrate deploy
+
+      - name: Lint, types, tests et build
+        run: npm run verifier

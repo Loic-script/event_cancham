@@ -1,5 +1,7 @@
 # Event
 
+[![Vérification](https://github.com/Loic-script/event_cancham/actions/workflows/ci.yml/badge.svg?branch=dev)](https://github.com/Loic-script/event_cancham/actions/workflows/ci.yml)
+
 Application [Next.js 16](https://nextjs.org) (App Router, TypeScript, Tailwind CSS) connectée à une base **PostgreSQL 17** via [Prisma 7](https://www.prisma.io).
 
 ## Prérequis
@@ -60,6 +62,10 @@ Application [Next.js 16](https://nextjs.org) (App Router, TypeScript, Tailwind C
 | `npm test`            | Tests automatisés (`tests/*.test.ts`, exécutés avec `node --test` et `tsx`) |
 | `npm run typecheck`   | Vérification des types TypeScript (`tsc --noEmit`)         |
 | `npm run verifier`    | Tout vérifier d'un coup avant un push : lint, types, tests, build (ce que lancera l'intégration continue) |
+
+## Intégration continue
+
+À chaque push ou pull request sur `dev` (ou `main`), GitHub Actions (`.github/workflows/ci.yml`) démarre un PostgreSQL 17 vide, installe le projet, applique toutes les migrations (`prisma migrate deploy`, ce qui vérifie la chaîne de migrations depuis zéro), puis lance `npm run verifier` : lint, types, tests, build. Le résultat apparaît sur chaque commit et dans l’onglet *Actions* du dépôt ; aucune clé réelle n’est nécessaire (ni Resend, ni Google). Un nouveau push sur la même branche annule la vérification en cours. Pour interdire de fusionner quand c’est rouge : *Settings → Branches → règle sur `dev` → Require status checks* avec « Migrations, lint, types, tests et build ».
 
 ## Espace participant
 
