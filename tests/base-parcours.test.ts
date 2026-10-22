@@ -49,7 +49,7 @@ test("compte validé : quatre étapes, parcours à la connexion tant qu'il n'est
   assert.equal(await lib.pageApresConnexion(u.id, "/annuaire"), "/annuaire");
 });
 
-test("compte en attente : profil à compléter, parcours, puis page d'attente", { skip: sansBase }, async () => {
+test("compte en attente : profil à compléter, parcours, puis règlement du billet", { skip: sansBase }, async () => {
   const prisma = await basePrisma();
   const u = await creerCompte("parcours", { statut: "EN_ATTENTE", phone: null });
   ids.push(u.id);
@@ -60,8 +60,8 @@ test("compte en attente : profil à compléter, parcours, puis page d'attente", 
 
   await prisma.parcoursAccueil.create({ data: { userId: u.id, passees: ["photo", "entreprise", "pitch", "tombola"] } });
   assert.equal((await lib.etatParcours(u.id)).restantes, 0);
-  assert.equal(await lib.pageApresConnexion(u.id), "/en-attente");
-  assert.equal(await lib.pageApresConnexion(u.id, "/annuaire"), "/en-attente");
+  assert.equal(await lib.pageApresConnexion(u.id), "/paiement");
+  assert.equal(await lib.pageApresConnexion(u.id, "/annuaire"), "/paiement");
 });
 
 test("administrateur et compte refusé", { skip: sansBase }, async () => {

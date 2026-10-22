@@ -2,7 +2,8 @@ export const SESSION_COOKIE = "session";
 
 export const LOGIN_PATH = "/connexion";
 
-export const PUBLIC_PATHS = ["/connexion", "/inscription", "/mot-de-passe-oublie", "/confidentialite", "/suppression-donnees", "/api/health", "/api/auth"];
+// /api/paiements/vanillapay : notification du prestataire de paiement ; /simulateur-vanillapay : simulateur local, hors production.
+export const PUBLIC_PATHS = ["/connexion", "/inscription", "/mot-de-passe-oublie", "/confidentialite", "/suppression-donnees", "/api/health", "/api/auth", "/api/paiements/vanillapay", "/simulateur-vanillapay"];
 
 export function isPublicPath(pathname: string): boolean {
   return PUBLIC_PATHS.some((p) => pathname === p || pathname.startsWith(`${p}/`));

@@ -38,6 +38,9 @@ model User {
   city                  String?
   country               String?
   billetPaye            Boolean                      @default(false) @map("billet_paye")
+  /// Paiement du billet par Vanilla Pay : date du règlement et référence du paiement qui a ouvert l'accès.
+  payeLe                DateTime?                    @map("paye_le")
+  paiementReference     String?                      @map("paiement_reference") @db.VarChar(20)
   /// Code du billet (QR), tiré au hasard par la base à la création du compte : impossible à deviner.
   codeBillet            String                       @unique @default(dbgenerated("('TRV26-'::text || upper(substr(md5(((random())::text || (clock_timestamp())::text)), 1, 8)))")) @map("code_billet") @db.VarChar(20)
   /// Photo de profil : adresse /api/profil/photos/<id>, fichier dans stockage/profils.
@@ -69,6 +72,7 @@ model User {
   souvenirsLivre        SouvenirLivre[]
   parcoursAccueil       ParcoursAccueil?
   entreeGala            EntreeGala?                  @relation("entreeParticipant")
+  paiements             Paiement[]
   entreesScannees       EntreeGala[]                 @relation("entreeScanneur")
 
   @@map("users")
@@ -473,4 +477,30 @@ model TentativeConnexion {
 
   @@index([cle, creeLe])
   @@map("tentatives_connexion")
+}
+
+/// Tentative de paiement du billet chez Vanilla Pay : une référence propre à la plateforme (LT-2026-XXXXXX),
+/// le moyen choisi, l'identifiant de transaction Vanilla Pay et la notification brute reçue.
+model Paiement {
+  id           String    @id @default(cuid())
+  reference    String    @unique @db.VarChar(20)
+  userId       Int       @map("user_id")
+  user         User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  /// Montant en ariary, entier.
+  montant      Int
+  devise       String    @default("MGA") @db.VarChar(3)
+  /// carte | mvola | orange_money | airtel_money
+  mode         String    @db.VarChar(20)
+  /// en_cours | reussi | echoue
+  statut       String    @default("en_cours") @db.VarChar(10)
+  /// Identifiant de la transaction chez Vanilla Pay (VPI… pour la carte, MM… pour le mobile money).
+  transaction  String?   @db.VarChar(120)
+  notification Json?
+  regleLe      DateTime? @map("regle_le")
+  creeLe       DateTime  @default(now()) @map("cree_le")
+  majLe        DateTime  @updatedAt @map("maj_le")
+
+  @@index([userId, statut])
+  @@index([transaction])
+  @@map("paiements")
 }

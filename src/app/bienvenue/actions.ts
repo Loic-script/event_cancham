@@ -6,7 +6,7 @@ import { LOGIN_PATH, safeNext } from "@/lib/auth";
 import { erreurCoordonnees } from "@/lib/coordonnees";
 import { estEtape, PAGE_PARCOURS } from "@/lib/parcours";
 import { prisma } from "@/lib/prisma";
-import { aAccesEspace, getCurrentUser, PAGE_ATTENTE } from "@/lib/session";
+import { aAccesEspace, getCurrentUser, PAGE_PAIEMENT } from "@/lib/session";
 
 type Resultat = { error: string | null };
 
@@ -69,7 +69,8 @@ export async function terminerParcours(formData: FormData): Promise<void> {
   const termineLe = new Date();
   await prisma.parcoursAccueil.upsert({ where: { userId: user.id }, create: { userId: user.id, termineLe }, update: { termineLe } });
   revalidatePath("/profil");
-  redirect(aAccesEspace(user) ? safeNext(formData.get("next")) : PAGE_ATTENTE);
+  // Inscription en attente : dernière étape, le règlement du billet.
+  redirect(aAccesEspace(user) ? safeNext(formData.get("next")) : PAGE_PAIEMENT);
 }
 
 /** Bandeau « Reprendre » du profil : les étapes passées sont proposées de nouveau. */

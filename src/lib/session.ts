@@ -77,23 +77,25 @@ export async function requireUser(): Promise<SessionUser> {
 }
 
 export const PAGE_ATTENTE = "/en-attente";
+/** Règlement du billet : un membre dont l'inscription n'est pas encore ouverte y est renvoyé. */
+export const PAGE_PAIEMENT = "/paiement";
 
 /** Espace participant : administrateurs, et membres dont l'inscription est validée. */
 export function aAccesEspace(user: Pick<SessionUser, "acces" | "statut">): boolean {
   return user.acces === "ADMIN" || user.statut === "ACTIF";
 }
 
-/** Comme requireUser, mais renvoie vers la page d'attente tant que l'inscription n'est pas validée. */
+/** Comme requireUser, mais renvoie un membre sans accès vers le paiement (inscription en attente) ou la page d'attente (refus). */
 export async function requireMembreActif(): Promise<SessionUser> {
   const user = await requireUser();
-  if (!aAccesEspace(user)) redirect(PAGE_ATTENTE);
+  if (!aAccesEspace(user)) redirect(user.statut === "EN_ATTENTE" ? PAGE_PAIEMENT : PAGE_ATTENTE);
   return user;
 }
 
 export async function refusSiSansAcces(): Promise<Response | null> {
   const user = await getCurrentUser();
   if (!user) return Response.json({ ok: false, message: "Connexion requise." }, { status: 401 });
-  if (!aAccesEspace(user)) return Response.json({ ok: false, message: "Votre inscription n’est pas encore validée." }, { status: 403 });
+  if (!aAccesEspace(user)) return Response.json({ ok: false, message: "Votre accès n’est pas encore ouvert : réglez votre billet." }, { status: 403 });
   return null;
 }
 

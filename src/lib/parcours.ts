@@ -1,6 +1,6 @@
 import { PAGE_COMPLETER, profilIncomplet } from "@/lib/coordonnees";
 import { prisma } from "@/lib/prisma";
-import { PAGE_ATTENTE } from "@/lib/session";
+import { PAGE_ATTENTE, PAGE_PAIEMENT } from "@/lib/session";
 
 /**
  * Parcours d'accueil (/bienvenue) : après l'inscription, puis à chaque connexion tant qu'il n'est pas terminé.
@@ -78,6 +78,7 @@ export async function pageApresConnexion(userId: number, next = "/"): Promise<st
   if (u.statut === "EN_ATTENTE" && profilIncomplet(u)) return PAGE_COMPLETER;
   const etat = etatDe(u);
   const parcours = next === "/" ? PAGE_PARCOURS : `${PAGE_PARCOURS}?next=${encodeURIComponent(next)}`;
-  if (etat.termine) return u.statut === "EN_ATTENTE" ? PAGE_ATTENTE : next;
-  return u.statut === "EN_ATTENTE" && !etat.restantes ? PAGE_ATTENTE : parcours;
+  // Inscription en attente : après le parcours, le règlement du billet ouvre l'accès.
+  if (etat.termine) return u.statut === "EN_ATTENTE" ? PAGE_PAIEMENT : next;
+  return u.statut === "EN_ATTENTE" && !etat.restantes ? PAGE_PAIEMENT : parcours;
 }

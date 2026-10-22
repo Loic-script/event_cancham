@@ -37,6 +37,13 @@ export default defineConfig({
       RESEND_API_KEY: "",
       GOOGLE_CLIENT_ID: "",
       GOOGLE_CLIENT_SECRET: "",
+      // Paiement par le simulateur local de Vanilla Pay (clés factices, jamais le vrai prestataire).
+      VANILLAPAY_BASE: "http://localhost:3217/simulateur-vanillapay",
+      VANILLAPAY_SIMULATEUR: "1",
+      VANILLAPAY_CLIENT_ID: "client-de-test",
+      VANILLAPAY_CLIENT_SECRET: "secret-de-test",
+      VANILLAPAY_KEY_SECRET: "cle-de-signature-de-test",
+      PAIEMENT_MONTANT_AR: "500000",
       NEXT_TELEMETRY_DISABLED: "1",
     },
   },

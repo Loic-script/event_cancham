@@ -8,7 +8,7 @@ test.afterAll(() => {
   if (u) supprimer([u.id]);
 });
 
-test("inscription par le formulaire, puis parcours d'accueil jusqu'à la page d'attente", async ({ page }) => {
+test("inscription par le formulaire, puis parcours d'accueil jusqu'au règlement du billet", async ({ page }) => {
   await page.goto("/inscription");
   await page.fill("#register-lastName", "Rakoto");
   await page.fill("#register-firstName", "Miora");
@@ -42,9 +42,10 @@ test("inscription par le formulaire, puis parcours d'accueil jusqu'à la page d'
   await page.getByRole("button", { name: "Passer cette étape" }).click();
 
   await expect(page).toHaveURL(/etape=fin/);
-  await expect(page.getByRole("heading", { level: 1 })).toContainText("se prépare");
-  await page.getByRole("button", { name: "J’ai compris" }).click();
-  await expect(page).toHaveURL(/\/en-attente/);
+  await expect(page.getByRole("heading", { level: 1 })).toContainText("votre billet");
+  await page.getByRole("button", { name: "Régler mon billet" }).click();
+  await expect(page).toHaveURL(/\/paiement$/);
+  await expect(page.getByRole("button", { name: "MVola" })).toBeVisible();
 
   const u = utilisateur(email);
   expect(u?.statut).toBe("EN_ATTENTE");

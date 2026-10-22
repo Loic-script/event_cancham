@@ -114,3 +114,39 @@ export function courrielPromotionAdmin(d: { email: string; prenom: string; creat
     ),
   };
 }
+
+export type PaiementRecu = { email: string; prenom: string; nom: string; entreprise: string | null; reference: string; montant: string; mode: string; regleLe: string; base: string | null };
+
+/** Reçu envoyé au membre dès que Vanilla Pay confirme le paiement : son accès est ouvert. */
+export function courrielRecuPaiement(d: PaiementRecu): Courriel {
+  const lien = d.base ? `${d.base}/` : null;
+  return {
+    a: d.email,
+    sujet: `Paiement reçu, votre accès est ouvert – La Traversée`,
+    texte: `${bonjour(d.prenom)}\n\nNous avons bien reçu votre paiement : votre accès à la plateforme La Traversée est ouvert.\n\nRéférence : ${d.reference}\nMontant : ${d.montant}\nMoyen : ${d.mode}\nDate : ${d.regleLe}\n\n${lien ? `Entrez dans l’espace participant : ${lien}\n\n` : ""}Gardez cet e-mail, il tient lieu de reçu. Votre billet et son QR code sont dans votre profil.\n\nL’équipe CanCham Madagascar`,
+    html: page(
+      p(bonjour(d.prenom)) +
+        p("Nous avons bien reçu votre paiement : votre accès à la plateforme La Traversée est ouvert.") +
+        tableau([["Référence", d.reference], ["Montant", d.montant], ["Moyen", d.mode], ["Date", d.regleLe]]) +
+        (lien ? bouton(lien, "Entrer dans l’espace participant") : "") +
+        p("Gardez cet e-mail, il tient lieu de reçu. Votre billet et son QR code sont dans votre profil.", DISCRET) +
+        p("L’équipe CanCham Madagascar"),
+    ),
+  };
+}
+
+/** Alerte à l'équipe : un billet vient d'être réglé. */
+export function courrielAlertePaiement(d: PaiementRecu, admins: string[]): Courriel {
+  const qui = `${d.prenom} ${d.nom}`.trim() + (d.entreprise ? ` (${d.entreprise})` : "");
+  return {
+    a: admins,
+    sujet: `Billet réglé : ${qui} – La Traversée`,
+    texte: `${qui} vient de régler son billet.\n\nRéférence : ${d.reference}\nMontant : ${d.montant}\nMoyen : ${d.mode}\nDate : ${d.regleLe}\nE-mail : ${d.email}\n\nSon accès à la plateforme est ouvert automatiquement.${d.base ? `\n\nParticipants : ${d.base}/admin/participants` : ""}`,
+    html: page(
+      p(`${qui} vient de régler son billet.`) +
+        tableau([["Référence", d.reference], ["Montant", d.montant], ["Moyen", d.mode], ["Date", d.regleLe], ["E-mail", d.email]]) +
+        p("Son accès à la plateforme est ouvert automatiquement.", DISCRET) +
+        (d.base ? bouton(`${d.base}/admin/participants`, "Voir les participants") : ""),
+    ),
+  };
+}

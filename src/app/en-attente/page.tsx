@@ -7,7 +7,7 @@ import styles from "@/components/auth/auth.module.css";
 import { LOGIN_PATH } from "@/lib/auth";
 import { PAGE_COMPLETER } from "@/lib/connexion-sociale";
 import { profilIncomplet } from "@/lib/coordonnees";
-import { aAccesEspace, getCurrentUser } from "@/lib/session";
+import { aAccesEspace, getCurrentUser, PAGE_PAIEMENT } from "@/lib/session";
 
 export const metadata: Metadata = {
   title: { absolute: "Inscription en cours de validation – La Traversée" },
@@ -24,6 +24,8 @@ export default async function EnAttentePage() {
   if (!user) redirect(LOGIN_PATH);
   if (aAccesEspace(user)) redirect("/");
   if (user.statut === "EN_ATTENTE" && profilIncomplet(user)) redirect(PAGE_COMPLETER);
+  // Inscription en attente : c'est le règlement du billet qui ouvre l'accès.
+  if (user.statut === "EN_ATTENTE") redirect(PAGE_PAIEMENT);
 
   const refuse = user.statut === "REFUSE";
 

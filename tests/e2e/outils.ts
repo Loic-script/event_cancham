@@ -22,7 +22,7 @@ export const supprimer = (ids: number[]) => bd<{ ok: true }>("supprimer", { ids 
 
 export const effacerTentatives = () => bd<{ ok: true }>("tentatives");
 
-export const utilisateur = (email: string) => bd<null | { id: number; statut: string; sector: string | null; participationsDefis: { defi: string }[]; parcoursAccueil: { passees: string[]; termineLe: string | null } | null }>("utilisateur", { email });
+export const utilisateur = (email: string) => bd<null | { id: number; statut: string; sector: string | null; participationsDefis: { defi: string }[]; parcoursAccueil: { passees: string[]; termineLe: string | null } | null; paiements: { reference: string; statut: string; mode: string }[] }>("utilisateur", { email });
 
 /** Ouvre le navigateur déjà connecté avec ce compte (cookie de session posé directement). */
 export async function connecter(context: BrowserContext, id: number): Promise<void> {

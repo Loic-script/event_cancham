@@ -1,0 +1,186 @@
+/* Page de règlement du billet (dans la carte d'AuthScene) */
+.bloc {
+  display: grid;
+  gap: 18px;
+  margin-top: 20px;
+}
+
+.montant {
+  display: grid;
+  gap: 4px;
+  padding: 18px 20px;
+  border-radius: 12px;
+  background: linear-gradient(120deg, #0b1a30 0%, #12305a 70%, #1f5aa0 100%);
+  color: #ffffff;
+}
+
+.montant strong {
+  font-family: var(--font-montserrat), sans-serif;
+  font-weight: 800;
+  font-size: 34px;
+  line-height: 1.1;
+  letter-spacing: -0.02em;
+}
+
+.montantSur {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.75);
+}
+
+.montantSous {
+  font-size: 13px;
+  color: rgba(255, 255, 255, 0.8);
+}
+
+.debloque {
+  display: grid;
+  gap: 6px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  font-size: 14px;
+  color: var(--doux, #4f6072);
+}
+
+.debloque li {
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+}
+
+.debloque li::before {
+  content: "";
+  flex: none;
+  width: 16px;
+  height: 16px;
+  margin-top: 2px;
+  border-radius: 50%;
+  background: #007140 url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='3.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M5 12l5 5L19 7'/%3E%3C/svg%3E") center / 10px no-repeat;
+}
+
+.moyens {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.moyen {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-height: 64px;
+  padding: 10px 12px;
+  border-radius: 10px;
+  border: 1px solid var(--champ, #c5cfdb);
+  background: #ffffff;
+  text-align: left;
+  cursor: pointer;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease, transform 0.15s ease;
+  touch-action: manipulation;
+}
+
+.moyen:hover:not(:disabled) {
+  border-color: var(--bleu, #1f5aa0);
+  box-shadow: 0 10px 24px -18px rgba(18, 48, 90, 0.6);
+}
+
+.moyen:active:not(:disabled) {
+  transform: scale(0.98);
+}
+
+.moyen:disabled {
+  cursor: progress;
+  opacity: 0.7;
+}
+
+.logo {
+  display: grid;
+  flex: none;
+  place-items: center;
+}
+
+.moyenTexte {
+  display: grid;
+  min-width: 0;
+  flex: 1;
+}
+
+.moyenTexte strong {
+  font-size: 15px;
+  color: var(--texte, #0f1d2c);
+}
+
+.moyenTexte small {
+  font-size: 12px;
+  color: var(--doux, #4f6072);
+}
+
+.frais {
+  font-size: 12.5px;
+  line-height: 1.5;
+  color: var(--doux, #4f6072);
+}
+
+.liens {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 12px;
+  margin-top: 4px;
+}
+
+.liens button {
+  background: none;
+  border: 0;
+  cursor: pointer;
+}
+
+/* Page de retour */
+.retour {
+  display: grid;
+  gap: 14px;
+  margin-top: 16px;
+}
+
+.retour p {
+  font-size: 15px;
+  line-height: 1.6;
+  color: var(--doux, #4f6072);
+}
+
+.etat {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 16px;
+  border-radius: 12px;
+  font-weight: 600;
+}
+
+.etatOk {
+  background: #e6f4ec;
+  color: #0a5a34;
+}
+
+.etatKo {
+  background: #fdeee4;
+  color: #9a3d0a;
+}
+
+.etatAttente {
+  background: #e8f0fa;
+  color: #12305a;
+}
+
+.etat svg {
+  flex: none;
+}
+
+@media (max-width: 419px) {
+  .moyens {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}

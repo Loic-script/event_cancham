@@ -33,6 +33,8 @@ type ParcoursProps = {
   next: string;
   /** Secondes avant le gala, calculées par le serveur. */
   restant: number;
+  /** Prix du billet, déjà mis en forme (« 500 000 Ar »). */
+  montantBillet: string;
 };
 
 type Contenu = { photo: string; sur: string; titre: [string, string]; lead: string; points: string[]; carteSur: string; carteTitre: string };
@@ -210,16 +212,16 @@ export function Parcours(props: ParcoursProps) {
               <p className={styles.lead}>
                 {total} étapes rapides : votre photo, votre entreprise, puis vos participations aux deux défis. Chaque étape est enregistrée dès que vous passez à la suivante ; vous pouvez en sauter une, revenir en arrière ou terminer plus tard depuis votre profil.
               </p>
-              {props.acces ? null : <p className={styles.lead}>Pendant ce temps, l’équipe CanCham vérifie votre inscription.</p>}
+              {props.acces ? null : <p className={styles.lead}>Le règlement de votre billet viendra juste après : il ouvre l’accès à la plateforme.</p>}
             </>
           ) : ecran === "fin" ? (
             <>
-              <p className={styles.sur}>{props.acces ? "Parcours terminé" : "Profil prêt"}</p>
-              <h1 className={styles.titre}>{props.acces ? <>Tout est <em>prêt.</em></> : <>Votre place <em>se prépare.</em></>}</h1>
+              <p className={styles.sur}>{props.acces ? "Parcours terminé" : "Dernière étape"}</p>
+              <h1 className={styles.titre}>{props.acces ? <>Tout est <em>prêt.</em></> : <>Il reste <em>votre billet.</em></>}</h1>
               <p className={styles.lead}>
                 {props.acces
                   ? "Tout est en place pour le 18 décembre. L’annuaire, les rendez-vous B2B, la messagerie et le programme vous attendent dans l’espace participant."
-                  : "Merci ! Votre profil et vos participations sont enregistrés. L’équipe CanCham vérifie votre inscription : vous recevrez un e-mail dès que votre accès sera ouvert."}
+                  : `Votre profil et vos participations sont enregistrés. Réglez votre billet (${props.montantBillet}) par carte bancaire, MVola, Orange Money ou Airtel Money : votre accès s’ouvre dès que le paiement est confirmé.`}
               </p>
               <AuthCountdown target={event.date} initialRemaining={props.restant} />
               <ul className={styles.faits} aria-label="Le gala">
@@ -327,7 +329,7 @@ export function Parcours(props: ParcoursProps) {
                 </button>
                 <div className={styles.actionsDroite}>
                   <button type="submit" className={styles.primaire}>
-                    {props.acces ? "Entrer dans l’espace participant" : "J’ai compris"}
+                    {props.acces ? "Entrer dans l’espace participant" : "Régler mon billet"}
                     <ArrowRightIcon width={16} height={16} />
                   </button>
                 </div>

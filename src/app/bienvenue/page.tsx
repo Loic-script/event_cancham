@@ -7,6 +7,7 @@ import { PAGE_COMPLETER, profilIncomplet } from "@/lib/coordonnees";
 import { maParticipation } from "@/lib/defis";
 import { event } from "@/lib/evenement";
 import { etatParcours } from "@/lib/parcours";
+import { formatAriary, montantBillet } from "@/lib/paiements";
 import { aAccesEspace, getCurrentUser, PAGE_ATTENTE } from "@/lib/session";
 
 export const metadata: Metadata = {
@@ -49,7 +50,8 @@ export default async function BienvenuePage(props: PageProps<"/bienvenue">) {
         acces={acces}
         etapes={etat.etapes}
         commence={etat.commence}
-        sortie={acces ? next : PAGE_ATTENTE}
+        sortie={acces ? next : "/paiement"}
+        montantBillet={formatAriary(montantBillet())}
         profil={{ firstName: user.firstName, lastName: user.lastName, phone: user.phone ?? "", company: user.company ?? "", role: user.role ?? "", sector: user.sector ?? "", bio: user.bio ?? "" }}
         pitch={pitch?.lien ?? null}
         tombola={tombola?.lien ?? null}

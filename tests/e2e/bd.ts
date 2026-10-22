@@ -25,7 +25,7 @@ async function executer(action: string, d: Donnees): Promise<unknown> {
       return { token };
     }
     case "utilisateur":
-      return prisma.user.findUnique({ where: { email: String(d.email) }, include: { participationsDefis: true, parcoursAccueil: true } });
+      return prisma.user.findUnique({ where: { email: String(d.email) }, include: { participationsDefis: true, parcoursAccueil: true, paiements: { select: { reference: true, statut: true, mode: true } } } });
     case "supprimer":
       await supprimerComptes((d.ids as number[]) ?? []);
       return { ok: true };
