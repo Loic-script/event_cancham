@@ -1,7 +1,5 @@
-import type { Person } from "@/lib/mock/data";
-
 type AvatarProps = {
-  person: Pick<Person, "firstName" | "lastName" | "hue" | "online"> & { photo?: string };
+  person: { firstName: string; lastName: string; online?: boolean; photo?: string };
   size?: number;
   presence?: boolean;
   className?: string;

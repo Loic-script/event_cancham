@@ -3,7 +3,7 @@
 import { useSyncExternalStore } from "react";
 import { GiftIcon, TrophyIcon } from "@/components/app/icons";
 import { IMG, LIEU_LONG } from "@/lib/traversee/data";
-import { event } from "@/lib/mock/data";
+import { event } from "@/lib/evenement";
 import { Btn } from "../ui";
 import styles from "./accueil.module.css";
 

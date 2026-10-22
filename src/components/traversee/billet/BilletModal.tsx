@@ -4,17 +4,15 @@ import { DownloadIcon } from "@/components/app/icons";
 import { useProfile, useSessionIdentity } from "@/components/profile/useProfile";
 import { QrCode } from "@/components/ticket/QrCode";
 import { LIEU_LONG, LOGO_BLANC } from "@/lib/traversee/data";
-import { useTraversee } from "@/lib/traversee/store";
-import { fullName } from "@/lib/mock/data";
+import { fullName } from "@/lib/evenement";
 import { Modal } from "../Modal";
 import { Btn, Puce, Sur } from "../ui";
 import { profilComplet } from "../defis/DefiPitch";
-import styles from "./achats.module.css";
+import styles from "./billet.module.css";
 
 export function BilletCard() {
   const me = useProfile();
   const identite = useSessionIdentity();
-  const { table, siege } = useTraversee();
   return (
     <div className={styles.billet}>
       <div className={styles.bt}>
@@ -34,13 +32,6 @@ export function BilletCard() {
           {identite && !identite.billetPaye ? (
             <p className="mt-2.5">
               <Puce tone="red">Paiement en attente</Puce>
-            </p>
-          ) : null}
-          {table ? (
-            <p className="mt-2.5">
-              <Puce>
-                Table {table} · chaise {(siege ?? 0) + 1}
-              </Puce>
             </p>
           ) : null}
         </div>

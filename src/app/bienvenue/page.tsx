@@ -5,7 +5,7 @@ import { Parcours } from "@/components/bienvenue/Parcours";
 import { LOGIN_PATH, safeNext } from "@/lib/auth";
 import { PAGE_COMPLETER, profilIncomplet } from "@/lib/coordonnees";
 import { maParticipation } from "@/lib/defis";
-import { event } from "@/lib/mock/data";
+import { event } from "@/lib/evenement";
 import { etatParcours } from "@/lib/parcours";
 import { aAccesEspace, getCurrentUser, PAGE_ATTENTE } from "@/lib/session";
 

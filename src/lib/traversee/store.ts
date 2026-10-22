@@ -1,60 +1,19 @@
 "use client";
 
 import { useSyncExternalStore } from "react";
-import {
-  COMMANDES,
-  DEMI,
-  DOSSIERS,
-  RESSOURCES,
-  VOIX_INIT,
-  type AnnonceType,
-  type Commande,
-  type Demi,
-  type Dossier,
-  type Ressource,
-  type Sieges,
-} from "./data";
+import type { AnnonceType } from "./data";
 
-export type Achat = { quoi: string; ou: string; montant: number; etat: "Payé" | "À régler à table"; date: string };
 export type Annonce = { id: string; titre: string; message: string; type: AnnonceType; cta: string; img?: string; t: number };
 export type Fiche = { nom: string; role: string; ent: string; sect: string; act: string; email: string; phone: string; website: string; billet: "paye" | "attente" };
 export type TypeNotif = "annonce" | "message" | "compte" | "publication" | "story" | "defi1" | "defi2" | "rdv" | "livre";
 
 export type TraverseeState = {
-  table: number | null;
-  siege: number | null;
-  vote: number | null;
-  voteFinal: number | null;
-  finale: boolean;
-  ami: boolean;
-  achats: Achat[];
   storiesVues: Record<string, 1>;
-  demi: Demi[];
-  voix: number[];
-  ress: Ressource[];
-  dossiers: Dossier[];
-  cmd: Commande[];
-  sieges: Sieges | null;
-  gagnant: string | null;
   notifsLues: Record<string, 1>;
 };
 
 export const DEFAULT_STATE: TraverseeState = {
-  table: null,
-  siege: null,
-  vote: null,
-  voteFinal: null,
-  finale: false,
-  ami: false,
-  achats: [{ quoi: "Billet La Traversée", ou: "Billetterie en ligne", montant: 500000, etat: "Payé", date: "Avant l’événement" }],
   storiesVues: {},
-  demi: DEMI,
-  voix: VOIX_INIT,
-  ress: RESSOURCES,
-  dossiers: DOSSIERS,
-  cmd: COMMANDES,
-  sieges: null,
-  gagnant: null,
   notifsLues: {},
 };
 

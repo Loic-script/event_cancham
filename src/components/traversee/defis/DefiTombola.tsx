@@ -7,7 +7,7 @@ import { useProfile } from "@/components/profile/useProfile";
 import { PostEmbed } from "@/components/social/PostEmbed";
 import { enregistrerPublication } from "@/app/(app)/defis/actions";
 import type { MaParticipation, Participant } from "@/lib/defis";
-import { fullName } from "@/lib/mock/data";
+import { fullName } from "@/lib/evenement";
 import { parseSocialLink } from "@/lib/social/links";
 import { LEGENDE_JY_SERAI, PAGE_FACEBOOK } from "@/lib/traversee/data";
 import { CLASSEMENT_VISIBLE } from "@/lib/traversee/pitchs";

@@ -66,30 +66,6 @@ async function seedComptes() {
 
 const image = (nom: string) => path.join(process.cwd(), "public", "traversee", `${nom}.jpg`);
 
-async function seedEvenements() {
-  if ((await prisma.event.count()) > 0) return;
-
-  await prisma.event.createMany({
-    data: [
-      {
-        title: "Lancement du projet",
-        description: "Réunion de démarrage avec toute l'équipe.",
-        location: "Antananarivo",
-        startsAt: new Date("2026-11-02T09:00:00Z"),
-        endsAt: new Date("2026-11-02T11:00:00Z"),
-      },
-      {
-        title: "Atelier entrepreneurs",
-        description: "Atelier pratique sur le montage de projet.",
-        location: "En ligne",
-        startsAt: new Date("2026-11-15T14:00:00Z"),
-        endsAt: new Date("2026-11-15T17:00:00Z"),
-      },
-    ],
-    skipDuplicates: true,
-  });
-}
-
 async function imageDossier(id: string, source: string, nom: "couverture.jpg" | "auteur.jpg") {
   const dest = path.join(dossierImages(id), nom);
   await fs.mkdir(path.dirname(dest), { recursive: true });
@@ -274,7 +250,6 @@ async function seedBibliotheque() {
 
 async function main() {
   await seedComptes();
-  await seedEvenements();
   await seedBibliotheque();
   console.log("Seed terminé.");
 }

@@ -2,7 +2,7 @@
 
 import { createContext, createElement, useContext, useEffect, useSyncExternalStore, type ReactNode } from "react";
 import { enregistrerProfil } from "@/app/(app)/profil/actions";
-import { currentUser, type Country } from "@/lib/mock/data";
+import type { Country } from "@/lib/evenement";
 
 export type ProfileOverrides = Partial<{
   firstName: string;
@@ -22,7 +22,27 @@ export type ProfileOverrides = Partial<{
   passwordChangedAt: string;
 }>;
 
-export type Profile = typeof currentUser & { photo?: string; phone?: string; blocked: string[]; passwordChangedAt?: string };
+/** Profil tel que les composants le lisent : le compte (session), complété par les retouches gardées dans le navigateur. */
+export type Profile = {
+  firstName: string;
+  lastName: string;
+  email: string;
+  role: string;
+  company: string;
+  sector: string;
+  bio: string;
+  phone: string;
+  website: string;
+  city: string;
+  country: Country;
+  linkedin: string;
+  memberSince: string;
+  photo?: string;
+  blocked: string[];
+  passwordChangedAt?: string;
+};
+
+const PROFIL_VIDE: Profile = { firstName: "", lastName: "", email: "", role: "", company: "", sector: "", bio: "", phone: "", website: "", city: "", country: "MG", linkedin: "", memberSince: "", blocked: [] };
 
 export type SessionIdentity = {
   id: number;
@@ -149,7 +169,7 @@ export function useProfile(): Profile {
   void _photoLocale;
   void _emailLocal;
   void _mdpLocal;
-  return { ...currentUser, ...identityFields(identity), blocked: [], ...o };
+  return { ...PROFIL_VIDE, ...identityFields(identity), ...o };
 }
 
 export function updateProfile(patch: ProfileOverrides) {

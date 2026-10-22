@@ -1,0 +1,90 @@
+/* Billet nominatif (BilletModal) */
+.billet {
+  width: 100%;
+  overflow: hidden;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  text-align: left;
+}
+
+.bt {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 4px 16px;
+  align-items: center;
+  padding: 18px 20px;
+  color: #fff;
+  background: linear-gradient(135deg, #7a0a1c 0%, #ad0707 22%, #0f1d2c 52%, #0f5028 82%, #007140 100%);
+}
+
+.bt > * { grid-column: 1; }
+
+.bt img { grid-column: 2; grid-row: 1 / span 3; height: 54px; width: auto; }
+
+.bt small { font-family: var(--font-montserrat), sans-serif; font-size: 10.5px; font-weight: 700; letter-spacing: 0.2em; text-transform: uppercase; color: rgba(255, 255, 255, 0.8); }
+
+.bt strong { font-family: var(--font-montserrat), sans-serif; font-size: 20px; font-weight: 800; line-height: 1.2; }
+
+.bt span { font-size: 13px; color: rgba(255, 255, 255, 0.85); }
+
+.bc {
+  position: relative;
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  grid-template-areas: "qr infos photo";
+  gap: 18px;
+  align-items: center;
+  padding: 18px 20px;
+  border-top: 2px dashed var(--line);
+  background: var(--surface);
+}
+
+.bc::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  height: 5px;
+  background: linear-gradient(90deg, #ad0707, #fff 50%, #007140);
+}
+
+.bc > svg { grid-area: qr; width: 140px; height: 140px; border: 1px solid var(--line); border-radius: 8px; }
+
+.bInfos { grid-area: infos; min-width: 0; }
+
+.bPhoto {
+  grid-area: photo;
+  display: block;
+  width: 128px;
+  height: 128px;
+  overflow: hidden;
+  border-radius: 16px;
+  background: #c9ced4;
+  box-shadow: 0 0 0 3px var(--surface), 0 0 0 5px var(--leaf), 0 18px 32px -18px rgba(15, 29, 44, 0.55);
+}
+
+.bPhoto img,
+.bPhoto svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.bt { grid-template-columns: minmax(0, 1fr); }
+
+.bt img { grid-column: 1; grid-row: 1; justify-self: start; height: 40px; margin-bottom: 8px; }
+
+.bc {
+    grid-template-columns: auto auto;
+    grid-template-areas:
+      "qr photo"
+      "infos infos";
+    justify-content: space-between;
+    align-items: center;
+  }
+
+.bc > svg { width: 128px; height: 128px; }
+
+.bPhoto { width: 118px; height: 118px; margin-right: 5px; }

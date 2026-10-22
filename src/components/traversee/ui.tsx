@@ -196,7 +196,7 @@ export function AvatarInitiales({ nom, photo, size = 38, className = "" }: { nom
 export function AvatarProfil({ photo, size = 40, className = "" }: { photo?: string | null; size?: number; className?: string }) {
   return (
     <span className={`${styles.anneau} ${className}`} aria-hidden>
-      <Avatar person={{ firstName: "", lastName: "", hue: 0, photo: photo ?? undefined }} size={size} />
+      <Avatar person={{ firstName: "", lastName: "", photo: photo ?? undefined }} size={size} />
     </span>
   );
 }

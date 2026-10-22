@@ -5,7 +5,7 @@ import { usePathname } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { logout } from "@/app/connexion/actions";
 import { useProfile, useSessionIdentity } from "@/components/profile/useProfile";
-import { fullName } from "@/lib/mock/data";
+import { fullName } from "@/lib/evenement";
 import { Avatar } from "./Avatar";
 import { ChevronRightIcon, LogOutIcon, MegaphoneIcon, TicketIcon, UserIcon } from "./icons";
 import styles from "./menuCompte.module.css";

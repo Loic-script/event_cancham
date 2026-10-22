@@ -92,8 +92,6 @@ const NAV_ADMIN: NavSection[] = [
 const TITRES: Record<string, string> = {
   "/profil": "Profil",
   "/billet": "Mon billet",
-  "/reseaux": "Réseaux sociaux",
-  "/communaute": "Fil de communauté",
   "/defis": "Défis",
   "/admin/compte": "Mon compte",
 };

@@ -9,7 +9,7 @@ import { ImageIcon, SmileIcon, VideoIcon, XIcon } from "@/components/app/icons";
 import { useProfile } from "@/components/profile/useProfile";
 import { envoyerImage, envoyerVideo } from "@/lib/traversee/envoi";
 import { lisImage, toast } from "@/lib/traversee/store";
-import { fullName } from "@/lib/mock/data";
+import { fullName } from "@/lib/evenement";
 import { Modal } from "../Modal";
 import { AvatarSigle, Btn, Card, Onglets } from "../ui";
 import styles from "./accueil.module.css";

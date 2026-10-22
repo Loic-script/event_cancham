@@ -95,7 +95,7 @@ export function ConversationList({ items, activeId, base = "/messages", contacts
             {contactsFiltres.map((c) => (
               <li key={c.id}>
                 <Link href={`${lienContact}/${c.id}`} className={styles.item}>
-                  <Avatar person={{ firstName: c.name, lastName: "", hue: 0, photo: c.photo }} size={44} />
+                  <Avatar person={{ firstName: c.name, lastName: "", photo: c.photo }} size={44} />
                   <span className="min-w-0 flex-1">
                     <span className="block truncate text-[15px] font-semibold text-graphite">{c.name}</span>
                     <span className="block truncate text-[13px] text-graphite-muted">{c.company || "Participant"}</span>

@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { Profil } from "@/components/traversee/profil/Profil";
-import { event } from "@/lib/mock/data";
+import { event } from "@/lib/evenement";
 import { etatParcours } from "@/lib/parcours";
 import { requireMembreActif } from "@/lib/session";
 

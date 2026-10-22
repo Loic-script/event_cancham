@@ -2,7 +2,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { ViewTransition, type ReactNode } from "react";
 import { CalendarIcon, MapPinIcon } from "@/components/app/icons";
-import { event } from "@/lib/mock/data";
+import { event } from "@/lib/evenement";
 import { AuthCountdown } from "./AuthCountdown";
 import { PanelSlideshow } from "./PanelSlideshow";
 import { plex } from "./polices";

@@ -8,7 +8,7 @@ import { commencerParcours, passerEtape, terminerParcours } from "@/app/bienvenu
 import { ArrowLeftIcon, ArrowRightIcon, BriefcaseIcon, CalendarIcon, CameraIcon, CheckIcon, GiftIcon, MapPinIcon, SparkIcon, SpinnerIcon, TrophyIcon, type IconProps } from "@/components/app/icons";
 import { AuthCountdown } from "@/components/auth/AuthCountdown";
 import { plex } from "@/components/auth/polices";
-import { event } from "@/lib/mock/data";
+import { event } from "@/lib/evenement";
 import type { EtapeEtat, EtapeId } from "@/lib/parcours";
 import { EtapeEntreprise, EtapePhoto, EtapePitch, EtapeTombola, type Navigation, type ProfilEntreprise } from "./etapes";
 import styles from "./parcours.module.css";

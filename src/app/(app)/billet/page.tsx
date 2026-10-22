@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { PageTitle } from "@/components/app/PageTitle";
 import { QrCode } from "@/components/ticket/QrCode";
 import { TicketPhone } from "@/components/ticket/TicketPhone";
-import { event } from "@/lib/mock/data";
+import { event } from "@/lib/evenement";
 import { requireMembreActif } from "@/lib/session";
 
 export const metadata: Metadata = { title: "Mon billet" };
