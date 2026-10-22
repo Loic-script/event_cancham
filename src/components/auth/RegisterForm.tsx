@@ -45,9 +45,10 @@ function validate(name: FieldName, value: string) {
   }
 }
 
-export function RegisterForm({ next, fournisseurs, erreurSociale }: { next: string; fournisseurs: { google: boolean; facebook: boolean }; erreurSociale: string | null }) {
+export function RegisterForm({ next, fournisseurs, erreurSociale, initial = {} }: { next: string; fournisseurs: { google: boolean; facebook: boolean }; erreurSociale: string | null; initial?: Partial<Omit<typeof emptyFields, "password">> }) {
   const [state, formAction, pending] = useActionState(register, initialState);
-  const [fields, setFields] = useState(emptyFields);
+  // Champs préremplis par l'adresse (site cancham.mg) : modifiables, seul le mot de passe reste à saisir.
+  const [fields, setFields] = useState({ ...emptyFields, ...initial });
   const [errors, setErrors] = useState<FieldErrors>({});
   const [showPassword, setShowPassword] = useState(false);
   const [seenState, setSeenState] = useState(state);

@@ -81,7 +81,7 @@ Plateforme du gala **La Traversée · Gala des 10 ans** (CanCham Madagascar, 18 
 | Route            | Rôle                                                                                     |
 | ---------------- | ---------------------------------------------------------------------------------------- |
 | `/connexion`     | Page de connexion (e-mail, mot de passe), accessible sans session                        |
-| `/inscription`   | Création de compte (nom, prénom, entreprise, rôle, e-mail, téléphone, mot de passe), accessible sans session ; mène au parcours d’accueil |
+| `/inscription`   | Création de compte (nom, prénom, entreprise, rôle, e-mail, téléphone, mot de passe), accessible sans session ; mène au parcours d’accueil. Champs préremplissables par l’adresse, pour le bouton « Réserver mon billet » de cancham.mg : `?prenom=&nom=&entreprise=&role=&email=&telephone=` (seul le mot de passe reste à saisir) |
 | `/bienvenue`     | Parcours d’accueil en étapes (photo, entreprise, défis), après l’inscription et à chaque connexion tant qu’il n’est pas terminé (voir « Parcours d’accueil ») |
 | `/`              | Accueil : stories, fil d’actualité, emplacements promotion, compte à rebours                  |
 | `/billet`        | Billet d'entrée du participant connecté (code et QR propres à son compte, titulaire, mention si le billet n’est pas réglé) dans une maquette de téléphone, plein écran, partage et téléchargement |
