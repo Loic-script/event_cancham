@@ -81,7 +81,8 @@ async function conflit(tx: Prisma.TransactionClient, ci: number, li: number, per
   const autres = { ...actif(), creneau: ci, ...(sauf ? { id: { not: sauf } } : {}) };
   if (await tx.rendezVousB2B.count({ where: { ...autres, lieu: li } })) return "Cet emplacement vient d’être réservé. Choisissez-en un autre.";
   for (const id of personnes) {
-    if (await tx.rendezVousB2B.count({ where: { ...autres, OR: [{ demandeurId: id }, { destinataireId: id }] } })) return "Un rendez-vous existe déjà à cette heure. Choisissez un autre créneau.";
+    // AND : le filtre « actif » a lui-même un OR, qu'un second OR au même niveau écraserait (une demande déclinée bloquerait encore la personne).
+    if (await tx.rendezVousB2B.count({ where: { AND: [autres, { OR: [{ demandeurId: id }, { destinataireId: id }] }] } })) return "Un rendez-vous existe déjà à cette heure. Choisissez un autre créneau.";
   }
   return null;
 }

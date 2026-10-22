@@ -50,3 +50,9 @@ CLAUDE.md
 # fichiers envoyés (ressources, photos, vidéos) : seul le dossier vide est versionné
 /stockage/*
 !/stockage/.gitkeep
+
+# Tests navigateur (Playwright)
+/test-results/
+/playwright-report/
+/blob-report/
+/playwright/.cache/

@@ -59,13 +59,20 @@ Application [Next.js 16](https://nextjs.org) (App Router, TypeScript, Tailwind C
 | `npm run db:migrate`  | Crée une migration à partir du schéma et l'applique        |
 | `npm run db:seed`     | Exécute `prisma/seed.ts`                                   |
 | `npm run db:studio`   | Interface web Prisma Studio pour parcourir les données     |
-| `npm test`            | Tests automatisés (`tests/*.test.ts`, exécutés avec `node --test` et `tsx`) |
+| `npm test`            | Tests automatisés (`tests/*.test.ts`, `node --test` et `tsx`) ; ceux qui touchent la base utilisent `DATABASE_URL_TEST` et sont ignorés sans elle |
+| `npm run test:e2e`    | Scénarios navigateur Playwright (`tests/e2e/`) sur le build de production et la base de test (`npm run build` d'abord) |
 | `npm run typecheck`   | Vérification des types TypeScript (`tsc --noEmit`)         |
 | `npm run verifier`    | Tout vérifier d'un coup avant un push : lint, types, tests, build (ce que lancera l'intégration continue) |
 
+## Tests automatisés
+
+- **Tests unitaires et de bibliothèques** (`tests/*.test.ts`, `npm test`) : règles pures (coordonnées, formats, blocs, limite de connexion) et, sur une base PostgreSQL de test, les bibliothèques rendez-vous B2B (réservations, validation, expiration), billets et scanner (codes, verdicts, encaissement), parcours d’accueil (étapes, page après la connexion) et défis (participations, jury, relevé). Chaque test crée ses comptes (`test-auto-…@exemple.mg`) et les supprime.
+- **Base de test** : `DATABASE_URL_TEST` dans `.env` (voir `.env.example`), une base à part dont le nom contient « test » ou « ci » (`tests/outils/base.ts` refuse le reste et la substitue à `DATABASE_URL` avant de charger Prisma). La créer une fois : `CREATE DATABASE event_test;` puis `DATABASE_URL="<adresse de test>" npx prisma migrate deploy`. Sans la variable, ces tests sont ignorés et `npm test` reste vert.
+- **Scénarios navigateur** (`tests/e2e/*.spec.ts`, Playwright, `npm run test:e2e`) : `playwright.config.ts` démarre `next start` sur le port 3217 avec la base de test, sans e-mails ni Google ; il faut un `npm run build` à jour. Scénarios : inscription par le formulaire puis parcours d’accueil complet, connexion (mot de passe refusé ou accepté, blocage après cinq échecs), demande de rendez-vous depuis l’annuaire validée par l’autre participant, scanner (validé, déjà scanné, paiement à l’entrée), message lu par son destinataire. Les comptes sont créés et supprimés par `tests/e2e/bd.ts`, lancé dans un processus `tsx` à part (le client Prisma généré est en ESM).
+
 ## Intégration continue
 
-À chaque push ou pull request sur `dev` (ou `main`), GitHub Actions (`.github/workflows/ci.yml`) démarre un PostgreSQL 17 vide, installe le projet, applique toutes les migrations (`prisma migrate deploy`, ce qui vérifie la chaîne de migrations depuis zéro), puis lance `npm run verifier` : lint, types, tests, build. Le résultat apparaît sur chaque commit et dans l’onglet *Actions* du dépôt ; aucune clé réelle n’est nécessaire (ni Resend, ni Google). Un nouveau push sur la même branche annule la vérification en cours. Pour interdire de fusionner quand c’est rouge : *Settings → Branches → règle sur `dev` → Require status checks* avec « Migrations, lint, types, tests et build ».
+À chaque push ou pull request sur `dev` (ou `main`), GitHub Actions (`.github/workflows/ci.yml`) démarre un PostgreSQL 17 vide, installe le projet, applique toutes les migrations (`prisma migrate deploy`, ce qui vérifie la chaîne de migrations depuis zéro), puis lance `npm run verifier` (lint, types, tests, build) et enfin les scénarios navigateur Playwright sur ce build (`npm run test:e2e`, rapport joint en cas d’échec). Le résultat apparaît sur chaque commit et dans l’onglet *Actions* du dépôt ; aucune clé réelle n’est nécessaire (ni Resend, ni Google). Un nouveau push sur la même branche annule la vérification en cours. Pour interdire de fusionner quand c’est rouge : *Settings → Branches → règle sur `dev` → Require status checks* avec « Migrations, lint, types, tests, build et navigateur ».
 
 ## Espace participant
 

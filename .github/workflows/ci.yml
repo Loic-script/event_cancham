@@ -15,7 +15,7 @@ concurrency:
 
 jobs:
   verifier:
-    name: Migrations, lint, types, tests et build
+    name: Migrations, lint, types, tests, build et navigateur
     runs-on: ubuntu-latest
     timeout-minutes: 20
 
@@ -37,6 +37,8 @@ jobs:
     env:
       # Base de test jetable, propre à cette exécution : jamais la base de développement ni de production.
       DATABASE_URL: postgresql://postgres:postgres@localhost:5432/event_ci?schema=public
+      # Tests qui touchent la base (npm test) et scénarios navigateur : la même base jetable.
+      DATABASE_URL_TEST: postgresql://postgres:postgres@localhost:5432/event_ci?schema=public
       APP_URL: http://localhost:3000
       NEXT_TELEMETRY_DISABLED: "1"
 
@@ -56,3 +58,17 @@ jobs:
 
       - name: Lint, types, tests et build
         run: npm run verifier
+
+      - name: Navigateur de Playwright
+        run: npx playwright install --with-deps chromium
+
+      - name: Scénarios navigateur (Playwright, sur le build)
+        run: npm run test:e2e
+
+      - name: Rapport Playwright (en cas d'échec)
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: rapport-playwright
+          path: playwright-report/
+          retention-days: 7
