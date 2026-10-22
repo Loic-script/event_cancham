@@ -1,5 +1,5 @@
 import "dotenv/config";
-import { randomUUID } from "node:crypto";
+import { randomBytes, randomUUID } from "node:crypto";
 import { promises as fs } from "node:fs";
 import path from "node:path";
 import { PrismaPg } from "@prisma/adapter-pg";
@@ -15,20 +15,26 @@ const adapter = new PrismaPg({ connectionString: process.env.DATABASE_URL });
 const prisma = new PrismaClient({ adapter });
 
 const DEMO_EMAIL = "faneva.loic@event-studio.mg";
-const DEMO_PASSWORD = "LaTraversee2026!";
+
+/**
+ * Mot de passe des comptes de démonstration : SEED_PASSWORD, sinon tiré au hasard et affiché une fois.
+ * Jamais de mot de passe fixe : le seed ne doit pas laisser un compte devinable (et ne se lance pas en production).
+ */
+const MOT_DE_PASSE = process.env.SEED_PASSWORD || randomBytes(9).toString("base64url");
 
 const TEST_ACCOUNTS = [
-  { email: "membre@gmail.com", password: "12345678", firstName: "Membre", lastName: "Test", acces: "MEMBRE" },
-  { email: "admin@gmail.com", password: "12345678", firstName: "Admin", lastName: "CanCham", acces: "ADMIN" },
+  { email: "membre@exemple.mg", firstName: "Membre", lastName: "Test", acces: "MEMBRE" },
+  { email: "admin@exemple.mg", firstName: "Admin", lastName: "CanCham", acces: "ADMIN" },
 ] as const;
 
 async function seedComptes() {
+  if (process.env.NODE_ENV === "production") throw new Error("Le seed ne se lance pas en production : créez le premier administrateur à la main.");
   await prisma.user.upsert({
     where: { email: DEMO_EMAIL },
     update: {},
     create: {
       email: DEMO_EMAIL,
-      passwordHash: await hashPassword(DEMO_PASSWORD),
+      passwordHash: await hashPassword(MOT_DE_PASSE),
       firstName: "Faneva",
       lastName: "Loïc",
       role: "Fondateur",
@@ -40,7 +46,7 @@ async function seedComptes() {
   });
 
   for (const account of TEST_ACCOUNTS) {
-    const passwordHash = await hashPassword(account.password);
+    const passwordHash = await hashPassword(MOT_DE_PASSE);
     await prisma.user.upsert({
       where: { email: account.email },
       update: { passwordHash, acces: account.acces, statut: "ACTIF" },
@@ -55,6 +61,7 @@ async function seedComptes() {
     });
   }
   console.log(`Comptes à jour : ${DEMO_EMAIL}, ${TEST_ACCOUNTS.map((a) => a.email).join(", ")}.`);
+  console.log(`Mot de passe de ces comptes : ${MOT_DE_PASSE}${process.env.SEED_PASSWORD ? " (SEED_PASSWORD)" : " (tiré au hasard, notez-le)"}`);
 }
 
 const image = (nom: string) => path.join(process.cwd(), "public", "traversee", `${nom}.jpg`);

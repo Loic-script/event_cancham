@@ -1,5 +1,5 @@
 import { prisma } from "@/lib/prisma";
-import { aAccesEspace, getCurrentUser } from "@/lib/session";
+import { aAccesEspace, getCurrentUser, refusSiNonAdmin } from "@/lib/session";
 
 const unauthorized = () => Response.json({ error: "Connexion requise." }, { status: 401 });
 
@@ -15,8 +15,10 @@ export async function GET() {
   return Response.json(events);
 }
 
+/** Création réservée aux administrateurs (route technique d'origine, sans écran dans le back-office). */
 export async function POST(request: Request) {
-  if (!(await autorise())) return unauthorized();
+  const refus = await refusSiNonAdmin();
+  if (refus) return refus;
 
   const body = await request.json().catch(() => null);
 

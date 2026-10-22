@@ -2,6 +2,7 @@
 
 import { redirect } from "next/navigation";
 import { LOGIN_PATH, safeNext } from "@/lib/auth";
+import { adresseClient, effacerEchecsConnexion, enregistrerEchecConnexion, verifierLimiteConnexion } from "@/lib/connexion-limite";
 import { pageApresConnexion } from "@/lib/parcours";
 import { hashPassword, verifierMotDePasseSaisi, verifyPassword } from "@/lib/password";
 import { prisma } from "@/lib/prisma";
@@ -24,12 +25,19 @@ export async function login(_previous: LoginState, formData: FormData): Promise<
   let authenticated = false;
   let destination = next;
   try {
+    // Trop d'échecs récents sur cette adresse (ou depuis cette IP) : on n'essaie même pas le mot de passe.
+    const ip = await adresseClient();
+    const blocage = await verifierLimiteConnexion(email, ip);
+    if (blocage) return { error: blocage };
     const user = await prisma.user.findUnique({ where: { email } });
     authenticated = user ? await verifierMotDePasseSaisi(password, user.passwordHash) : !(await verifyPassword(password, await decoyHash));
     if (authenticated && user) {
       await createSession(user.id);
+      await effacerEchecsConnexion(email);
       // Back-office pour les administrateurs ; parcours d'accueil pour un participant qui ne l'a pas terminé.
       destination = await pageApresConnexion(user.id, next);
+    } else {
+      await enregistrerEchecConnexion(email, ip);
     }
   } catch (error) {
     console.error("Connexion impossible :", error);

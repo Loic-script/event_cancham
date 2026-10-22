@@ -477,3 +477,13 @@ model ParcoursAccueil {
 
   @@map("parcours_accueil")
 }
+
+/// Échec de connexion, par adresse e-mail (« email:… ») et par adresse IP (« ip:… ») : limite les tentatives sur un mot de passe.
+model TentativeConnexion {
+  id     Int      @id @default(autoincrement())
+  cle    String   @db.VarChar(200)
+  creeLe DateTime @default(now()) @map("cree_le")
+
+  @@index([cle, creeLe])
+  @@map("tentatives_connexion")
+}

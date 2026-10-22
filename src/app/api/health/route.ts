@@ -1,11 +1,13 @@
 import { prisma } from "@/lib/prisma";
 
+export const dynamic = "force-dynamic";
+
+/** Sonde de l'hébergeur : répond « ok » si la base répond, sans rien dévoiler de l'installation. */
 export async function GET() {
   try {
-    const [row] = await prisma.$queryRaw<{ version: string }[]>`SELECT version()`;
-    return Response.json({ ok: true, database: row.version });
-  } catch (error) {
-    const message = error instanceof Error ? error.message : String(error);
-    return Response.json({ ok: false, error: message }, { status: 503 });
+    await prisma.$queryRaw`SELECT 1`;
+    return Response.json({ ok: true });
+  } catch {
+    return Response.json({ ok: false }, { status: 503 });
   }
 }

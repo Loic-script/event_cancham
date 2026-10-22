@@ -16,8 +16,8 @@ const openSans = Open_Sans({
 });
 
 export const metadata: Metadata = {
-  title: { default: "Event", template: "%s · Event" },
-  description: "Gestion d'événements — Next.js et PostgreSQL",
+  title: { default: "La Traversée", template: "%s · La Traversée" },
+  description: "Plateforme des participants de La Traversée, le gala des 10 ans de la CanCham, vendredi 18 décembre 2026 au CCI Ivato, Antananarivo.",
 };
 
 export const viewport: Viewport = {
