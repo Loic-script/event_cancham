@@ -63,17 +63,16 @@
 
 .moyens {
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 10px;
 }
 
 .moyen {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 14px;
   min-height: 64px;
-  padding: 10px 12px;
-  border-radius: 10px;
+  padding: 10px 14px 10px 10px;
+  border-radius: 12px;
   border: 1px solid var(--champ, #c5cfdb);
   background: #ffffff;
   text-align: left;
@@ -87,8 +86,13 @@
   box-shadow: 0 10px 24px -18px rgba(18, 48, 90, 0.6);
 }
 
+.moyen:hover:not(:disabled) .chevron {
+  transform: translateX(3px);
+  color: var(--bleu, #1f5aa0);
+}
+
 .moyen:active:not(:disabled) {
-  transform: scale(0.98);
+  transform: scale(0.99);
 }
 
 .moyen:disabled {
@@ -96,10 +100,28 @@
   opacity: 0.7;
 }
 
+/* Les logos sont de largeurs différentes : même boîte pour tous, image contenue dedans. */
 .logo {
   display: grid;
   flex: none;
+  width: 108px;
+  height: 48px;
+  padding: 4px 8px;
   place-items: center;
+  border-radius: 8px;
+  background: #ffffff;
+}
+
+.logo img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.chevron {
+  flex: none;
+  color: var(--doux, #4f6072);
+  transition: transform 0.15s ease, color 0.15s ease;
 }
 
 .moyenTexte {
@@ -180,7 +202,8 @@
 }
 
 @media (max-width: 419px) {
-  .moyens {
-    grid-template-columns: minmax(0, 1fr);
+  .logo {
+    width: 88px;
+    height: 42px;
   }
 }

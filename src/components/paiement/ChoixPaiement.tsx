@@ -1,19 +1,20 @@
 "use client";
 
+import Image from "next/image";
 import { useActionState } from "react";
 import { logout } from "@/app/connexion/actions";
 import { payer, type PaiementState } from "@/app/paiement/actions";
-import { SpinnerIcon } from "@/components/app/icons";
+import { ChevronRightIcon, SpinnerIcon } from "@/components/app/icons";
 import auth from "@/components/auth/auth.module.css";
 import type { ModePaiement } from "@/lib/paiements";
-import { LogoAirtelMoney, LogoCarte, LogoMvola, LogoOrangeMoney } from "./LogosPaiement";
 import styles from "./paiement.module.css";
 
-const MOYENS: { mode: ModePaiement; libelle: string; detail: string; logo: React.ReactNode }[] = [
-  { mode: "carte", libelle: "Carte bancaire", detail: "Visa, Mastercard", logo: <LogoCarte size={36} /> },
-  { mode: "mvola", libelle: "MVola", detail: "Telma", logo: <LogoMvola size={36} /> },
-  { mode: "orange_money", libelle: "Orange Money", detail: "Orange", logo: <LogoOrangeMoney size={36} /> },
-  { mode: "airtel_money", libelle: "Airtel Money", detail: "Airtel", logo: <LogoAirtelMoney size={36} /> },
+/** Logos des moyens de paiement (public/paiement/, fournis par la CanCham). */
+const MOYENS: { mode: ModePaiement; libelle: string; detail: string; logo: string; largeur: number; hauteur: number }[] = [
+  { mode: "carte", libelle: "Carte bancaire", detail: "Visa, Mastercard, CB", logo: "/paiement/carte.jpg", largeur: 400, hauteur: 197 },
+  { mode: "mvola", libelle: "MVola", detail: "Telma", logo: "/paiement/mvola.png", largeur: 400, hauteur: 182 },
+  { mode: "orange_money", libelle: "Orange Money", detail: "Orange", logo: "/paiement/orange-money.png", largeur: 400, hauteur: 163 },
+  { mode: "airtel_money", libelle: "Airtel Money", detail: "Airtel", logo: "/paiement/airtel-money.png", largeur: 400, hauteur: 176 },
 ];
 
 const initial: PaiementState = { error: null };
@@ -54,12 +55,14 @@ export function ChoixPaiement({ montant, courrielEquipe, message = null }: Props
       <form action={action} className={styles.moyens} aria-label="Moyen de paiement">
         {MOYENS.map((m) => (
           <button key={m.mode} type="submit" name="mode" value={m.mode} className={styles.moyen} disabled={pending} aria-busy={pending}>
-            <span className={styles.logo}>{m.logo}</span>
+            <span className={styles.logo}>
+              <Image src={m.logo} alt="" width={m.largeur} height={m.hauteur} sizes="120px" />
+            </span>
             <span className={styles.moyenTexte}>
               <strong>{m.libelle}</strong>
               <small>{m.detail}</small>
             </span>
-            {pending ? <SpinnerIcon width={16} height={16} className={auth.spin} /> : null}
+            {pending ? <SpinnerIcon width={18} height={18} className={auth.spin} /> : <ChevronRightIcon width={18} height={18} className={styles.chevron} />}
           </button>
         ))}
       </form>
