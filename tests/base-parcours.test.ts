@@ -19,24 +19,24 @@ after(async () => {
   await (await basePrisma()).$disconnect();
 });
 
-test("compte validé : quatre étapes, parcours à la connexion tant qu'il n'est pas terminé", { skip: sansBase }, async () => {
+test("compte validé : deux étapes (photo, entreprise), parcours à la connexion tant qu'il n'est pas terminé", { skip: sansBase }, async () => {
   const prisma = await basePrisma();
   const u = await creerCompte("parcours");
   ids.push(u.id);
 
   let etat = await lib.etatParcours(u.id);
-  assert.deepEqual(etat.etapes.map((e) => e.id), ["photo", "entreprise", "pitch", "tombola"]);
+  assert.deepEqual(etat.etapes.map((e) => e.id), ["photo", "entreprise"]);
   assert.equal(etat.commence, false);
-  assert.equal(etat.restantes, 4);
+  assert.equal(etat.restantes, 2);
   assert.equal(await lib.pageApresConnexion(u.id), "/bienvenue");
   assert.equal(await lib.pageApresConnexion(u.id, "/annuaire"), "/bienvenue?next=%2Fannuaire");
 
   // Les étapes faites se lisent dans les données du compte ; une étape passée est gardée dans le parcours.
-  await prisma.user.update({ where: { id: u.id }, data: { photo: "/api/profil/photos/0123456789abcdef0123456789abcdef", sector: "Conseil" } });
-  await prisma.participationDefi.create({ data: { defi: "pitch", userId: u.id, lien: "https://youtu.be/x" } });
-  await prisma.parcoursAccueil.create({ data: { userId: u.id, passees: ["tombola"] } });
+  // Une ancienne étape de défi encore enregistrée comme passée est ignorée : les défis ne font plus partie du parcours.
+  await prisma.user.update({ where: { id: u.id }, data: { photo: "/api/profil/photos/0123456789abcdef0123456789abcdef" } });
+  await prisma.parcoursAccueil.create({ data: { userId: u.id, passees: ["entreprise", "tombola"] } });
   etat = await lib.etatParcours(u.id);
-  assert.deepEqual(etat.etapes.map((e) => [e.fait, e.passee]), [[true, false], [true, false], [true, false], [false, true]]);
+  assert.deepEqual(etat.etapes.map((e) => [e.fait, e.passee]), [[true, false], [false, true]]);
   assert.equal(etat.restantes, 0);
   assert.equal(etat.aCompleter, 1);
   assert.equal(etat.commence, true);
@@ -49,19 +49,20 @@ test("compte validé : quatre étapes, parcours à la connexion tant qu'il n'est
   assert.equal(await lib.pageApresConnexion(u.id, "/annuaire"), "/annuaire");
 });
 
-test("compte en attente : profil à compléter, parcours, puis règlement du billet", { skip: sansBase }, async () => {
+test("compte en attente : profil à compléter, règlement du billet, puis parcours", { skip: sansBase }, async () => {
   const prisma = await basePrisma();
   const u = await creerCompte("parcours", { statut: "EN_ATTENTE", phone: null });
   ids.push(u.id);
   assert.equal(await lib.pageApresConnexion(u.id), "/inscription/completer");
 
+  // Coordonnées complètes : le billet se règle avant le parcours, même s'il n'est pas commencé.
   await prisma.user.update({ where: { id: u.id }, data: { phone: "+261340000000" } });
-  assert.equal(await lib.pageApresConnexion(u.id), "/bienvenue");
-
-  await prisma.parcoursAccueil.create({ data: { userId: u.id, passees: ["photo", "entreprise", "pitch", "tombola"] } });
-  assert.equal((await lib.etatParcours(u.id)).restantes, 0);
   assert.equal(await lib.pageApresConnexion(u.id), "/paiement");
   assert.equal(await lib.pageApresConnexion(u.id, "/annuaire"), "/paiement");
+
+  // Billet réglé : l'accès est ouvert et le parcours d'accueil s'affiche.
+  await prisma.user.update({ where: { id: u.id }, data: { statut: "ACTIF" } });
+  assert.equal(await lib.pageApresConnexion(u.id), "/bienvenue");
 });
 
 test("administrateur et compte refusé", { skip: sansBase }, async () => {

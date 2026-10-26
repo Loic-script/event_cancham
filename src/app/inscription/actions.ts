@@ -43,6 +43,6 @@ export async function register(_previous: RegisterState, formData: FormData): Pr
   const base = await baseCourriel();
   after(() => alerterNouvelleInscription(userId, base));
 
-  // Le parcours d'accueil commence tout de suite ; l'espace s'ouvre une fois l'inscription validée par l'équipe.
+  // Le règlement du billet vient tout de suite ; il ouvre l'accès, puis le parcours d'accueil (photo, entreprise).
   redirect(await pageApresConnexion(userId));
 }

@@ -117,12 +117,13 @@ test("la tentative n'est visible que par son membre", { skip: sansBase }, async 
   assert.equal(await lib.tentativeDuMembre(b.id, t.reference), null);
 });
 
-test("après la connexion : parcours terminé et compte en attente → /paiement ; payé → l'espace", { skip: sansBase }, async () => {
+test("après la connexion : compte en attente → /paiement d'abord ; payé → parcours d'accueil, puis l'espace", { skip: sansBase }, async () => {
   const prisma = await basePrisma();
   const u = await enAttente();
-  await prisma.parcoursAccueil.create({ data: { userId: u.id, termineLe: new Date() } });
   assert.equal(await parcours.pageApresConnexion(u.id), "/paiement");
   const t = await lib.tentativePour(u.id, "carte");
   await lib.conclurePaiement(t.reference, { etat: "reussi", montantAriary: t.montant });
+  assert.equal(await parcours.pageApresConnexion(u.id), "/bienvenue");
+  await prisma.parcoursAccueil.create({ data: { userId: u.id, termineLe: new Date() } });
   assert.equal(await parcours.pageApresConnexion(u.id), "/");
 });

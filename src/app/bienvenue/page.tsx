@@ -4,11 +4,9 @@ import { Suspense } from "react";
 import { Parcours } from "@/components/bienvenue/Parcours";
 import { LOGIN_PATH, safeNext } from "@/lib/auth";
 import { PAGE_COMPLETER, profilIncomplet } from "@/lib/coordonnees";
-import { maParticipation } from "@/lib/defis";
 import { event } from "@/lib/evenement";
 import { etatParcours } from "@/lib/parcours";
-import { formatAriary, montantBillet } from "@/lib/paiements";
-import { aAccesEspace, getCurrentUser, PAGE_ATTENTE } from "@/lib/session";
+import { aAccesEspace, getCurrentUser, PAGE_ATTENTE, PAGE_PAIEMENT } from "@/lib/session";
 
 export const metadata: Metadata = {
   title: { absolute: "Bienvenue – La Traversée" },
@@ -31,11 +29,12 @@ export default async function BienvenuePage(props: PageProps<"/bienvenue">) {
   if (user.acces === "ADMIN") redirect("/admin");
   if (user.statut === "REFUSE") redirect(PAGE_ATTENTE);
   if (user.statut === "EN_ATTENTE" && profilIncomplet(user)) redirect(PAGE_COMPLETER);
+  // Le billet se règle avant le parcours : il ouvre l'accès.
+  if (!aAccesEspace(user)) redirect(PAGE_PAIEMENT);
 
   const sp = await props.searchParams;
   const next = safeNext(premier(sp.next));
-  const acces = aAccesEspace(user);
-  const [etat, pitch, tombola] = await Promise.all([etatParcours(user.id), maParticipation(user.id, "pitch"), maParticipation(user.id, "tombola")]);
+  const etat = await etatParcours(user.id);
   const maintenant = new Date();
   const restant = Math.max(0, Math.floor((new Date(event.date).getTime() - maintenant.getTime()) / 1000));
 
@@ -47,14 +46,10 @@ export default async function BienvenuePage(props: PageProps<"/bienvenue">) {
         photo={user.photo}
         couverture={user.couverture}
         couverturePosition={user.couverturePosition}
-        acces={acces}
         etapes={etat.etapes}
         commence={etat.commence}
-        sortie={acces ? next : "/paiement"}
-        montantBillet={formatAriary(montantBillet())}
+        sortie={next}
         profil={{ firstName: user.firstName, lastName: user.lastName, phone: user.phone ?? "", company: user.company ?? "", role: user.role ?? "", sector: user.sector ?? "", bio: user.bio ?? "" }}
-        pitch={pitch?.lien ?? null}
-        tombola={tombola?.lien ?? null}
         next={next}
         restant={restant}
       />

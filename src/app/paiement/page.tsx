@@ -5,7 +5,6 @@ import { ChoixPaiement } from "@/components/paiement/ChoixPaiement";
 import { LOGIN_PATH } from "@/lib/auth";
 import { PAGE_COMPLETER, profilIncomplet } from "@/lib/coordonnees";
 import { formatAriary, montantBillet } from "@/lib/paiements";
-import { etatParcours, PAGE_PARCOURS } from "@/lib/parcours";
 import { aAccesEspace, getCurrentUser, PAGE_ATTENTE } from "@/lib/session";
 
 export const metadata: Metadata = {
@@ -24,16 +23,13 @@ const MESSAGES: Record<string, string> = {
   refus: "Le paiement a été refusé, rien n’a été débité. Vous pouvez réessayer ou choisir un autre moyen.",
 };
 
-/** Règlement du billet : après le parcours d'accueil, tant que l'accès n'est pas ouvert. */
+/** Règlement du billet : juste après l'inscription, avant le parcours d'accueil, tant que l'accès n'est pas ouvert. */
 export default async function PaiementPage(props: PageProps<"/paiement">) {
   const user = await getCurrentUser();
   if (!user) redirect(LOGIN_PATH);
   if (aAccesEspace(user)) redirect("/");
   if (user.statut !== "EN_ATTENTE") redirect(PAGE_ATTENTE);
   if (profilIncomplet(user)) redirect(PAGE_COMPLETER);
-  // Le paiement vient après le parcours de profil.
-  const parcours = await etatParcours(user.id);
-  if (!parcours.termine && parcours.restantes) redirect(PAGE_PARCOURS);
 
   const { message } = await props.searchParams;
   const cle = Array.isArray(message) ? message[0] : message;

@@ -3,13 +3,13 @@ import { prisma } from "@/lib/prisma";
 import { PAGE_ATTENTE, PAGE_PAIEMENT } from "@/lib/session";
 
 /**
- * Parcours d'accueil (/bienvenue) : après l'inscription, puis à chaque connexion tant qu'il n'est pas terminé.
+ * Parcours d'accueil (/bienvenue) : après le règlement du billet, puis à chaque connexion tant qu'il n'est pas terminé.
  * Une étape est « faite » d'après les données du compte, « passée » quand le participant l'a sautée.
- * Un compte en attente de validation fait aussi les étapes des défis : ses participations sont montrées à l'équipe une fois validé.
+ * Les défis n'en font pas partie : ils se jouent depuis l'espace participant.
  */
 export const PAGE_PARCOURS = "/bienvenue";
 
-export type EtapeId = "photo" | "entreprise" | "pitch" | "tombola";
+export type EtapeId = "photo" | "entreprise";
 
 export type EtapeEtat = { id: EtapeId; fait: boolean; passee: boolean };
 
@@ -24,7 +24,7 @@ export type EtatParcours = {
   aCompleter: number;
 };
 
-export const ETAPES: EtapeId[] = ["photo", "entreprise", "pitch", "tombola"];
+export const ETAPES: EtapeId[] = ["photo", "entreprise"];
 export const estEtape = (v: unknown): v is EtapeId => typeof v === "string" && (ETAPES as string[]).includes(v);
 
 const selection = {
@@ -36,20 +36,16 @@ const selection = {
   phone: true,
   sector: true,
   photo: true,
-  participationsDefis: { select: { defi: true } },
   parcoursAccueil: { select: { passees: true, termineLe: true } },
 } as const;
 
-type Compte = { acces: string; statut: string; company: string | null; role: string | null; sector: string | null; photo: string | null; participationsDefis: { defi: string }[]; parcoursAccueil: { passees: string[]; termineLe: Date | null } | null };
+type Compte = { acces: string; statut: string; company: string | null; role: string | null; sector: string | null; photo: string | null; parcoursAccueil: { passees: string[]; termineLe: Date | null } | null };
 
 function etatDe(u: Compte): EtatParcours {
-  const defis = new Set(u.participationsDefis.map((p) => p.defi));
-  const passees = new Set(u.parcoursAccueil?.passees ?? []);
+  const passees = new Set((u.parcoursAccueil?.passees ?? []).filter(estEtape));
   const faits: Record<EtapeId, boolean> = {
     photo: Boolean(u.photo),
     entreprise: Boolean(u.company && u.role && u.sector),
-    pitch: defis.has("pitch"),
-    tombola: defis.has("tombola"),
   };
   const etapes = ETAPES.map((id) => ({ id, fait: faits[id], passee: passees.has(id) }));
   return {
@@ -67,8 +63,8 @@ export async function etatParcours(userId: number): Promise<EtatParcours> {
 }
 
 /**
- * Page où envoyer un compte après la connexion ou l'inscription : parcours d'accueil tant qu'il n'est pas terminé,
- * sinon la page demandée (ou l'attente de validation).
+ * Page où envoyer un compte après la connexion ou l'inscription : règlement du billet tant que l'accès n'est pas ouvert,
+ * puis parcours d'accueil tant qu'il n'est pas terminé, sinon la page demandée.
  */
 export async function pageApresConnexion(userId: number, next = "/"): Promise<string> {
   const u = await prisma.user.findUnique({ where: { id: userId }, select: selection });
@@ -76,9 +72,7 @@ export async function pageApresConnexion(userId: number, next = "/"): Promise<st
   if (u.acces === "ADMIN") return next === "/" ? "/admin" : next;
   if (u.statut === "REFUSE") return PAGE_ATTENTE;
   if (u.statut === "EN_ATTENTE" && profilIncomplet(u)) return PAGE_COMPLETER;
-  const etat = etatDe(u);
-  const parcours = next === "/" ? PAGE_PARCOURS : `${PAGE_PARCOURS}?next=${encodeURIComponent(next)}`;
-  // Inscription en attente : après le parcours, le règlement du billet ouvre l'accès.
-  if (etat.termine) return u.statut === "EN_ATTENTE" ? PAGE_PAIEMENT : next;
-  return u.statut === "EN_ATTENTE" && !etat.restantes ? PAGE_PAIEMENT : parcours;
+  if (u.statut === "EN_ATTENTE") return PAGE_PAIEMENT;
+  if (etatDe(u).termine) return next;
+  return next === "/" ? PAGE_PARCOURS : `${PAGE_PARCOURS}?next=${encodeURIComponent(next)}`;
 }

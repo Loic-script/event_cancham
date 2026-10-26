@@ -69,7 +69,6 @@ export async function terminerParcours(formData: FormData): Promise<void> {
   const termineLe = new Date();
   await prisma.parcoursAccueil.upsert({ where: { userId: user.id }, create: { userId: user.id, termineLe }, update: { termineLe } });
   revalidatePath("/profil");
-  // Inscription en attente : dernière étape, le règlement du billet.
   redirect(aAccesEspace(user) ? safeNext(formData.get("next")) : PAGE_PAIEMENT);
 }
 

@@ -5,12 +5,12 @@ import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { useEffect, useRef, useState, useTransition, type JSX } from "react";
 import { commencerParcours, passerEtape, terminerParcours } from "@/app/bienvenue/actions";
-import { ArrowLeftIcon, ArrowRightIcon, BriefcaseIcon, CalendarIcon, CameraIcon, CheckIcon, GiftIcon, MapPinIcon, SparkIcon, SpinnerIcon, TrophyIcon, type IconProps } from "@/components/app/icons";
+import { ArrowLeftIcon, ArrowRightIcon, BriefcaseIcon, CalendarIcon, CameraIcon, CheckIcon, MapPinIcon, SparkIcon, SpinnerIcon, type IconProps } from "@/components/app/icons";
 import { AuthCountdown } from "@/components/auth/AuthCountdown";
 import { plex } from "@/components/auth/polices";
 import { event } from "@/lib/evenement";
 import type { EtapeEtat, EtapeId } from "@/lib/parcours";
-import { EtapeEntreprise, EtapePhoto, EtapePitch, EtapeTombola, type Navigation, type ProfilEntreprise } from "./etapes";
+import { EtapeEntreprise, EtapePhoto, type Navigation, type ProfilEntreprise } from "./etapes";
 import styles from "./parcours.module.css";
 
 type Ecran = "intro" | EtapeId | "fin";
@@ -21,20 +21,14 @@ type ParcoursProps = {
   photo: string | null;
   couverture: string | null;
   couverturePosition: number;
-  /** Inscription validée : l'espace participant s'ouvre à la fin du parcours. */
-  acces: boolean;
   etapes: EtapeEtat[];
   commence: boolean;
   profil: ProfilEntreprise;
-  pitch: string | null;
-  tombola: string | null;
   /** Page où mène « Terminer plus tard » et la fin du parcours. */
   sortie: string;
   next: string;
   /** Secondes avant le gala, calculées par le serveur. */
   restant: number;
-  /** Prix du billet, déjà mis en forme (« 500 000 Ar »). */
-  montantBillet: string;
 };
 
 type Contenu = { photo: string; sur: string; titre: [string, string]; lead: string; points: string[]; carteSur: string; carteTitre: string };
@@ -42,8 +36,6 @@ type Contenu = { photo: string; sur: string; titre: [string, string]; lead: stri
 const ETAPES: Record<EtapeId, { nom: string; court: string; duree: string; icone: (p: IconProps) => JSX.Element }> = {
   photo: { nom: "Votre photo de profil", court: "Photo", duree: "1 min", icone: CameraIcon },
   entreprise: { nom: "Vous et votre entreprise", court: "Profil", duree: "2 min", icone: BriefcaseIcon },
-  pitch: { nom: "Défi 1 · Votre vidéo pitch", court: "Défi 1", duree: "1 min", icone: TrophyIcon },
-  tombola: { nom: "Défi 2 · Votre publication « J’y serai »", court: "Défi 2", duree: "1 min", icone: GiftIcon },
 };
 
 // Photos de l'événement (public/traversee) : une par écran.
@@ -66,27 +58,9 @@ const CONTENU: Record<EtapeId, Contenu> = {
     carteSur: "Vous et votre entreprise",
     carteTitre: "Vos informations",
   },
-  pitch: {
-    photo: "pitch",
-    sur: "Défi 1 · Gagnez un voyage au Canada",
-    titre: ["Envoyez votre", "vidéo pitch."],
-    lead: "Un mois au Canada pour le grand gagnant : une MECC 2027 complète, tous frais payés. Le jury retient 10 demi-finalistes, dévoilés le 13 décembre.",
-    points: ["Une vidéo qui présente votre entreprise, hébergée sur Google Drive, YouTube, Vimeo…", "Partage réglé sur « Tous les utilisateurs disposant du lien »", "À envoyer avant le 11 décembre"],
-    carteSur: "Défi 1",
-    carteTitre: "Votre vidéo pitch",
-  },
-  tombola: {
-    photo: "musique",
-    sur: "Défi 2 · Gagnez 3 000 000 Ar",
-    titre: ["Publiez votre", "« J’y serai »."],
-    lead: "La publication qui compte le plus de réactions à la fin du vote, le 18 décembre, remporte 3 000 000 Ar. Aucun pitch à préparer.",
-    points: ["Affiche et texte prêts sur la page du défi", "Publication Facebook ou Instagram, en mode Public", "Taguez la page CanCham Madagascar"],
-    carteSur: "Défi 2",
-    carteTitre: "Votre publication",
-  },
 };
 
-const PHOTOS: Record<Ecran, string> = { intro: "hero", photo: "groupe", entreprise: "reseau", pitch: "pitch", tombola: "musique", fin: "salle" };
+const PHOTOS: Record<Ecran, string> = { intro: "hero", photo: "groupe", entreprise: "reseau", fin: "salle" };
 
 /** Parcours d'accueil : écran d'introduction, une carte par étape, écran final. L'étape courante vit dans l'adresse (?etape=). */
 export function Parcours(props: ParcoursProps) {
@@ -210,19 +184,17 @@ export function Parcours(props: ParcoursProps) {
                 Préparons <em>votre Traversée.</em>
               </h1>
               <p className={styles.lead}>
-                {total} étapes rapides : votre photo, votre entreprise, puis vos participations aux deux défis. Chaque étape est enregistrée dès que vous passez à la suivante ; vous pouvez en sauter une, revenir en arrière ou terminer plus tard depuis votre profil.
+                Votre billet est réglé. Encore {total} étapes rapides : votre photo, puis votre entreprise. Chaque étape est enregistrée dès que vous passez à la suivante ; vous pouvez en sauter une, revenir en arrière ou terminer plus tard depuis votre profil.
               </p>
-              {props.acces ? null : <p className={styles.lead}>Le règlement de votre billet viendra juste après : il ouvre l’accès à la plateforme.</p>}
+              <p className={styles.lead}>Les deux défis vous attendent ensuite dans votre espace participant.</p>
             </>
           ) : ecran === "fin" ? (
             <>
-              <p className={styles.sur}>{props.acces ? "Parcours terminé" : "Dernière étape"}</p>
-              <h1 className={styles.titre}>{props.acces ? <>Tout est <em>prêt.</em></> : <>Il reste <em>votre billet.</em></>}</h1>
-              <p className={styles.lead}>
-                {props.acces
-                  ? "Tout est en place pour le 18 décembre. L’annuaire, les rendez-vous B2B, la messagerie et le programme vous attendent dans l’espace participant."
-                  : `Votre profil et vos participations sont enregistrés. Réglez votre billet (${props.montantBillet}) par carte bancaire, MVola, Orange Money ou Airtel Money : votre accès s’ouvre dès que le paiement est confirmé.`}
-              </p>
+              <p className={styles.sur}>Parcours terminé</p>
+              <h1 className={styles.titre}>
+                Tout est <em>prêt.</em>
+              </h1>
+              <p className={styles.lead}>Tout est en place pour le 18 décembre. Les deux défis, l’annuaire, les rendez-vous B2B, la messagerie et le programme vous attendent dans l’espace participant.</p>
               <AuthCountdown target={event.date} initialRemaining={props.restant} />
               <ul className={styles.faits} aria-label="Le gala">
                 <li>
@@ -302,7 +274,7 @@ export function Parcours(props: ParcoursProps) {
             <>
               <p className={styles.carteSur}>Récapitulatif</p>
               <h2 id="parcours-titre" ref={titreRef} tabIndex={-1} className={styles.carteTitre}>
-                {props.acces ? "Votre parcours d’accueil" : "Votre profil"}
+                Votre parcours d’accueil
               </h2>
               <div className={styles.corps}>
                 <ol className={styles.liste}>
@@ -319,7 +291,7 @@ export function Parcours(props: ParcoursProps) {
                     );
                   })}
                 </ol>
-                <p className={styles.carteTexte}>Ce parcours ne s’ouvrira plus à la connexion. Vous retrouverez chaque élément dans votre profil et sur les pages des défis.</p>
+                <p className={styles.carteTexte}>Ce parcours ne s’ouvrira plus à la connexion. Vous retrouverez chaque élément dans votre profil ; les défis se jouent depuis l’espace participant.</p>
               </div>
               <form action={terminerParcours} className={styles.actions}>
                 <input type="hidden" name="next" value={props.next} />
@@ -329,7 +301,7 @@ export function Parcours(props: ParcoursProps) {
                 </button>
                 <div className={styles.actionsDroite}>
                   <button type="submit" className={styles.primaire}>
-                    {props.acces ? "Entrer dans l’espace participant" : "Régler mon billet"}
+                    Entrer dans l’espace participant
                     <ArrowRightIcon width={16} height={16} />
                   </button>
                 </div>
@@ -348,8 +320,6 @@ export function Parcours(props: ParcoursProps) {
               ) : null}
               {ecran === "photo" ? <EtapePhoto photo={props.photo} couverture={props.couverture} couverturePosition={props.couverturePosition} initiales={initiales} nav={nav("photo")} onFait={() => marquerFaite("photo")} /> : null}
               {ecran === "entreprise" ? <EtapeEntreprise initial={props.profil} nav={nav("entreprise")} onFait={() => marquerFaite("entreprise")} /> : null}
-              {ecran === "pitch" ? <EtapePitch lien={props.pitch} nav={nav("pitch")} onFait={() => marquerFaite("pitch")} /> : null}
-              {ecran === "tombola" ? <EtapeTombola lien={props.tombola} nav={nav("tombola")} onFait={() => marquerFaite("tombola")} /> : null}
             </>
           ) : null}
         </section>
