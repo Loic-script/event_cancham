@@ -3,10 +3,13 @@
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { changerStatut } from "@/app/(app)/admin/acces/actions";
-import { CheckIcon } from "@/components/app/icons";
+import { supprimerParticipant } from "@/app/(app)/admin/participants/actions";
+import { CheckIcon, TrashIcon } from "@/components/app/icons";
 import type { StatutCompte } from "@/generated/prisma/enums";
 import { toast } from "@/lib/traversee/store";
+import { Confirmer } from "../Confirmer";
 import { AvatarInitiales, Btn, Card, Onglets, PageHead, Puce, Recherche, Vide, ui } from "../ui";
+import styles from "./acces.module.css";
 
 export type CompteAcces = {
   id: number;
@@ -35,6 +38,8 @@ export function AdminAcces({ comptes }: { comptes: CompteAcces[] }) {
   const [q, setQ] = useState("");
   const [enCours, setEnCours] = useState<number | null>(null);
   const [aConfirmer, setAConfirmer] = useState<number | null>(null);
+  const [aSupprimer, setASupprimer] = useState<CompteAcces | null>(null);
+  const [suppression, setSuppression] = useState<{ enCours: boolean; erreur: string | null }>({ enCours: false, erreur: null });
 
   const nombre = (s: StatutCompte) => comptes.filter((c) => c.statut === s).length;
   const recherche = q.trim().toLowerCase();
@@ -50,6 +55,34 @@ export function AdminAcces({ comptes }: { comptes: CompteAcces[] }) {
     if (error) return toast(error);
     toast(message);
     router.refresh();
+  }
+
+  async function supprimer(c: CompteAcces) {
+    setSuppression({ enCours: true, erreur: null });
+    const { error } = await supprimerParticipant(c.id);
+    if (error) return setSuppression({ enCours: false, erreur: error });
+    setSuppression({ enCours: false, erreur: null });
+    setASupprimer(null);
+    toast(`Le compte de ${c.nom} a été supprimé.`);
+    router.refresh();
+  }
+
+  function corbeille(c: CompteAcces) {
+    return (
+      <button
+        type="button"
+        className={styles.supprimer}
+        onClick={() => {
+          setSuppression({ enCours: false, erreur: null });
+          setASupprimer(c);
+        }}
+        disabled={enCours === c.id}
+        aria-label={`Supprimer le compte de ${c.nom}`}
+        title="Supprimer le compte"
+      >
+        <TrashIcon width={16} height={16} />
+      </button>
+    );
   }
 
   function actions(c: CompteAcces) {
@@ -150,7 +183,10 @@ export function AdminAcces({ comptes }: { comptes: CompteAcces[] }) {
                     {decision(c) ? ` · ${decision(c)}` : ""}
                   </small>
                 </div>
-                <div className="flex flex-wrap gap-2">{actions(c)}</div>
+                <div className="flex flex-wrap items-center gap-2">
+                  {actions(c)}
+                  {corbeille(c)}
+                </div>
               </li>
             ))}
           </ul>
@@ -158,6 +194,22 @@ export function AdminAcces({ comptes }: { comptes: CompteAcces[] }) {
       ) : (
         <Vide className="mt-4">{recherche ? `Aucun compte ne correspond à « ${q.trim()} ».` : VIDE[onglet]}</Vide>
       )}
+
+      {aSupprimer ? (
+        <Confirmer
+          titre={`Supprimer le compte de ${aSupprimer.nom} ?`}
+          action="Supprimer le compte"
+          enCours={suppression.enCours}
+          erreur={suppression.erreur}
+          onConfirmer={() => void supprimer(aSupprimer)}
+          onClose={() => setASupprimer(null)}
+        >
+          <p>
+            Le compte <strong>{aSupprimer.email}</strong> sera supprimé définitivement, avec ses publications, messages et participations : la personne ne pourra plus se connecter et devra se réinscrire.
+          </p>
+          <p>Cette action est irréversible.</p>
+        </Confirmer>
+      ) : null}
     </>
   );
 }
