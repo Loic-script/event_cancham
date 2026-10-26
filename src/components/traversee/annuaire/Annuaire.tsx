@@ -26,6 +26,7 @@ function Liste({ participants, admin = false, mesRdv = [] }: Props) {
   const [rdv, setRdv] = useState<{ id: number; nom: string; ent: string } | null>(null);
   const [profil, setProfil] = useState<string | null>(null);
   const [aSupprimer, setASupprimer] = useState<FicheInscrit | null>(null);
+  const [creation, setCreation] = useState(false);
   const [suppression, setSuppression] = useState<{ enCours: boolean; erreur: string | null }>({ enCours: false, erreur: null });
   const secteurs = [...new Set(participants.map((p) => p.sect).filter(Boolean))].sort();
   const ouvert = profil ? participants.find((p) => p.id === profil) : undefined;
@@ -89,6 +90,12 @@ function Liste({ participants, admin = false, mesRdv = [] }: Props) {
             ))}
           </select>
         ) : null}
+        {admin ? (
+          <Btn variant="primary" onClick={() => setCreation(true)}>
+            <UserPlusIcon width={16} height={16} />
+            Créer un utilisateur
+          </Btn>
+        ) : null}
       </div>
       {liste.length ? (
         <div className={`${styles.fiches} ${ui.stagger}`}>
@@ -136,6 +143,7 @@ function Liste({ participants, admin = false, mesRdv = [] }: Props) {
         <p className={ui.vide}>{participants.length ? "Aucun participant ne correspond." : admin ? "Aucun participant inscrit pour le moment." : "Aucun autre participant inscrit pour le moment."}</p>
       )}
       {rdv ? <RdvModal avec={rdv} onClose={() => setRdv(null)} /> : null}
+      {admin && creation ? <CreerMembre onClose={() => setCreation(false)} /> : null}
       {ouvert ? (
         <ParticipantModal
           key={`${ouvert.id}-${ouvert.nom}-${ouvert.email}`}
@@ -165,20 +173,13 @@ function Liste({ participants, admin = false, mesRdv = [] }: Props) {
 }
 
 export function Annuaire({ participants, admin = false, mesRdv = [] }: Props) {
-  const [creation, setCreation] = useState(false);
   return (
     <>
       {admin ? (
         <PageHead title="Participants" accent="inscrits" text="Les membres inscrits sur la plateforme. Créez un compte à la main, ouvrez une fiche pour voir et modifier un profil ou l’état du billet, ou supprimez un membre." photo="reseau">
-          <div className="flex flex-wrap items-center gap-2">
-            <Puce tone="white">
-              {participants.length} inscrit{participants.length > 1 ? "s" : ""}
-            </Puce>
-            <Btn variant="primary" onClick={() => setCreation(true)}>
-              <UserPlusIcon width={16} height={16} />
-              Créer un utilisateur
-            </Btn>
-          </div>
+          <Puce tone="white">
+            {participants.length} inscrit{participants.length > 1 ? "s" : ""}
+          </Puce>
         </PageHead>
       ) : (
         <PageHead title="Annuaire des" accent="participants" text="Chaque participant avec son entreprise, son rôle et ce qu’il vient chercher à la Traversée." photo="reseau" />
@@ -186,7 +187,6 @@ export function Annuaire({ participants, admin = false, mesRdv = [] }: Props) {
       <Suspense fallback={null}>
         <Liste participants={participants} admin={admin} mesRdv={mesRdv} />
       </Suspense>
-      {admin && creation ? <CreerMembre onClose={() => setCreation(false)} /> : null}
     </>
   );
 }
