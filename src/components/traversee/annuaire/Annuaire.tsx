@@ -3,7 +3,7 @@
 import { useRouter, useSearchParams } from "next/navigation";
 import { Suspense, useState } from "react";
 import { modifierParticipant, supprimerParticipant } from "@/app/(app)/admin/participants/actions";
-import { TrashIcon } from "@/components/app/icons";
+import { TrashIcon, UserPlusIcon } from "@/components/app/icons";
 import type { FicheInscrit } from "@/lib/annuaire";
 import { CRENEAUX, LIEUX } from "@/lib/traversee/data";
 import type { Fiche } from "@/lib/traversee/store";
@@ -11,6 +11,7 @@ import type { RdvVue } from "@/lib/rendezvous";
 import { toast } from "@/lib/traversee/store";
 import { Confirmer } from "../Confirmer";
 import { AvatarProfil, Btn, Card, PageHead, Puce, Recherche, Sur, ui } from "../ui";
+import { CreerMembre } from "./CreerMembre";
 import { ParticipantModal } from "./ParticipantModal";
 import { RdvModal } from "./RdvModal";
 import styles from "./annuaire.module.css";
@@ -164,13 +165,20 @@ function Liste({ participants, admin = false, mesRdv = [] }: Props) {
 }
 
 export function Annuaire({ participants, admin = false, mesRdv = [] }: Props) {
+  const [creation, setCreation] = useState(false);
   return (
     <>
       {admin ? (
-        <PageHead title="Participants" accent="inscrits" text="Les membres inscrits sur la plateforme. Ouvrez une fiche pour voir et modifier un profil ou l’état du billet, ou supprimez un membre." photo="reseau">
-          <Puce tone="white">
-            {participants.length} inscrit{participants.length > 1 ? "s" : ""}
-          </Puce>
+        <PageHead title="Participants" accent="inscrits" text="Les membres inscrits sur la plateforme. Créez un compte à la main, ouvrez une fiche pour voir et modifier un profil ou l’état du billet, ou supprimez un membre." photo="reseau">
+          <div className="flex flex-wrap items-center gap-2">
+            <Puce tone="white">
+              {participants.length} inscrit{participants.length > 1 ? "s" : ""}
+            </Puce>
+            <Btn variant="primary" onClick={() => setCreation(true)}>
+              <UserPlusIcon width={16} height={16} />
+              Créer un utilisateur
+            </Btn>
+          </div>
         </PageHead>
       ) : (
         <PageHead title="Annuaire des" accent="participants" text="Chaque participant avec son entreprise, son rôle et ce qu’il vient chercher à la Traversée." photo="reseau" />
@@ -178,6 +186,7 @@ export function Annuaire({ participants, admin = false, mesRdv = [] }: Props) {
       <Suspense fallback={null}>
         <Liste participants={participants} admin={admin} mesRdv={mesRdv} />
       </Suspense>
+      {admin && creation ? <CreerMembre onClose={() => setCreation(false)} /> : null}
     </>
   );
 }

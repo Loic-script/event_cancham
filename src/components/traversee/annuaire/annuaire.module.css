@@ -479,3 +479,59 @@ a.pLigne:hover .pLigneFleche { opacity: 1; }
   .pFermer, .pLigne, .pQr, .pChoixItem { transition: none; }
   .pEtat i { animation: none; }
 }
+
+.creerTete { display: flex; align-items: center; gap: 14px; }
+
+.creerIcone {
+  display: grid;
+  flex: none;
+  place-items: center;
+  width: 46px;
+  height: 46px;
+  border-radius: 14px;
+  background: var(--gold-soft);
+  color: var(--gold);
+}
+
+.creerForm { display: grid; gap: 18px; }
+.creerForm fieldset { display: grid; gap: 12px; min-width: 0; margin: 0; padding: 0; border: 0; }
+
+.creerForm legend {
+  margin-bottom: 4px;
+  padding: 0;
+  font-size: 11.5px;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--leaf-ink);
+}
+
+.creerGrille { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+
+.creerErreur {
+  padding: 10px 12px;
+  border: 1px solid rgba(192, 23, 77, 0.25);
+  border-radius: 12px;
+  background: #fff1f4;
+  color: #a1123f;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.motDePasse {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 12px 14px;
+  border: 1px dashed var(--gold);
+  border-radius: 12px;
+  background: var(--gold-soft);
+}
+
+.motDePasse small { display: block; font-size: 12px; color: var(--graphite-muted); }
+.motDePasse code { display: block; font-size: 17px; font-weight: 800; letter-spacing: 0.04em; color: var(--gold); overflow-wrap: anywhere; }
+
+@media (max-width: 639px) {
+  .creerGrille { grid-template-columns: minmax(0, 1fr); }
+}
