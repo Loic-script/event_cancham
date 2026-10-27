@@ -13,7 +13,9 @@ import { Toaster } from "@/components/traversee/Toaster";
 import { LOGO_BLANC, LOGO_CANCHAM_BLANC } from "@/lib/traversee/data";
 import { MenuCompte } from "./MenuCompte";
 import { Notifications } from "./Notifications";
-import { ChevronRightIcon, HeadsetIcon, MenuIcon } from "./icons";
+import { ChevronRightIcon, MenuIcon, MessageCircleIcon } from "./icons";
+import { RappelProfil } from "./RappelProfil";
+import type { EtapeId } from "@/lib/parcours";
 import { ICONES, IconeNavigation, type IconeNav } from "./iconesNav";
 import styles from "./shell.module.css";
 
@@ -120,6 +122,7 @@ export function AppShell({
   annonces = [],
   rdv = [],
   activite = [],
+  aCompleter = [],
 }: {
   children: ReactNode;
   enAttente?: number;
@@ -131,6 +134,8 @@ export function AppShell({
   rdv?: NotifRdv[];
   /** Actualités et stories récentes de la CanCham (participants), pour la cloche. */
   activite?: Activite[];
+  /** Étapes du profil encore à compléter (participants) : rappel en bas de l'espace. */
+  aCompleter?: EtapeId[];
 }) {
   const pathname = usePathname();
   const router = useRouter();
@@ -353,9 +358,11 @@ export function AppShell({
 
       {!admin && !pathname.startsWith("/messages") ? (
         <Link href="/messages/equipe" className={styles.aide} aria-label="Écrire à l’équipe CanCham">
-          <HeadsetIcon />
+          <MessageCircleIcon />
         </Link>
       ) : null}
+
+      {!admin && !immersive && aCompleter.length > 0 && !pathname.startsWith("/profil") ? <RappelProfil etapes={aCompleter} /> : null}
 
       {popup ? (
         <Modal onClose={toutVu} label="Annonce" size="narrow" className="!p-0 !overflow-hidden">
