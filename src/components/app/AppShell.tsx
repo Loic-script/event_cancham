@@ -40,12 +40,6 @@ const NAV: NavSection[] = [
       { href: "/ressources", label: "Ressources", icon: ICONES.dossier },
     ],
   },
-  {
-    titre: "Souvenirs",
-    items: [
-      { href: "/photos", label: "Photos et vidéos", icon: ICONES.appareil },
-    ],
-  },
 ];
 
 const NAV_ADMIN: NavSection[] = [
