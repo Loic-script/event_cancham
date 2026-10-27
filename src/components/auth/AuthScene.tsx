@@ -103,7 +103,7 @@ export function AuthScene({ headline, lead, cardTitle, inverse = false, charte =
           <div className={styles.defile}>
             <Glisse name="carte" mode="relais">
               <section className={styles.card} aria-labelledby="auth-card-title">
-                <p className={styles.cardEyebrow}>Espace participant</p>
+                {charte === "cancham" ? null : <p className={styles.cardEyebrow}>Espace participant</p>}
                 <h2 id="auth-card-title" className={styles.cardTitle}>{cardTitle}</h2>
                 {children}
               </section>
