@@ -52,6 +52,7 @@ const NAV_ADMIN: NavSection[] = [
     items: [
       { href: "/admin/acces", label: "Demandes d’accès" },
       { href: "/admin/participants", label: "Annuaire", icon: ICONES.personnes },
+      { href: "/admin/participants/nouveau", label: "Créer un compte" },
       { href: "/admin/scanner", label: "Scanner QR", icon: ICONES.qr },
       { href: "/admin/places", label: "Places" },
       { href: "/admin/commandes", label: "Commandes", icon: ICONES.panier },
