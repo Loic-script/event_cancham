@@ -41,6 +41,7 @@ export default async function RegisterPage({ searchParams }: PageProps<"/inscrip
       lead="Un réseau qui ouvre de nouvelles perspectives."
       cardTitle="Créer un compte"
       inverse
+      charte="cancham"
     >
       <RegisterForm next={destination} fournisseurs={fournisseursActifs()} erreurSociale={messageErreurSociale(erreur, via)} initial={prerempli(params)} />
     </AuthScene>

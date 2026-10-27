@@ -849,3 +849,137 @@ button.switchLink {
 .formSuite {
   margin-top: 4px;
 }
+
+/*
+ * Charte CanCham (connexion et inscription) : bleu foncé #0f1d2c, rouge vif #ad0707, dégradé rouge → vert, blanc ;
+ * Montserrat pour les titres, Open Sans pour le texte ; logo CanCham horizontal en blanc sur le fond foncé.
+ * Les autres pages qui partagent cet écran gardent la charte Impact 261 (jetons de .page).
+ */
+.cancham {
+  --nuit: #0f1d2c;
+  --bleu-fonce: #163254;
+  --bleu: #ad0707;
+  --bleu-clair: rgba(255, 255, 255, 0.78);
+  --ciel: #e4eaf6;
+  --orange: #ad0707;
+  --action: #ad0707;
+  --action-hover: #8e0a1c;
+  --erreur: #8e0a0a;
+  --erreur-fond: #fbe4e7;
+  --erreur-trait: #f1b4bb;
+  --rouge: #ad0707;
+  --vert: #007140;
+  --degrade: linear-gradient(90deg, #ad0707 0%, #007140 100%);
+  --bouton-rouge: linear-gradient(120deg, #d81f3a 0%, #ad0707 58%, #880511 100%);
+  --bouton-rouge-survol: linear-gradient(120deg, #e83a52 0%, #c00f18 58%, #9c0715 100%);
+  font-family: var(--font-open-sans), system-ui, sans-serif;
+}
+
+.cancham .panel::after {
+  background:
+    linear-gradient(0deg, rgba(15, 29, 44, 0.94) 0%, rgba(15, 29, 44, 0) 40%),
+    linear-gradient(100deg, rgba(15, 29, 44, 0.94) 0%, rgba(15, 29, 44, 0.78) 45%, rgba(22, 50, 84, 0.4) 100%);
+}
+
+/* Filet du dégradé de la charte en haut du panneau photo. */
+.cancham .panel::before {
+  content: "";
+  position: absolute;
+  z-index: 2;
+  top: 0;
+  right: 0;
+  left: 0;
+  height: 5px;
+  background: var(--degrade);
+}
+
+/* Logo horizontal : assez grand pour que le nom de la Chambre reste lisible. */
+.cancham .brandLogo {
+  height: 84px;
+}
+
+@media (min-width: 1600px) {
+  .cancham .brandLogo {
+    height: 96px;
+  }
+}
+
+.cancham .emblem {
+  filter: drop-shadow(0 10px 24px rgba(0, 0, 0, 0.35));
+}
+
+.cancham .countdownFace {
+  border-color: rgba(255, 255, 255, 0.16);
+  background:
+    linear-gradient(180deg, rgba(29, 52, 80, 0.92) 0%, rgba(22, 40, 60, 0.92) 50%, rgba(15, 29, 44, 0.96) 50%, rgba(18, 36, 56, 0.96) 100%);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.12),
+    0 18px 30px -16px rgba(0, 0, 0, 0.8);
+}
+
+.cancham .countdownValue {
+  color: #ffffff;
+  background: linear-gradient(180deg, #ffffff 0%, #eef2f7 55%, #c9d3df 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+}
+
+.cancham .countdownSep {
+  color: #e0343f;
+}
+
+/* Le mot accentué du titre sur une bande du dégradé rouge → vert, comme les titres de la charte. */
+.cancham .titleAccent {
+  padding: 0.02em 0.22em;
+  margin-left: -0.06em;
+  border-radius: 0.18em;
+  background: var(--degrade);
+  color: #ffffff;
+  font-style: normal;
+  font-weight: 800;
+  -webkit-box-decoration-break: clone;
+  box-decoration-break: clone;
+}
+
+.cancham .facts {
+  border-top-width: 2px;
+  border-image: linear-gradient(90deg, #ad0707 0%, #007140 55%, rgba(255, 255, 255, 0) 100%) 1;
+}
+
+.cancham .input:focus {
+  border-color: var(--rouge);
+  box-shadow: 0 0 0 3px rgba(173, 7, 7, 0.16);
+}
+
+.cancham .input[aria-invalid="true"]:focus {
+  box-shadow: 0 0 0 3px rgba(173, 7, 7, 0.16);
+}
+
+.cancham .submit {
+  background: var(--bouton-rouge);
+  box-shadow: 0 10px 20px -12px rgba(173, 7, 7, 0.9);
+}
+
+.cancham .submit:hover:not(:disabled) {
+  background: var(--bouton-rouge-survol);
+}
+
+.cancham .socialBtn:hover {
+  border-color: var(--rouge);
+  background: #ffffff;
+}
+
+.cancham .secondaire:hover {
+  border-color: var(--rouge);
+  color: var(--rouge);
+}
+
+@media (max-width: 1023px) {
+  .cancham .panel::after {
+    background: linear-gradient(180deg, rgba(15, 29, 44, 0.72) 0%, rgba(15, 29, 44, 0.84) 55%, rgba(15, 29, 44, 0.96) 100%);
+  }
+
+  .cancham .brandLogo {
+    height: 56px;
+  }
+}

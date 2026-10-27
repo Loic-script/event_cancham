@@ -13,7 +13,7 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-  themeColor: "#0b1a30",
+  themeColor: "#0f1d2c",
   viewportFit: "cover",
 };
 
@@ -28,6 +28,7 @@ export default async function LoginPage({ searchParams }: PageProps<"/connexion"
       headline={{ first: "Connectez-vous", prefix: "à ", accent: "La Traversée." }}
       lead="Un réseau qui ouvre de nouvelles perspectives."
       cardTitle="Se connecter"
+      charte="cancham"
     >
       {compte === "supprime" ? (
         <p role="status" className={styles.notice}>

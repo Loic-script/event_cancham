@@ -10,12 +10,21 @@ import styles from "./auth.module.css";
 
 type Headline = { first: string; prefix?: string; accent: string };
 
+/** Impact 261 (charte de l'événement) par défaut ; « cancham » : charte CanCham, sur la connexion et l'inscription. */
+export type Charte = "impact261" | "cancham";
+
+const LOGOS: Record<Charte, { src: string; width: number; height: number; label: string }> = {
+  impact261: { src: "/impact261/logo-blanc.svg", width: 1248, height: 505, label: `${event.name}, accueil` },
+  cancham: { src: "/cancham/logo-blanc.png", width: 800, height: 239, label: "CanCham Madagascar, accueil" },
+};
+
 type AuthSceneProps = {
   headline: Headline;
   lead: string;
   cardTitle: string;
   /** Formulaire à gauche et photo à droite (inscription). */
   inverse?: boolean;
+  charte?: Charte;
   children: ReactNode;
 };
 
@@ -35,11 +44,12 @@ function Glisse({ name, mode = "glisse", children }: { name: string; mode?: keyo
   );
 }
 
-export function AuthScene({ headline, lead, cardTitle, inverse = false, children }: AuthSceneProps) {
+export function AuthScene({ headline, lead, cardTitle, inverse = false, charte = "impact261", children }: AuthSceneProps) {
   const initialRemaining = Math.floor((new Date(event.date).getTime() - new Date().getTime()) / 1000);
+  const logo = LOGOS[charte];
 
   return (
-    <div className={`${plex.variable} ${styles.page} ${inverse ? styles.inverse : ""}`}>
+    <div className={`${charte === "cancham" ? styles.cancham : plex.variable} ${styles.page} ${inverse ? styles.inverse : ""}`}>
       <Glisse name="panneau" mode="garde">
         <div className={styles.panel}>
           <PanelSlideshow />
@@ -47,8 +57,8 @@ export function AuthScene({ headline, lead, cardTitle, inverse = false, children
       </Glisse>
 
       <Glisse name="logo">
-        <Link href="/" className={styles.brand} aria-label={`${event.name}, accueil`}>
-          <Image src="/impact261/logo-blanc.svg" alt="" width={1248} height={505} loading="eager" className={styles.brandLogo} />
+        <Link href="/" className={styles.brand} aria-label={logo.label}>
+          <Image src={logo.src} alt="" width={logo.width} height={logo.height} loading="eager" className={styles.brandLogo} />
         </Link>
       </Glisse>
 
