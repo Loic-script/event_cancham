@@ -949,6 +949,37 @@ button.switchLink {
   border-image: linear-gradient(90deg, #ad0707 0%, #007140 55%, rgba(255, 255, 255, 0) 100%) 1;
 }
 
+/* « by » + logo IMPACT 261, à droite des infos du gala. */
+.cancham .par {
+  margin-left: auto;
+  /* À distance de la vague blanche, qui mord sur le panneau à cette hauteur. */
+  padding-right: 24px;
+  gap: 8px;
+  font-style: italic;
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.cancham .parLogo {
+  display: block;
+  width: auto;
+  height: 30px;
+}
+
+.cancham .facts {
+  gap: 12px 20px;
+}
+
+/* Inscription (photo à droite) : la vague est à gauche du panneau, et moins large à cette hauteur ; rien à droite. */
+@media (min-width: 1024px) {
+  .cancham.inverse .facts {
+    margin-left: calc(var(--panel-pad) + 56px);
+  }
+
+  .cancham.inverse .par {
+    padding-right: 0;
+  }
+}
+
 .cancham .input:focus {
   border-color: var(--rouge);
   box-shadow: 0 0 0 3px rgba(173, 7, 7, 0.16);
@@ -984,5 +1015,11 @@ button.switchLink {
 
   .cancham .brandLogo {
     height: 56px;
+  }
+
+  .cancham .par {
+    margin-left: 0;
+    margin-top: 4px;
+    padding-right: 0;
   }
 }

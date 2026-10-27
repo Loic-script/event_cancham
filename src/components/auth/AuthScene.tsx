@@ -94,6 +94,12 @@ export function AuthScene({ headline, lead, cardTitle, inverse = false, charte =
               {event.venue}, {event.city}
             </span>
           </li>
+          {charte === "cancham" ? (
+            <li className={styles.par}>
+              <span>by</span>
+              <Image src={LOGOS.impact261.src} alt="Impact 261" width={LOGOS.impact261.width} height={LOGOS.impact261.height} className={styles.parLogo} />
+            </li>
+          ) : null}
         </ul>
       </Glisse>
 
