@@ -44,7 +44,7 @@ const NAV: NavSection[] = [
 
 const NAV_ADMIN: NavSection[] = [
   {
-    items: [{ href: "/admin", label: "Tableau de bord", icon: ICONES.accueil }],
+    items: [{ href: "/admin", label: "Accueil", icon: ICONES.accueil }],
   },
   {
     titre: "Défis",
