@@ -8,6 +8,7 @@
 
 .colFil {
   display: grid;
+  grid-template-columns: minmax(0, 1fr);
   gap: 16px;
   min-width: 0;
   max-width: 100%;
@@ -522,7 +523,9 @@
 
 .article {
   display: grid;
+  grid-template-columns: minmax(0, 1fr);
   gap: 10px;
+  overflow-wrap: anywhere;
   padding: 16px 0 12px;
   overflow: hidden;
   animation: artIn 0.5s cubic-bezier(0.2, 0.8, 0.2, 1) both;

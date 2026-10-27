@@ -17,7 +17,11 @@ export function AdminAccueil({ fil, stories, promos }: { fil: DonneesFil; storie
       <div className={styles.colFil}>
         <Composer admin modeInitial={modeInitial} onModeConsomme={consomme} />
         <Stories stories={stories} admin onCreer={() => setModeInitial("story")} />
-        <h2 className="mt-1 font-display text-[18px] text-graphite">Actualités</h2>
+        <div className={styles.titreFil}>
+          <i aria-hidden />
+          <h2>Actualités</h2>
+          <small>Fil de la communauté</small>
+        </div>
         <Fil admin {...fil} />
       </div>
       <Promos promos={promos} admin />
