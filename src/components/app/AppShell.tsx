@@ -47,6 +47,14 @@ const NAV_ADMIN: NavSection[] = [
     items: [{ href: "/admin", label: "Tableau de bord", icon: ICONES.accueil }],
   },
   {
+    titre: "Défis",
+    icon: ICONES.trophee,
+    items: [
+      { href: "/admin/defis/pitch", label: "Voyage au Canada" },
+      { href: "/admin/defis/tombola", label: "3 000 000 Ar" },
+    ],
+  },
+  {
     titre: "Participants",
     icon: ICONES.personnes,
     items: [
@@ -68,14 +76,6 @@ const NAV_ADMIN: NavSection[] = [
       { href: "/admin/photos", label: "Photos et vidéos" },
       { href: "/admin/livre", label: "Livre d’or" },
       { href: "/admin/ressources", label: "Ressources" },
-    ],
-  },
-  {
-    titre: "Défis",
-    icon: ICONES.trophee,
-    items: [
-      { href: "/admin/defis/pitch", label: "Voyage au Canada" },
-      { href: "/admin/defis/tombola", label: "3 000 000 Ar" },
     ],
   },
   {
