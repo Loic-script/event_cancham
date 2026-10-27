@@ -4,6 +4,7 @@ import { useId, type JSX, type ReactNode } from "react";
 import {
   ArmchairIcon,
   BellIcon,
+  BookIcon,
   CalendarDaysIcon,
   CameraIcon,
   CartIcon,
@@ -139,6 +140,14 @@ const FauteuilPlein = plein(
   </>,
 );
 
+const LivrePlein = plein(
+  "LivrePlein",
+  <>
+    <path d="M4 5h12v14H4z" />
+    <path d="M16 10l5-3v10l-5-3z" />
+  </>,
+);
+
 const PanierPlein = plein(
   "PanierPlein",
   <>
@@ -172,6 +181,7 @@ export const ICONES = {
   qr: { contour: QrIcon, plein: QrPlein },
   panier: { contour: CartIcon, plein: PanierPlein },
   fauteuil: { contour: ArmchairIcon, plein: FauteuilPlein },
+  livre: { contour: BookIcon, plein: LivrePlein },
   cloche: { contour: BellIcon, plein: ClochePleine },
 } satisfies Record<string, IconeNav>;
 
