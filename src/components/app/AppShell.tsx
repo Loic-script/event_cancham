@@ -10,7 +10,7 @@ import type { AnnonceVue } from "@/lib/annonces";
 import type { NotifRdv } from "@/lib/rendezvous";
 import { Modal } from "@/components/traversee/Modal";
 import { Toaster } from "@/components/traversee/Toaster";
-import { LOGO_BLANC } from "@/lib/traversee/data";
+import { LOGO_BLANC, LOGO_CANCHAM_BLANC } from "@/lib/traversee/data";
 import { MenuCompte } from "./MenuCompte";
 import { Notifications } from "./Notifications";
 import { ChevronRightIcon, HeadsetIcon, MenuIcon } from "./icons";
@@ -261,8 +261,9 @@ export function AppShell({
     <div className={`${styles.app} theme-light`}>
       <aside className={`${styles.lat} ${admin ? styles.latAdm : ""} ${ouvert ? styles.latOuvert : ""}`} aria-label="Menu principal">
         <Link href={admin ? "/admin" : "/"} className={styles.logo}>
-          <img src={LOGO_BLANC} alt="IMPACT 261" />
+          <img src={LOGO_CANCHAM_BLANC} alt="CanCham Madagascar" className={styles.logoCancham} />
           <small>{admin ? "Back-office · La Traversée" : "La Traversée · 18 déc. 2026"}</small>
+          <img src={LOGO_BLANC} alt="IMPACT 261" className={styles.logoImpact} />
         </Link>
         <nav className={`${styles.nav} scroll-nuit`}>
           {sections

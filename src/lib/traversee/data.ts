@@ -2,6 +2,7 @@ import { event } from "@/lib/evenement";
 
 export const IMG = (name: string) => `/traversee/${name}.jpg`;
 export const LOGO_BLANC = "/impact261/logo-blanc.svg";
+export const LOGO_CANCHAM_BLANC = "/cancham/logo-blanc.png";
 /** Version PNG du logo blanc, pour le dessin dans un canvas (affiche des défis). */
 export const LOGO_BLANC_PNG = "/impact261/logo-blanc.png";
 export const SIGLE = "/impact261/pictogramme.svg";

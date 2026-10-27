@@ -93,10 +93,13 @@
 }
 
 .logo img {
-  height: 44px;
+  display: block;
   width: auto;
   transition: transform 0.35s cubic-bezier(0.2, 0.8, 0.2, 1);
 }
+
+.logo .logoCancham { height: 46px; max-width: 100%; }
+.logo .logoImpact { height: 34px; margin-top: 12px; }
 
 .logo:hover img { transform: translateY(-1px) scale(1.02); }
 
