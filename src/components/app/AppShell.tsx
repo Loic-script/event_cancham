@@ -61,10 +61,6 @@ const NAV_ADMIN: NavSection[] = [
       { href: "/admin/acces", label: "Demandes d’accès" },
       { href: "/admin/participants", label: "Annuaire", icon: ICONES.personnes },
       { href: "/admin/participants/nouveau", label: "Créer un compte" },
-      { href: "/admin/scanner", label: "Scanner QR", icon: ICONES.qr },
-      { href: "/admin/places", label: "Places" },
-      { href: "/admin/commandes", label: "Commandes", icon: ICONES.panier },
-      { href: "/admin/messagerie", label: "Messagerie" },
     ],
   },
   {
@@ -76,6 +72,14 @@ const NAV_ADMIN: NavSection[] = [
       { href: "/admin/photos", label: "Photos et vidéos" },
       { href: "/admin/livre", label: "Livre d’or" },
       { href: "/admin/ressources", label: "Ressources" },
+    ],
+  },
+  {
+    items: [
+      { href: "/admin/scanner", label: "Scanner QR", icon: ICONES.qr },
+      { href: "/admin/places", label: "Places", icon: ICONES.fauteuil },
+      { href: "/admin/commandes", label: "Commandes", icon: ICONES.panier },
+      { href: "/admin/messagerie", label: "Messagerie", icon: ICONES.messagerie },
     ],
   },
   {

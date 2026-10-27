@@ -2,6 +2,7 @@
 
 import { useId, type JSX, type ReactNode } from "react";
 import {
+  ArmchairIcon,
   BellIcon,
   CalendarDaysIcon,
   CameraIcon,
@@ -129,6 +130,15 @@ const QrPlein = plein(
   </>,
 );
 
+const FauteuilPlein = plein(
+  "FauteuilPlein",
+  <>
+    <path d="M5 11V7a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v4z" />
+    <path d="M3 13a2 2 0 0 1 4 0v3h10v-3a2 2 0 0 1 4 0v6H3z" />
+    <path d="M6 19v2M18 19v2" fill="none" />
+  </>,
+);
+
 const PanierPlein = plein(
   "PanierPlein",
   <>
@@ -161,6 +171,7 @@ export const ICONES = {
   bouclier: { contour: ShieldCheckIcon, plein: BouclierPlein },
   qr: { contour: QrIcon, plein: QrPlein },
   panier: { contour: CartIcon, plein: PanierPlein },
+  fauteuil: { contour: ArmchairIcon, plein: FauteuilPlein },
   cloche: { contour: BellIcon, plein: ClochePleine },
 } satisfies Record<string, IconeNav>;
 
