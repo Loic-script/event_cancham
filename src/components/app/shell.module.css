@@ -99,7 +99,7 @@
 }
 
 .logo .logoCancham { height: 46px; max-width: 100%; }
-.logo .logoImpact { height: 34px; margin-top: 12px; }
+.logo .logoImpact { height: 46px; max-width: 100%; margin-top: 12px; }
 
 .logo:hover img { transform: translateY(-1px) scale(1.02); }
 
