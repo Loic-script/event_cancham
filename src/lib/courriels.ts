@@ -61,7 +61,7 @@ export function courrielNouvelleInscription(u: Inscrit, admins: string[], base: 
     ["Téléphone", u.phone || "—"],
     ["Inscription", u.via],
   ];
-  const lien = base ? `${base}/admin/acces` : null;
+  const lien = base ? `${base}/admin/utilisateurs` : null;
   const ouSeRendre = lien ? `Pour donner l’accès ou refuser : ${lien}` : "Pour donner l’accès ou refuser : back-office › Participants › Demandes d’accès.";
   return {
     a: admins,

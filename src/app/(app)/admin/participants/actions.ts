@@ -71,6 +71,7 @@ export async function creerParticipant(_previous: CreationState, formData: FormD
   }
 
   revalidatePath("/admin/participants");
+  revalidatePath("/admin/utilisateurs");
   revalidatePath("/annuaire");
   const nom = `${coordonnees.firstName} ${coordonnees.lastName}`;
   const base = (await baseCourriel()) ?? (await urlPublique());

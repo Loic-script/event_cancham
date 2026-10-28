@@ -80,7 +80,7 @@ describe("e-mails aux administrateurs", () => {
     );
     assert.deepEqual(c.a, ["a@cancham.mg", "b@cancham.mg"]);
     assert.equal(c.sujet, "Nouvelle inscription : Hanta <i>Rakoto</i> (Baobab)");
-    assert.ok(c.html.includes('href="https://latraversee.example/admin/acces"'));
+    assert.ok(c.html.includes('href="https://latraversee.example/admin/utilisateurs"'));
     assert.ok(!c.html.includes("<i>Rakoto</i>"));
     assert.ok(c.texte.includes("Téléphone : +261 34 00 000 00") && c.texte.includes("Inscription : avec Google"));
     assert.ok(courrielNouvelleInscription({ firstName: "A", lastName: "B", email: "a@b.mg", company: null, role: null, phone: null, via: "par le formulaire" }, ["x@y.mg"], null).texte.includes("Demandes d’accès"));

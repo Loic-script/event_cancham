@@ -11,7 +11,8 @@ import styles from "./annuaire.module.css";
 const initial: CreationState = { error: null, message: null, lien: null, email: null };
 
 /** Page « Créer un compte » du back-office : compte membre complet, accès ouvert sans paiement en ligne. */
-export function CreerMembre() {
+/** `integre` : dans la page « Utilisateurs », sans en-tête de page. */
+export function CreerMembre({ integre = false }: { integre?: boolean } = {}) {
   const router = useRouter();
   const [state, action, pending] = useActionState(creerParticipant, initial);
   const [, demarrer] = useTransition();
@@ -37,7 +38,7 @@ export function CreerMembre() {
 
   return (
     <>
-      <PageHead title="Créer un" accent="compte" text="Un compte membre complet, avec un accès ouvert tout de suite, sans paiement en ligne. Le membre reçoit par e-mail un lien pour créer son mot de passe." photo="reseau" />
+      {integre ? null : <PageHead title="Créer un" accent="compte" text="Un compte membre complet, avec un accès ouvert tout de suite, sans paiement en ligne. Le membre reçoit par e-mail un lien pour créer son mot de passe." photo="reseau" />}
 
       <Card pad bleed className={styles.creerCarte}>
         <div className={styles.creerTete}>

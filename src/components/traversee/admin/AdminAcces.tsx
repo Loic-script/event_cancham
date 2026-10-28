@@ -32,7 +32,8 @@ const VIDE: Record<StatutCompte, string> = {
   REFUSE: "Aucune demande refusée.",
 };
 
-export function AdminAcces({ comptes }: { comptes: CompteAcces[] }) {
+/** `integre` : dans la page « Utilisateurs », sans en-tête de page. */
+export function AdminAcces({ comptes, integre = false }: { comptes: CompteAcces[]; integre?: boolean }) {
   const router = useRouter();
   const [onglet, setOnglet] = useState<StatutCompte>("EN_ATTENTE");
   const [q, setQ] = useState("");
@@ -131,14 +132,16 @@ export function AdminAcces({ comptes }: { comptes: CompteAcces[] }) {
 
   return (
     <>
-      <PageHead
-        title="Demandes"
-        accent="d’accès"
-        text="Les nouveaux inscrits attendent votre validation pour entrer dans l’espace participant. Vérifiez leurs informations, puis donnez-leur l’accès. Plus tard, le paiement en ligne validera les comptes automatiquement."
-        photo="accueil"
-      >
-        <Puce tone="white">{nombre("EN_ATTENTE")} en attente</Puce>
-      </PageHead>
+      {integre ? null : (
+        <PageHead
+          title="Demandes"
+          accent="d’accès"
+          text="Les nouveaux inscrits attendent votre validation pour entrer dans l’espace participant. Vérifiez leurs informations, puis donnez-leur l’accès. Un paiement en ligne confirmé valide le compte automatiquement."
+          photo="accueil"
+        >
+          <Puce tone="white">{nombre("EN_ATTENTE")} en attente</Puce>
+        </PageHead>
+      )}
 
       <div className="flex flex-wrap items-center justify-between gap-3">
         <Onglets

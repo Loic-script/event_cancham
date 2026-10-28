@@ -60,9 +60,8 @@ const NAV_ADMIN: NavSection[] = [
     titre: "Participants",
     icon: ICONES.personnes,
     items: [
-      { href: "/admin/acces", label: "Demandes d’accès" },
+      { href: "/admin/utilisateurs", label: "Utilisateurs" },
       { href: "/admin/participants", label: "Annuaire", icon: ICONES.personnes },
-      { href: "/admin/participants/nouveau", label: "Créer un compte" },
     ],
   },
   {
@@ -204,7 +203,7 @@ export function AppShell({
   const basItems = (admin ? BAS_ADMIN : BAS).map((href) => items.find((n) => n.href === href)!);
 
   function badgeDe(href: string) {
-    if (href === "/admin/acces") return enAttente;
+    if (href === "/admin/utilisateurs") return enAttente;
     if (href === "/messages") return messages.membre;
     if (href === "/admin/messagerie") return messages.equipe;
     return 0;

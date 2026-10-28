@@ -1,8 +1,6 @@
-import type { Metadata } from "next";
-import { CreerMembre } from "@/components/traversee/annuaire/CreerMembre";
+import { redirect } from "next/navigation";
 
-export const metadata: Metadata = { title: "Créer un compte · Back-office" };
-
+/** La création d'un compte est dans la page « Utilisateurs ». */
 export default function Page() {
-  return <CreerMembre />;
+  redirect("/admin/utilisateurs?onglet=creer");
 }

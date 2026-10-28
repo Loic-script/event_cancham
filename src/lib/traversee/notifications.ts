@@ -80,7 +80,7 @@ export function notificationsAdmin(s: TraverseeState, o: { comptes: CompteRecent
         : c.entreprise
           ? `${c.entreprise} · nouvel inscrit sur la plateforme`
           : "Nouvel inscrit sur la plateforme",
-      href: c.enAttente ? "/admin/acces" : "/admin/participants",
+      href: c.enAttente ? "/admin/utilisateurs" : "/admin/participants",
       t: c.t,
       acteur: c.nom,
       lue: lue(s, id),
