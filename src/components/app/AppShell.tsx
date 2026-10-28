@@ -273,7 +273,6 @@ export function AppShell({
         <Link href={admin ? "/admin" : "/"} className={styles.logo}>
           <img src={LOGO_CANCHAM_BLANC} alt="CanCham Madagascar" className={styles.logoCancham} />
           <small>{admin ? "Back-office · La Traversée" : "La Traversée · 18 déc. 2026"}</small>
-          <img src={LOGO_BLANC} alt="IMPACT 261" className={styles.logoImpact} />
         </Link>
         <nav className={`${styles.nav} scroll-nuit`}>
           {sections
@@ -290,6 +289,10 @@ export function AppShell({
             )}
         </nav>
         {pied.length ? <div className={styles.pied}>{pied.map(lien)}</div> : null}
+        {/* Signature de l'événement, tout en bas du menu. */}
+        <Link href={admin ? "/admin" : "/"} className={styles.signature} aria-label="IMPACT 261">
+          <img src={LOGO_BLANC} alt="IMPACT 261" />
+        </Link>
       </aside>
       {ouvert ? <div className={styles.fond} onClick={() => setOuvert(false)} aria-hidden /> : null}
 

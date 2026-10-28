@@ -99,7 +99,6 @@
 }
 
 .logo .logoCancham { height: 46px; max-width: 100%; }
-.logo .logoImpact { height: 46px; max-width: 100%; margin-top: 12px; }
 
 .logo:hover img { transform: translateY(-1px) scale(1.02); }
 
@@ -288,6 +287,26 @@
   padding: 8px 0 12px;
   border-top: 1px solid rgba(255, 255, 255, 0.1);
 }
+
+/* Logo IMPACT 261 tout en bas du menu. */
+.signature {
+  flex: none;
+  display: grid;
+  place-items: center;
+  margin: 0 10px;
+  padding: 14px 10px calc(14px + env(safe-area-inset-bottom));
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.signature img {
+  display: block;
+  width: auto;
+  height: 40px;
+  max-width: 100%;
+  transition: transform 0.35s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+.signature:hover img { transform: translateY(-1px) scale(1.03); }
 
 .parent {
   width: 100%;
