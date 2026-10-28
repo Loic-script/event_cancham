@@ -1,11 +1,8 @@
 import type { FicheComplete } from "@/lib/traversee/participants";
 import { prisma } from "@/lib/prisma";
-import { IMG } from "@/lib/traversee/data";
+import { LOGO_BLANC } from "@/lib/traversee/data";
 
 export type FicheInscrit = FicheComplete & { userId: number; inscritLe: string };
-
-/** Bannière de la fiche quand le participant n'a pas mis de couverture : une photo de l'événement. */
-const BANDEAUX = ["salle", "ecran", "diner", "accueil", "assistance", "public", "hero", "rdv"];
 
 export async function fichesInscrits(): Promise<FicheInscrit[]> {
   const users = await prisma.user.findMany({
@@ -17,8 +14,10 @@ export async function fichesInscrits(): Promise<FicheInscrit[]> {
   return users.map((u) => ({
     id: `u${u.id}`,
     userId: u.id,
-    img: u.couverture ?? IMG(BANDEAUX[u.id % BANDEAUX.length]),
+    // Sans couverture : le logo IMPACT 261 sur fond bleu nuit (styleCouverture, composants de l'annuaire).
+    img: u.couverture ?? LOGO_BLANC,
     imgPosition: u.couverture ? u.couverturePosition : 50,
+    couvertureDefaut: !u.couverture,
     code: u.codeBillet,
     nom: `${u.firstName} ${u.lastName}`.trim(),
     role: u.role ?? "",

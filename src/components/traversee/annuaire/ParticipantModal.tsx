@@ -8,6 +8,7 @@ import type { FicheComplete } from "@/lib/traversee/participants";
 import { toast, type Fiche } from "@/lib/traversee/store";
 import { Modal } from "../Modal";
 import { AvatarProfil, Btn, Champ, Puce, Sur, ui } from "../ui";
+import { styleCouverture } from "./couverture";
 import styles from "./annuaire.module.css";
 
 type Props = { fiche: FicheComplete; onClose: () => void; onSave: (fiche: Fiche) => Promise<string | null>; inscritLe?: string };
@@ -77,7 +78,7 @@ export function ParticipantModal({ fiche, onClose, onSave, inscritLe }: Props) {
 
   return (
     <Modal onClose={onClose} label={`Profil de ${f.nom}`} className={styles.pBoite}>
-      <header className={styles.pBandeau} style={{ backgroundImage: `linear-gradient(160deg, rgba(10,22,38,.92) 0%, rgba(18,48,90,.72) 55%, rgba(242,107,29,.35) 100%), url(${fiche.img})`, backgroundPosition: `center ${fiche.imgPosition}%` }}>
+      <header className={styles.pBandeau} style={styleCouverture(fiche, "fiche")}>
         <button type="button" onClick={onClose} aria-label="Fermer" className={styles.pFermer}>
           <XIcon width={18} height={18} />
         </button>
