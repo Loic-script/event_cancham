@@ -289,7 +289,8 @@ export function AppShell({
         </nav>
         {pied.length ? <div className={styles.pied}>{pied.map(lien)}</div> : null}
         {/* Signature de l'événement, tout en bas du menu. */}
-        <Link href={admin ? "/admin" : "/"} className={styles.signature} aria-label="IMPACT 261">
+        <Link href={admin ? "/admin" : "/"} className={styles.signature} aria-label="Plateforme propulsée par IMPACT 261">
+          <small>Plateforme propulsée par</small>
           <img src={LOGO_BLANC} alt="IMPACT 261" />
         </Link>
       </aside>
