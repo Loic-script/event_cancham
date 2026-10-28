@@ -115,7 +115,8 @@ export function DemandeLienForm({ emailInitial }: { emailInitial: string }) {
 
 type Champ = "password" | "confirmation";
 
-export function NouveauMotDePasseForm({ jeton, email }: { jeton: string; email: string }) {
+/** `creation` : premier mot de passe d'un compte créé par un administrateur (lien /creer-mot-de-passe/<jeton>). */
+export function NouveauMotDePasseForm({ jeton, email, creation = false }: { jeton: string; email: string; creation?: boolean }) {
   const [state, formAction, pending] = useActionState(choisirMotDePasse, choixInitial);
   const [valeurs, setValeurs] = useState({ password: "", confirmation: "" });
   const [erreurs, setErreurs] = useState<Partial<Record<Champ, string>>>({});
@@ -193,9 +194,9 @@ export function NouveauMotDePasseForm({ jeton, email }: { jeton: string; email: 
       <input type="hidden" name="jeton" value={jeton} />
       <input type="text" name="username" autoComplete="username" value={email} readOnly hidden />
       <p className={styles.notice}>Compte : {email}</p>
-      {champ("password", "Nouveau mot de passe", true)}
+      {champ("password", creation ? "Votre mot de passe" : "Nouveau mot de passe", true)}
       <p id="nouveau-password-hint" className={styles.hint}>
-        {MIN_PASSWORD_LENGTH} caractères minimum. Vos autres appareils seront déconnectés.
+        {MIN_PASSWORD_LENGTH} caractères minimum.{creation ? "" : " Vos autres appareils seront déconnectés."}
       </p>
       {champ("confirmation", "Confirmez le mot de passe")}
 
@@ -212,7 +213,7 @@ export function NouveauMotDePasseForm({ jeton, email }: { jeton: string; email: 
 
       <button type="submit" className={styles.submit} disabled={pending} aria-busy={pending}>
         {pending ? <SpinnerIcon width={18} height={18} className={styles.spin} aria-hidden /> : null}
-        {pending ? "Enregistrement…" : "Enregistrer et me connecter"}
+        {pending ? "Enregistrement…" : creation ? "Créer mon mot de passe et entrer" : "Enregistrer et me connecter"}
       </button>
     </form>
   );

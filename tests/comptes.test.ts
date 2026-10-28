@@ -2,7 +2,7 @@ import assert from "node:assert/strict";
 import { describe, it } from "node:test";
 import { erreurCoordonnees, profilIncomplet } from "../src/lib/coordonnees";
 import { messageErreurSociale, nouvelEtat, urlAutorisation, urlRetour } from "../src/lib/oauth";
-import { courrielNouvelAdmin, courrielNouvelleInscription, courrielPromotionAdmin, courrielReinitialisation } from "../src/lib/courriels";
+import { courrielNouveauMembre, courrielNouvelAdmin, courrielNouvelleInscription, courrielPromotionAdmin, courrielReinitialisation } from "../src/lib/courriels";
 import { adressesSuperAdmins, estSuperAdmin } from "../src/lib/super-admin";
 import { genererMotDePasse, hashPassword, verifierMotDePasseSaisi } from "../src/lib/password";
 
@@ -145,5 +145,20 @@ describe("logo des e-mails", () => {
       assert.ok(c.html.includes('src="cid:logo-impact"'), c.sujet);
       assert.ok(c.html.includes('alt="Impact 261"'), c.sujet);
     }
+  });
+});
+
+describe("e-mail d'un compte créé par un administrateur", () => {
+  it("invite à créer son mot de passe par un lien, sans mot de passe dans l'e-mail", () => {
+    const lien = "https://impact261.com/creer-mot-de-passe/abc";
+    const c = courrielNouveauMembre({ email: "membre@exemple.mg", prenom: "Miora", createur: "Faneva Loïc", lien });
+    assert.equal(c.a, "membre@exemple.mg");
+    assert.match(c.sujet, /créez votre mot de passe/);
+    assert.ok(c.texte.includes(lien) && c.html.includes(lien));
+    assert.ok(c.texte.includes("Faneva Loïc"));
+    assert.match(c.html, /Créer mon mot de passe/);
+    assert.doesNotMatch(c.texte, /provisoire/);
+    assert.doesNotMatch(c.html, /provisoire/);
+    assert.match(c.texte, /7 jours/);
   });
 });

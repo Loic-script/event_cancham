@@ -8,7 +8,7 @@ import { SECTEURS } from "@/lib/traversee/data";
 import { Btn, Card, Champ, Note, PageHead, ui } from "../ui";
 import styles from "./annuaire.module.css";
 
-const initial: CreationState = { error: null, message: null, motDePasse: null, email: null };
+const initial: CreationState = { error: null, message: null, lien: null, email: null };
 
 /** Page « Créer un compte » du back-office : compte membre complet, accès ouvert sans paiement en ligne. */
 export function CreerMembre() {
@@ -25,8 +25,8 @@ export function CreerMembre() {
   }, [cree, router]);
 
   function copier() {
-    if (!state.motDePasse) return;
-    void navigator.clipboard.writeText(state.motDePasse).then(() => setCopie(true));
+    if (!state.lien) return;
+    void navigator.clipboard.writeText(state.lien).then(() => setCopie(true));
   }
 
   function nouveau() {
@@ -37,7 +37,7 @@ export function CreerMembre() {
 
   return (
     <>
-      <PageHead title="Créer un" accent="compte" text="Un compte membre complet, avec un accès ouvert tout de suite, sans paiement en ligne. Les identifiants partent par e-mail au membre." photo="reseau" />
+      <PageHead title="Créer un" accent="compte" text="Un compte membre complet, avec un accès ouvert tout de suite, sans paiement en ligne. Le membre reçoit par e-mail un lien pour créer son mot de passe." photo="reseau" />
 
       <Card pad bleed className={styles.creerCarte}>
         <div className={styles.creerTete}>
@@ -53,19 +53,19 @@ export function CreerMembre() {
         {cree ? (
           <div className="mt-5 grid gap-3">
             <Note tone="green">{state.message}</Note>
-            {state.motDePasse ? (
+            {state.lien ? (
               <>
                 <div className={styles.motDePasse}>
                   <div className="min-w-0">
-                    <small>Mot de passe provisoire de {state.email}</small>
-                    <code>{state.motDePasse}</code>
+                    <small>Lien de création du mot de passe de {state.email}</small>
+                    <code className={styles.lienCreation}>{state.lien}</code>
                   </div>
                   <Btn small onClick={copier}>
                     {copie ? <CheckIcon width={15} height={15} /> : <CopyIcon width={15} height={15} />}
                     {copie ? "Copié" : "Copier"}
                   </Btn>
                 </div>
-                <p className="text-[12.5px] text-graphite-muted">Il ne sera plus affiché après avoir quitté cette page. Le membre pourra le changer depuis son profil.</p>
+                <p className="text-[12.5px] text-graphite-muted">Valable 7 jours, à usage unique ; il ne sera plus affiché après avoir quitté cette page. Passé ce délai, « Mot de passe oublié ? » lui en enverra un nouveau.</p>
               </>
             ) : null}
             <div className="mt-1 flex flex-wrap justify-end gap-2">
@@ -95,7 +95,7 @@ export function CreerMembre() {
                 <Champ label="Nom *" htmlFor="cm-nom">
                   <input id="cm-nom" name="lastName" className={ui.saisie} required maxLength={60} autoComplete="off" />
                 </Champ>
-                <Champ label="Adresse e-mail *" htmlFor="cm-email" hint="Les identifiants y sont envoyés.">
+                <Champ label="Adresse e-mail *" htmlFor="cm-email" hint="Le lien pour créer son mot de passe y est envoyé.">
                   <input id="cm-email" name="email" type="email" className={ui.saisie} required autoComplete="off" />
                 </Champ>
                 <Champ label="Téléphone *" htmlFor="cm-tel">

@@ -3,22 +3,29 @@ import { prisma } from "@/lib/prisma";
 
 /** Un lien « mot de passe oublié » reste valable 1 heure et ne sert qu'une fois. */
 export const DUREE_LIEN_MINUTES = 60;
+/** Un lien « créez votre mot de passe » (compte créé par un administrateur) reste valable 7 jours. */
+export const DUREE_CREATION_MINUTES = 7 * 24 * 60;
 /** Délai minimal entre deux e-mails pour un même compte. */
 const INTERVALLE_MS = 60_000;
 
 export const empreinteJeton = (jeton: string) => createHash("sha256").update(jeton).digest("hex");
 
-/** Crée un lien pour le compte (et efface les précédents), ou renvoie null si un e-mail vient déjà de partir. */
-export async function creerJeton(userId: number): Promise<string | null> {
-  const recent = await prisma.reinitialisationMotDePasse.findFirst({
-    where: { userId, utiliseLe: null, createdAt: { gt: new Date(Date.now() - INTERVALLE_MS) } },
-    select: { id: true },
-  });
-  if (recent) return null;
+/**
+ * Crée un lien pour le compte (et efface les précédents), ou renvoie null si un e-mail vient déjà de partir.
+ * `sansDelai` : pour un lien envoyé par un administrateur (création de compte), pas de délai entre deux envois.
+ */
+export async function creerJeton(userId: number, { dureeMinutes = DUREE_LIEN_MINUTES, sansDelai = false }: { dureeMinutes?: number; sansDelai?: boolean } = {}): Promise<string | null> {
+  if (!sansDelai) {
+    const recent = await prisma.reinitialisationMotDePasse.findFirst({
+      where: { userId, utiliseLe: null, createdAt: { gt: new Date(Date.now() - INTERVALLE_MS) } },
+      select: { id: true },
+    });
+    if (recent) return null;
+  }
   const jeton = randomBytes(32).toString("base64url");
   await prisma.$transaction([
     prisma.reinitialisationMotDePasse.deleteMany({ where: { userId, utiliseLe: null } }),
-    prisma.reinitialisationMotDePasse.create({ data: { userId, tokenHash: empreinteJeton(jeton), expiresAt: new Date(Date.now() + DUREE_LIEN_MINUTES * 60_000) } }),
+    prisma.reinitialisationMotDePasse.create({ data: { userId, tokenHash: empreinteJeton(jeton), expiresAt: new Date(Date.now() + dureeMinutes * 60_000) } }),
   ]);
   return jeton;
 }

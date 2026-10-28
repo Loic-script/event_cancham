@@ -6,6 +6,7 @@ import { courrielDisponible, envoyerCourriel } from "@/lib/courriel";
 import { hashPassword } from "@/lib/password";
 import { prisma } from "@/lib/prisma";
 import { courrielReinitialisation } from "@/lib/courriels";
+import { pageApresConnexion } from "@/lib/parcours";
 import { creerJeton, empreinteJeton } from "@/lib/reinitialisation";
 import { createSession } from "@/lib/session";
 import { urlPublique } from "@/lib/url";
@@ -64,5 +65,6 @@ export async function choisirMotDePasse(_previous: NouveauMotDePasseState, formD
   if (!user) return { error: "Ce lien n’est plus valable. Demandez-en un nouveau." };
 
   await createSession(user.id);
-  redirect(user.acces === "ADMIN" ? "/admin" : "/");
+  // Même arrivée qu'après une connexion : parcours d'accueil s'il reste à faire, sinon l'espace.
+  redirect(await pageApresConnexion(user.id));
 }

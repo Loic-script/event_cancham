@@ -8,21 +8,24 @@ import { erreurCoordonnees, lireCoordonnees } from "@/lib/coordonnees";
 import { courrielConfigure, courrielDisponible, envoyerCourriel } from "@/lib/courriel";
 import { courrielNouveauMembre } from "@/lib/courriels";
 import { genererMotDePasse, hashPassword } from "@/lib/password";
+import { creerJeton, DUREE_CREATION_MINUTES } from "@/lib/reinitialisation";
 import type { Fiche } from "@/lib/traversee/store";
 import { prisma } from "@/lib/prisma";
 import { getCurrentUser } from "@/lib/session";
 import { estAdresseSuperAdmin } from "@/lib/super-admin";
+import { urlPublique } from "@/lib/url";
 
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
-export type CreationState = { error: string | null; message: string | null; motDePasse: string | null; email: string | null };
+export type CreationState = { error: string | null; message: string | null; lien: string | null; email: string | null };
 
 /**
  * « Créer un utilisateur » de l'annuaire : un compte membre complet, accès ouvert sans paiement en ligne.
- * Le mot de passe provisoire part par e-mail ; sans envoi possible, il est rendu une seule fois à l'administrateur pour qu'il le transmette.
+ * Le membre reçoit par e-mail un lien (7 jours, usage unique) vers la page où il crée son mot de passe ;
+ * sans envoi possible, le lien est rendu une seule fois à l'administrateur pour qu'il le transmette.
  */
 export async function creerParticipant(_previous: CreationState, formData: FormData): Promise<CreationState> {
-  const echec = (error: string): CreationState => ({ error, message: null, motDePasse: null, email: null });
+  const echec = (error: string): CreationState => ({ error, message: null, lien: null, email: null });
   const admin = await getCurrentUser();
   if (!admin || admin.acces !== "ADMIN") return echec("Action réservée aux administrateurs.");
 
@@ -41,6 +44,7 @@ export async function creerParticipant(_previous: CreationState, formData: FormD
   if (estAdresseSuperAdmin(email)) return echec("Cette adresse est réservée au super admin.");
   if (sector.length > 60 || bio.length > 600 || website.length > 200 || city.length > 80) return echec("Un des champs est trop long.");
 
+  // Mot de passe inconnu de tous jusqu'à ce que le membre crée le sien par le lien.
   const motDePasse = genererMotDePasse();
   const maintenant = new Date();
   let cree: { id: number };
@@ -69,18 +73,20 @@ export async function creerParticipant(_previous: CreationState, formData: FormD
   revalidatePath("/admin/participants");
   revalidatePath("/annuaire");
   const nom = `${coordonnees.firstName} ${coordonnees.lastName}`;
-  const base = await baseCourriel();
-  if (courrielDisponible() && base) {
+  const base = (await baseCourriel()) ?? (await urlPublique());
+  const jeton = await creerJeton(cree.id, { dureeMinutes: DUREE_CREATION_MINUTES, sansDelai: true });
+  const lien = `${base}/creer-mot-de-passe/${jeton}`;
+  if (courrielDisponible() && (await baseCourriel())) {
     try {
       const createur = `${admin.firstName} ${admin.lastName}`.trim() || "L’équipe CanCham";
-      await envoyerCourriel(courrielNouveauMembre({ email, prenom: coordonnees.firstName, createur, motDePasse, base }));
+      await envoyerCourriel(courrielNouveauMembre({ email, prenom: coordonnees.firstName, createur, lien }));
       const enDev = courrielConfigure() ? "" : " (développement : l’e-mail est affiché dans le terminal du serveur)";
-      return { error: null, message: `Compte de ${nom} créé (#${cree.id}) : ses identifiants lui ont été envoyés par e-mail${enDev}.`, motDePasse: null, email };
+      return { error: null, message: `Compte de ${nom} créé (#${cree.id}) : un e-mail l’invite à créer son mot de passe${enDev}.`, lien: null, email };
     } catch (error) {
       console.error("E-mail du nouveau membre non envoyé :", error);
     }
   }
-  return { error: null, message: `Compte de ${nom} créé (#${cree.id}), mais l’e-mail n’a pas pu partir : transmettez-lui ce mot de passe provisoire.`, motDePasse, email };
+  return { error: null, message: `Compte de ${nom} créé (#${cree.id}), mais l’e-mail n’a pas pu partir : transmettez-lui ce lien pour créer son mot de passe.`, lien, email };
 }
 
 export async function modifierParticipant(userId: number, fiche: Fiche): Promise<{ error: string | null }> {

@@ -24,6 +24,11 @@ async function executer(action: string, d: Donnees): Promise<unknown> {
       await prisma.session.create({ data: { tokenHash: createHash("sha256").update(token).digest("hex"), userId: Number(d.id), expiresAt: new Date(Date.now() + 3600_000) } });
       return { token };
     }
+    case "jeton": {
+      // Lien « créez votre mot de passe » (compte créé par un administrateur), valable 7 jours.
+      const { creerJeton, DUREE_CREATION_MINUTES } = await import("../../src/lib/reinitialisation");
+      return { jeton: await creerJeton(Number(d.id), { dureeMinutes: DUREE_CREATION_MINUTES, sansDelai: true }) };
+    }
     case "utilisateur":
       return prisma.user.findUnique({ where: { email: String(d.email) }, include: { participationsDefis: true, parcoursAccueil: true, paiements: { select: { reference: true, statut: true, mode: true } } } });
     case "supprimer":

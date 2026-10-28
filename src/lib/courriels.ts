@@ -97,19 +97,19 @@ export function courrielNouvelAdmin(d: { email: string; prenom: string; createur
 }
 
 /** Au membre dont l'équipe a créé le compte depuis le back-office : identifiants et accès déjà ouvert, sans paiement en ligne. */
-export function courrielNouveauMembre(d: { email: string; prenom: string; createur: string; motDePasse: string; base: string }): Courriel {
-  const lien = `${d.base}/connexion`;
+/** À un membre dont le compte a été créé par un administrateur : un bouton vers la page où il crée son mot de passe. */
+export function courrielNouveauMembre(d: { email: string; prenom: string; createur: string; lien: string }): Courriel {
   return {
     a: d.email,
-    sujet: "Votre compte La Traversée est prêt",
-    texte: `${bonjour(d.prenom)}\n\n${d.createur} vous a créé un compte sur La Traversée, la plateforme du gala des 10 ans de CanCham Madagascar. Votre accès est déjà ouvert : aucun paiement en ligne n’est nécessaire.\n\nAdresse e-mail : ${d.email}\nMot de passe provisoire : ${d.motDePasse}\n\nConnexion : ${lien}\n\nAprès votre première connexion, choisissez votre propre mot de passe dans votre profil, puis supprimez cet e-mail.\n\nL’équipe CanCham Madagascar`,
+    sujet: "Votre compte La Traversée est prêt : créez votre mot de passe",
+    texte: `${bonjour(d.prenom)}\n\n${d.createur} vous a créé un compte sur La Traversée, la plateforme du gala des 10 ans de CanCham Madagascar. Votre accès est déjà ouvert : aucun paiement en ligne n’est nécessaire.\n\nAdresse e-mail : ${d.email}\n\nPour entrer, créez votre mot de passe : ${d.lien}\n\nCe lien est valable 7 jours et ne sert qu’une fois. Passé ce délai, « Mot de passe oublié ? » sur la page de connexion vous en enverra un nouveau.\n\nL’équipe CanCham Madagascar`,
     html: page(
       p(bonjour(d.prenom)) +
         p(`${d.createur} vous a créé un compte sur La Traversée, la plateforme du gala des 10 ans de CanCham Madagascar. Votre accès est déjà ouvert : aucun paiement en ligne n’est nécessaire.`) +
         tableau([["Adresse e-mail", d.email]]) +
-        blocMotDePasse("Mot de passe provisoire", d.motDePasse) +
-        bouton(lien, "Se connecter") +
-        p("Après votre première connexion, choisissez votre propre mot de passe dans votre profil, puis supprimez cet e-mail.", DISCRET) +
+        p("Pour entrer, il ne vous reste qu’à créer votre mot de passe.") +
+        bouton(d.lien, "Créer mon mot de passe") +
+        p("Ce lien est valable 7 jours et ne sert qu’une fois. Passé ce délai, « Mot de passe oublié ? » sur la page de connexion vous en enverra un nouveau.", DISCRET) +
         p("L’équipe CanCham Madagascar"),
     ),
   };
