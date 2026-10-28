@@ -553,4 +553,3 @@ a.pLigne:hover .pLigneFleche { opacity: 1; }
   .creerGrille { grid-template-columns: minmax(0, 1fr); }
 }
 
-.creerCarte { max-width: 860px; }

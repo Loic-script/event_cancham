@@ -22,7 +22,7 @@ import styles from "./shell.module.css";
 /** Les rubriques d'un sous-menu n'affichent pas d'icône : elle ne sert qu'à la barre du bas. */
 type NavItem = { href: string; label: string; icon?: IconeNav };
 /** Une section avec `icon` s'affiche comme un sous-menu dépliable. */
-type NavSection = { titre?: string; icon?: IconeNav; pied?: boolean; items: NavItem[] };
+type NavSection = { titre?: string; icon?: IconeNav; items: NavItem[] };
 
 const NAV: NavSection[] = [
   {
@@ -261,7 +261,6 @@ export function AppShell({
     );
   }
 
-  const pied = sections.filter((s) => s.pied).flatMap((s) => s.items);
 
   return (
     <div className={`${styles.app} theme-light`}>
@@ -271,20 +270,17 @@ export function AppShell({
           <small>{admin ? "Back-office · La Traversée" : "La Traversée · 18 déc. 2026"}</small>
         </Link>
         <nav className={`${styles.nav} scroll-nuit`}>
-          {sections
-            .filter((s) => !s.pied)
-            .map((s, k) =>
-              s.icon ? (
-                sousMenu(s, k)
-              ) : (
-                <div key={s.titre ?? s.items[0].href}>
-                  {s.titre ? <h4>{s.titre}</h4> : null}
-                  {s.items.map(lien)}
-                </div>
-              ),
-            )}
+          {sections.map((s, k) =>
+            s.icon ? (
+              sousMenu(s, k)
+            ) : (
+              <div key={s.titre ?? s.items[0].href}>
+                {s.titre ? <h4>{s.titre}</h4> : null}
+                {s.items.map(lien)}
+              </div>
+            ),
+          )}
         </nav>
-        {pied.length ? <div className={styles.pied}>{pied.map(lien)}</div> : null}
         {/* Signature de l'événement, tout en bas du menu. */}
         <Link href={admin ? "/admin" : "/"} className={styles.signature} aria-label="Plateforme propulsée par IMPACT 261">
           <small>Plateforme propulsée par</small>

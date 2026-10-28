@@ -289,12 +289,6 @@
   .latOuvert .item { animation-name: itemIn2; }
 }
 
-.pied {
-  flex: none;
-  margin: 0 10px;
-  padding: 8px 0 12px;
-  border-top: 1px solid rgba(255, 255, 255, 0.1);
-}
 
 /* Logo IMPACT 261 tout en bas du menu. */
 .signature {

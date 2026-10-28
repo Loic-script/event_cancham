@@ -8,7 +8,7 @@ import { CheckIcon, TrashIcon } from "@/components/app/icons";
 import type { StatutCompte } from "@/generated/prisma/enums";
 import { toast } from "@/lib/traversee/store";
 import { Confirmer } from "../Confirmer";
-import { AvatarInitiales, Btn, Card, Onglets, PageHead, Puce, Recherche, Vide, ui } from "../ui";
+import { AvatarInitiales, Btn, Card, Onglets, Recherche, Vide, ui } from "../ui";
 import styles from "./acces.module.css";
 
 export type CompteAcces = {
@@ -32,8 +32,8 @@ const VIDE: Record<StatutCompte, string> = {
   REFUSE: "Aucune demande refusée.",
 };
 
-/** `integre` : dans la page « Utilisateurs », sans en-tête de page. */
-export function AdminAcces({ comptes, integre = false }: { comptes: CompteAcces[]; integre?: boolean }) {
+/** Demandes d'accès, dans la page « Utilisateurs » (qui porte l'en-tête). */
+export function AdminAcces({ comptes }: { comptes: CompteAcces[] }) {
   const router = useRouter();
   const [onglet, setOnglet] = useState<StatutCompte>("EN_ATTENTE");
   const [q, setQ] = useState("");
@@ -132,16 +132,6 @@ export function AdminAcces({ comptes, integre = false }: { comptes: CompteAcces[
 
   return (
     <>
-      {integre ? null : (
-        <PageHead
-          title="Demandes"
-          accent="d’accès"
-          text="Les nouveaux inscrits attendent votre validation pour entrer dans l’espace participant. Vérifiez leurs informations, puis donnez-leur l’accès. Un paiement en ligne confirmé valide le compte automatiquement."
-          photo="accueil"
-        >
-          <Puce tone="white">{nombre("EN_ATTENTE")} en attente</Puce>
-        </PageHead>
-      )}
 
       <div className="flex flex-wrap items-center justify-between gap-3">
         <Onglets

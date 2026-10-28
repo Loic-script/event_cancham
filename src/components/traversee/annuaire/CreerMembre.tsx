@@ -5,14 +5,14 @@ import { useActionState, useEffect, useState, useTransition } from "react";
 import { creerParticipant, type CreationState } from "@/app/(app)/admin/participants/actions";
 import { CheckIcon, CopyIcon, SpinnerIcon, UserPlusIcon, XIcon } from "@/components/app/icons";
 import { SECTEURS } from "@/lib/traversee/data";
-import { Btn, Card, Champ, Note, PageHead, ui } from "../ui";
+import { Btn, Champ, Note, ui } from "../ui";
 import styles from "./annuaire.module.css";
 
 const initial: CreationState = { error: null, message: null, lien: null, email: null };
 
 /** Page « Créer un compte » du back-office : compte membre complet, accès ouvert sans paiement en ligne. */
-/** `integre` : dans une fenêtre de la page « Utilisateurs », sans en-tête de page ni carte ; `onFermer` : bouton de fermeture. */
-export function CreerMembre({ integre = false, onFermer }: { integre?: boolean; onFermer?: () => void } = {}) {
+/** Formulaire « Créer un participant », dans une fenêtre de la page « Utilisateurs » ; `onFermer` la ferme. */
+export function CreerMembre({ onFermer }: { onFermer: () => void }) {
   const router = useRouter();
   const [state, action, pending] = useActionState(creerParticipant, initial);
   const [, demarrer] = useTransition();
@@ -37,10 +37,7 @@ export function CreerMembre({ integre = false, onFermer }: { integre?: boolean; 
   }
 
   return (
-    <>
-      {integre ? null : <PageHead title="Créer un" accent="compte" text="Un compte membre complet, avec un accès ouvert tout de suite, sans paiement en ligne. Le membre reçoit par e-mail un lien pour créer son mot de passe." photo="reseau" />}
-
-      <Card pad={!integre} bleed={!integre} className={integre ? "" : styles.creerCarte} style={integre ? { border: 0, boxShadow: "none", borderRadius: 0 } : undefined}>
+    <div>
         <div className={styles.creerTete}>
           <span className={styles.creerIcone}>
             <UserPlusIcon width={22} height={22} />
@@ -49,11 +46,9 @@ export function CreerMembre({ integre = false, onFermer }: { integre?: boolean; 
             <h2 className="font-display text-[19px] text-graphite">Nouveau participant</h2>
             <p className="text-[13.5px] text-graphite-muted">Les champs marqués d’un astérisque sont obligatoires.</p>
           </div>
-          {onFermer ? (
-            <button type="button" onClick={onFermer} aria-label="Fermer" className={styles.creerFermer}>
-              <XIcon width={18} height={18} />
-            </button>
-          ) : null}
+          <button type="button" onClick={onFermer} aria-label="Fermer" className={styles.creerFermer}>
+            <XIcon width={18} height={18} />
+          </button>
         </div>
 
         {cree ? (
@@ -152,7 +147,7 @@ export function CreerMembre({ integre = false, onFermer }: { integre?: boolean; 
             ) : null}
 
             <div className="flex flex-wrap justify-end gap-2">
-              {onFermer ? <Btn onClick={onFermer}>Annuler</Btn> : <Btn href="/admin/participants">Annuler</Btn>}
+              <Btn onClick={onFermer}>Annuler</Btn>
               <Btn variant="primary" type="submit" disabled={pending}>
                 {pending ? <SpinnerIcon width={15} height={15} className="animate-spin" /> : <UserPlusIcon width={15} height={15} />}
                 Créer le compte
@@ -160,7 +155,6 @@ export function CreerMembre({ integre = false, onFermer }: { integre?: boolean; 
             </div>
           </form>
         )}
-      </Card>
-    </>
+    </div>
   );
 }

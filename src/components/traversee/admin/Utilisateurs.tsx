@@ -38,11 +38,11 @@ export function Utilisateurs({ comptes, ongletInitial }: { comptes: CompteAcces[
         </Btn>
       </PageHead>
 
-      <AdminAcces comptes={comptes} integre />
+      <AdminAcces comptes={comptes} />
 
       {creer ? (
         <Modal onClose={() => basculer(false)} label="Créer un participant">
-          <CreerMembre integre onFermer={() => basculer(false)} />
+          <CreerMembre onFermer={() => basculer(false)} />
         </Modal>
       ) : null}
     </>
