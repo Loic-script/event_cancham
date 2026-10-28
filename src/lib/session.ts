@@ -15,6 +15,7 @@ const userSelect = {
   lastName: true,
   role: true,
   acces: true,
+  superAdmin: true,
   statut: true,
   company: true,
   sector: true,

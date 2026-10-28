@@ -65,7 +65,7 @@ export async function modifierIdentifiants(_previous: CompteState, formData: For
   if (!EMAIL_PATTERN.test(email)) return { error: "Indiquez une adresse e-mail valide (exemple : nom@entreprise.mg).", message: null };
 
   const nouvelleAdresse = email !== user.email;
-  if (nouvelleAdresse && estSuperAdmin(user)) return { error: "L’adresse du super admin est fixée par la configuration du serveur (SUPER_ADMINS).", message: null };
+  if (nouvelleAdresse && estAdresseSuperAdmin(user.email)) return { error: "L’adresse du super admin est fixée par la configuration du serveur (SUPER_ADMINS).", message: null };
   if (nouvelleAdresse && estAdresseSuperAdmin(email)) return { error: "Cette adresse e-mail est déjà utilisée par un autre compte.", message: null };
   if (nouvelleAdresse) {
     if (!motDePasse) return { error: "Saisissez votre mot de passe actuel pour changer d’adresse e-mail.", message: null };
@@ -107,7 +107,7 @@ export async function modifierCoordonnees(_previous: CompteState, formData: Form
 
   const nouvelleAdresse = email !== user.email;
   if (nouvelleAdresse) {
-    if (estSuperAdmin(user)) return { error: "L’adresse du super admin est fixée par la configuration du serveur (SUPER_ADMINS).", message: null };
+    if (estAdresseSuperAdmin(user.email)) return { error: "L’adresse du super admin est fixée par la configuration du serveur (SUPER_ADMINS).", message: null };
     if (estAdresseSuperAdmin(email)) return { error: "Cette adresse e-mail est déjà utilisée par un autre compte.", message: null };
     if (!motDePasse) return { error: "Saisissez votre mot de passe actuel pour changer d’adresse e-mail.", message: null };
     if (!(await motDePasseCorrect(user.id, motDePasse))) return { error: "Le mot de passe actuel est incorrect.", message: null };

@@ -4,7 +4,7 @@ import { prisma } from "@/lib/prisma";
 import { requireAdmin } from "@/lib/session";
 import { adressesSuperAdmins, estAdresseSuperAdmin, estSuperAdmin } from "@/lib/super-admin";
 
-export const metadata: Metadata = { title: "Administrateurs · Back-office" };
+export const metadata: Metadata = { title: "Accès & équipe · Back-office" };
 
 export default async function Page() {
   const moi = await requireAdmin();
@@ -21,6 +21,8 @@ export default async function Page() {
         company: true,
         phone: true,
         photo: true,
+        acces: true,
+        superAdmin: true,
         createdAt: true,
         decisionLe: true,
         // Une session est ouverte à chaque connexion : la plus récente donne la dernière connexion.
@@ -48,7 +50,9 @@ export default async function Page() {
       creeLe: a.createdAt.toISOString(),
       adminDepuis: (a.decisionLe ?? a.createdAt).toISOString(),
       derniereConnexion: a.sessions[0]?.createdAt.toISOString() ?? null,
-      superAdmin: estAdresseSuperAdmin(a.email),
+      superAdmin: estSuperAdmin(a),
+      // Fixé par SUPER_ADMINS : intouchable depuis la plateforme.
+      fixe: estAdresseSuperAdmin(a.email),
     }))
     .sort((a, b) => Number(b.superAdmin) - Number(a.superAdmin));
 

@@ -28,6 +28,8 @@ model User {
   lastName              String                       @map("last_name")
   role                  String?
   acces                 Acces                        @default(MEMBRE)
+  /// Super admin promu depuis la plateforme ; les adresses de SUPER_ADMINS le sont d'office et restent intouchables.
+  superAdmin            Boolean                      @default(false) @map("super_admin")
   statut                StatutCompte                 @default(EN_ATTENTE)
   decisionLe            DateTime?                    @map("decision_le")
   company               String?

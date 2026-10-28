@@ -7,6 +7,52 @@
   margin-bottom: 14px;
 }
 
+.fermer {
+  display: grid;
+  flex: none;
+  place-items: center;
+  width: 36px;
+  height: 36px;
+  border: 0;
+  border-radius: 50%;
+  background: transparent;
+  color: var(--graphite-muted);
+  cursor: pointer;
+}
+
+.fermer:hover { background: var(--paper); color: var(--graphite); }
+
+/* Choix du niveau dans « Créer un utilisateur ». */
+.niveaux {
+  display: grid;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+.niveaux legend {
+  margin-bottom: 6px;
+  font-size: 13.5px;
+  font-weight: 600;
+  color: var(--graphite);
+}
+
+.niveau {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+  padding: 10px 12px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  cursor: pointer;
+}
+
+.niveau:has(input:checked) { border-color: var(--leaf); background: var(--leaf-soft); }
+.niveau input { margin-top: 3px; accent-color: var(--leaf-ink); }
+.niveau strong { display: block; font-size: 14px; color: var(--graphite); }
+.niveau small { display: block; font-size: 12.5px; color: var(--graphite-muted); }
+
 .liste {
   display: grid;
   gap: 10px;

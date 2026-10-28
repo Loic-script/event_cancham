@@ -56,6 +56,7 @@ const NAV_ADMIN: NavSection[] = [
       { href: "/admin/defis/tombola", label: "3 000 000 Ar" },
     ],
   },
+  { items: [{ href: "/admin/administrateurs", label: "Accès & équipe", icon: ICONES.bouclier }] },
   {
     titre: "Participants",
     icon: ICONES.personnes,
@@ -82,10 +83,6 @@ const NAV_ADMIN: NavSection[] = [
       { href: "/admin/livre", label: "Livre d’or", icon: ICONES.livre },
       { href: "/admin/ressources", label: "Ressources", icon: ICONES.dossier },
     ],
-  },
-  {
-    pied: true,
-    items: [{ href: "/admin/administrateurs", label: "Administrateurs", icon: ICONES.bouclier }],
   },
 ];
 

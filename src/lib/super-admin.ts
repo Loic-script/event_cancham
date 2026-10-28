@@ -3,9 +3,9 @@ import { hashPassword } from "@/lib/password";
 import { prisma } from "@/lib/prisma";
 
 /**
- * Super admins : adresses de SUPER_ADMINS (séparées par des virgules), fixées par la configuration du serveur.
- * Eux seuls ajoutent des administrateurs, leur retirent les droits ou suppriment leur compte ;
- * personne ne peut les modifier, les rétrograder ou les supprimer depuis la plateforme.
+ * Super admins : les adresses de SUPER_ADMINS (séparées par des virgules), fixées par la configuration du serveur et
+ * intouchables depuis la plateforme, plus les administrateurs promus super admin par un super admin (colonne super_admin).
+ * Eux seuls créent des administrateurs, changent leur niveau, leur retirent les droits ou suppriment leur compte.
  */
 export function adressesSuperAdmins(): string[] {
   return (process.env.SUPER_ADMINS ?? "")
@@ -16,7 +16,7 @@ export function adressesSuperAdmins(): string[] {
 
 export const estAdresseSuperAdmin = (email: string) => adressesSuperAdmins().includes(email.trim().toLowerCase());
 
-export const estSuperAdmin = (u: { acces: string; email: string }) => u.acces === "ADMIN" && estAdresseSuperAdmin(u.email);
+export const estSuperAdmin = (u: { acces: string; email: string; superAdmin?: boolean }) => u.acces === "ADMIN" && (Boolean(u.superAdmin) || estAdresseSuperAdmin(u.email));
 
 const motDePasseInconnu = async () => hashPassword(randomBytes(32).toString("base64url"));
 

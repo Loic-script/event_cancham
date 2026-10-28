@@ -2,7 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { useState, type FormEvent } from "react";
-import { modifierAdmin, retirerAdmin, supprimerAdmin } from "@/app/(app)/admin/administrateurs/actions";
+import { changerNiveauAdmin, modifierAdmin, retirerAdmin, supprimerAdmin } from "@/app/(app)/admin/administrateurs/actions";
 import { BriefcaseIcon, CalendarIcon, CheckIcon, ClockIcon, MailIcon, PencilIcon, PhoneIcon, ShieldCheckIcon, TrashIcon, XIcon } from "@/components/app/icons";
 import { IMG } from "@/lib/traversee/data";
 import { toast } from "@/lib/traversee/store";
@@ -25,6 +25,8 @@ export type AdminVue = {
   adminDepuis: string;
   derniereConnexion: string | null;
   superAdmin: boolean;
+  /** Adresse de SUPER_ADMINS : super admin fixé par la configuration, intouchable depuis la plateforme. */
+  fixe: boolean;
 };
 
 // Heure de Madagascar : le serveur et le navigateur affichent la même date.
@@ -52,6 +54,17 @@ export function AdminFiche({ admin, moi, peutGerer, onClose }: { admin: AdminVue
     if (error) return toast(error);
     toast(f.email.trim().toLowerCase() !== admin.email ? `Enregistré. Prévenez ${f.firstName.trim()} : son identifiant de connexion devient ${f.email.trim().toLowerCase()}.` : "Informations enregistrées.");
     setMode("vue");
+    router.refresh();
+  }
+
+  async function changerNiveau() {
+    setEnvoi(true);
+    const niveau = admin.superAdmin ? "admin" : "super";
+    const { error } = await changerNiveauAdmin(admin.id, niveau);
+    setEnvoi(false);
+    if (error) return toast(error);
+    toast(niveau === "super" ? `${admin.nom} est maintenant super admin.` : `${admin.nom} est de nouveau administrateur.`);
+    onClose();
     router.refresh();
   }
 
@@ -145,7 +158,7 @@ export function AdminFiche({ admin, moi, peutGerer, onClose }: { admin: AdminVue
               <Sur>Accès</Sur>
               <div className={styles.pCoord}>
                 <Ligne icon={<ShieldCheckIcon width={18} height={18} />} label="Droits">
-                  {admin.superAdmin ? "Super admin : gère les administrateurs" : "Administrateur : accès au back-office"}
+                  {admin.superAdmin ? (admin.fixe ? "Super admin, fixé par la configuration du serveur" : "Super admin : gère les administrateurs") : "Administrateur : accès au back-office"}
                 </Ligne>
                 <Ligne icon={<CalendarIcon width={18} height={18} />} label="Compte créé le">
                   {dateLongue(admin.creeLe)}
@@ -187,6 +200,10 @@ export function AdminFiche({ admin, moi, peutGerer, onClose }: { admin: AdminVue
               <PencilIcon width={16} height={16} />
               Modifier
             </Btn>
+            <Btn key="niveau" onClick={changerNiveau} disabled={envoi}>
+              <ShieldCheckIcon width={16} height={16} />
+              {admin.superAdmin ? "Rétrograder en administrateur" : "Promouvoir super admin"}
+            </Btn>
             <Btn key="retirer" onClick={() => setMode("retirer")}>
               Retirer les droits
             </Btn>
@@ -201,7 +218,7 @@ export function AdminFiche({ admin, moi, peutGerer, onClose }: { admin: AdminVue
             Modifier mon compte
           </Btn>
         ) : (
-          <p className="self-center text-[13px] text-graphite-muted">{admin.superAdmin ? "Un super admin ne se modifie pas depuis la plateforme." : "Seul le super admin peut modifier ce compte."}</p>
+          <p className="self-center text-[13px] text-graphite-muted">{admin.fixe ? "Ce super admin est fixé par la configuration du serveur : il ne se modifie pas depuis la plateforme." : "Seul un super admin peut modifier ce compte."}</p>
         )}
       </footer>
     </Modal>

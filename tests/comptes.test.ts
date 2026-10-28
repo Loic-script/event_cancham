@@ -110,6 +110,13 @@ describe("super admin", () => {
     assert.equal(estSuperAdmin({ acces: "ADMIN", email: "info@cancham.mg" }), false);
   });
 
+  it("reconnaît un super admin promu depuis la plateforme (colonne super_admin), administrateur seulement", () => {
+    process.env.SUPER_ADMINS = "";
+    assert.equal(estSuperAdmin({ acces: "ADMIN", email: "promu@exemple.mg", superAdmin: true }), true);
+    assert.equal(estSuperAdmin({ acces: "MEMBRE", email: "promu@exemple.mg", superAdmin: true }), false);
+    assert.equal(estSuperAdmin({ acces: "ADMIN", email: "promu@exemple.mg", superAdmin: false }), false);
+  });
+
   it("donne au membre promu un nouveau mot de passe et le lien de connexion", () => {
     const c = courrielPromotionAdmin({ email: "membre@cancham.mg", prenom: "Marco", createur: "Équipe CanCham", motDePasse: "wWP7-MErq-DTZr", base: "https://latraversee.example" });
     assert.ok(c.texte.includes("Mot de passe : wWP7-MErq-DTZr") && c.texte.includes("remplace l’ancien"));
