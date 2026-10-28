@@ -1,22 +1,24 @@
 "use client";
 
 import { useState } from "react";
+import { UserPlusIcon } from "@/components/app/icons";
 import { CreerMembre } from "../annuaire/CreerMembre";
-import { Onglets, PageHead, Puce } from "../ui";
+import { Modal } from "../Modal";
+import { Btn, PageHead, Puce } from "../ui";
 import { AdminAcces, type CompteAcces } from "./AdminAcces";
 
-type Onglet = "acces" | "creer";
-
-/** Page « Utilisateurs » du back-office : les demandes d'accès et la création d'un compte, en deux onglets (`?onglet=creer`). */
-export function Utilisateurs({ comptes, ongletInitial }: { comptes: CompteAcces[]; ongletInitial: Onglet }) {
-  const [onglet, setOnglet] = useState<Onglet>(ongletInitial);
+/**
+ * Page « Utilisateurs » du back-office : les demandes d'accès, et un bouton « Créer un participant » qui ouvre
+ * le formulaire de création dans une fenêtre (`?onglet=creer` l'ouvre d'emblée, pour les anciens liens).
+ */
+export function Utilisateurs({ comptes, ongletInitial }: { comptes: CompteAcces[]; ongletInitial: "acces" | "creer" }) {
+  const [creer, setCreer] = useState(ongletInitial === "creer");
   const enAttente = comptes.filter((c) => c.statut === "EN_ATTENTE").length;
 
-  function changer(v: Onglet) {
-    setOnglet(v);
-    // L'onglet vit dans l'adresse : un lien direct (e-mail, menu) peut viser l'un ou l'autre.
+  function basculer(ouvert: boolean) {
+    setCreer(ouvert);
     const url = new URL(window.location.href);
-    if (v === "creer") url.searchParams.set("onglet", "creer");
+    if (ouvert) url.searchParams.set("onglet", "creer");
     else url.searchParams.delete("onglet");
     window.history.replaceState(window.history.state, "", url);
   }
@@ -30,19 +32,19 @@ export function Utilisateurs({ comptes, ongletInitial }: { comptes: CompteAcces[
         photo="accueil"
       >
         <Puce tone="white">{enAttente} en attente</Puce>
+        <Btn variant="primary" onClick={() => basculer(true)}>
+          <UserPlusIcon width={16} height={16} />
+          Créer un participant
+        </Btn>
       </PageHead>
 
-      <Onglets
-        label="Utilisateurs"
-        value={onglet}
-        onChange={changer}
-        items={[
-          { v: "acces", label: enAttente ? `Demandes d’accès (${enAttente})` : "Demandes d’accès" },
-          { v: "creer", label: "Créer un compte" },
-        ]}
-      />
+      <AdminAcces comptes={comptes} integre />
 
-      {onglet === "acces" ? <AdminAcces comptes={comptes} integre /> : <CreerMembre integre />}
+      {creer ? (
+        <Modal onClose={() => basculer(false)} label="Créer un participant">
+          <CreerMembre integre onFermer={() => basculer(false)} />
+        </Modal>
+      ) : null}
     </>
   );
 }

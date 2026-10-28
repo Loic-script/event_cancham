@@ -482,6 +482,22 @@ a.pLigne:hover .pLigneFleche { opacity: 1; }
 
 .creerTete { display: flex; align-items: center; gap: 14px; }
 
+.creerFermer {
+  display: grid;
+  flex: none;
+  place-items: center;
+  width: 36px;
+  height: 36px;
+  margin-left: auto;
+  border: 0;
+  border-radius: 50%;
+  background: transparent;
+  color: var(--graphite-muted);
+  cursor: pointer;
+}
+
+.creerFermer:hover { background: var(--paper); color: var(--graphite); }
+
 .creerIcone {
   display: grid;
   flex: none;
