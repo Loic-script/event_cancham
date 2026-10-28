@@ -42,6 +42,8 @@ export async function choisirMotDePasse(_previous: NouveauMotDePasseState, formD
   const jeton = String(formData.get("jeton") ?? "");
   const password = String(formData.get("password") ?? "");
   const confirmation = String(formData.get("confirmation") ?? "");
+  // Premier mot de passe d'un compte créé par un administrateur : première arrivée, donc parcours d'accueil.
+  const creation = formData.get("creation") === "1";
   if (password.length < MIN_PASSWORD_LENGTH) return { error: `Le mot de passe doit contenir au moins ${MIN_PASSWORD_LENGTH} caractères.` };
   if (password !== confirmation) return { error: "Les deux mots de passe ne sont pas identiques." };
 
@@ -65,6 +67,5 @@ export async function choisirMotDePasse(_previous: NouveauMotDePasseState, formD
   if (!user) return { error: "Ce lien n’est plus valable. Demandez-en un nouveau." };
 
   await createSession(user.id);
-  // Même arrivée qu'après une connexion : parcours d'accueil s'il reste à faire, sinon l'espace.
-  redirect(await pageApresConnexion(user.id));
+  redirect(await pageApresConnexion(user.id, "/", { parcours: creation }));
 }

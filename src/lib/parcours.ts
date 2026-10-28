@@ -64,15 +64,17 @@ export async function etatParcours(userId: number): Promise<EtatParcours> {
 
 /**
  * Page où envoyer un compte après la connexion ou l'inscription : règlement du billet tant que l'accès n'est pas ouvert,
- * puis parcours d'accueil tant qu'il n'est pas terminé, sinon la page demandée.
+ * sinon la page demandée. Le parcours d'accueil ne s'ouvre qu'une fois, à l'arrivée (`parcours: true`, après le paiement
+ * ou le premier mot de passe d'un compte créé par un administrateur) ; aux connexions suivantes, c'est le rappel en bas
+ * de l'espace qui invite à compléter le profil.
  */
-export async function pageApresConnexion(userId: number, next = "/"): Promise<string> {
+export async function pageApresConnexion(userId: number, next = "/", { parcours = false }: { parcours?: boolean } = {}): Promise<string> {
   const u = await prisma.user.findUnique({ where: { id: userId }, select: selection });
   if (!u) return next;
   if (u.acces === "ADMIN") return next === "/" ? "/admin" : next;
   if (u.statut === "REFUSE") return PAGE_ATTENTE;
   if (u.statut === "EN_ATTENTE" && profilIncomplet(u)) return PAGE_COMPLETER;
   if (u.statut === "EN_ATTENTE") return PAGE_PAIEMENT;
-  if (etatDe(u).termine) return next;
+  if (!parcours || etatDe(u).termine) return next;
   return next === "/" ? PAGE_PARCOURS : `${PAGE_PARCOURS}?next=${encodeURIComponent(next)}`;
 }

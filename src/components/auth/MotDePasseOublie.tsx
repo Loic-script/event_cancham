@@ -192,6 +192,7 @@ export function NouveauMotDePasseForm({ jeton, email, creation = false }: { jeto
   return (
     <form className={styles.form} action={formAction} onSubmit={onSubmit} noValidate>
       <input type="hidden" name="jeton" value={jeton} />
+      {creation ? <input type="hidden" name="creation" value="1" /> : null}
       <input type="text" name="username" autoComplete="username" value={email} readOnly hidden />
       <p className={styles.notice}>Compte : {email}</p>
       {champ("password", creation ? "Votre mot de passe" : "Nouveau mot de passe", true)}
