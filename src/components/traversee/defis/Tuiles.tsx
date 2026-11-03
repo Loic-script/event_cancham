@@ -28,7 +28,7 @@ export function GainTombola() {
         <p className={styles.lot}>3 000 000 Ar</p>
         <p>L’équivalent de 1 000 CAD. Le participant dont la publication compte le plus de réactions à la fin du vote, pendant l’événement, est le grand gagnant.</p>
         <ul className={styles.inclus}>
-          {["Le plus de réactions l’emporte", "Clôture à la fin du vote, le 18 décembre", "Aucun pitch à préparer"].map((x) => (
+          {["Le plus de réactions l’emporte", "Clôture à la fin du vote, le 26 février", "Aucun pitch à préparer"].map((x) => (
             <li key={x}>{x}</li>
           ))}
         </ul>

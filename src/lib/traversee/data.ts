@@ -8,7 +8,7 @@ export const LOGO_BLANC_PNG = "/impact261/logo-blanc.png";
 export const SIGLE = "/impact261/pictogramme.svg";
 export const DIX_ANS = "/traversee/10-ans.png";
 
-export const DATE_LABEL = "Vendredi 18 décembre 2026";
+export const DATE_LABEL = "Vendredi 26 février 2027";
 export const LIEU = event.venue;
 export const LIEU_LONG = `${event.venue}, ${event.city}`;
 export const LIEN_INSCRIPTION = "https://cancham.mg/la-traversee";
@@ -46,7 +46,7 @@ export function ajusteSousTitres(src: string) {
   return t;
 }
 
-export const LEGENDE_JY_SERAI = `J’y serai ! La Traversée, pour les 10 ans de la Chambre de Commerce et de Coopération Canada Madagascar, vendredi 18 décembre à ${LIEU_LONG}. Inscrivez-vous sur ce lien : ${LIEN_INSCRIPTION} #JySerai @canchammadagascar`;
+export const LEGENDE_JY_SERAI = `J’y serai ! La Traversée, pour les 10 ans de la Chambre de Commerce et de Coopération Canada Madagascar, vendredi 26 février à ${LIEU_LONG}. Inscrivez-vous sur ce lien : ${LIEN_INSCRIPTION} #JySerai @canchammadagascar`;
 
 export type AnnonceType = "info" | "programme" | "urgent";
 export const TYPES_ANNONCE: Record<AnnonceType, string> = { info: "Information", programme: "Programme", urgent: "Important" };

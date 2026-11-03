@@ -44,7 +44,7 @@ const CONTENU: Record<EtapeId, Contenu> = {
     photo: "groupe",
     sur: "Votre photo",
     titre: ["Montrez", "votre visage."],
-    lead: "Votre photo apparaît dans l’annuaire, sur votre billet et sur votre affiche « J’y serai » ; votre couverture habille votre fiche. Les autres participants vous reconnaîtront le 18 décembre.",
+    lead: "Votre photo apparaît dans l’annuaire, sur votre billet et sur votre affiche « J’y serai » ; votre couverture habille votre fiche. Les autres participants vous reconnaîtront le 26 février.",
     points: ["Un portrait net, de face, suffit", "Couverture facultative, en format large : votre équipe, vos produits, vos locaux", "Modifiables à tout moment depuis votre profil"],
     carteSur: "Photo et couverture",
     carteTitre: "Choisissez vos photos",
@@ -194,7 +194,7 @@ export function Parcours(props: ParcoursProps) {
               <h1 className={styles.titre}>
                 Tout est <em>prêt.</em>
               </h1>
-              <p className={styles.lead}>Tout est en place pour le 18 décembre. Les deux défis, l’annuaire, les rendez-vous B2B, la messagerie et le programme vous attendent dans l’espace participant.</p>
+              <p className={styles.lead}>Tout est en place pour le 26 février. Les deux défis, l’annuaire, les rendez-vous B2B, la messagerie et le programme vous attendent dans l’espace participant.</p>
               <AuthCountdown target={event.date} initialRemaining={props.restant} />
               <ul className={styles.faits} aria-label="Le gala">
                 <li>

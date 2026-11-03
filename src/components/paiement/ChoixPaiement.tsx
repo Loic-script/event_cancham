@@ -36,7 +36,7 @@ export function ChoixPaiement({ montant, courrielEquipe, message = null }: Props
       <div className={styles.montant}>
         <span className={styles.montantSur}>Billet La Traversée</span>
         <strong>{montant}</strong>
-        <span className={styles.montantSous}>par personne · vendredi 18 décembre 2026</span>
+        <span className={styles.montantSous}>par personne · vendredi 26 février 2027</span>
       </div>
       <ul className={styles.debloque} aria-label="Ce que le billet débloque">
         <li>La journée : expositions, panels, réseautage 5 à 7</li>

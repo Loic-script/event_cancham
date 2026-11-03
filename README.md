@@ -76,7 +76,7 @@ Application [Next.js 16](https://nextjs.org) (App Router, TypeScript, Tailwind C
 
 ## Espace participant
 
-Plateforme du gala **La Traversée · Gala des 10 ans** (CanCham Madagascar, 18 décembre 2026). Pensée d'abord pour le téléphone, utilisé pendant la soirée, sans négliger l'ordinateur.
+Plateforme du gala **La Traversée · Gala des 10 ans** (CanCham Madagascar, 26 février 2027). Pensée d'abord pour le téléphone, utilisé pendant la soirée, sans négliger l'ordinateur.
 
 | Route            | Rôle                                                                                     |
 | ---------------- | ---------------------------------------------------------------------------------------- |
@@ -203,7 +203,7 @@ Depuis le 12 octobre 2026, l’application reproduit la maquette « Plateforme L
 |---|---|
 | `/` | Accueil : stories en cartes avec visionneuse (stories de la CanCham puis photos de la galerie, en base : `storiesAccueil`, `src/lib/galerie.ts` ; une photo supprimée dans Photos et vidéos disparaît des stories), publication des participants, fil (publications CanCham, actualités), emplacements promotion remplis par l’équipe |
 | `/programme`, `/programme/[id]` | Programme de la journée lu en base (`chargerProgramme`, `src/lib/programme.ts`), filtres par catégorie, fiche détaillée ; « S’inscrire » / « Se désinscrire » (`basculerInscription`, `src/app/(app)/programme/actions.ts`) avec places restantes et « Complet » |
-| `/defis/pitch` | Gagnez un voyage au Canada : gain, étapes, envoi du pitch par lien vidéo (enregistré en base) (Google Drive, YouTube, Vimeo, Dropbox, OneDrive ou WeTransfer reconnus, bouton Vérifier pour ouvrir la vidéo). Le « Suivi du défi » (vote des demi-finalistes, finale simulée) est masqué : la page annonce leur dévoilement le 13 décembre ; passer `SUIVI_OUVERT` à `true` dans `DefiPitch.tsx` pour l’afficher |
+| `/defis/pitch` | Gagnez un voyage au Canada : gain, étapes, envoi du pitch par lien vidéo (enregistré en base) (Google Drive, YouTube, Vimeo, Dropbox, OneDrive ou WeTransfer reconnus, bouton Vérifier pour ouvrir la vidéo). Le « Suivi du défi » (vote des demi-finalistes, finale simulée) est masqué : la page annonce leur dévoilement le 21 février ; passer `SUIVI_OUVERT` à `true` dans `DefiPitch.tsx` pour l’afficher |
 | `/defis/tombola` | Gagnez 3 000 000 Ar : affiche « J’y serai » générée (photo, nom, QR), texte à copier, lien de publication avec aperçu et réactions de « Ma publication ». Lien, réactions et retrait sont en base. Le classement des publications (relevés réels) est masqué jusqu’à décision de l’équipe, et n’est alors même pas envoyé au navigateur : passer `CLASSEMENT_VISIBLE` à `true` dans `src/lib/traversee/pitchs.ts` pour l’afficher |
 | `/annuaire` | Fiches des participants, recherche et secteur, demande de rendez-vous B2B (heure, emplacement, réservation 48 h). Bannière d’une fiche : la photo de couverture du participant, sinon le logo IMPACT 261 sur fond bleu nuit (`styleCouverture`, `src/components/traversee/annuaire/couverture.ts`) |
 | `/rdv` | Rendez-vous en base : confirmés avec notes privées, demandes envoyées (réservation 48 h), demandes reçues à valider, décliner ou déplacer |

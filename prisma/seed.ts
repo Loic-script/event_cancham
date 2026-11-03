@@ -159,7 +159,7 @@ async function seedBibliotheque() {
         id: id(),
         type: "texte",
         paragraphes: [
-          { type: "p", align: "left", items: [[{ t: "Le " }, { t: "vendredi 18 décembre 2026", b: true }, { t: ", la Chambre de Commerce et de Coopération Canada-Madagascar fête ses " }, { t: "10 ans", b: true, couleur: "#d9560c" }, { t: " au CCI Ivato." }]] },
+          { type: "p", align: "left", items: [[{ t: "Le " }, { t: "vendredi 26 février 2027", b: true }, { t: ", la Chambre de Commerce et de Coopération Canada-Madagascar fête ses " }, { t: "10 ans", b: true, couleur: "#d9560c" }, { t: " au CCI Ivato." }]] },
           { type: "ol", align: "left", items: [[{ t: "18 h 30 : accueil et cocktail" }], [{ t: "19 h 30 : pitch des finalistes" }], [{ t: "21 h : dîner de gala et remise des prix", i: true }]] },
           { type: "p", align: "center", items: [[{ t: "Une question ? ", taille: "grand" }, { t: "Écrivez à l’équipe", lien: "mailto:contact@cancham.mg", taille: "grand" }]] },
         ],
@@ -172,7 +172,7 @@ async function seedBibliotheque() {
   await ressourcePdf(
     { titre: "Guide du participant", categorie: "guide", description: "Le guide complet de la soirée : programme, plan de salle, défis et contacts utiles.", dossierId: kit.id, ordre: 2, date: "2026-10-05" },
     [
-      { titre: "Guide du participant", lignes: ["La Traversée · Gala des 10 ans de la CanCham", "Vendredi 18 décembre 2026 · CCI Ivato, Antananarivo", "", "Ce guide accompagne votre soirée."] },
+      { titre: "Guide du participant", lignes: ["La Traversée · Gala des 10 ans de la CanCham", "Vendredi 26 février 2027 · CCI Ivato, Antananarivo", "", "Ce guide accompagne votre soirée."] },
       { titre: "Programme", lignes: ["18 h 30 · Accueil et cocktail", "19 h 30 · Pitch des trois finalistes", "20 h 30 · Second vote du public", "21 h · Dîner de gala"] },
       { titre: "Les défis", lignes: ["Gagnez un voyage au Canada : défi Pitch MECC 2027", "Gagnez 3 000 000 Ar : publication « J’y serai »"] },
       { titre: "Contacts", lignes: ["Équipe CanCham : contact@cancham.mg", "Urgences sur place : accueil du CCI Ivato"] },

@@ -121,7 +121,7 @@ export async function dessineAffiche(cv: HTMLCanvasElement, nom: string, ligne: 
   x.fillText(t, cx, 728);
   x.fillStyle = "#ffffff";
   x.font = `600 30px ${F}`;
-  x.fillText(`Vendredi 18 décembre 2026 · ${LIEU_LONG}`, cx, 800);
+  x.fillText(`Vendredi 26 février 2027 · ${LIEU_LONG}`, cx, 800);
 
   const py = 846;
   x.fillStyle = "#ffffff";

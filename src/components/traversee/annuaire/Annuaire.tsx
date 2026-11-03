@@ -61,7 +61,7 @@ function Liste({ participants, admin = false, mesRdv = [] }: Props) {
     <>
       {!admin && mesRdv.length ? (
         <Card pad bleed className="mb-4">
-          <Sur>Mes rendez-vous du 18 décembre</Sur>
+          <Sur>Mes rendez-vous du 26 février</Sur>
           <ul className={ui.liste}>
             {mesRdv.map((r) => (
               <li key={r.id}>
