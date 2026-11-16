@@ -3,7 +3,7 @@ import { prisma } from "@/lib/prisma";
 import { CRENEAUX, LIEUX } from "@/lib/traversee/data";
 
 /**
- * Rendez-vous B2B du 26 février : une demande réserve le créneau et l'emplacement 48 heures, le temps que l'autre valide.
+ * Rendez-vous B2B du 19 février : une demande réserve le créneau et l'emplacement 48 heures, le temps que l'autre valide.
  * Sans réponse, elle expire et libère l'emplacement. Un emplacement ne sert qu'une fois par créneau ; une personne n'a qu'un rendez-vous par créneau.
  */
 export const DELAI_REPONSE_MS = 48 * 3600 * 1000;

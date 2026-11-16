@@ -82,7 +82,7 @@ export function DefiPitch({ monPitch, aPublie }: { monPitch: MaParticipation | n
                 { titre: "Inscrivez-vous à la Traversée", fait: true, detail: "Votre billet est enregistré." },
                 { titre: "Remplissez votre profil sur la plateforme", fait: profilComplet(me), detail: "Nom, entreprise, fonction, secteur et photo.", href: "/profil" },
                 { titre: "Participez au défi « Gagnez 3 millions d’ariary »", fait: aPublie, detail: "Publiez votre photo « J’y serai » et enregistrez le lien.", href: "/defis/tombola", action: "Participer" },
-                { titre: "Envoyez la vidéo pitch de votre entreprise", fait: Boolean(monPitch), detail: "Avant le 19 février." },
+                { titre: "Envoyez la vidéo pitch de votre entreprise", fait: Boolean(monPitch), detail: "Avant le 12 février." },
               ]}
             />
             {envoye && envoyeInfo ? (
@@ -153,7 +153,7 @@ export function DefiPitch({ monPitch, aPublie }: { monPitch: MaParticipation | n
             <ol className={styles.selection}>
               <li>
                 <b>Présélection par le jury</b>
-                <span>Le jury retient 10 demi-finalistes, dévoilés à J-5, le 21 février.</span>
+                <span>Le jury retient 10 demi-finalistes, dévoilés à J-5, le 14 février.</span>
               </li>
               <li>
                 <b>Premier vote des participants</b>
@@ -173,11 +173,11 @@ export function DefiPitch({ monPitch, aPublie }: { monPitch: MaParticipation | n
         </div>
       </Partie>
 
-      {/* Demi-finalistes, vote du public et finale : à construire sur la base une fois la sélection du jury dévoilée (21 février). */}
+      {/* Demi-finalistes, vote du public et finale : à construire sur la base une fois la sélection du jury dévoilée (14 février). */}
       <Partie n={3} titre="Suivi du défi">
         <Card pad bleed className="grid gap-1.5">
-          <strong className="text-graphite">Les 10 demi-finalistes seront dévoilés le 21 février.</strong>
-          <p className="text-graphite-muted">Vous pourrez alors regarder leurs pitchs et voter pour votre projet préféré. La finale se joue en direct pendant le Gala, le 26 février.</p>
+          <strong className="text-graphite">Les 10 demi-finalistes seront dévoilés le 14 février.</strong>
+          <p className="text-graphite-muted">Vous pourrez alors regarder leurs pitchs et voter pour votre projet préféré. La finale se joue en direct pendant le Gala, le 19 février.</p>
         </Card>
       </Partie>
     </>

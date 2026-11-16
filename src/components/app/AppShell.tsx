@@ -267,7 +267,7 @@ export function AppShell({
       <aside className={`${styles.lat} ${admin ? styles.latAdm : ""} ${ouvert ? styles.latOuvert : ""}`} aria-label="Menu principal">
         <Link href={admin ? "/admin" : "/"} className={styles.logo}>
           <img src={LOGO_CANCHAM_BLANC} alt="CanCham Madagascar" className={styles.logoCancham} />
-          <small>{admin ? "Back-office · La Traversée" : "La Traversée · 26 févr. 2027"}</small>
+          <small>{admin ? "Back-office · La Traversée" : "La Traversée · 19 févr. 2027"}</small>
         </Link>
         <nav className={`${styles.nav} scroll-nuit`}>
           {sections.map((s, k) =>

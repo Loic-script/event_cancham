@@ -18,7 +18,7 @@ function Quand({ ci }: { ci: number }) {
   return (
     <div className={styles.quand}>
       <b>{CRENEAUX[ci]}</b>
-      <small>26 février</small>
+      <small>19 février</small>
     </div>
   );
 }
@@ -47,7 +47,7 @@ export function Rdv({ rdv }: { rdv: RdvVue[] }) {
 
   return (
     <>
-      <PageHead title="Mes" accent="rendez-vous" text="Vos demandes envoyées, celles que vous recevez et vos rendez-vous confirmés pour le 26 février." photo="rdv">
+      <PageHead title="Mes" accent="rendez-vous" text="Vos demandes envoyées, celles que vous recevez et vos rendez-vous confirmés pour le 19 février." photo="rdv">
         <Btn variant="primary" href="/annuaire">
           <PlusIcon width={16} height={16} />
           Demander un rendez-vous

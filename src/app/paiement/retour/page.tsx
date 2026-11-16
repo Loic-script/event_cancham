@@ -42,7 +42,7 @@ export default async function RetourPaiementPage(props: PageProps<"/paiement/ret
   const suite = reussi && !(await etatParcours(user.id)).termine ? PAGE_PARCOURS : "/";
 
   return (
-    <AuthScene headline={reussi ? { first: "Bienvenue à", accent: "La Traversée." } : { first: "Votre billet,", prefix: "votre ", accent: "accès." }} lead={reussi ? "Votre place est réservée pour le 26 février." : "Un seul billet : la journée, le Gala, les deux défis et la plateforme."} cardTitle={reussi ? "Paiement reçu" : echoue ? "Paiement refusé" : "Confirmation en cours"}>
+    <AuthScene headline={reussi ? { first: "Bienvenue à", accent: "La Traversée." } : { first: "Votre billet,", prefix: "votre ", accent: "accès." }} lead={reussi ? "Votre place est réservée pour le 19 février." : "Un seul billet : la journée, le Gala, les deux défis et la plateforme."} cardTitle={reussi ? "Paiement reçu" : echoue ? "Paiement refusé" : "Confirmation en cours"}>
       <div className={styles.retour}>
         {reussi ? (
           <>

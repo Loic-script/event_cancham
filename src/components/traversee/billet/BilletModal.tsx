@@ -18,7 +18,7 @@ export function BilletCard() {
       <div className={styles.bt}>
         <small>Billet · La Traversée</small>
         <strong>Gala des 10 ans de la CanCham</strong>
-        <span>Vendredi 26 février 2027 · {LIEU_LONG}</span>
+        <span>Vendredi 19 février 2027 · {LIEU_LONG}</span>
         <img src={LOGO_BLANC} alt="IMPACT 261" />
       </div>
       <div className={styles.bc}>

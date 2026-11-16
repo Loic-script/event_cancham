@@ -226,7 +226,7 @@ export function ParticipantModal({ fiche, onClose, onSave, inscritLe }: Props) {
                   <strong>{f.nom}</strong>
                   <span className={styles.pEtat}>
                     <i />
-                    {billet ? "Valide · entrée gala 26 févr." : "Activé après paiement"}
+                    {billet ? "Valide · entrée gala 19 févr." : "Activé après paiement"}
                   </span>
                 </div>
               </div>

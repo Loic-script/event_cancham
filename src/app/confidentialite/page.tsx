@@ -62,7 +62,7 @@ export default function ConfidentialitePage() {
       <section>
         <h2>Durée de conservation</h2>
         <p>
-          Vos données sont conservées tant que votre compte existe, et au plus douze mois après le gala du 26 février 2027. Les données obtenues via Facebook ou Google sont supprimées dès que vous supprimez votre compte ou que vous déconnectez le service.
+          Vos données sont conservées tant que votre compte existe, et au plus douze mois après le gala du 19 février 2027. Les données obtenues via Facebook ou Google sont supprimées dès que vous supprimez votre compte ou que vous déconnectez le service.
         </p>
       </section>
 

@@ -32,7 +32,7 @@ export default async function EnAttentePage() {
   return (
     <AuthScene
       headline={refuse ? { first: "Merci pour", accent: "votre intérêt." } : { first: "Bienvenue,", accent: `${user.firstName}.` }}
-      lead={refuse ? "Le gala des 10 ans, vendredi 26 février 2027." : "Votre place à La Traversée se prépare."}
+      lead={refuse ? "Le gala des 10 ans, vendredi 19 février 2027." : "Votre place à La Traversée se prépare."}
       cardTitle={refuse ? "Accès non accordé" : "Inscription en cours de validation"}
     >
       <div className={styles.attente}>

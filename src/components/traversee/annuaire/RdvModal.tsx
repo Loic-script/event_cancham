@@ -55,7 +55,7 @@ export function RdvModal({ avec, remplace, onClose }: RdvModalProps) {
   return (
     <Modal onClose={onClose} label={`Rendez-vous avec ${avec.nom}`} size="large">
       <div>
-        <Sur>Rendez-vous B2B · 26 février</Sur>
+        <Sur>Rendez-vous B2B · 19 février</Sur>
         <h3 className="font-display text-[20px] text-graphite">{titre}</h3>
         <p className="text-graphite-muted">Vingt minutes, sur l’un des trois emplacements dédiés. L’emplacement vous est réservé 48 heures, le temps que {avec.nom} valide.</p>
       </div>
