@@ -11,6 +11,8 @@ const ENTETES_SECURITE = [
 
 const nextConfig: NextConfig = {
   devIndicators: false,
+  // Image Docker légère : le serveur autonome et seulement les fichiers qu'il utilise.
+  output: "standalone",
   async headers() {
     return [{ source: "/(.*)", headers: ENTETES_SECURITE }];
   },

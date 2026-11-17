@@ -1,18 +1,19 @@
 #!/bin/sh
 # Démarrage du conteneur (voir Dockerfile). Lancé en root, il donne le dossier
 # de stockage à l'utilisateur node, met la base à jour (migrations en attente),
-# puis démarre l'application sous node.
+# puis démarre l'application sous node : le serveur Next.js « standalone »
+# (server.js) ; Prisma est dans /app/migrate.
 set -e
 
 STOCKAGE="${STOCKAGE_DIR:-/app/stockage}"
-PRISMA=./node_modules/.bin/prisma
+MIGRER="cd /app/migrate && exec node_modules/.bin/prisma migrate deploy"
 
 if [ "$(id -u)" = "0" ]; then
   mkdir -p "$STOCKAGE"
   find "$STOCKAGE" ! -user node -exec chown node:node {} +
-  su-exec node "$PRISMA" migrate deploy
-  exec su-exec node npm run start
+  su-exec node sh -c "$MIGRER"
+  exec su-exec node node /app/server.js
 fi
 
-"$PRISMA" migrate deploy
-exec npm run start
+sh -c "$MIGRER"
+exec node /app/server.js
