@@ -5,7 +5,7 @@ import { useEffect, useRef, useState, type FormEvent } from "react";
 import { publier as publierSurLeFil } from "@/app/(app)/fil/actions";
 import { publierStory } from "@/app/(app)/galerie/actions";
 import { Avatar } from "@/components/app/Avatar";
-import { FilmIcon, ImageIcon, SmileIcon, VideoIcon, XIcon } from "@/components/app/icons";
+import { ImageIcon, SmileIcon, VideoIcon, XIcon } from "@/components/app/icons";
 import { useProfile } from "@/components/profile/useProfile";
 import { envoyerImage, envoyerVideo } from "@/lib/traversee/envoi";
 import { lisImage, toast } from "@/lib/traversee/store";
@@ -150,12 +150,6 @@ export function Composer({ admin = false, modeInitial = null, onModeConsomme }: 
           {admin ? "Publier au nom de la CanCham…" : `Quoi de neuf, ${prenom} ?`}
         </button>
         <div className={styles.outilsC}>
-          {admin ? (
-            <button type="button" className={`${styles.outilC} ${styles.outilStory}`} onClick={() => ouvrir("story")} aria-label="Créer une story">
-              <FilmIcon width={20} height={20} />
-              <span>Story</span>
-            </button>
-          ) : null}
           <button type="button" className={`${styles.outilC} ${styles.outilVideo}`} onClick={ouvrirAvecVideo} aria-label="Vidéo">
             <VideoIcon width={20} height={20} />
             <span>Vidéo</span>
