@@ -31,9 +31,20 @@ async function executer(action: string, d: Donnees): Promise<unknown> {
     }
     case "utilisateur":
       return prisma.user.findUnique({ where: { email: String(d.email) }, include: { participationsDefis: true, parcoursAccueil: true, paiements: { select: { reference: true, statut: true, mode: true } } } });
-    case "supprimer":
-      await supprimerComptes((d.ids as number[]) ?? []);
+    case "supprimer": {
+      // Les publications (et leurs fichiers) des comptes de test, avant les comptes eux-mêmes.
+      const ids = (d.ids as number[]) ?? [];
+      const { effacerFichiersPublication } = await import("../../src/lib/fil");
+      const publications = await prisma.publication.findMany({ where: { auteurId: { in: ids } }, select: { id: true, image: true, video: true } });
+      for (const p of publications) {
+        await effacerFichiersPublication(p.image, p.video);
+        await prisma.jaimeFil.deleteMany({ where: { cible: `pub:${p.id}` } });
+        await prisma.commentaireFil.deleteMany({ where: { cible: `pub:${p.id}` } });
+      }
+      await prisma.publication.deleteMany({ where: { auteurId: { in: ids } } });
+      await supprimerComptes(ids);
       return { ok: true };
+    }
     case "tentatives":
       // Échecs de connexion laissés par les tests (adresses de test et adresse locale), pour ne pas bloquer les suivants.
       await prisma.tentativeConnexion.deleteMany({ where: { OR: [{ cle: { startsWith: "email:test-auto-" } }, { cle: { in: ["ip:::1", "ip:127.0.0.1", "ip:inconnue"] } }] } });

@@ -718,6 +718,8 @@
 .outilC:hover { background: var(--teinte, var(--paper)); transform: translateY(-1px); }
 .outilC:hover svg { transform: scale(1.12) rotate(-6deg); }
 .outilC:active { transform: scale(0.94); }
+.outilStory { --teinte: #ece8fb; }
+.outilStory svg { color: #6d4de0; }
 .outilVideo { --teinte: #fde8ef; }
 .outilVideo svg { color: #e0245e; }
 .outilPhoto { --teinte: #e6f5ec; }

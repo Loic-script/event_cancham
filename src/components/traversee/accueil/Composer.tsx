@@ -5,7 +5,7 @@ import { useEffect, useRef, useState, type FormEvent } from "react";
 import { publier as publierSurLeFil } from "@/app/(app)/fil/actions";
 import { publierStory } from "@/app/(app)/galerie/actions";
 import { Avatar } from "@/components/app/Avatar";
-import { ImageIcon, SmileIcon, VideoIcon, XIcon } from "@/components/app/icons";
+import { FilmIcon, ImageIcon, SmileIcon, VideoIcon, XIcon } from "@/components/app/icons";
 import { useProfile } from "@/components/profile/useProfile";
 import { envoyerImage, envoyerVideo } from "@/lib/traversee/envoi";
 import { lisImage, toast } from "@/lib/traversee/store";
@@ -103,8 +103,8 @@ export function Composer({ admin = false, modeInitial = null, onModeConsomme }: 
       toast("Story publiée : elle apparaît en haut de l’accueil des participants.");
       router.refresh();
     } else {
-      const avecVideo = !admin && video;
-      if (!tx && !img && !avecVideo) return toast(admin ? "Écrivez un texte ou ajoutez une photo." : "Écrivez un texte ou ajoutez une photo ou une vidéo.");
+      const avecVideo = video;
+      if (!tx && !img && !avecVideo) return toast("Écrivez un texte ou ajoutez une photo ou une vidéo.");
       setPublication(true);
       let urlVideo: string | undefined;
       try {
@@ -151,16 +151,15 @@ export function Composer({ admin = false, modeInitial = null, onModeConsomme }: 
         </button>
         <div className={styles.outilsC}>
           {admin ? (
-            <button type="button" className={`${styles.outilC} ${styles.outilVideo}`} onClick={() => ouvrir("story")} aria-label="Créer une story">
-              <VideoIcon width={20} height={20} />
+            <button type="button" className={`${styles.outilC} ${styles.outilStory}`} onClick={() => ouvrir("story")} aria-label="Créer une story">
+              <FilmIcon width={20} height={20} />
               <span>Story</span>
             </button>
-          ) : (
-            <button type="button" className={`${styles.outilC} ${styles.outilVideo}`} onClick={ouvrirAvecVideo} aria-label="Vidéo">
-              <VideoIcon width={20} height={20} />
-              <span>Vidéo</span>
-            </button>
-          )}
+          ) : null}
+          <button type="button" className={`${styles.outilC} ${styles.outilVideo}`} onClick={ouvrirAvecVideo} aria-label="Vidéo">
+            <VideoIcon width={20} height={20} />
+            <span>Vidéo</span>
+          </button>
           <button type="button" className={`${styles.outilC} ${styles.outilPhoto}`} onClick={ouvrirAvecPhoto} aria-label="Photo">
             <ImageIcon width={20} height={20} />
             <span>Photo</span>
@@ -198,6 +197,7 @@ export function Composer({ admin = false, modeInitial = null, onModeConsomme }: 
                 value={mode}
                 onChange={(v) => {
                   setMode(v);
+                  if (v === "story") retirerVideo();
                 }}
                 label="Type de contenu"
               />
@@ -244,7 +244,7 @@ export function Composer({ admin = false, modeInitial = null, onModeConsomme }: 
                 <button type="button" className={`${styles.outilC} ${styles.outilPhoto}`} onClick={() => fichier.current?.click()} aria-label="Joindre une photo">
                   <ImageIcon width={20} height={20} />
                 </button>
-                {admin ? null : (
+                {story ? null : (
                   <button type="button" className={`${styles.outilC} ${styles.outilVideo}`} onClick={() => fichierVideo.current?.click()} aria-label="Joindre une vidéo">
                     <VideoIcon width={20} height={20} />
                   </button>
